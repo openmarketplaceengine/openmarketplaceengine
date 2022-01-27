@@ -2,7 +2,7 @@ package client
 
 import (
 	"github.com/go-redis/redis/v8"
-	"github.com/openmarketplaceengine/openmarketplaceengine/src/config"
+	"github.com/openmarketplaceengine/openmarketplaceengine/config"
 )
 
 func NewStoreClient() *redis.Client {

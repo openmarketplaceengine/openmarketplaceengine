@@ -32,18 +32,18 @@ nuke: clean ## Clean with -modcache
 build: echo-env prepare ## Build binary
 	@echo "==> Build"
 	GOOS=linux
-	go build -a -o $(BUILD_PATH)/app ./src
+	go build -a -o $(BUILD_PATH)/app ./
 
-PACKAGES=$(shell go list ./src/...)
+PACKAGES=$(shell go list ./...)
 PACKAGES_COMMA=$(shell echo $(PACKAGES) | tr ' ' ',')
-PACKAGES_WITH_TESTS = $(shell go list -f '{{if len .XTestGoFiles}}{{.ImportPath}}{{end}}' ./src/... \
-							&& go list -f '{{if len .TestGoFiles}}{{.ImportPath}}{{end}}' ./src/...)
+PACKAGES_WITH_TESTS = $(shell go list -f '{{if len .XTestGoFiles}}{{.ImportPath}}{{end}}' ./... \
+							&& go list -f '{{if len .TestGoFiles}}{{.ImportPath}}{{end}}' ./...)
 
 checkstyle: ## Run quick checkstyle (govet + goimports (fail on errors))
 	@echo "==> Running govet"
 	go vet $(PACKAGES) || exit 1
 	@echo "==> Running goimports"
-	goimports -l -w ./src
+	goimports -l -w .
 	@echo "==> SUCCESS";
 
 .PHONY: test

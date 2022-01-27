@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/src/config"
-	"github.com/openmarketplaceengine/openmarketplaceengine/src/redis/client"
+	"github.com/openmarketplaceengine/openmarketplaceengine/config"
+	"github.com/openmarketplaceengine/openmarketplaceengine/redis/client"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"

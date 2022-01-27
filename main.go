@@ -5,9 +5,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/src/api/health"
-	"github.com/openmarketplaceengine/openmarketplaceengine/src/config"
-	"github.com/openmarketplaceengine/openmarketplaceengine/src/middleware/logger"
+	"github.com/openmarketplaceengine/openmarketplaceengine/api/health"
+	"github.com/openmarketplaceengine/openmarketplaceengine/config"
+	"github.com/openmarketplaceengine/openmarketplaceengine/middleware/logger"
 )
 
 func main() {

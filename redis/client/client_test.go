@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/src/config"
+	"github.com/openmarketplaceengine/openmarketplaceengine/config"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/stretchr/testify/assert"

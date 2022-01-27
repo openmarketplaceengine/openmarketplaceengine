@@ -4,14 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/openmarketplaceengine/openmarketplaceengine/uids/timestampuid"
 	"testing"
 	"time"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/src/config"
-	"github.com/openmarketplaceengine/openmarketplaceengine/src/redis/publisher"
-	"github.com/openmarketplaceengine/openmarketplaceengine/src/redis/subscriber"
-	"github.com/openmarketplaceengine/openmarketplaceengine/src/uids"
-
+	"github.com/openmarketplaceengine/openmarketplaceengine/config"
+	"github.com/openmarketplaceengine/openmarketplaceengine/redis/publisher"
+	"github.com/openmarketplaceengine/openmarketplaceengine/redis/subscriber"
 	"github.com/stretchr/testify/require"
 )
 
@@ -40,7 +39,7 @@ func (m *message) UnmarshalBinary(data []byte) error {
 
 func testPublisherAndSubscriber(t *testing.T, publisher publisher.Publisher, subscriber subscriber.Subscriber) {
 
-	channel := fmt.Sprintf("chan-%s", uids.GetTimestampUID())
+	channel := fmt.Sprintf("chan-%s", timestampuid.NewTimestampUid())
 	rcv := make(chan string)
 	ctx := context.Background()
 	subscriber.Subscribe(ctx, channel, rcv)

@@ -3,7 +3,7 @@ package publisher
 import (
 	"context"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/src/redis/client"
+	"github.com/openmarketplaceengine/openmarketplaceengine/redis/client"
 
 	"github.com/go-redis/redis/v8"
 )
