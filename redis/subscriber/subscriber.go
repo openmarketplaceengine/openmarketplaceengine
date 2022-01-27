@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/log"
 	"github.com/openmarketplaceengine/openmarketplaceengine/redis/client"
 
 	"github.com/go-redis/redis/v8"
@@ -14,26 +15,26 @@ type Subscriber interface {
 }
 
 type subscriber struct {
-	pubsubClient *redis.Client
+	pubSubClient *redis.Client
 }
 
 func NewSubscriber() (sub Subscriber) {
 	return &subscriber{
-		pubsubClient: client.NewPubSubClient(),
+		pubSubClient: client.NewPubSubClient(),
 	}
 }
 
 func (s *subscriber) Subscribe(ctx context.Context, channel string, messages chan<- string) {
-	pubSub := s.pubsubClient.Subscribe(ctx, channel)
-	logger.Info(fmt.Sprintf("[Subscriber] subscribed to %s", channel))
+	pubSub := s.pubSubClient.Subscribe(ctx, channel)
+	log.GetLogger().Info(fmt.Sprintf("[Subscriber] subscribed to %s", channel))
 	go func() {
 		for {
 			select {
 			case m := <-pubSub.Channel():
-				logger.Info(fmt.Sprintf("[Subscriber] received from channel=%s message=%v", channel, m.Payload))
+				log.GetLogger().Info(fmt.Sprintf("[Subscriber] received from channel=%s message=%v", channel, m.Payload))
 				messages <- m.Payload
 			case <-ctx.Done():
-				logger.Info(fmt.Sprintf("[Subscriber] stopped by context.Done channel=%s", channel))
+				log.GetLogger().Info(fmt.Sprintf("[Subscriber] stopped by context.Done channel=%s", channel))
 				return
 			}
 		}

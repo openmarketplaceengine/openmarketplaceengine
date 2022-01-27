@@ -7,7 +7,7 @@ import (
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/api/health"
 	"github.com/openmarketplaceengine/openmarketplaceengine/config"
-	"github.com/openmarketplaceengine/openmarketplaceengine/middleware/logger"
+	"github.com/openmarketplaceengine/openmarketplaceengine/middleware/loghandler"
 )
 
 func main() {
@@ -20,7 +20,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/health", health.ServeHTTP)
 
-	loggedMux := logger.NewLogger(mux)
+	loggedMux := loghandler.NewLogHandler(mux)
 	log.Printf("server is listening at %s", port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), loggedMux))
 }

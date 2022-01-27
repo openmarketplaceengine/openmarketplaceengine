@@ -4,13 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/openmarketplaceengine/openmarketplaceengine/uids/timestampuid"
 	"testing"
 	"time"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/config"
 	"github.com/openmarketplaceengine/openmarketplaceengine/redis/publisher"
 	"github.com/openmarketplaceengine/openmarketplaceengine/redis/subscriber"
+	"github.com/openmarketplaceengine/openmarketplaceengine/uids/timestampuid"
 	"github.com/stretchr/testify/require"
 )
 
@@ -41,12 +41,14 @@ func testPublisherAndSubscriber(t *testing.T, publisher publisher.Publisher, sub
 
 	channel := fmt.Sprintf("chan-%s", timestampuid.NewTimestampUid())
 	rcv := make(chan string)
+	defer close(rcv)
 	ctx := context.Background()
 	subscriber.Subscribe(ctx, channel, rcv)
 
 	syncChan := make(chan string)
 
 	go func() {
+		defer close(syncChan)
 		for {
 			select {
 			case m := <-rcv:
@@ -72,7 +74,8 @@ outer:
 		select {
 		case m := <-syncChan:
 			var mm message
-			json.Unmarshal([]byte(m), &mm)
+			err := json.Unmarshal([]byte(m), &mm)
+			require.NoError(t, err)
 			received = append(received, mm)
 			if len(received) == len(sent) {
 				break outer

@@ -13,16 +13,16 @@ type Publisher interface {
 }
 
 type publisher struct {
-	pubsubClient *redis.Client
+	pubSubClient *redis.Client
 }
 
 func NewPublisher() (pub Publisher) {
 	return &publisher{
-		pubsubClient: client.NewPubSubClient(),
+		pubSubClient: client.NewPubSubClient(),
 	}
 }
 
 func (p *publisher) Publish(ctx context.Context, channel string, message interface{}) error {
-	_, err := p.pubsubClient.Publish(ctx, channel, message).Result()
+	_, err := p.pubSubClient.Publish(ctx, channel, message).Result()
 	return err
 }
