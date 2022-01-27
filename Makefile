@@ -87,6 +87,14 @@ test-bench: echo-env ## Run tests with -bench
 		go test -run=NO_MATCH -bench=. -benchtime=${BENCH_TIME} -benchmem -v $$package || exit 1; \
 	done
 
+lint_install: ## Install linter
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.44.0
+	golangci-lint --version
+
+lint: ## Run linter
+	@echo "==> Running linter"
+	golangci-lint run
+
 help: echo-env
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 

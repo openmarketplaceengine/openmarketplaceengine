@@ -76,24 +76,20 @@ func MapToStruct(m map[string]string, item interface{}) error {
 				return errors.Wrap(innerErr, fmt.Sprintf("unable to ParseBool value=%v", value.String()))
 			}
 			field.SetBool(b)
-			break
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 			i, innerErr := strconv.ParseInt(value.String(), 10, 64)
 			if innerErr != nil {
 				return errors.Wrap(innerErr, fmt.Sprintf("unable to ParseInt value=%v", value.String()))
 			}
 			field.SetInt(i)
-			break
 		case reflect.Float32, reflect.Float64:
 			f, innerErr := strconv.ParseFloat(value.String(), 64)
 			if innerErr != nil {
 				return errors.Wrap(innerErr, fmt.Sprintf("unable to ParseFloa value=%v", value.String()))
 			}
 			field.SetFloat(f)
-			break
 		case reflect.String:
 			field.SetString(reflect.ValueOf(v).String())
-			break
 		case reflect.Struct:
 			t := reflect.TypeOf(field.Interface())
 			nested := reflect.New(t).Interface()
@@ -102,7 +98,6 @@ func MapToStruct(m map[string]string, item interface{}) error {
 				return errors.Wrap(innerErr, fmt.Sprintf("unable unmarshal nested struct value=%v", v))
 			}
 			field.Set(reflect.ValueOf(nested).Elem())
-			break
 		default:
 			return errors.New(fmt.Sprintf("unsupported type=%v", fieldKind))
 		}

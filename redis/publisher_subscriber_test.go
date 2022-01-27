@@ -49,11 +49,8 @@ func testPublisherAndSubscriber(t *testing.T, publisher publisher.Publisher, sub
 
 	go func() {
 		defer close(syncChan)
-		for {
-			select {
-			case m := <-rcv:
-				syncChan <- m
-			}
+		for m := range rcv {
+			syncChan <- m
 		}
 	}()
 
