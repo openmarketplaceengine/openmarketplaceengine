@@ -21,6 +21,8 @@ jobs:
       # Label used to access the service container
       redis:
         image: redis:6-alpine
+        ports:
+          - 6379:6379
         env:
           REDIS_PASSWORD: secret
         # Set health checks to wait until redis has started
@@ -33,8 +35,8 @@ jobs:
     steps:
       - name: Check out
         uses: actions/checkout@v2
-      - name: Build
-        run: make build
+#      - name: Build
+#        run: make build
       - name: Test
         run: make test
         env:
