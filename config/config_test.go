@@ -35,7 +35,7 @@ func TestConfig(t *testing.T) {
 
 func testReadYml(t *testing.T) {
 	addr := GetString(RedisStoreAddr)
-	require.Contains(t, addr, "localhost")
+	require.NotEmpty(t, addr)
 }
 
 func testEnvVarOverride(t *testing.T, override string) {
