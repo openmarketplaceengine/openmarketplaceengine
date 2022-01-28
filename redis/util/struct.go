@@ -9,8 +9,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-//The purpose is to store mutable state(struct) in redis HSET.
-//This makes efficient updating one state field, while not touching the others.
+//StructToMap purpose is to transform struct to store in redis HSET.
+//This makes efficient updating one struct field, while not touching the others.
 //If we store struct as json string - updating one field would require:
 //GET(redis) -> json.unmarshal -> update.field -> json.marshal -> SET()redis
 //

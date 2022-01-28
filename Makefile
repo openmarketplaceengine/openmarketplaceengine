@@ -79,7 +79,7 @@ test-race: echo-env ## Run tests with -race
 		go test -race -run=. -test.timeout=4000s $$package || exit 1; \
 	done
 
-BENCH_TIME=10s
+BENCH_TIME=1s
 test-bench: echo-env ## Run tests with -bench
 	@echo "==> Benchmark (-benchtime=${BENCH_TIME})"
 	@for package in $(PACKAGES_WITH_TESTS); do \

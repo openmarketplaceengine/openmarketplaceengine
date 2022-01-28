@@ -16,8 +16,9 @@ func TestCache(t *testing.T) {
 	require.NoError(t, err)
 
 	c := client.NewStoreClient()
-	cache := NewCache(c, "test")
-
+	name := "test"
+	cache := NewCache(c, name)
+	require.Equal(t, cache.GetName(), "cache:test")
 	t.Run("testPut", func(t *testing.T) {
 		testPut(t, cache)
 	})

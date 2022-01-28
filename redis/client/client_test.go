@@ -16,8 +16,8 @@ func TestClient(t *testing.T) {
 	err := config.Read()
 	require.NoError(t, err)
 
-	t.Run("testCreateClient", func(t *testing.T) {
-		testCreateClient(t)
+	t.Run("testCreateClients", func(t *testing.T) {
+		testCreateClients(t)
 	})
 	t.Run("testCommand", func(t *testing.T) {
 		testCommand(t)
@@ -27,9 +27,16 @@ func TestClient(t *testing.T) {
 	})
 }
 
-func testCreateClient(t *testing.T) {
-	client := NewStoreClientPool()
+func testCreateClients(t *testing.T) {
+	client := NewStoreClient()
 	require.NotNil(t, client)
+	clientPool := NewStoreClientPool()
+	require.NotNil(t, clientPool)
+
+	pubSubClient := NewPubSubClient()
+	require.NotNil(t, pubSubClient)
+	pubSubClientPool := NewPubSubClientPool()
+	require.NotNil(t, pubSubClientPool)
 }
 
 func testCommand(t *testing.T) {

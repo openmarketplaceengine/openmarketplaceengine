@@ -1,6 +1,7 @@
 package shortuid
 
 import (
+	"github.com/stretchr/testify/require"
 	"testing"
 
 	"github.com/google/uuid"
@@ -177,6 +178,8 @@ func TestGeneration(t *testing.T) {
 			t.Errorf("expected %q to be in range [20, 24], got %d", u, len(u))
 		}
 	}
+
+	require.NotEmpty(t, NewUid())
 }
 
 func TestEncoding(t *testing.T) {
@@ -241,24 +244,5 @@ func TestNewWithAlphabet(t *testing.T) {
 	u2 := enc.Encode(u1)
 	if u2 != "u=BFWRLr5dXbeWf==iasZi" {
 		t.Errorf("expected uuid to be %q, got %q", "u=BFWRLr5dXbeWf==iasZi", u2)
-	}
-}
-
-func BenchmarkUUID(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		NewUid()
-	}
-}
-
-func BenchmarkEncoding(b *testing.B) {
-	u := uuid.New()
-	for i := 0; i < b.N; i++ {
-		DefaultEncoder.Encode(u)
-	}
-}
-
-func BenchmarkDecoding(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		_, _ = DefaultEncoder.Decode("c3eeb3e6-e577-4de2-b5bb-08371196b453")
 	}
 }
