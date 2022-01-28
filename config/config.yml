@@ -1,0 +1,17 @@
+##
+# NB! properties with dash in its name i.e. base-url, are not supported for ENV overrides.
+# Use single-word lowercase property names instead.
+##
+
+service:
+  port: 10000
+
+redis:
+  store:
+    pool: 10
+    addr: localhost:6379
+    password: "secret"
+  pubsub:
+    pool: 10
+    addr: localhost:6379
+    password: "secret"
