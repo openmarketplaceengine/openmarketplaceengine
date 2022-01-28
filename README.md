@@ -1,12 +1,16 @@
 # Open Marketplace Engine
 
-## How to start
+Open Marketplace Engine is matching and marketplace service, a component of scalable, efficient and robust labor platform.
+
+## Features
+Accepts realtime data related to incoming consumer requests and available laborers, including their realtime geographic locations. 
+This data is used to dispatch requests to laborers.
+
+## Quickstart
 
 ```shell
 docker-compose up
 ```
-## Makefile
-
 Run `make` command to list all make tasks.
 ```shell
 make
@@ -22,9 +26,7 @@ test-race                      Run tests with -race
 test-bench                     Run tests with -bench
 ```
 
-# Config
-
-Environment variable override example.
+[config/config.yml](config/config.yml) file values can be overridden by environment variables.
 ```shell
 export OME_SERVICE_PORT='10000'
 
