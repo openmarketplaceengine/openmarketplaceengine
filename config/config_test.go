@@ -56,8 +56,8 @@ func testAllRequired(t *testing.T) {
 	require.NotEmpty(t, GetString(ServicePort))
 	require.NotEmpty(t, GetString(RedisStorePool))
 	require.NotEmpty(t, GetString(RedisStoreAddr))
-	require.NotEmpty(t, GetString(RedisStorePassword))
+	GetString(RedisStorePassword)
 	require.NotEmpty(t, GetString(RedisPubSubPool))
 	require.NotEmpty(t, GetString(RedisPubSubAddr))
-	require.NotEmpty(t, GetString(RedisPubSubPassword))
+	GetString(RedisPubSubPassword)
 }
