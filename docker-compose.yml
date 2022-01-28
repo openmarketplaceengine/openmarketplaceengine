@@ -5,7 +5,7 @@ services:
   redis:
     container_name: ome-redis
     image: redis:6-alpine
-    command: redis-server --requirepass secret
+#    command: redis-server --requirepass secret
     restart: always
     ports:
       - 6379:6379

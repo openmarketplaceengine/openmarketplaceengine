@@ -30,8 +30,7 @@ test-bench                     Run tests with -bench
 ```shell
 export OME_SERVICE_PORT='10000'
 
-export OME_REDIS_STORE_HOST='localhost:6379'
-export OME_REDIS_STORE_USERNAME=default
+export OME_REDIS_STORE_ADDR=localhost:6379
 export OME_REDIS_STORE_PASSWORD=secret
 ```
 

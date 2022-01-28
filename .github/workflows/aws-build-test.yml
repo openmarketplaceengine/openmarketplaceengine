@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - 'feat/**'
   workflow_dispatch:
     inputs:
       tags:
@@ -11,13 +12,32 @@ on:
         required: false
 
 jobs:
-  test:
+  container-job:
     runs-on: ubuntu-latest
+    # Docker Hub image that `container-job` executes in
+    container: golang:1.17
+
+    # Service containers to run with `container-job`
+    services:
+      # Label used to access the service container
+      redis:
+        image: redis:6-alpine
+        ports:
+          - 6379:6379
+        # Set health checks to wait until redis has started
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
-      - uses: actions/checkout@v2
-      - name: Setup go
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.17
-      - run: make build
-      - run: make test
+      - name: Check out
+        uses: actions/checkout@v2
+#      - name: Build
+#        run: make build
+      - name: Test
+        run: make test
+        env:
+          OME_REDIS_STORE_ADDR: redis:6379
+          OME_REDIS_PUBSUB_ADDR: redis:6379
