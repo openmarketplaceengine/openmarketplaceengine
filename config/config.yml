@@ -10,8 +10,8 @@ redis:
   store:
     pool: 10
     addr: localhost:6379
-    password: "secret"
+    password: ""
   pubsub:
     pool: 10
     addr: localhost:6379
-    password: "secret"
+    password: ""
