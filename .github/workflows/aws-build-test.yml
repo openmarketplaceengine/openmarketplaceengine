@@ -40,5 +40,5 @@ jobs:
       - name: Test
         run: make test
         env:
-          OME_REDIS_STORE_HOST: redis:6379
-          OME_REDIS_PUBSUB_HOST: redis:6379
+          OME_REDIS_STORE_HOST_2: redis:6379
+          OME_REDIS_PUBSUB_HOST_2: redis:6379
