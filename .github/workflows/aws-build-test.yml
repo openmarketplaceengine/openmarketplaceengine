@@ -23,8 +23,6 @@ jobs:
         image: redis:6-alpine
         ports:
           - 6379:6379
-        env:
-          REDIS_PASSWORD: secret
         # Set health checks to wait until redis has started
         options: >-
           --health-cmd "redis-cli ping"
@@ -41,4 +39,6 @@ jobs:
         run: make test
         env:
           OME_REDIS_STORE_ADDR: redis:6379
+          OME_REDIS_STORE_PASSWORD: ""
           OME_REDIS_PUBSUB_ADDR: redis:6379
+          OME_REDIS_PUBSUB_PASSWORD: ""
