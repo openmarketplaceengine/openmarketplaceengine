@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package ome.v1beta1;
+
+option csharp_namespace = "OME.V1Beta1";
+option go_package = "ome/v1beta1";
+option java_multiple_files = true;
+option java_outer_classname = "DriverProto";
+option java_package = "ome.v1beta1";
+option objc_class_prefix = "OME";
+option php_namespace = "OME\\V1Beta1";
+
+enum WorkerState {
+  WORKER_STATE_INVALID = 0;
+  WORKER_STATE_AWAITING_START = 1;
+  WORKER_STATE_GOING_TO_PICKUP = 2;
+  WORKER_STATE_NEAR_PICKUP = 3;
+  WORKER_STATE_AWAITING_PICKUP = 4;
+  WORKER_STATE_ON_TRIP = 5;
+  WORKER_STATE_NEAR_DESTINATION = 6;
+  WORKER_STATE_AT_DESTINATION = 7;
+  WORKER_STATE_COMPLETE_DROPPED_OFF = 8;
+}
+
+message Driver {}

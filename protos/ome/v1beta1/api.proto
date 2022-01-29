@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package ome.v1beta1;
+
+option csharp_namespace = "OME.V1Beta1";
+option go_package = "ome/v1beta1";
+option java_multiple_files = true;
+option java_outer_classname = "ApiProto";
+option java_package = "ome.v1beta1";
+option objc_class_prefix = "OME";
+option php_namespace = "OME\\V1Beta1";
+
+import "ome/v1beta1/latlng.proto";
+
+service ApiService {
+  rpc GetLocations(GetLocationsRequest) returns (GetLocationsResponse);
+  rpc UpdateDriverLocation(UpdateDriverLocationRequest) returns (UpdateDriverLocationResponse);
+  rpc UpdateWorkerState(UpdateWorkerStateRequest) returns (UpdateWorkerStateResponse);
+  rpc GetWorkers(GetWorkersRequest) returns (GetWorkersResponse);
+}
+
+message UpdateDriverLocationRequest {
+  LatLng lat_lng = 1;
+}
+message UpdateDriverLocationResponse {}
+
+message UpdateWorkerStateRequest {}
+message UpdateWorkerStateResponse {}
+
+message GetLocationsRequest {}
+message GetLocationsResponse {}
+
+message GetWorkersRequest {}
+message GetWorkersResponse {
+  // see https://cloud.google.com/apis/design/design_patterns#list_pagination
+}

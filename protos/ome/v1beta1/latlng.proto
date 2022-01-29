@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package ome.v1beta1;
+
+option csharp_namespace = "OME.V1Beta1";
+option go_package = "ome/v1beta1";
+option java_multiple_files = true;
+option java_outer_classname = "LatlngProto";
+option java_package = "ome.v1beta1";
+option objc_class_prefix = "OME";
+option php_namespace = "OME\\V1Beta1";
+
+// An object that represents a latitude/longitude pair. This is expressed as a
+// pair of doubles to represent degrees latitude and degrees longitude. Unless
+// specified otherwise, this must conform to the
+// <a href="http://www.unoosa.org/pdf/icg/2012/template/WGS_84.pdf">WGS84
+// standard</a>. Values must be within normalized ranges.
+message LatLng {
+  // The latitude in degrees. It must be in the range [-90.0, +90.0].
+  double latitude = 1;
+
+  // The longitude in degrees. It must be in the range [-180.0, +180.0].
+  double longitude = 2;
+}
