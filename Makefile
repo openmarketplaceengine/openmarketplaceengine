@@ -35,7 +35,6 @@ build: echo-env prepare ## Build binary
 	go build -a -o $(BUILD_PATH)/app ./
 
 PACKAGES=$(shell go list ./...)
-PACKAGES_COMMA=$(shell echo $(PACKAGES) | tr ' ' ',')
 PACKAGES_WITH_TESTS = $(shell go list -f '{{if len .XTestGoFiles}}{{.ImportPath}}{{end}}' ./... \
 							&& go list -f '{{if len .TestGoFiles}}{{.ImportPath}}{{end}}' ./...)
 
@@ -94,6 +93,12 @@ lint_install: ## Install linter
 lint: ## Run linter
 	@echo "==> Running linter"
 	golangci-lint run
+
+protoc: ## Run protoc
+	@echo "==> Running protoc"
+	protoc --go_out=. --go_opt=paths=source_relative \
+        --go-grpc_out=. --go-grpc_opt=paths=source_relative \
+        protos/helloworld/helloworld.proto
 
 help: echo-env
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

@@ -1,10 +1,10 @@
 package shortuid
 
 import (
-	"github.com/stretchr/testify/require"
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/require"
 )
 
 var testVector = []struct {
