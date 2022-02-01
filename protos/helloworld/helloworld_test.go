@@ -20,7 +20,7 @@ func TestHelloWorld(t *testing.T) {
 		}
 	}()
 
-	conn, err := grpc.Dial(fmt.Sprintf("localhost:%d", port), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(fmt.Sprintf("localhost:%d", port), grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	require.NoError(t, err)
 
