@@ -5,6 +5,6 @@ import (
 	"time"
 )
 
-func NewTimestampUid() string {
+func NewTimestampUID() string {
 	return fmt.Sprintf("%v", time.Now().UnixNano()/int64(time.Millisecond))
 }

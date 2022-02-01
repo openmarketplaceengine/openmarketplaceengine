@@ -16,7 +16,7 @@ type base57 struct {
 // Encode encodes uuid.UUID into a string using the least significant bits
 // (LSB) first according to the alphabet. if the most significant bits (MSB)
 // are 0, the string might be shorter.
-func (b base57) Encode(u uuid.UUID) string {
+func (b *base57) Encode(u uuid.UUID) string {
 	var num big.Int
 	num.SetString(strings.Replace(u.String(), "-", "", 4), 16)
 
@@ -29,7 +29,7 @@ func (b base57) Encode(u uuid.UUID) string {
 
 // Decode decodes a string according to the alphabet into a uuid.UUID. If s is
 // too short, its most significant bits (MSB) will be padded with 0 (zero).
-func (b base57) Decode(u string) (uuid.UUID, error) {
+func (b *base57) Decode(u string) (uuid.UUID, error) {
 	str, err := b.stringToNum(u)
 	if err != nil {
 		return uuid.Nil, err
@@ -51,7 +51,7 @@ func (b *base57) numToString(number *big.Int, padToLen int) string {
 
 	if padToLen > 0 {
 		remainder := math.Max(float64(padToLen-len(out)), 0)
-		out = out + strings.Repeat(b.alphabet.chars[0], int(remainder))
+		out += strings.Repeat(b.alphabet.chars[0], int(remainder))
 	}
 
 	return out

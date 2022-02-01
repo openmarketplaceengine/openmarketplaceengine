@@ -179,7 +179,7 @@ func TestGeneration(t *testing.T) {
 		}
 	}
 
-	require.NotEmpty(t, NewUid())
+	require.NotEmpty(t, NewUID())
 }
 
 func TestEncoding(t *testing.T) {

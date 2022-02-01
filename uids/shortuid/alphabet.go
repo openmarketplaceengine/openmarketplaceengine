@@ -33,7 +33,7 @@ func (a *alphabet) Length() int64 {
 }
 
 func (a *alphabet) Index(t string) (int64, error) {
-	for i, char := range a.chars {
+	for i, char := range &a.chars {
 		if char == t {
 			return int64(i), nil
 		}

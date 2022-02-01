@@ -12,9 +12,11 @@ import (
 
 func main() {
 	err := config.Read()
+
 	if err != nil {
 		log.Fatalf("read config err=%s", err)
 	}
+
 	port := config.GetString(config.ServicePort)
 
 	mux := http.NewServeMux()

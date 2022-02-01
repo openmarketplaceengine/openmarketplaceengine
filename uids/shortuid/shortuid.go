@@ -13,7 +13,7 @@ type Encoder interface {
 	Decode(string) (uuid.UUID, error)
 }
 
-func NewUid() string {
+func NewUID() string {
 	return DefaultEncoder.Encode(uuid.New())
 }
 
