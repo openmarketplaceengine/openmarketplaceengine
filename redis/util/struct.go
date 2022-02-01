@@ -9,15 +9,14 @@ import (
 	"github.com/pkg/errors"
 )
 
-//StructToMap purpose is to transform struct to store in redis HSET.
-//This makes efficient updating one struct field, while not touching the others.
-//If we store struct as json string - updating one field would require:
-//GET(redis) -> json.unmarshal -> update.field -> json.marshal -> SET()redis
+// StructToMap purpose is to transform struct to store in redis HSET.
+// This makes efficient updating one struct field, while not touching the others.
+// If we store struct as json string - updating one field would require:
+// GET(redis) -> json.unmarshal -> update.field -> json.marshal -> SET()redis
 //
 //Limitations: struct fields must be values.
 //Nested structs will be json marshalled and expected to be not mutable.
 func StructToMap(item interface{}) (m map[string]interface{}, err error) {
-
 	if item == nil {
 		err = errors.New("argument is nil")
 		return
@@ -27,7 +26,7 @@ func StructToMap(item interface{}) (m map[string]interface{}, err error) {
 	reflectValue = reflect.Indirect(reflectValue)
 
 	if v.Kind() == reflect.Ptr {
-		err = errors.New(fmt.Sprintf("values expected, %q is a field pointer", v.Name()))
+		err = fmt.Errorf("values expected, %q is a field pointer", v.Name())
 		return
 	}
 	m = make(map[string]interface{})
@@ -37,7 +36,7 @@ func StructToMap(item interface{}) (m map[string]interface{}, err error) {
 
 		if reflect.TypeOf(field).Kind() == reflect.Ptr {
 			m = nil
-			err = errors.New(fmt.Sprintf("values expected, %q is a field pointer", v.Name()))
+			err = fmt.Errorf("values expected, %q is a field pointer", v.Name())
 			return
 		}
 
@@ -52,14 +51,13 @@ func StructToMap(item interface{}) (m map[string]interface{}, err error) {
 			m[fieldName] = fmt.Sprintf("%v", field)
 		}
 	}
-	return
+	return m, nil
 }
 
 func MapToStruct(m map[string]string, item interface{}) error {
-
 	itemType := reflect.TypeOf(item)
 	if itemType.Elem().Kind() == reflect.Ptr {
-		return errors.New(fmt.Sprintf("pointer expected, got item=%v", item))
+		return fmt.Errorf("pointer expected, got item=%v", item)
 	}
 
 	itemElem := reflect.ValueOf(item).Elem()
@@ -93,13 +91,13 @@ func MapToStruct(m map[string]string, item interface{}) error {
 		case reflect.Struct:
 			t := reflect.TypeOf(field.Interface())
 			nested := reflect.New(t).Interface()
-			innerErr := json.Unmarshal([]byte(fmt.Sprintf("%v", v)), nested)
+			innerErr := json.Unmarshal([]byte(v), nested)
 			if innerErr != nil {
 				return errors.Wrap(innerErr, fmt.Sprintf("unable unmarshal nested struct value=%v", v))
 			}
 			field.Set(reflect.ValueOf(nested).Elem())
 		default:
-			return errors.New(fmt.Sprintf("unsupported type=%v", fieldKind))
+			return fmt.Errorf("unsupported type=%v", fieldKind)
 		}
 	}
 	return nil

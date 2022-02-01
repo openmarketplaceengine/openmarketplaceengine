@@ -12,7 +12,6 @@ import (
 )
 
 func TestClient(t *testing.T) {
-
 	err := config.Read()
 	require.NoError(t, err)
 

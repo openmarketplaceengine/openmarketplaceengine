@@ -6,7 +6,6 @@ import (
 )
 
 func MapToStruct(m map[string]string, dest interface{}) error {
-
 	bytes, err := json.Marshal(m)
 	if err != nil {
 		return fmt.Errorf("error marshaling map: %w", err)
@@ -21,7 +20,6 @@ func MapToStruct(m map[string]string, dest interface{}) error {
 }
 
 func StructToMap(src interface{}) (map[string]interface{}, error) {
-
 	bytes, err := json.Marshal(src)
 	if err != nil {
 		return nil, fmt.Errorf("error marshaling struct: %w", err)

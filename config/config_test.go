@@ -10,8 +10,10 @@ import (
 
 func TestConfig(t *testing.T) {
 	override := "123456"
+
 	err := os.Setenv(fmt.Sprintf("%s_%s", EnvPrefix, "SERVICE_PORT"), override)
 	require.NoError(t, err)
+
 	value := os.Getenv(fmt.Sprintf("%s_%s", EnvPrefix, "SERVICE_PORT"))
 	require.Equal(t, override, value)
 

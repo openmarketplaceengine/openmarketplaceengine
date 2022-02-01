@@ -38,8 +38,7 @@ func (m *message) UnmarshalBinary(data []byte) error {
 }
 
 func testPublisherAndSubscriber(t *testing.T, publisher publisher.Publisher, subscriber subscriber.Subscriber) {
-
-	channel := fmt.Sprintf("chan-%s", timestampuid.NewTimestampUid())
+	channel := fmt.Sprintf("chan-%s", timestampuid.NewTimestampUID())
 	rcv := make(chan string)
 	defer close(rcv)
 	ctx := context.Background()
@@ -49,6 +48,7 @@ func testPublisherAndSubscriber(t *testing.T, publisher publisher.Publisher, sub
 
 	go func() {
 		defer close(syncChan)
+
 		for m := range rcv {
 			syncChan <- m
 		}
@@ -82,5 +82,4 @@ outer:
 		}
 	}
 	require.Equal(t, sent, received)
-
 }

@@ -32,7 +32,6 @@ type testStructPointer struct {
 }
 
 func TestStructToMap(t *testing.T) {
-
 	t.Run("testStructToMap", func(t *testing.T) {
 		testStructToMap(t)
 	})
@@ -80,7 +79,6 @@ func testStructToMap(t *testing.T) {
 }
 
 func testStructToMapNestedPointer(t *testing.T) {
-
 	example := testStructPointer{
 		JustValue: "Hello World",
 		JustPointer: &nestedStruct{

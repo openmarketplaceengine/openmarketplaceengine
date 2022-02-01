@@ -6,7 +6,6 @@ import (
 )
 
 func ServeHTTP(w http.ResponseWriter, r *http.Request) {
-
 	w.Header().Set("Content-Type", "application/json")
 
 	switch r.Method {
@@ -22,15 +21,8 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write(bytes)
 		return
-	case http.MethodPost:
-		fallthrough
-	case http.MethodPut:
-		fallthrough
-	case http.MethodDelete:
-		fallthrough
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
-
 }

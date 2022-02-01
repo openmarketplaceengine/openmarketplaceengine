@@ -11,7 +11,7 @@ func TestGetTimestampUID(t *testing.T) {
 	unique := make(map[string]bool)
 	count := 10
 	for i := 0; i < count; i++ {
-		unique[NewTimestampUid()] = true
+		unique[NewTimestampUID()] = true
 		time.Sleep(1 * time.Millisecond)
 	}
 

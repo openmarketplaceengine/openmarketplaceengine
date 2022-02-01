@@ -13,7 +13,6 @@ import (
 const port = 10123
 
 func TestHelloWorld(t *testing.T) {
-
 	go func() {
 		err := runServer(port)
 		if err != nil {
