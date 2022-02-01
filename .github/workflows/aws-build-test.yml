@@ -38,7 +38,6 @@ jobs:
         uses: golangci/golangci-lint-action@v2
         with:
           version: latest
-        run: make lint
       - name: Test
         run: make test
         env:
