@@ -26,9 +26,9 @@ func TestHelloWorld(t *testing.T) {
 	require.NoError(t, err)
 
 	defer func(conn *grpc.ClientConn) {
-		err := conn.Close()
-		if err != nil {
-			require.NoError(t, err)
+		innerErr := conn.Close()
+		if innerErr != nil {
+			require.NoError(t, innerErr)
 		}
 	}(conn)
 
