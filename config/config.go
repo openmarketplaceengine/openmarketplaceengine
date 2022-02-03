@@ -40,6 +40,7 @@ func Read() error {
 	v.AddConfigPath("../config")
 	v.AddConfigPath("../../config")
 	v.AddConfigPath("../../../config")
+	v.AddConfigPath("../../../../config")
 	err := v.ReadInConfig()
 	if err != nil {
 		return errors.Wrap(err, fmt.Sprintf("Error reading config file %s", v.ConfigFileUsed()))
