@@ -1,4 +1,4 @@
-package helloworld
+package v1
 
 import (
 	"context"
@@ -31,7 +31,7 @@ func TestHelloWorld(t *testing.T) {
 		}
 	}(conn)
 
-	client := NewHelloWorldClient(conn)
+	client := NewHelloWorldServiceClient(conn)
 
 	t.Run("testSayHelloSimple", func(t *testing.T) {
 		testSayHelloSimple(t, client)
@@ -41,19 +41,19 @@ func TestHelloWorld(t *testing.T) {
 	})
 }
 
-func testSayHelloSimple(t *testing.T, client HelloWorldClient) {
-	to := &Message{Text: "test 1"}
+func testSayHelloSimple(t *testing.T, client HelloWorldServiceClient) {
+	to := &SayHelloSimpleRequest{Text: "test 1"}
 	messageFrom, err := client.SayHelloSimple(context.Background(), to)
 	require.NoError(t, err)
 	require.Equal(t, fmt.Sprintf("reply to %s", to.Text), messageFrom.GetText())
 }
 
-func testSayHelloClientStreaming(t *testing.T, client HelloWorldClient) {
+func testSayHelloClientStreaming(t *testing.T, client HelloWorldServiceClient) {
 	streaming, err := client.SayHelloClientStreaming(context.Background())
 	require.NoError(t, err)
 
 	for i := 0; i < 3; i++ {
-		err = streaming.Send(&Message{Text: fmt.Sprintf("test-%v", i)})
+		err = streaming.Send(&SayHelloClientStreamingRequest{Text: fmt.Sprintf("test-%v", i)})
 		require.NoError(t, err)
 	}
 
