@@ -103,16 +103,16 @@ func testRemoveExpiredLocations(ctx context.Context, t *testing.T, storage *Loca
 		}
 	}
 
-	result, err := storage.QueryLocations(ctx, areaKey, myLocation.Longitude, myLocation.Latitude, 8, "km")
+	result1, err := storage.QueryLocations(ctx, areaKey, myLocation.Longitude, myLocation.Latitude, 8, "km")
 	require.NoError(t, err)
-	require.Len(t, result, 7)
+	require.Len(t, result1, 7)
 
 	err = storage.RemoveExpiredLocations(ctx, areaKey, start)
 	require.NoError(t, err)
 
-	result, err = storage.QueryLocations(ctx, areaKey, myLocation.Longitude, myLocation.Latitude, 8, "km")
+	result2, err := storage.QueryLocations(ctx, areaKey, myLocation.Longitude, myLocation.Latitude, 8, "km")
 	require.NoError(t, err)
-	require.Len(t, result, 3)
+	require.Less(t, len(result2), len(result1))
 }
 
 func testCheckLastSeen(ctx context.Context, t *testing.T, storage *LocationStorage) {
