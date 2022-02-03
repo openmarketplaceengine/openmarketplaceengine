@@ -3,10 +3,10 @@ package storage
 import (
 	"testing"
 
+	"context"
 	"github.com/openmarketplaceengine/openmarketplaceengine/config"
 	redisClient "github.com/openmarketplaceengine/openmarketplaceengine/redis/client"
 	"github.com/stretchr/testify/require"
-	"golang.org/x/net/context"
 )
 
 func TestLocationStorage(t *testing.T) {
