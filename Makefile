@@ -94,6 +94,10 @@ lint: ## Run linter
 	@echo "==> Running linter"
 	golangci-lint run
 
+lint-buf: ## Run buf linter
+	@echo "==> Running buf linter"
+	buf lint
+
 protoc: ## Run protoc
 	@echo "==> Running protoc"
 	protoc --go_out=. --go_opt=paths=source_relative \
