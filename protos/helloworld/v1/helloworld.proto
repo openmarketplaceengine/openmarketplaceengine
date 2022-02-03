@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package protos.helloworld.v1;
+
+option go_package = "protos/helloworld/v1";
+
+service HelloWorldService {
+  rpc SayHelloSimple(SayHelloSimpleRequest) returns (SayHelloSimpleResponse) {}
+  rpc SayHelloServerStreaming(SayHelloServerStreamingRequest) returns (stream SayHelloServerStreamingResponse) {}
+  rpc SayHelloClientStreaming(stream SayHelloClientStreamingRequest) returns (SayHelloClientStreamingResponse) {}
+  rpc SayHelloBothStreaming(stream SayHelloBothStreamingRequest) returns (stream SayHelloBothStreamingResponse) {}
+}
+
+message SayHelloSimpleRequest {
+  string text = 1;
+}
+
+message SayHelloSimpleResponse {
+  string text = 1;
+}
+
+message SayHelloServerStreamingRequest {
+  string text = 1;
+}
+
+message SayHelloServerStreamingResponse {
+  string text = 1;
+}
+
+message SayHelloClientStreamingRequest {
+  string text = 1;
+}
+
+message SayHelloClientStreamingResponse {
+  int64 start_time = 1;
+  int64 end_time = 2;
+  repeated SayHelloClientStreamingRequest messages = 3;
+}
+
+message SayHelloBothStreamingRequest {
+  string text = 1;
+}
+
+message SayHelloBothStreamingResponse {
+  int64 start_time = 1;
+  int64 end_time = 2;
+  repeated SayHelloBothStreamingRequest messages = 3;
+}
