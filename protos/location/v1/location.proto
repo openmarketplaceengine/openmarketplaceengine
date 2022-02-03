@@ -13,16 +13,16 @@ service LocationService {
 
 message UpdateLocationRequest {
   string principal_id = 1;
-  string longitude = 2;
-  string latitude = 3;
+  double longitude = 2;
+  double latitude = 3;
 }
 
 message UpdateLocationResponse {
 }
 
 message QueryLocationsRequest {
-  string longitude = 1;
-  string latitude = 2;
+  double longitude = 1;
+  double latitude = 2;
 }
 
 message QueryLocationsResponse {
@@ -31,8 +31,8 @@ message QueryLocationsResponse {
 
 message QueryLocation {
   string principal_id = 1;
-  float longitude = 2;
-  float latitude = 3;
-  float distance = 4;
+  double longitude = 2;
+  double latitude = 3;
+  double distance = 4;
   google.protobuf.Timestamp last_seen = 5;
 }
