@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package protos.helloworld.v1;
 
+import "google/protobuf/timestamp.proto";
+
 option go_package = "protos/helloworld/v1";
 
 service HelloWorldService {
@@ -42,7 +44,7 @@ message SayHelloBothStreamingRequest {
 }
 
 message SayHelloBothStreamingResponse {
-  int64 start_time = 1;
-  int64 end_time = 2;
+  google.protobuf.Timestamp start_time = 1;
+  google.protobuf.Timestamp end_time = 2;
   repeated SayHelloBothStreamingRequest messages = 3;
 }
