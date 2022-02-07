@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/config"
+	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/location"
 	redisClient "github.com/openmarketplaceengine/openmarketplaceengine/redis/client"
 	"github.com/stretchr/testify/assert"
@@ -31,7 +31,7 @@ var myLocation = location.UpdateLocation{
 const areaKey = "san_fran"
 
 func TestLocationStorage(t *testing.T) {
-	err := config.Read()
+	err := cfg.Load()
 	require.NoError(t, err)
 
 	client := redisClient.NewStoreClient()
