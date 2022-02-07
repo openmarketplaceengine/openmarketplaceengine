@@ -39,47 +39,27 @@ type StateController struct {
 
 func (c *StateController) GoOnline() error {
 	res := c.fcm.Event(fsm.Event(GoOnline))
-	err := c.checkState(res, GoOnline, Online)
-	if err != nil {
-		return err
-	}
-	return nil
+	return c.checkState(res, GoOnline, Online)
 }
 
 func (c *StateController) GoOffline() error {
 	res := c.fcm.Event(fsm.Event(GoOffline))
-	err := c.checkState(res, GoOffline, Offline)
-	if err != nil {
-		return err
-	}
-	return nil
+	return c.checkState(res, GoOffline, Offline)
 }
 
 func (c *StateController) PickUp() error {
 	res := c.fcm.Event(fsm.Event(PickUp))
-	err := c.checkState(res, PickUp, PickingUp)
-	if err != nil {
-		return err
-	}
-	return nil
+	return c.checkState(res, PickUp, PickingUp)
 }
 
 func (c *StateController) Deliver() error {
 	res := c.fcm.Event(fsm.Event(Deliver))
-	err := c.checkState(res, Deliver, Delivering)
-	if err != nil {
-		return err
-	}
-	return nil
+	return c.checkState(res, Deliver, Delivering)
 }
 
 func (c *StateController) CompleteDelivery() error {
 	res := c.fcm.Event(fsm.Event(CompleteDelivery))
-	err := c.checkState(res, CompleteDelivery, Online)
-	if err != nil {
-		return err
-	}
-	return nil
+	return c.checkState(res, CompleteDelivery, Online)
 }
 
 func (c StateController) checkState(res bool, event Event, expected State) error {
