@@ -12,6 +12,7 @@ FROM alpine:latest
 WORKDIR /app
 
 COPY --from=builder /app/omesrv ./
+COPY --from=builder /app/cfg/omesrv.yaml ./
 
 ARG OME_REDIS_STORE_POOL
 ARG OME_REDIS_STORE_ADDR
