@@ -11,6 +11,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/cristalhq/aconfig"
 	"github.com/cristalhq/aconfig/aconfigyaml"
@@ -52,6 +53,15 @@ const (
 	confFlag = "conf"
 	envFlag  = "env"
 )
+
+func init() {
+	for i := range args {
+		if strings.HasPrefix(args[i], "-test") {
+			args = args[:0]
+			return
+		}
+	}
+}
 
 // Load performs loading of ServerConfig from a file,
 // environment, and command line arguments.
