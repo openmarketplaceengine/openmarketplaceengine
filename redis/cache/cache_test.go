@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/config"
+	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/redis/client"
 
 	"github.com/google/uuid"
@@ -12,7 +12,7 @@ import (
 )
 
 func TestCache(t *testing.T) {
-	err := config.Read()
+	err := cfg.Load()
 	require.NoError(t, err)
 
 	c := client.NewStoreClient()

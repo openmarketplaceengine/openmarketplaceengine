@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/config"
+	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/redis/publisher"
 	"github.com/openmarketplaceengine/openmarketplaceengine/redis/subscriber"
 	"github.com/openmarketplaceengine/openmarketplaceengine/uids/timestampuid"
@@ -15,7 +15,7 @@ import (
 )
 
 func TestPublisher(t *testing.T) {
-	err := config.Read()
+	err := cfg.Load()
 	require.NoError(t, err)
 	pub := publisher.NewPublisher()
 	sub := subscriber.NewSubscriber()

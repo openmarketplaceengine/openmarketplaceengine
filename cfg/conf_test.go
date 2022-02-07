@@ -13,10 +13,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func init() {
-	args = []string{}
-}
-
 //-----------------------------------------------------------------------------
 
 func TestServerConfig_Load(t *testing.T) {

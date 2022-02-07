@@ -4,15 +4,14 @@ import (
 	"context"
 	"testing"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/config"
-
 	"github.com/go-redis/redis/v8"
+	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestClient(t *testing.T) {
-	err := config.Read()
+	err := cfg.Load()
 	require.NoError(t, err)
 
 	t.Run("testCreateClients", func(t *testing.T) {
