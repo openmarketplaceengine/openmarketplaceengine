@@ -23,6 +23,8 @@ github.com/cristalhq/aconfig v0.16.8 h1:lg8i0XHgfhvsnjNM5q/ou6jIHDRXlbBybjRP9t2f
 github.com/cristalhq/aconfig v0.16.8/go.mod h1:NXaRp+1e6bkO4dJn+wZ71xyaihMDYPtCSvEhMTm/H3E=
 github.com/cristalhq/aconfig/aconfigyaml v0.16.1 h1:ghmzWFolCuja6BzBvHkNAn2Qsewu6xqdAXQyWnXjvZw=
 github.com/cristalhq/aconfig/aconfigyaml v0.16.1/go.mod h1:UgM0LkO4TKbC0s/oUP2p5POM6QiQwNvOFXostf6con0=
+github.com/cocoonspace/fsm v1.0.1 h1:dPjDYJh1XL7r8jERbAVFrk7kLzTOaRgx9EBoS9fV6PA=
+github.com/cocoonspace/fsm v1.0.1/go.mod h1:2NILMnDanocMM88qdqAzyq9Q1DwCjXqAIGtbhdXFC0Q=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

@@ -3,6 +3,7 @@ module github.com/openmarketplaceengine/openmarketplaceengine
 go 1.17
 
 require (
+	github.com/cocoonspace/fsm v1.0.1
 	github.com/cristalhq/aconfig v0.16.8
 	github.com/cristalhq/aconfig/aconfigyaml v0.16.1
 	github.com/go-redis/redis/v8 v8.11.4
