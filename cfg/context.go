@@ -140,7 +140,7 @@ func (c *sigctx) Invalid() bool {
 
 func (c *sigctx) Stop() {
 	if c.tryStop() {
-		c.debug("%s: Stop()\n", ctxDebugPrefix)
+		c.debugf("%s: Stop()\n", ctxDebugPrefix)
 		c.stop()
 	}
 }
@@ -180,7 +180,7 @@ func (c *sigctx) create() {
 		c.lock.Unlock()
 		return
 	}
-	defer c.debug("%s: created\n", ctxDebugPrefix)
+	defer c.debugf("%s: created\n", ctxDebugPrefix)
 	defer c.lock.Unlock()
 	c.Context, c.stop = context.WithCancel(context.Background())
 	c.sigs = make(chan os.Signal, 1)
@@ -198,7 +198,7 @@ func (c *sigctx) tryStop() bool {
 
 //-----------------------------------------------------------------------------
 
-func (c *sigctx) debug(format string, args ...interface{}) {
+func (c *sigctx) debugf(format string, args ...interface{}) {
 	if DebugContext != nil {
 		DebugContext(format, args...)
 	}
@@ -209,9 +209,9 @@ func (c *sigctx) debug(format string, args ...interface{}) {
 func (c *sigctx) waitStop() {
 	select {
 	case sig := <-c.sigs:
-		c.debug("%s: %s\n", ctxDebugPrefix, sig)
+		c.debugf("%s: %s\n", ctxDebugPrefix, sig)
 	case <-c.Done():
-		c.debug("%s: Done()\n", ctxDebugPrefix)
+		c.debugf("%s: Done()\n", ctxDebugPrefix)
 	}
 	c.Stop()
 	atomic.StoreInt32(&c.flag, xinvalid)
@@ -219,6 +219,6 @@ func (c *sigctx) waitStop() {
 	// Ignore further signals
 	for {
 		sig := <-c.sigs
-		c.debug("%s: IGNORE: %s\n", ctxDebugPrefix, sig)
+		c.debugf("%s: IGNORE: %s\n", ctxDebugPrefix, sig)
 	}
 }
