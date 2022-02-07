@@ -1,0 +1,22 @@
+# OME Server Configuration
+
+http:
+  addr: :9080
+  timeout:
+    idle: 30
+    read: 10
+    write: 10
+    stop: 20
+
+grpc:
+  addr: :9090
+
+redis:
+  store:
+    pool: 10
+    addr: localhost:6379
+    pass: ""
+  pubsub:
+    pool: 10
+    addr: localhost:6379
+    pass: ""

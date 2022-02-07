@@ -1,47 +1,43 @@
 package main
 
 import (
-	"context"
+	"fmt"
 	"log"
-	"net"
 	"net/http"
 	"time"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/api/health"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
-	"github.com/openmarketplaceengine/openmarketplaceengine/config"
-	"github.com/openmarketplaceengine/openmarketplaceengine/middleware/loghandler"
 )
 
+var started = time.Now()
+
 func main() {
-	err := config.Read()
+	err := cfg.Load()
 
 	if err != nil {
-		log.Fatalf("read config err=%s", err)
+		log.Fatalf("cannot load config: %s\n", err)
 	}
 
-	port := config.GetString(config.ServicePort)
+	if cfg.Server.MustExit() { // help or env requested
+		return
+	}
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/health", health.ServeHTTP)
 
-	loggedMux := loghandler.NewLogHandler(mux)
-
-	log.Printf("server is listening at %s\n", port)
+	mux.HandleFunc("/uptime", uptime)
 
 	cfg.DebugContext = log.Printf
 
 	ctx := cfg.Context()
 
-	srv := &http.Server{
-		Addr:    ":" + port,
-		Handler: loggedMux,
-		BaseContext: func(listener net.Listener) context.Context {
-			return ctx
-		},
-	}
+	srv := cfg.Http.CreateServer(ctx, mux)
+
+	srv.RegisterOnShutdown(func() {
+		log.Println("HTTP server shutdown")
+	})
 
 	go func() {
+		log.Printf("HTTP starting at %s\n", cfg.Http.Addr)
 		err = srv.ListenAndServe()
 		ctx.Stop()
 	}()
@@ -52,16 +48,23 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	end, cancel := context.WithDeadline(context.Background(), time.Now().Add(10*time.Second))
-
-	err = srv.Shutdown(end)
-
-	cancel()
+	err = cfg.Http.Shutdown(srv)
 
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	log.Println("Done")
+}
 
+//-----------------------------------------------------------------------------
+
+func uptime(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		code := http.StatusMethodNotAllowed
+		http.Error(w, http.StatusText(code), code)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	_, _ = fmt.Fprintf(w, "{\"uptime\": %d}", time.Since(started)/time.Second)
 }
