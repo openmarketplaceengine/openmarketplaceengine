@@ -19,7 +19,7 @@ type checker interface {
 }
 
 type namedCheck struct {
-	name string
+	name  string
 	check checker
 }
 
@@ -79,6 +79,17 @@ func checkRange(num, min, max int, name []string) error {
 		return fmt.Errorf("invalid %s value %d", field(name), num)
 	}
 	return nil
+}
+
+//-----------------------------------------------------------------------------
+
+func matchString(s string, allow ...string) bool {
+	for i := range allow {
+		if s == allow[i] {
+			return true
+		}
+	}
+	return false
 }
 
 //-----------------------------------------------------------------------------
