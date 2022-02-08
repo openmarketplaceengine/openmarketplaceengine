@@ -14,6 +14,34 @@ import (
 
 const maxPort = (1 << 16) - 1
 
+type checker interface {
+	Check(name ...string) error
+}
+
+type namedCheck struct {
+	name string
+	check checker
+}
+
+type checkList struct {
+	list []namedCheck
+}
+
+func (c *checkList) add(name string, check checker) *checkList {
+	c.list = append(c.list, namedCheck{name, check})
+	return c
+}
+
+func (c *checkList) run() error {
+	for i := range c.list {
+		nc := &c.list[i]
+		if err := nc.check.Check(nc.name); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 //-----------------------------------------------------------------------------
 
 func checkPort(port int, min int, name []string) error {
