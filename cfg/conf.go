@@ -29,6 +29,7 @@ type ServerConfig struct {
 	Http  HttpConfig //nolint
 	Grpc  GrpcConfig
 	Redis RedisConfig
+	Log   LogConfig
 	flags *flag.FlagSet // command line arguments
 	files []string      // configuration files
 	exit  bool          // must exit
@@ -96,12 +97,12 @@ func (c *ServerConfig) Load() error {
 
 // Check validates ServerConfig fields.
 func (c *ServerConfig) Check() (err error) {
-	if err = c.Http.Check("http"); err == nil {
-		if err = c.Grpc.Check("grpc"); err == nil {
-			err = c.Redis.Check("redis")
-		}
-	}
-	return
+	var check checkList
+	check.add("http", &c.Http)
+	check.add("grpc", &c.Grpc)
+	check.add("redis", &c.Redis)
+	check.add("log", &c.Log)
+	return check.run()
 }
 
 // AddConfigFile adds custom file path to the configuration search

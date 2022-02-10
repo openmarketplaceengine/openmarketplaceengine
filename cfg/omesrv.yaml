@@ -20,3 +20,11 @@ redis:
     pool: 10
     addr: localhost:6379
     pass: ""
+
+log:
+  level: info
+  trace: false
+  devel: false
+  style: plain
+  term: stdout
+  caller: false
