@@ -27,7 +27,7 @@ type checkList struct {
 	list []namedCheck
 }
 
-func (c *checkList) add(name string, check checker) *checkList {
+func (c *checkList) add(name string, check checker) *checkList { //nolint
 	c.list = append(c.list, namedCheck{name, check})
 	return c
 }
