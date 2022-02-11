@@ -2,7 +2,6 @@ package subscriber
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/log"
 	"github.com/openmarketplaceengine/openmarketplaceengine/redis/client"
@@ -26,15 +25,15 @@ func NewSubscriber() (sub Subscriber) {
 
 func (s *subscriber) Subscribe(ctx context.Context, channel string, messages chan<- string) {
 	pubSub := s.pubSubClient.Subscribe(ctx, channel)
-	log.GetLogger().Info(fmt.Sprintf("[Subscriber] subscribed to %s", channel))
+	log.Infof("[Subscriber] subscribed to %s", channel)
 	go func() {
 		for {
 			select {
 			case m := <-pubSub.Channel():
-				log.GetLogger().Info(fmt.Sprintf("[Subscriber] received from channel=%s message=%v", channel, m.Payload))
+				log.Infof("[Subscriber] received from channel=%s message=%v", channel, m.Payload)
 				messages <- m.Payload
 			case <-ctx.Done():
-				log.GetLogger().Info(fmt.Sprintf("[Subscriber] stopped by context.Done channel=%s", channel))
+				log.Infof("[Subscriber] stopped by context.Done channel=%s", channel)
 				return
 			}
 		}
