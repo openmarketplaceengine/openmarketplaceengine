@@ -4,11 +4,21 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-redis/redis/v8"
+	"github.com/openmarketplaceengine/openmarketplaceengine/redis/client"
 	"github.com/openmarketplaceengine/openmarketplaceengine/redis/util"
+	"time"
 )
 
 type Storage struct {
-	client redis.Client
+	client     *redis.Client
+	expiration time.Duration
+}
+
+func NewStorage(expiration time.Duration) *Storage {
+	return &Storage{
+		client:     client.NewStoreClient(),
+		expiration: expiration,
+	}
 }
 
 func (s *Storage) Store(ctx context.Context, key string, state State) error {
@@ -23,19 +33,22 @@ func (s *Storage) Store(ctx context.Context, key string, state State) error {
 		return fmt.Errorf("store HSet error: %s", err)
 	}
 
+	s.client.Expire(ctx, key, s.expiration)
+
 	return nil
 }
 
-func (s *Storage) Retrieve(ctx context.Context, key string) (*State, error) {
+func (s *Storage) Retrieve(ctx context.Context, key string) (state State, err error) {
 	m, err := s.client.HGetAll(ctx, key).Result()
 	if err != nil {
-		return nil, fmt.Errorf("retrieve HGetAll error: %s", err)
+		err = fmt.Errorf("retrieve HGetAll error: %s", err)
+		return
 	}
 
-	var state State
 	err = util.MapToStruct(m, &state)
 	if err != nil {
-		return nil, fmt.Errorf("retrieve MapToStruct error: %s", err)
+		err = fmt.Errorf("retrieve MapToStruct error: %s", err)
+		return
 	}
-	return &state, nil
+	return
 }
