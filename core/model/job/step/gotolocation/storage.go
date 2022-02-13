@@ -3,11 +3,10 @@ package gotolocation
 import (
 	"context"
 	"fmt"
-	"time"
-
 	"github.com/go-redis/redis/v8"
 	"github.com/openmarketplaceengine/openmarketplaceengine/redis/client"
-	"github.com/openmarketplaceengine/openmarketplaceengine/redis/marshalutils"
+	"github.com/openmarketplaceengine/openmarketplaceengine/redis/util"
+	"time"
 )
 
 type Storage struct {
@@ -24,22 +23,16 @@ func newStorage(expiration time.Duration) *Storage {
 	}
 }
 
-func key(driverID string) string {
-	return fmt.Sprintf("gotolocation-%s", driverID)
-}
-
-func (s *Storage) Store(ctx context.Context, goToLocation GoToLocation) error {
-	m, err := marshalutils.StructToMap(goToLocation)
+func (s *Storage) Store(ctx context.Context, key string, goToLocation GoToLocation) error {
+	m, err := util.StructToMap(goToLocation)
 
 	if err != nil {
-		return fmt.Errorf("store StructToMap error: %w", err)
+		return fmt.Errorf("store StructToMap error: %s", err)
 	}
-
-	key := key(goToLocation.DriverID)
 
 	err = s.client.HSet(ctx, key, m).Err()
 	if err != nil {
-		return fmt.Errorf("store HSet error: %w", err)
+		return fmt.Errorf("store HSet error: %s", err)
 	}
 
 	s.client.Expire(ctx, key, s.expiration)
@@ -47,22 +40,16 @@ func (s *Storage) Store(ctx context.Context, goToLocation GoToLocation) error {
 	return nil
 }
 
-func (s *Storage) Retrieve(ctx context.Context, driverID string) (goToLocation GoToLocation, err error) {
-	key := key(driverID)
+func (s *Storage) Retrieve(ctx context.Context, key string) (goToLocation GoToLocation, err error) {
 	m, err := s.client.HGetAll(ctx, key).Result()
 	if err != nil {
-		err = fmt.Errorf("retrieve HGetAll error: %w", err)
+		err = fmt.Errorf("retrieve HGetAll error: %s", err)
 		return
 	}
 
-	if len(m) == 0 {
-		err = fmt.Errorf("goToLocation not found by driverID %q", driverID)
-		return
-	}
-
-	err = marshalutils.MapToStruct(m, &goToLocation)
+	err = util.MapToStruct(m, &goToLocation)
 	if err != nil {
-		err = fmt.Errorf("retrieve MapToStruct error: %w", err)
+		err = fmt.Errorf("retrieve MapToStruct error: %s", err)
 		return
 	}
 	return
