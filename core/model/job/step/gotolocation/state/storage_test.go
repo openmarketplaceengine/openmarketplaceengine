@@ -2,7 +2,6 @@ package state
 
 import (
 	"github.com/google/uuid"
-	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/job/step/gotolocation/fsm"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/net/context"
@@ -31,8 +30,7 @@ func testStoreAndRetrieve(t *testing.T, storage *Storage) {
 		LastModifiedAt:          time.Now(),
 		LastModifiedAtLatitude:  9,
 		LastModifiedAtLongitude: 10,
-		LastEvent:               fsm.Near,
-		LastState:               fsm.NearState,
+		LastState:               "near",
 	}
 	err := storage.Store(ctx, key, stateIn)
 
@@ -45,7 +43,6 @@ func testStoreAndRetrieve(t *testing.T, storage *Storage) {
 	assert.ElementsMatch(t, stateIn.PassengerIDs, stateOut.PassengerIDs)
 	assert.Equal(t, stateIn.DestinationLatitude, stateOut.DestinationLatitude)
 	assert.Equal(t, stateIn.DestinationLongitude, stateOut.DestinationLongitude)
-	assert.Equal(t, stateIn.LastEvent, stateOut.LastEvent)
 	assert.Equal(t, stateIn.LastState, stateOut.LastState)
 	assert.Equal(t, stateIn.CreatedAt.UnixMilli(), stateOut.CreatedAt.UnixMilli())
 	assert.Equal(t, stateIn.LastModifiedAt.UnixMilli(), stateOut.LastModifiedAt.UnixMilli())

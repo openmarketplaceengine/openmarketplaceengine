@@ -1,7 +1,6 @@
 package state
 
 import (
-	"github.com/cocoonspace/fsm"
 	"time"
 )
 
@@ -14,6 +13,5 @@ type State struct {
 	LastModifiedAt          time.Time
 	LastModifiedAtLatitude  float64
 	LastModifiedAtLongitude float64
-	LastEvent               fsm.Event
-	LastState               fsm.State
+	LastState               string
 }
