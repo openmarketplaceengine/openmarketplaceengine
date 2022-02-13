@@ -5,12 +5,16 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/net/context"
 )
 
 func TestGoToLocation(t *testing.T) {
+	err := cfg.Load()
+	require.NoError(t, err)
+
 	storage = newStorage(30 * time.Second)
 
 	ctx := context.Background()
