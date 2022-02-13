@@ -1,4 +1,4 @@
-package state
+package gotolocation
 
 import (
 	"context"
@@ -14,15 +14,17 @@ type Storage struct {
 	expiration time.Duration
 }
 
-func NewStorage(expiration time.Duration) *Storage {
+var storage = newStorage(3 * time.Hour)
+
+func newStorage(expiration time.Duration) *Storage {
 	return &Storage{
 		client:     client.NewStoreClient(),
 		expiration: expiration,
 	}
 }
 
-func (s *Storage) Store(ctx context.Context, key string, state State) error {
-	m, err := util.StructToMap(state)
+func (s *Storage) Store(ctx context.Context, key string, goToLocation GoToLocation) error {
+	m, err := util.StructToMap(goToLocation)
 
 	if err != nil {
 		return fmt.Errorf("store StructToMap error: %s", err)
@@ -38,14 +40,14 @@ func (s *Storage) Store(ctx context.Context, key string, state State) error {
 	return nil
 }
 
-func (s *Storage) Retrieve(ctx context.Context, key string) (state State, err error) {
+func (s *Storage) Retrieve(ctx context.Context, key string) (goToLocation GoToLocation, err error) {
 	m, err := s.client.HGetAll(ctx, key).Result()
 	if err != nil {
 		err = fmt.Errorf("retrieve HGetAll error: %s", err)
 		return
 	}
 
-	err = util.MapToStruct(m, &state)
+	err = util.MapToStruct(m, &goToLocation)
 	if err != nil {
 		err = fmt.Errorf("retrieve MapToStruct error: %s", err)
 		return

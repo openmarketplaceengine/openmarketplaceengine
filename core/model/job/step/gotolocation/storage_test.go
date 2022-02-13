@@ -1,4 +1,4 @@
-package state
+package gotolocation
 
 import (
 	"github.com/google/uuid"
@@ -11,7 +11,7 @@ import (
 
 func TestStorage(t *testing.T) {
 
-	storage := NewStorage(1 * time.Second)
+	storage := newStorage(1 * time.Second)
 
 	t.Run("testStoreAndRetrieve", func(t *testing.T) {
 		testStoreAndRetrieve(t, storage)
@@ -21,16 +21,14 @@ func TestStorage(t *testing.T) {
 func testStoreAndRetrieve(t *testing.T, storage *Storage) {
 	ctx := context.Background()
 	key := uuid.New().String()
-	stateIn := State{
+	stateIn := GoToLocation{
 		DriverID:                "driver-1",
-		PassengerIDs:            []string{"pass-1", "pass-2"},
 		DestinationLatitude:     7,
 		DestinationLongitude:    8,
-		CreatedAt:               time.Now(),
 		LastModifiedAt:          time.Now(),
 		LastModifiedAtLatitude:  9,
 		LastModifiedAtLongitude: 10,
-		LastState:               "near",
+		State:                   Moving,
 	}
 	err := storage.Store(ctx, key, stateIn)
 
@@ -39,11 +37,8 @@ func testStoreAndRetrieve(t *testing.T, storage *Storage) {
 	stateOut, err := storage.Retrieve(ctx, key)
 	require.NoError(t, err)
 	assert.Equal(t, stateIn.DriverID, stateOut.DriverID)
-	assert.Equal(t, stateIn.PassengerIDs, stateOut.PassengerIDs)
-	assert.ElementsMatch(t, stateIn.PassengerIDs, stateOut.PassengerIDs)
 	assert.Equal(t, stateIn.DestinationLatitude, stateOut.DestinationLatitude)
 	assert.Equal(t, stateIn.DestinationLongitude, stateOut.DestinationLongitude)
-	assert.Equal(t, stateIn.LastState, stateOut.LastState)
-	assert.Equal(t, stateIn.CreatedAt.UnixMilli(), stateOut.CreatedAt.UnixMilli())
+	assert.Equal(t, stateIn.State, stateOut.State)
 	assert.Equal(t, stateIn.LastModifiedAt.UnixMilli(), stateOut.LastModifiedAt.UnixMilli())
 }
