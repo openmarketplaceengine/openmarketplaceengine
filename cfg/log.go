@@ -8,16 +8,26 @@ import (
 	"fmt"
 )
 
+type PrintFunc = func(format string, args ...interface{})
+
+// Logger is a basic subset of logging functions used in this package.
+type Logger interface {
+	IsDebug() bool
+	Debugf(format string, args ...interface{})
+	Infof(format string, args ...interface{})
+	Errorf(format string, args ...interface{})
+}
+
 // LogConfig contains logging configuration params.
 type LogConfig struct {
-	Level  string `default:"info" usage:"log |level|: [debug, info, warn, error, panic, fatal]"`
-	Style  string `default:"plain" usage:"log format |style|: [plain, json]"`
-	Term   string `default:"stdout" usage:"log standard output name: |[stdout, stderr, null]|"`
-	File   string `usage:"log file |path|"`
-	Trim   bool   `default:"false" usage:"|enable| trimming of the log file on start"`
-	Trace  bool   `default:"false" usage:"|enable| logging error stack traces"`
-	Devel  bool   `default:"false" usage:"|enable| developer's mode"`
-	Caller bool   `default:"false" usage:"|enable| logging the caller function name"`
+	Level  string `default:"info" usage:"log #level#: [debug|info|warn|error|panic|fatal]"`
+	Style  string `default:"plain" usage:"log format #style#: [plain|json]"`
+	Term   string `default:"stdout" usage:"log standard output name: #[stdout|stderr|null]#"`
+	File   string `usage:"log file #path#"`
+	Trim   bool   `default:"false" usage:"#enable# trimming of the log file on start"`
+	Trace  bool   `default:"false" usage:"#enable# logging error stack traces"`
+	Devel  bool   `default:"false" usage:"#enable# developer's mode"`
+	Caller bool   `default:"false" usage:"#enable# logging the caller function name"`
 }
 
 // Check validates LogConfig params.
