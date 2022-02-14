@@ -32,7 +32,7 @@ nuke: clean ## Clean with -modcache
 build: echo-env prepare ## Build binary
 	@echo "==> Build"
 	GOOS=linux
-	go build -a -o $(BUILD_PATH)/app ./
+	go build -a -trimpath -ldflags="-s -w" -o $(BUILD_PATH)/app ./
 
 PACKAGES=$(shell go list ./...)
 PACKAGES_WITH_TESTS = $(shell go list -f '{{if len .XTestGoFiles}}{{.ImportPath}}{{end}}' ./... \

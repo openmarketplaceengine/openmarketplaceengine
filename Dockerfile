@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY . ./
 
-RUN go build -o /app/omesrv
+RUN go build -trimpath -ldflags="-s -w" -o /app/omesrv
 
 
 FROM alpine:latest
@@ -22,6 +22,6 @@ ENV OME_REDIS_STORE_POOL=$OME_REDIS_STORE_POOL
 ENV OME_REDIS_STORE_ADDR=$OME_REDIS_STORE_ADDR
 ENV OME_REDIS_STORE_PASS=$OME_REDIS_STORE_PASS
 
-EXPOSE 9080
+EXPOSE 8080
 
 CMD [ "/app/omesrv" ]

@@ -26,14 +26,17 @@ const (
 
 // ServerConfig represents global OME server configuration.
 type ServerConfig struct {
-	Http  HttpConfig //nolint
-	Grpc  GrpcConfig
-	Redis RedisConfig
-	Log   LogConfig
-	flags *flag.FlagSet // command line arguments
-	files []string      // configuration files
-	exit  bool          // must exit
-	penv  bool          // print environment flag
+	Domain string     `env:"APP_DOMAIN" usage:"Application’s primary domain"`
+	Appurl string     `env:"APP_URL" usage:"Application’s primary domain in http format (e.g. https://my-domain.com)"`
+	Http   HttpConfig //nolint
+	Grpc   GrpcConfig
+	Redis  RedisConfig
+	Log    LogConfig
+	flags  *flag.FlagSet   // command line arguments
+	field  []aconfig.Field // configured fields
+	files  []string        // configuration files
+	exit   bool            // must exit
+	penv   bool            // print environment flag
 }
 
 var _cfg ServerConfig
@@ -62,6 +65,11 @@ func init() {
 			return
 		}
 	}
+}
+
+// Log is a shortcut for the ServerConfig.Log.
+func Log() *LogConfig {
+	return &_cfg.Log
 }
 
 // Load performs loading of ServerConfig from a file,
@@ -126,6 +134,14 @@ func (c *ServerConfig) MustExit() bool {
 	return c.exit
 }
 
+// ReleaseMemory clears internal fields after configuration has
+// been processed.
+func (c *ServerConfig) ReleaseMemory() {
+	c.flags = nil
+	c.field = nil
+	c.files = nil
+}
+
 //-----------------------------------------------------------------------------
 
 func (c *ServerConfig) createConfigLoader() (*aconfig.Loader, error) {
@@ -160,6 +176,11 @@ func (c *ServerConfig) createConfigLoader() (*aconfig.Loader, error) {
 	c.flags.Usage = func() {}
 	c.flags.SetOutput(io.Discard)
 	c.flags.BoolVar(&c.penv, envFlag, false, "print environment variables")
+	c.field = make([]aconfig.Field, 0, 32)
+	loader.WalkFields(func(f aconfig.Field) bool {
+		c.field = append(c.field, f)
+		return true
+	})
 	return loader, nil
 }
 

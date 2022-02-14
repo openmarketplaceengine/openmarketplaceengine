@@ -10,7 +10,11 @@ import (
 	"os"
 	"strings"
 	"unsafe"
+
+	"github.com/cristalhq/aconfig"
 )
+
+const envTag = "env"
 
 //-----------------------------------------------------------------------------
 
@@ -26,7 +30,7 @@ func (c *ServerConfig) printHelp() {
 			checkConfFlag = false
 			return
 		}
-		f.Usage = replByte(f.Usage, '|', '`')
+		f.Usage = replByte(f.Usage, '#', '`')
 	})
 	c.flags.SetOutput(os.Stdout)
 	fmt.Println("Usage:")
@@ -36,27 +40,59 @@ func (c *ServerConfig) printHelp() {
 //-----------------------------------------------------------------------------
 
 func (c *ServerConfig) printEnviron() {
-	if c.flags == nil {
+	if c.field == nil {
 		return
 	}
-	skip := map[string]bool{envFlag: true}
+	// skip := map[string]bool{envFlag: true}
 	c.exit = true
+	temp := make([]string, 0, 8)
 	fmt.Println("Environment Variables:")
-	c.flags.VisitAll(func(f *flag.Flag) {
-		if skip[f.Name] {
-			return
-		}
-		name := replByte(f.Name, '.', '_')
-		name = EnvPrefix + "_" + strings.ToUpper(name)
-		if v, ok := os.LookupEnv(name); ok {
-			if envIsPassword(name) {
-				v = mockPass
-			}
-			fmt.Printf("  %s=%q\n", name, v)
-			return
-		}
-		fmt.Println(" ", name)
-	})
+	for _, f := range c.field {
+		name := fieldEnvName(f, temp)
+		fmt.Println(name)
+	}
+	// c.flags.VisitAll(func(f *flag.Flag) {
+	// 	if skip[f.Name] {
+	// 		return
+	// 	}
+	// 	name := replByte(f.Name, '.', '_')
+	// 	name = EnvPrefix + "_" + strings.ToUpper(name)
+	// 	if v, ok := os.LookupEnv(name); ok {
+	// 		if envIsPassword(name) {
+	// 			v = mockPass
+	// 		}
+	// 		fmt.Printf("  %s=%q\n", name, v)
+	// 		return
+	// 	}
+	// 	fmt.Println(" ", name)
+	// })
+}
+
+//-----------------------------------------------------------------------------
+
+func fieldEnvName(f aconfig.Field, n []string) string {
+	const envPfx = EnvPrefix + "_"
+	p, ok := f.Parent()
+	if !ok { // top level field
+		return envPfx + f.Tag(envTag)
+	}
+	n = append(n[:0], f.Tag(envTag))
+	n = fieldParentTag(p, envTag, n)
+	n = append(n, EnvPrefix)
+	for i, j := 0, len(n)-1; i < j; i, j = i+1, j-1 {
+		n[i], n[j] = n[j], n[i]
+	}
+	return strings.Join(n, "_")
+}
+
+//-----------------------------------------------------------------------------
+
+func fieldParentTag(f aconfig.Field, t string, n []string) []string {
+	for ok := (f != nil); ok; {
+		n = append(n, f.Tag(t))
+		f, ok = f.Parent()
+	}
+	return n
 }
 
 //-----------------------------------------------------------------------------
@@ -79,7 +115,7 @@ func replByte(s string, from byte, to byte) string {
 
 //-----------------------------------------------------------------------------
 
-func envIsPassword(name string) bool {
+func envIsPassword(name string) bool { //nolint
 	return strings.HasSuffix(name, "_PASS") ||
 		strings.HasSuffix(name, "_PASSWORD")
 }

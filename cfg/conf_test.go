@@ -22,8 +22,8 @@ func TestServerConfig_Load(t *testing.T) {
 //-----------------------------------------------------------------------------
 
 func TestServerConfig_LoadEnv(t *testing.T) {
-	t.Setenv("OME_HTTP_ADDR", ":80")
-	t.Setenv("OME_GRPC_ADDR", ":90")
+	t.Setenv("OME_HTTP_PORT", "80")
+	t.Setenv("OME_GRPC_PORT", "90")
 	t.Setenv("OME_REDIS_STORE_POOL", "32")
 	t.Setenv("OME_REDIS_STORE_PASS", "SECRET")
 	loadConfig(t)
@@ -32,7 +32,7 @@ func TestServerConfig_LoadEnv(t *testing.T) {
 //-----------------------------------------------------------------------------
 
 func TestServerConfig_LoadArg(t *testing.T) {
-	setArg("-http.addr", ":100", "-grpc.addr", ":110", "-redis.store.pass", "secret")
+	setArg("-http.port", "100", "-grpc.port", "110", "-redis.store.pass", "secret")
 	loadConfig(t)
 }
 
@@ -101,8 +101,8 @@ func loadConfig(t testing.TB) {
 
 func sampleConfig() *ServerConfig {
 	var c ServerConfig
-	c.Http.Addr = ":8080"
-	c.Grpc.Addr = ":8090"
+	c.Http.Port = 8080
+	c.Grpc.Port = 8090
 	r := &c.Redis.Store
 	r.Pool = 10
 	r.Addr = "localhost:6379"
