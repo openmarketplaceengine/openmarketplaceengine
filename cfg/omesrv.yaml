@@ -1,7 +1,7 @@
 # OME Server Configuration
 
 http:
-  addr: :9080
+  port: 8080
   timeout:
     idle: 30
     read: 10
@@ -9,7 +9,7 @@ http:
     stop: 20
 
 grpc:
-  addr: :9090
+  port: 8090
 
 redis:
   store:
