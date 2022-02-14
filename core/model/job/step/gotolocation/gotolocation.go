@@ -32,13 +32,13 @@ func (e Event) String() string {
 }
 
 type GoToLocation struct {
-	DriverID                string  `json:",string"`
-	DestinationLatitude     float64 `json:",string"`
-	DestinationLongitude    float64 `json:",string"`
-	LastModifiedAt          string  `json:",string"`
-	LastModifiedAtLatitude  float64 `json:",string"`
-	LastModifiedAtLongitude float64 `json:",string"`
-	State                   State   `json:",string"`
+	DriverID             string  `json:",string"`
+	DestinationLatitude  float64 `json:",string"`
+	DestinationLongitude float64 `json:",string"`
+	UpdatedAt            string  `json:",string"`
+	UpdatedAtLatitude    float64 `json:",string"`
+	UpdatedAtLongitude   float64 `json:",string"`
+	State                State   `json:",string"`
 }
 
 func NewGoToLocation(ctx context.Context, driverID string, latitude, longitude float64) (gtl *GoToLocation, err error) {
@@ -46,7 +46,7 @@ func NewGoToLocation(ctx context.Context, driverID string, latitude, longitude f
 		DriverID:             driverID,
 		DestinationLatitude:  latitude,
 		DestinationLongitude: longitude,
-		LastModifiedAt:       time.Now().Format(time.RFC3339Nano),
+		UpdatedAt:            time.Now().Format(time.RFC3339Nano),
 		State:                New,
 	}
 
@@ -58,9 +58,9 @@ func NewGoToLocation(ctx context.Context, driverID string, latitude, longitude f
 }
 
 func (gtl *GoToLocation) updateState(ctx context.Context, latitude float64, longitude float64, state State) error {
-	gtl.LastModifiedAtLatitude = latitude
-	gtl.LastModifiedAtLongitude = longitude
-	gtl.LastModifiedAt = time.Now().Format(time.RFC3339Nano)
+	gtl.UpdatedAtLatitude = latitude
+	gtl.UpdatedAtLongitude = longitude
+	gtl.UpdatedAt = time.Now().Format(time.RFC3339Nano)
 	gtl.State = state
 
 	err := storage.Store(ctx, *gtl)

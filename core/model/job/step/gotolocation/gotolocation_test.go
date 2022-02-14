@@ -56,13 +56,13 @@ func testNew(t *testing.T, newGTL *GoToLocation) {
 	assert.Equal(t, newGTL.DestinationLatitude, retrieved.DestinationLatitude)
 	assert.Equal(t, newGTL.DestinationLongitude, retrieved.DestinationLongitude)
 	assert.Equal(t, newGTL.State, retrieved.State)
-	assert.Equal(t, newGTL.LastModifiedAt, retrieved.LastModifiedAt)
+	assert.Equal(t, newGTL.UpdatedAt, retrieved.UpdatedAt)
 }
 
 func testNewToMoving(t *testing.T, newGTL *GoToLocation) {
 	ctx := context.Background()
 	prevState := newGTL.State
-	prevLastModifiedAt := newGTL.LastModifiedAt
+	prevLastModifiedAt := newGTL.UpdatedAt
 	err := newGTL.Moving(ctx, 7, 8)
 	require.NoError(t, err)
 
@@ -73,7 +73,7 @@ func testNewToMoving(t *testing.T, newGTL *GoToLocation) {
 	assert.Equal(t, Moving, movingGTL.State)
 	prev, err := time.Parse(time.RFC3339Nano, prevLastModifiedAt)
 	require.NoError(t, err)
-	last, err := time.Parse(time.RFC3339Nano, movingGTL.LastModifiedAt)
+	last, err := time.Parse(time.RFC3339Nano, movingGTL.UpdatedAt)
 	require.NoError(t, err)
 	assert.Less(t, prev.UnixMilli(), last.UnixMilli())
 }
@@ -81,12 +81,12 @@ func testNewToMoving(t *testing.T, newGTL *GoToLocation) {
 func testNewToArrived(t *testing.T, newGTL *GoToLocation) {
 	ctx := context.Background()
 	prevState := newGTL.State
-	prevLastModifiedAt := newGTL.LastModifiedAt
+	prevLastModifiedAt := newGTL.UpdatedAt
 	err := newGTL.Arrived(ctx, 7, 8)
 	require.Error(t, err)
 
 	retrieved, err := storage.Retrieve(ctx, newGTL.DriverID)
 	require.NoError(t, err)
 	assert.Equal(t, prevState, retrieved.State)
-	assert.Equal(t, prevLastModifiedAt, retrieved.LastModifiedAt)
+	assert.Equal(t, prevLastModifiedAt, retrieved.UpdatedAt)
 }
