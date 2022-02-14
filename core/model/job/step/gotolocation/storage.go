@@ -32,14 +32,14 @@ func (s *Storage) Store(ctx context.Context, goToLocation GoToLocation) error {
 	m, err := marshalutils.StructToMap(goToLocation)
 
 	if err != nil {
-		return fmt.Errorf("store StructToMap error: %s", err)
+		return fmt.Errorf("store StructToMap error: %w", err)
 	}
 
 	key := key(goToLocation.DriverID)
 
 	err = s.client.HSet(ctx, key, m).Err()
 	if err != nil {
-		return fmt.Errorf("store HSet error: %s", err)
+		return fmt.Errorf("store HSet error: %w", err)
 	}
 
 	s.client.Expire(ctx, key, s.expiration)
@@ -51,7 +51,7 @@ func (s *Storage) Retrieve(ctx context.Context, driverID string) (goToLocation G
 	key := key(driverID)
 	m, err := s.client.HGetAll(ctx, key).Result()
 	if err != nil {
-		err = fmt.Errorf("retrieve HGetAll error: %s", err)
+		err = fmt.Errorf("retrieve HGetAll error: %w", err)
 		return
 	}
 
@@ -62,7 +62,7 @@ func (s *Storage) Retrieve(ctx context.Context, driverID string) (goToLocation G
 
 	err = marshalutils.MapToStruct(m, &goToLocation)
 	if err != nil {
-		err = fmt.Errorf("retrieve MapToStruct error: %s", err)
+		err = fmt.Errorf("retrieve MapToStruct error: %w", err)
 		return
 	}
 	return
