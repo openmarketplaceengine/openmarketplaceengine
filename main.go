@@ -8,25 +8,36 @@ import (
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/log"
+	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
 )
 
 var started = time.Now()
+
+var boot cfg.BootList
+
+func init() {
+	boot.Add("URLS", route, nil)
+	boot.Use("HTTP", srv.Http)
+	boot.Use("GRPC", srv.Grpc)
+}
 
 func main() {
 	err := cfg.Load()
 
 	if err != nil {
-		fatalf("cannot load config: %s", err)
+		fatalf("cannot load config: %s\n", err)
 	}
 
 	if cfg.Server.MustExit() { // help or env requested
 		return
 	}
 
-	err = log.Init(&cfg.Server.Log)
+	cfg.Server.ReleaseMemory()
+
+	err = log.Init(cfg.Log())
 
 	if err != nil {
-		fatalf("logger init failed: %s", err)
+		fatalf("logger init failed: %s\n", err)
 	}
 
 	defer log.SafeSync()
@@ -35,39 +46,35 @@ func main() {
 		cfg.DebugContext = log.Debugf
 	}
 
-	mux := http.NewServeMux()
+	boot.SetLog(log.Infof, log.Errorf)
 
-	mux.HandleFunc("/uptime", uptime)
+	err = boot.Boot()
+
+	if err != nil {
+		log.Fatalf("%s", err)
+	}
 
 	ctx := cfg.Context()
 
-	srv := cfg.Http.CreateServer(ctx, mux)
-
-	srv.ErrorLog = log.NewStdLog(log.LevelError)
-
-	srv.RegisterOnShutdown(func() {
-		log.Infof("HTTP server shutdown")
-	})
-
-	go func() {
-		log.Infof("HTTP starting at %s\n", cfg.Http.Addr)
-		err = srv.ListenAndServe()
-		ctx.Stop()
-	}()
-
 	ctx.WaitDone()
 
-	if err != nil {
-		log.Fatalf("%s", err)
-	}
-
-	err = cfg.Http.Shutdown(srv)
+	err = boot.Stop()
 
 	if err != nil {
-		log.Fatalf("%s", err)
+		log.Fatalf("STOP failed")
 	}
 
 	log.Infof("Done")
+}
+
+//-----------------------------------------------------------------------------
+
+func route() error {
+	if name := cfg.Http.Name; len(name) > 0 {
+		srv.Http.SetHeader("Server", name)
+	}
+	srv.Http.Get("/uptime", uptime)
+	return nil
 }
 
 //-----------------------------------------------------------------------------
@@ -85,6 +92,7 @@ func uptime(w http.ResponseWriter, r *http.Request) {
 //-----------------------------------------------------------------------------
 
 func fatalf(format string, args ...interface{}) {
-	println(fmt.Sprintf(format, args...))
+	// we need to print to stdout for the cloud provider proper capture
+	fmt.Printf(format, args...)
 	os.Exit(1)
 }
