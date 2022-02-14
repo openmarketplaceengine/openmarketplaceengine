@@ -6,6 +6,7 @@ require (
 	github.com/cocoonspace/fsm v1.0.1
 	github.com/cristalhq/aconfig v0.16.8
 	github.com/cristalhq/aconfig/aconfigyaml v0.16.1
+	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-redis/redis/v8 v8.11.4
 	github.com/google/uuid v1.3.0
 	github.com/pkg/errors v0.9.1
