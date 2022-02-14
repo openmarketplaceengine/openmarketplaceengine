@@ -20,9 +20,14 @@ const (
 	compactEncoderName = "compact"
 )
 
+type zapLog struct {
+	s *zap.SugaredLogger
+	c zapcore.Core
+	z *zap.Logger
+}
+
 var (
-	z = zap.NewNop()
-	s = z.Sugar()
+	z = noopZap()
 )
 
 var sink []string
@@ -38,14 +43,21 @@ func init() {
 
 //-----------------------------------------------------------------------------
 
-func GetLogger() *zap.Logger {
-	return z
+func noopZap() (z zapLog) {
+	z.set(zap.NewNop())
+	return
+}
+
+func (z *zapLog) set(log *zap.Logger) {
+	z.s = log.Sugar()
+	z.c = log.Core()
+	z.z = log
 }
 
 //-----------------------------------------------------------------------------
 
 func NewStdLog(level Level) *stdlog.Logger {
-	slog, _ := zap.NewStdLogAt(z, level)
+	slog, _ := zap.NewStdLogAt(z.z, level)
 	return slog
 }
 
@@ -56,9 +68,8 @@ func Init(c ConfigHolder) error {
 	if err != nil {
 		return err
 	}
-	z = log
-	s = z.Sugar()
-	zap.RedirectStdLog(z)
+	z.set(log)
+	zap.RedirectStdLog(log)
 	return nil
 }
 
