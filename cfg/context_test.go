@@ -90,3 +90,61 @@ func debugContext(t *testing.T) {
 		}
 	}
 }
+
+//-----------------------------------------------------------------------------
+// Benchmarks
+//-----------------------------------------------------------------------------
+
+func BenchmarkContext_Done(b *testing.B) {
+	b.Run("Error", BenchmarkContext_DoneErr)
+	b.Run("Chan", BenchmarkContext_DoneChan)
+	b.Run("Stop", BenchmarkContext_DoneStop)
+}
+
+func BenchmarkContext_DoneErr(b *testing.B) {
+	benchDone(b, checkDoneErr)
+}
+
+func BenchmarkContext_DoneChan(b *testing.B) {
+	benchDone(b, checkDoneChan)
+}
+
+func BenchmarkContext_DoneStop(b *testing.B) {
+	benchDone(b, checkDoneStop)
+}
+
+//-----------------------------------------------------------------------------
+
+func benchDone(b *testing.B, f func(ctx SignalContext) bool) {
+	var x sigctx
+	c := x.context()
+	b.ResetTimer()
+	b.ReportAllocs()
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			if f(c) {
+				b.FailNow()
+			}
+		}
+	})
+}
+
+//go:noinline
+func checkDoneErr(c SignalContext) bool {
+	return c.Err() != nil
+}
+
+//go:noinline
+func checkDoneChan(c SignalContext) bool {
+	select {
+	case <-c.Done():
+		return true
+	default:
+		return false
+	}
+}
+
+//go:noinline
+func checkDoneStop(c SignalContext) bool {
+	return c.Stopped()
+}
