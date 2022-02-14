@@ -17,7 +17,7 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/log"
 )
 
-type HttpServer struct {
+type HttpServer struct { //nolint
 	chi.Router
 	lsn net.Listener
 	srv *http.Server
@@ -25,7 +25,7 @@ type HttpServer struct {
 
 //-----------------------------------------------------------------------------
 
-func NewHttpServer() *HttpServer {
+func NewHttpServer() *HttpServer { //nolint
 	s := new(HttpServer)
 	s.Router = chi.NewMux()
 	return s
