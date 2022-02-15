@@ -1,26 +1,17 @@
 package itinerary
 
-type Stepf func()
-
-type Passenger struct {
-	ID   string
-	Name string
-}
+import "github.com/openmarketplaceengine/openmarketplaceengine/core/model/job/flow"
 
 type Itinerary struct {
 	ID        string
 	StartTime string
-	flow      *flow
+	flow      *flow.Flow
 }
 
-func (i *Itinerary) AddGoToLocationStep() {
-	i.flow.addStep("abc", goToLocation)
-}
-
-func NewItinerary(id string, startTime string) *Itinerary {
+func NewItinerary(id string, startTime string, steps []flow.Step) *Itinerary {
 	return &Itinerary{
 		ID:        id,
 		StartTime: startTime,
-		flow:      newFlow(),
+		flow:      flow.NewFlow(id, steps),
 	}
 }
