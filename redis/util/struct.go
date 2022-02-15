@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
+	"strings"
 
 	"github.com/pkg/errors"
 )
@@ -96,6 +97,13 @@ func MapToStruct(m map[string]string, item interface{}) error {
 				return errors.Wrap(innerErr, fmt.Sprintf("unable unmarshal nested struct value=%v", v))
 			}
 			field.Set(reflect.ValueOf(nested).Elem())
+		case reflect.Slice:
+			s := value.String()
+			s = strings.ReplaceAll(s, "[", "")
+			s = strings.ReplaceAll(s, "]", "")
+			split := strings.Split(s, " ")
+			field.Set(reflect.ValueOf(split))
+
 		default:
 			return fmt.Errorf("unsupported type=%v", fieldKind)
 		}
