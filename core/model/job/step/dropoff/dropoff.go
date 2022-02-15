@@ -1,38 +1,91 @@
 package dropoff
 
 import (
-	"github.com/cocoonspace/fsm"
+	"context"
+	"time"
 )
 
+type State int
+type Event int
+
 const (
-	ReadyEvent fsm.Event = iota
+	New State = iota
+	Ready
+	Completed
+	Cancelled
+)
+
+func (s State) String() string {
+	return [...]string{"New", "Ready", "Completed", "Cancelled"}[s]
+}
+
+const (
+	ReadyEvent Event = iota
 	CompletedEvent
+	CancelledEvent
 )
 
-const (
-	ReadyState fsm.State = iota
-	CompletedState
-)
+func (e Event) String() string {
+	return [...]string{"ReadyEvent", "CompletedEvent", "CancelledEvent"}[e]
+}
 
 type DropOff struct {
-	f *fsm.FSM
+	DriverID         string  `json:",string"`
+	DropOffLatitude  float64 `json:",string"`
+	DropOffLongitude float64 `json:",string"`
+	PassengerIds     string  `json:",string"`
+	UpdatedAt        string  `json:",string"`
+	State            State   `json:",string"`
 }
 
-func (p *DropOff) Complete() {
-	p.f.Event(CompletedEvent)
-}
-
-func NewDropOff(onExit func()) *DropOff {
-	return &DropOff{
-		f: newDropOffFsm(onExit),
+func NewDropOff(ctx context.Context, driverID string, latitude, longitude float64) (dropOff *DropOff, err error) {
+	dropOff = &DropOff{
+		DriverID:         driverID,
+		DropOffLatitude:  latitude,
+		DropOffLongitude: longitude,
+		UpdatedAt:        time.Now().Format(time.RFC3339Nano),
+		State:            New,
 	}
+
+	err = storage.Store(ctx, *dropOff)
+	if err != nil {
+		return
+	}
+	return
 }
 
-func newDropOffFsm(onExit func()) *fsm.FSM {
-	f := fsm.New(ReadyState)
-	f.Transition(fsm.On(CompletedEvent), fsm.Src(ReadyState), fsm.Dst(CompletedState))
-	f.Exit(func(state fsm.State) {
-		onExit()
-	})
-	return f
+func (p *DropOff) updateState(ctx context.Context, state State) error {
+	p.UpdatedAt = time.Now().Format(time.RFC3339Nano)
+	p.State = state
+
+	err := storage.Store(ctx, *p)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (p *DropOff) Ready(ctx context.Context) error {
+	err := checkTransition(p.State, ReadyEvent)
+	if err != nil {
+		return err
+	}
+	return p.updateState(ctx, Ready)
+}
+
+func (p *DropOff) Complete(ctx context.Context) error {
+	err := checkTransition(p.State, CompletedEvent)
+	if err != nil {
+		return err
+	}
+	return p.updateState(ctx, Completed)
+}
+
+func (p *DropOff) Cancel(ctx context.Context) error {
+	err := checkTransition(p.State, CancelledEvent)
+	if err != nil {
+		return err
+	}
+	return p.updateState(ctx, Cancelled)
 }
