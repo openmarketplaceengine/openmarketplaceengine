@@ -5,10 +5,13 @@
 package cfg
 
 import (
+	"context"
 	"flag"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
 )
 
 var ctxTestWait int
@@ -43,6 +46,13 @@ func TestCtx_WaitStop(t *testing.T) {
 		go testWaitStop(t, c.context(), &wg, i)
 	}
 	stopAfter(c.context(), &wg)
+}
+
+//-----------------------------------------------------------------------------
+
+func TestCtx_Background_Done(t *testing.T) {
+	done := checkDoneChan(context.Background())
+	require.Equal(t, false, done)
 }
 
 //-----------------------------------------------------------------------------
@@ -115,7 +125,7 @@ func BenchmarkContext_DoneStop(b *testing.B) {
 
 //-----------------------------------------------------------------------------
 
-func benchDone(b *testing.B, f func(ctx SignalContext) bool) {
+func benchDone(b *testing.B, f func(ctx context.Context) bool) {
 	var x sigctx
 	c := x.context()
 	b.ResetTimer()
@@ -130,12 +140,12 @@ func benchDone(b *testing.B, f func(ctx SignalContext) bool) {
 }
 
 //go:noinline
-func checkDoneErr(c SignalContext) bool {
+func checkDoneErr(c context.Context) bool {
 	return c.Err() != nil
 }
 
 //go:noinline
-func checkDoneChan(c SignalContext) bool {
+func checkDoneChan(c context.Context) bool {
 	select {
 	case <-c.Done():
 		return true
@@ -145,6 +155,9 @@ func checkDoneChan(c SignalContext) bool {
 }
 
 //go:noinline
-func checkDoneStop(c SignalContext) bool {
-	return c.Stopped()
+func checkDoneStop(c context.Context) bool {
+	if s, ok := c.(SignalContext); ok {
+		return s.Stopped()
+	}
+	panic("SignalContext required")
 }
