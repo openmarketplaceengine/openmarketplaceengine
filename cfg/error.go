@@ -76,3 +76,11 @@ func (e *MultiError) Return() error {
 	}
 	return nil
 }
+
+//-----------------------------------------------------------------------------
+
+type CantStop string
+
+func (e CantStop) Error() string {
+	return fmt.Sprintf("cannot stop %s without successful boot", e)
+}
