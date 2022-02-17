@@ -8,7 +8,6 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"golang.org/x/net/context"
 )
 
 func TestGoToLocation(t *testing.T) {
@@ -17,7 +16,7 @@ func TestGoToLocation(t *testing.T) {
 
 	storage = newStorage(30 * time.Second)
 
-	ctx := context.Background()
+	ctx := cfg.Context()
 	driverID := uuid.New().String()
 	newGTL, err := NewGoToLocation(ctx, driverID, 7, 8)
 	require.NoError(t, err)
@@ -40,14 +39,14 @@ func TestGoToLocation(t *testing.T) {
 }
 
 func testRetrieveNil(t *testing.T) {
-	ctx := context.Background()
+	ctx := cfg.Context()
 	driverID := uuid.New().String()
 	_, err := storage.Retrieve(ctx, driverID)
 	require.Error(t, err)
 }
 
 func testNew(t *testing.T, newGTL *GoToLocation) {
-	ctx := context.Background()
+	ctx := cfg.Context()
 
 	retrieved, err := storage.Retrieve(ctx, newGTL.DriverID)
 	require.NoError(t, err)
@@ -60,7 +59,7 @@ func testNew(t *testing.T, newGTL *GoToLocation) {
 }
 
 func testNewToMoving(t *testing.T, newGTL *GoToLocation) {
-	ctx := context.Background()
+	ctx := cfg.Context()
 	prevState := newGTL.State
 	prevLastModifiedAt := newGTL.UpdatedAt
 	err := newGTL.Moving(ctx, 7, 8)
@@ -79,7 +78,7 @@ func testNewToMoving(t *testing.T, newGTL *GoToLocation) {
 }
 
 func testNewToArrived(t *testing.T, newGTL *GoToLocation) {
-	ctx := context.Background()
+	ctx := cfg.Context()
 	prevState := newGTL.State
 	prevLastModifiedAt := newGTL.UpdatedAt
 	err := newGTL.Arrived(ctx, 7, 8)
