@@ -24,7 +24,7 @@ type GrpcConfig struct {
 func (c *GrpcConfig) Check(name ...string) (err error) {
 	if err = checkPort(c.Port, minHttpPort, append(name, "port")); err == nil {
 		if c.Timeout.Connect < 1 {
-			err = fmt.Errorf("%s is too small", field(append(name, "timeout", "connect")))
+			err = fmt.Errorf("%s is too small", field(name, "timeout", "connect"))
 		}
 	}
 	return

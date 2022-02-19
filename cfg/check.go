@@ -94,7 +94,10 @@ func matchString(s string, allow ...string) bool {
 
 //-----------------------------------------------------------------------------
 
-func field(name []string) string {
+func field(name []string, more ...string) string {
+	if len(more) > 0 {
+		name = append(name, more...)
+	}
 	return strings.Join(name, ".")
 }
 
