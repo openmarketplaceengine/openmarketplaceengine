@@ -30,6 +30,7 @@ type ServerConfig struct {
 	Appurl string     `env:"APP_URL" usage:"Application’s primary domain in http format (e.g. https://my-domain.com)"`
 	Http   HttpConfig //nolint
 	Grpc   GrpcConfig
+	Pgdb   PgdbConfig
 	Redis  RedisConfig
 	Log    LogConfig
 	flags  *flag.FlagSet   // command line arguments
@@ -72,6 +73,11 @@ func Log() *LogConfig {
 	return &_cfg.Log
 }
 
+// Pgdb is a shortcut for the ServerConfig.Pgdb
+func Pgdb() *PgdbConfig {
+	return &_cfg.Pgdb
+}
+
 // Load performs loading of ServerConfig from a file,
 // environment, and command line arguments.
 func Load() error {
@@ -108,6 +114,7 @@ func (c *ServerConfig) Check() (err error) {
 	var check checkList
 	check.add("http", &c.Http)
 	check.add("grpc", &c.Grpc)
+	check.add("pgdb", &c.Pgdb)
 	check.add("redis", &c.Redis)
 	check.add("log", &c.Log)
 	return check.run()
