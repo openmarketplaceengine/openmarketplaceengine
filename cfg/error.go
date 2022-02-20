@@ -82,5 +82,5 @@ func (e *MultiError) Return() error {
 type CantStop string
 
 func (e CantStop) Error() string {
-	return fmt.Sprintf("cannot stop %s without successful boot", e)
+	return fmt.Sprintf("cannot stop %s without successful boot", string(e))
 }
