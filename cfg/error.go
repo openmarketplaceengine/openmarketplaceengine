@@ -84,3 +84,11 @@ type CantStop string
 func (e CantStop) Error() string {
 	return fmt.Sprintf("cannot stop %s without successful boot", string(e))
 }
+
+//-----------------------------------------------------------------------------
+
+type EmptyError string
+
+func (e EmptyError) Error() string {
+	return fmt.Sprintf("%s is empty", string(e))
+}
