@@ -26,8 +26,9 @@ const (
 
 // ServerConfig represents global OME server configuration.
 type ServerConfig struct {
-	Domain string     `env:"APP_DOMAIN" usage:"Application’s primary domain"`
-	Appurl string     `env:"APP_URL" usage:"Application’s primary domain in http format (e.g. https://my-domain.com)"`
+	Domain string     `env:"APP_DOMAIN" usage:"application’s primary domain"`
+	Appurl string     `env:"APP_URL" usage:"application’s primary domain in http format (e.g. https://my-domain.com)"`
+	Apiver string     `env:"API_VER" default:"v1" usage:"current API version"`
 	Http   HttpConfig //nolint
 	Grpc   GrpcConfig
 	Pgdb   PgdbConfig
@@ -73,7 +74,7 @@ func Log() *LogConfig {
 	return &_cfg.Log
 }
 
-// Pgdb is a shortcut for the ServerConfig.Pgdb
+// Pgdb is a shortcut for the ServerConfig.Pgdb.
 func Pgdb() *PgdbConfig {
 	return &_cfg.Pgdb
 }
@@ -111,6 +112,9 @@ func (c *ServerConfig) Load() error {
 
 // Check validates ServerConfig fields.
 func (c *ServerConfig) Check() (err error) {
+	if len(c.Apiver) == 0 {
+		return EmptyError("apiver")
+	}
 	var check checkList
 	check.add("http", &c.Http)
 	check.add("grpc", &c.Grpc)
