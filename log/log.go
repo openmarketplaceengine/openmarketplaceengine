@@ -1,5 +1,7 @@
 package log
 
+type PrintFunc = func(format string, args ...interface{})
+
 // Logger interface describes logging functions.
 type Logger interface {
 	IsDebug() bool
@@ -7,6 +9,7 @@ type Logger interface {
 	IsWarn() bool
 	IsError() bool
 	IsLevel(lev Level) bool
+	LevelFunc(lev Level) PrintFunc
 	Debugf(format string, args ...interface{})
 	Infof(format string, args ...interface{})
 	Warnf(format string, args ...interface{})
@@ -41,6 +44,10 @@ func IsWarn() bool {
 
 func IsError() bool {
 	return z.IsError()
+}
+
+func LevelFunc(lev Level) PrintFunc {
+	return z.LevelFunc(lev)
 }
 
 //-----------------------------------------------------------------------------
@@ -127,6 +134,25 @@ func (z *zapLog) Panicf(format string, args ...interface{}) {
 
 func (z *zapLog) Fatalf(format string, args ...interface{}) {
 	z.s.Fatalf(format, args...)
+}
+
+func (z *zapLog) LevelFunc(lev Level) PrintFunc {
+	switch lev {
+	case LevelDebug:
+		return z.Debugf
+	case LevelInfo:
+		return z.Infof
+	case LevelWarn:
+		return z.Warnf
+	case LevelError:
+		return z.Errorf
+	case LevelPanic:
+		return z.Panicf
+	case LevelFatal:
+		return Fatalf
+	default:
+		return nil
+	}
 }
 
 //-----------------------------------------------------------------------------
