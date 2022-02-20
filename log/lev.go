@@ -24,4 +24,6 @@ const (
 	LevelPanic = zapcore.PanicLevel
 	// LevelFatal logs a message, then calls os.Exit(1).
 	LevelFatal = zapcore.FatalLevel
+	// LevelNone disables logging
+	LevelNone = LevelFatal + 1
 )
