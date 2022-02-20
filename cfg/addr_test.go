@@ -31,6 +31,21 @@ func TestAddress_MarshalText(t *testing.T) {
 
 //-----------------------------------------------------------------------------
 
+func TestAddress_AppendQuery(t *testing.T) {
+	data := [][2]string{
+		{"", "?key=val"},
+		{"?", "?key=val"},
+		{"?x=y", "?x=y&key=val"},
+	}
+	for i := range data {
+		kv := data[i]
+		ad := Address(kv[0]).AppendQuery("key", "val", false)
+		require.Equal(t, kv[1], string(ad))
+	}
+}
+
+//-----------------------------------------------------------------------------
+
 func addrTestData() [][2]string {
 	//goland:noinspection GrazieInspection
 	return [][2]string{

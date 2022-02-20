@@ -5,6 +5,7 @@
 package cfg
 
 import (
+	"net/url"
 	"strings"
 	"unsafe"
 )
@@ -35,6 +36,34 @@ func (a Address) String() string {
 		return *(*string)(unsafe.Pointer(&b))
 	}
 	return string(a)
+}
+
+// AppendQuery appends address with name=value query parameter.
+func (a Address) AppendQuery(name, value string, escape bool) Address {
+	s := string(a)
+	if escape {
+		name = url.QueryEscape(name)
+		value = url.QueryEscape(value)
+	}
+	b := make([]byte, 0, len(s)+len(name)+len(value)+2)
+	b = append(b, s...)
+	x := strings.IndexByte(s, '?')
+	if x == -1 {
+		b = append(b, '?')
+	} else if x < (len(s) - 1) {
+		b = append(b, '&')
+	}
+	b = appendQuery(b, name, value)
+	return *(*Address)(unsafe.Pointer(&b))
+}
+
+//-----------------------------------------------------------------------------
+
+func appendQuery(b []byte, name, value string) []byte {
+	b = append(b, name...)
+	b = append(b, '=')
+	b = append(b, value...)
+	return b
 }
 
 //-----------------------------------------------------------------------------
