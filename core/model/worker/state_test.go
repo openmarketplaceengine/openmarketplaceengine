@@ -1,4 +1,4 @@
-package provider
+package worker
 
 import (
 	"testing"
@@ -18,8 +18,8 @@ func TestProviderState(t *testing.T) {
 		testGoOffline(t, state)
 	})
 
-	t.Run("testInitialState", func(t *testing.T) {
-		testInitialState(t)
+	t.Run("testCannotSignOffWhileDelivering", func(t *testing.T) {
+		testCannotSignOffWhileDelivering(t)
 	})
 
 	t.Run("testAllTransitions", func(t *testing.T) {
@@ -29,43 +29,47 @@ func TestProviderState(t *testing.T) {
 
 func testGoOnline(t *testing.T, state *StateController) {
 	state.fcm.Reset()
-	err := state.GoOnline()
+	err := state.Ready()
 	require.NoError(t, err)
-	require.Equal(t, Online, State(state.fcm.Current()))
+	require.Equal(t, Idle, State(state.fcm.Current()))
 
-	err = state.GoOnline()
+	err = state.Ready()
 	assert.Error(t, err)
 }
 
 func testGoOffline(t *testing.T, state *StateController) {
 	state.fcm.Reset()
-	err := state.GoOffline()
+	err := state.SignOff()
 	require.Error(t, err)
 	require.Equal(t, Offline, State(state.fcm.Current()))
 
-	err = state.GoOnline()
+	err = state.Ready()
 	assert.NoError(t, err)
 
-	err = state.GoOffline()
+	err = state.SignOff()
 	require.NoError(t, err)
 }
 
-func testInitialState(t *testing.T) {
+func testCannotSignOffWhileDelivering(t *testing.T) {
 	state := NewStateController(Delivering)
-	err := state.GoOffline()
+	err := state.SignOff()
 	require.Error(t, err)
 	require.Equal(t, Delivering, State(state.fcm.Current()))
 
-	err = state.CompleteDelivery()
+	err = state.DropOff()
 	assert.NoError(t, err)
-	require.Equal(t, Online, State(state.fcm.Current()))
+	require.Equal(t, DroppingOff, State(state.fcm.Current()))
+
+	err = state.Ready()
+	assert.NoError(t, err)
+	require.Equal(t, Idle, State(state.fcm.Current()))
 }
 
 func testAllTransitions(t *testing.T, state *StateController) {
 	state.fcm.Reset()
-	err := state.GoOnline()
+	err := state.Ready()
 	assert.NoError(t, err)
-	require.Equal(t, Online, State(state.fcm.Current()))
+	require.Equal(t, Idle, State(state.fcm.Current()))
 
 	err = state.PickUp()
 	require.NoError(t, err)
@@ -75,11 +79,15 @@ func testAllTransitions(t *testing.T, state *StateController) {
 	require.NoError(t, err)
 	require.Equal(t, Delivering, State(state.fcm.Current()))
 
-	err = state.CompleteDelivery()
+	err = state.DropOff()
 	require.NoError(t, err)
-	require.Equal(t, Online, State(state.fcm.Current()))
+	require.Equal(t, DroppingOff, State(state.fcm.Current()))
 
-	err = state.GoOffline()
+	err = state.Ready()
+	assert.NoError(t, err)
+	require.Equal(t, Idle, State(state.fcm.Current()))
+
+	err = state.SignOff()
 	require.NoError(t, err)
 	require.Equal(t, Offline, State(state.fcm.Current()))
 }

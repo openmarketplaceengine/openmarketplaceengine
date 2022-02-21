@@ -1,4 +1,4 @@
-package provider
+package worker
 
 import (
 	"fmt"
@@ -12,39 +12,40 @@ type Event int
 
 const (
 	Offline State = iota
-	Online
+	Idle
 	PickingUp
 	Delivering
+	DroppingOff
 )
 
 func (s State) String() string {
-	return [...]string{"Offline", "Online", "PickingUp", "Delivering"}[s]
+	return [...]string{"Offline", "Idle", "PickingUp", "Delivering", "DroppingOff"}[s]
 }
 
 const (
-	GoOnline Event = iota
-	GoOffline
+	Ready Event = iota
+	SignOff
 	PickUp
 	Deliver
-	CompleteDelivery
+	DropOff
 )
 
 func (s Event) String() string {
-	return [...]string{"GoOnline", "GoOffline", "PickUp", "Deliver", "CompleteDelivery"}[s]
+	return [...]string{"Ready", "SignOff", "PickUp", "Deliver", "DropOff"}[s]
 }
 
 type StateController struct {
 	fcm *fsm.FSM
 }
 
-func (c *StateController) GoOnline() error {
-	res := c.fcm.Event(fsm.Event(GoOnline))
-	return c.checkState(res, GoOnline, Online)
+func (c *StateController) Ready() error {
+	res := c.fcm.Event(fsm.Event(Ready))
+	return c.checkState(res, Ready, Idle)
 }
 
-func (c *StateController) GoOffline() error {
-	res := c.fcm.Event(fsm.Event(GoOffline))
-	return c.checkState(res, GoOffline, Offline)
+func (c *StateController) SignOff() error {
+	res := c.fcm.Event(fsm.Event(SignOff))
+	return c.checkState(res, SignOff, Offline)
 }
 
 func (c *StateController) PickUp() error {
@@ -57,12 +58,12 @@ func (c *StateController) Deliver() error {
 	return c.checkState(res, Deliver, Delivering)
 }
 
-func (c *StateController) CompleteDelivery() error {
-	res := c.fcm.Event(fsm.Event(CompleteDelivery))
-	return c.checkState(res, CompleteDelivery, Online)
+func (c *StateController) DropOff() error {
+	res := c.fcm.Event(fsm.Event(DropOff))
+	return c.checkState(res, DropOff, DroppingOff)
 }
 
-func (c StateController) checkState(res bool, event Event, expected State) error {
+func (c *StateController) checkState(res bool, event Event, expected State) error {
 	current := State(c.fcm.Current())
 	if !res {
 		return fmt.Errorf("state transition failed for event=%v current=%v", event, current)
@@ -75,15 +76,14 @@ func (c StateController) checkState(res bool, event Event, expected State) error
 
 func NewStateController(initialState State) *StateController {
 	f := fsm.New(fsm.State(initialState))
-	f.Transition(fsm.On(fsm.Event(GoOnline)), fsm.Src(fsm.State(Offline)), fsm.Dst(fsm.State(Online)))
-	f.Transition(fsm.On(fsm.Event(GoOffline)), fsm.Src(fsm.State(Online)), fsm.Dst(fsm.State(Offline)))
-	f.Transition(fsm.On(fsm.Event(PickUp)), fsm.Src(fsm.State(Online)), fsm.Dst(fsm.State(PickingUp)))
+	fmt.Printf("initial state=%v\n", State(f.Current()))
+	f.Transition(fsm.On(fsm.Event(Ready)), fsm.Src(fsm.State(Offline)), fsm.Dst(fsm.State(Idle)))
+	f.Transition(fsm.On(fsm.Event(SignOff)), fsm.Src(fsm.State(Idle)), fsm.Dst(fsm.State(Offline)))
+	f.Transition(fsm.On(fsm.Event(PickUp)), fsm.Src(fsm.State(Idle)), fsm.Dst(fsm.State(PickingUp)))
 	f.Transition(fsm.On(fsm.Event(Deliver)), fsm.Src(fsm.State(PickingUp)), fsm.Dst(fsm.State(Delivering)))
-	f.Transition(fsm.On(fsm.Event(CompleteDelivery)), fsm.Src(fsm.State(Delivering)), fsm.Dst(fsm.State(Online)))
+	f.Transition(fsm.On(fsm.Event(DropOff)), fsm.Src(fsm.State(Delivering)), fsm.Dst(fsm.State(DroppingOff)))
+	f.Transition(fsm.On(fsm.Event(Ready)), fsm.Src(fsm.State(DroppingOff)), fsm.Dst(fsm.State(Idle)))
 
-	f.EnterState(fsm.State(Offline), func() {
-		fmt.Println("going offline")
-	})
 	f.Enter(func(state fsm.State) {
 		fmt.Printf("enter state=%v\n", State(state))
 	})
