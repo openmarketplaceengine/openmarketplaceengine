@@ -17,7 +17,7 @@ type GrpcConfig struct {
 		Connect uint `default:"120" usage:"timeout in #seconds# to establish a new connection (including HTTP/2 handshaking)"`
 		Stop    uint `default:"20" usage:"gRPC server graceful shutdown timeout in #seconds#"`
 	}
-	Workers uint `yaml:",omitempty" default:"0" usage:"#number# of worker goroutines that should be used to process incoming streams"`
+	Workers uint `default:"0" usage:"#number# of worker goroutines that should be used to process incoming streams"`
 }
 
 // Check validates GrpcConfig params.
