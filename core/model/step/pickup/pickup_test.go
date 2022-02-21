@@ -76,7 +76,7 @@ func testNewToReady(ctx context.Context, t *testing.T, driverID string) {
 	require.NoError(t, err)
 	last, err := time.Parse(time.RFC3339Nano, ready.UpdatedAt)
 	require.NoError(t, err)
-	assert.Less(t, prev.UnixMilli(), last.UnixMilli())
+	assert.Less(t, prev.UnixNano(), last.UnixNano())
 }
 
 func testNewToCancelled(ctx context.Context, t *testing.T, driverID string) {
