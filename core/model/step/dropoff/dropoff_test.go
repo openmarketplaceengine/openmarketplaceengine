@@ -1,14 +1,13 @@
 package dropoff
 
 import (
-	"testing"
-	"time"
-
+	"context"
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"golang.org/x/net/context"
+	"testing"
+	"time"
 )
 
 func TestDropOff(t *testing.T) {
