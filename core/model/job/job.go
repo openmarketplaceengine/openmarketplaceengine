@@ -33,31 +33,3 @@ type Job struct {
 	EndTime     time.Time
 	WorkerID    string
 }
-
-// Itinerary is a planned journey for a Job array
-type Itinerary struct {
-	Jobs        []Job
-	Steps       []Step
-	CurrentStep Step
-	StartTime   time.Time
-	WorkerId    string
-}
-
-// Action defines primitive action constituting a Job
-type Action int
-
-const (
-	GoToLocation Action = iota
-	Pickup
-	DropOff
-	CollectCache
-	CollectVoucher
-	CallPhone
-)
-
-// Step is a part of Job execution
-// JobID refers to Job step belongs to
-type Step struct {
-	JobID  string
-	Action Action
-}
