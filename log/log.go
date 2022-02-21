@@ -10,6 +10,7 @@ type Logger interface {
 	IsError() bool
 	IsLevel(lev Level) bool
 	LevelFunc(lev Level) PrintFunc
+	Levelf(level Level, format string, args ...interface{})
 	Debugf(format string, args ...interface{})
 	Infof(format string, args ...interface{})
 	Warnf(format string, args ...interface{})
@@ -152,6 +153,23 @@ func (z *zapLog) LevelFunc(lev Level) PrintFunc {
 		return Fatalf
 	default:
 		return nil
+	}
+}
+
+func (z *zapLog) Levelf(level Level, format string, args ...interface{}) {
+	switch level {
+	case LevelDebug:
+		z.Debugf(format, args...)
+	case LevelInfo:
+		z.Infof(format, args...)
+	case LevelWarn:
+		z.Warnf(format, args...)
+	case LevelError:
+		z.Errorf(format, args...)
+	case LevelPanic:
+		z.Panicf(format, args...)
+	case LevelFatal:
+		z.Fatalf(format, args...)
 	}
 }
 
