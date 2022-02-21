@@ -2,12 +2,12 @@ package job
 
 import "time"
 
-// Address as defined in geocoding
+// Address as defined in geocoding.
 type Address struct {
 	ShortName string
 }
 
-// Location to visit
+// Location to visit.
 type Location struct {
 	Longitude float64
 	Latitude  float64
@@ -16,7 +16,7 @@ type Location struct {
 }
 
 // RideRequest represents ride (and delivery?) pickup/drop-off request
-// SubjectID refers to either passenger or package
+// SubjectID refers to either passenger or package.
 type RideRequest struct {
 	PickupLocation     Location
 	DropOffLocation    Location
@@ -26,7 +26,7 @@ type RideRequest struct {
 }
 
 // Job represents activities assigned to Worker
-// WorkerID refers to worker.Worker
+// WorkerID refers to worker.Worker.
 type Job struct {
 	RideRequest RideRequest
 	StartTime   time.Time
