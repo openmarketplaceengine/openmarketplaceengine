@@ -215,6 +215,12 @@ func (c compactEncoder) EncodeEntry(e zapcore.Entry, _ []zapcore.Field) (*buffer
 	b.AppendTime(e.Time, TimeFormat)
 	c.sep(b)
 	b.AppendString(zapLevStr(e.Level))
+	if len(e.LoggerName) > 0 {
+		c.sep(b)
+		b.AppendByte('[')
+		b.AppendString(e.LoggerName)
+		b.AppendByte(']')
+	}
 	hasMsg := false
 	if m, n := trimEOL(e.Message); n > 0 {
 		c.sep(b)

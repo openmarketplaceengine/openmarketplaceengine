@@ -17,6 +17,7 @@ type Logger interface {
 	Errorf(format string, args ...interface{})
 	Panicf(format string, args ...interface{})
 	Fatalf(format string, args ...interface{})
+	Named(s string) Logger
 	Sync() error
 }
 
@@ -49,6 +50,14 @@ func IsError() bool {
 
 func LevelFunc(lev Level) PrintFunc {
 	return z.LevelFunc(lev)
+}
+
+func Levelf(level Level, format string, args ...interface{}) {
+	z.Levelf(level, format, args...)
+}
+
+func Named(s string) Logger {
+	return z.Named(s)
 }
 
 //-----------------------------------------------------------------------------
@@ -171,6 +180,14 @@ func (z *zapLog) Levelf(level Level, format string, args ...interface{}) {
 	case LevelFatal:
 		z.Fatalf(format, args...)
 	}
+}
+
+//-----------------------------------------------------------------------------
+
+func (z *zapLog) Named(s string) Logger {
+	named := new(zapLog)
+	named.set(z.z.Named(s))
+	return named
 }
 
 //-----------------------------------------------------------------------------
