@@ -37,8 +37,9 @@ type ServerConfig struct {
 	flags  *flag.FlagSet   // command line arguments
 	field  []aconfig.Field // configured fields
 	files  []string        // configuration files
-	exit   bool            // must exit
-	penv   bool            // print environment flag
+	dump   func()
+	exit   bool // must exit
+	penv   bool // print environment flag
 }
 
 var _cfg ServerConfig
@@ -96,6 +97,11 @@ func (c *ServerConfig) Load() error {
 	if err == nil {
 		if c.penv {
 			c.printEnviron()
+			return nil
+		}
+		if c.dump != nil {
+			c.exit = true
+			c.dump()
 			return nil
 		}
 		return c.Check()
@@ -187,12 +193,28 @@ func (c *ServerConfig) createConfigLoader() (*aconfig.Loader, error) {
 	c.flags.Usage = func() {}
 	c.flags.SetOutput(io.Discard)
 	c.flags.BoolVar(&c.penv, envFlag, false, "print environment variables")
+	c.flags.Func("dump", "print configuration before validation check [#yaml|json#]", c.dumpFlag)
 	c.field = make([]aconfig.Field, 0, 32)
 	loader.WalkFields(func(f aconfig.Field) bool {
 		c.field = append(c.field, f)
 		return true
 	})
 	return loader, nil
+}
+
+//-----------------------------------------------------------------------------
+
+func (c *ServerConfig) dumpFlag(kind string) (err error) {
+	const unknownFormat = ConstError("unknown dump format")
+	switch kind {
+	case "yaml":
+		c.dump = c.PrintYAML
+	case "json":
+		c.dump = c.PrintJSON
+	default:
+		err = unknownFormat
+	}
+	return
 }
 
 //-----------------------------------------------------------------------------
