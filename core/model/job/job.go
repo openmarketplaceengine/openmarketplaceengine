@@ -2,64 +2,62 @@ package job
 
 import "time"
 
-//type step int
-
-//const (
-//	GoToLocation step = iota
-//	PickupPassenger
-//	DropOffPassenger
-//	CollectCache
-//	CollectVoucher
-//	CallPhone
-//)
-
-// TimeWindow constraint in hours(?)
-type TimeWindow struct {
-	From int
-	To   int
+// Address as defined in geocoding
+type Address struct {
+	ShortName string
 }
 
-// VehicleCapacity constraint in passengers limit or cargo volume.
-type VehicleCapacity string
-
-// Location to visit.
+// Location to visit
 type Location struct {
-	Longitude  float64
-	Latitude   float64
-	Name       string
-	Address    string
-	TimeWindow TimeWindow
+	Longitude float64
+	Latitude  float64
+	Name      string
+	Address   Address
 }
 
-// Ride represents pickup/drop-off passengers.
-type Ride struct {
-	PickupLocation  Location
-	DropOffLocation Location
-	PassengerID     string
+// RideRequest represents ride (and delivery?) pickup/drop-off request
+// SubjectID refers to either passenger or package
+type RideRequest struct {
+	PickupLocation     Location
+	DropOffLocation    Location
+	SubjectID          string
+	RequestedTime      time.Time
+	RequestedStartTime time.Time
 }
 
-// Delivery represents pickup/drop-off packages.
-type Delivery struct {
-	PickupLocation  Location
-	DropOffLocation Location
-	PackageID       string
-}
-
-// Job represents activities assigned to driver.
+// Job represents activities assigned to Worker
+// WorkerID refers to worker.Worker
 type Job struct {
-	Rides           []Ride
-	Deliveries      []Delivery
-	DriverID        string
-	VehicleCapacity VehicleCapacity
-	StartAt         time.Time
+	RideRequest RideRequest
+	StartTime   time.Time
+	EndTime     time.Time
+	WorkerID    string
 }
 
-// Route for Ride or Delivery.
-type Route struct {
+// Itinerary is a planned journey for a Job array
+type Itinerary struct {
+	Jobs        []Job
+	Steps       []Step
+	CurrentStep Step
+	StartTime   time.Time
+	WorkerId    string
 }
 
-type Routing struct {
-	//distance matrix taken from Google Distance Matrix API
-	DistanceMatrix [][]int
-	Routes         []Route
+// Action defines primitive action constituting a Job
+type Action int
+
+const (
+	GoToLocation Action = iota
+	Pickup
+	DropOff
+	CollectCache
+	CollectVoucher
+	CallPhone
+)
+
+// Step is a part of Job execution
+// JobID refers to Job step belongs to
+type Step struct {
+	JobID  string
+	Action Action
 }
