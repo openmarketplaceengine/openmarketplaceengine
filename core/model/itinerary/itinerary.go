@@ -8,14 +8,24 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step"
 )
 
+type Status int
+
+const (
+	Scheduled Status = iota
+	InProgress
+	Completed
+	Canceled
+)
+
 // Itinerary is a planned journey for a job.Job array.
 type Itinerary struct {
 	ID          string
 	Jobs        []*job.Job
 	Steps       []*step.Step
-	CurrentStep step.Step
+	CurrentStep int
 	StartTime   time.Time
 	WorkerID    string
+	Status      Status
 }
 
 func NewItinerary(id string, steps []*step.Step) *Itinerary {
@@ -23,7 +33,7 @@ func NewItinerary(id string, steps []*step.Step) *Itinerary {
 		ID:          id,
 		Jobs:        nil,
 		Steps:       steps,
-		CurrentStep: step.Step{},
+		CurrentStep: 0,
 		StartTime:   time.Time{},
 		WorkerID:    "",
 	}
@@ -44,7 +54,10 @@ func (it *Itinerary) AddStep(step *step.Step) {
 func (it *Itinerary) RemoveStep(stepID string) {
 	i := it.GetStepIndex(stepID)
 	if i > -1 {
-		it.Steps = append(it.Steps[:i], it.Steps[i+1:]...)
+		copy(it.Steps[i:], it.Steps[i+1:])
+		n := len(it.Steps)
+		it.Steps[n-1] = nil
+		it.Steps = it.Steps[:n-1]
 	}
 }
 

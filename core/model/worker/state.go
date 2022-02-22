@@ -19,7 +19,20 @@ const (
 )
 
 func (s State) String() string {
-	return [...]string{"Offline", "Idle", "PickingUp", "Delivering", "DroppingOff"}[s]
+	switch s {
+	case Offline:
+		return "Offline"
+	case Idle:
+		return "Idle"
+	case Delivering:
+		return "Delivering"
+	case PickingUp:
+		return "PickingUp"
+	case DroppingOff:
+		return "DroppingOff"
+	default:
+		return fmt.Sprintf("%d", s)
+	}
 }
 
 const (
@@ -30,8 +43,21 @@ const (
 	DropOff
 )
 
-func (s Event) String() string {
-	return [...]string{"Ready", "SignOff", "PickUp", "Deliver", "DropOff"}[s]
+func (e Event) String() string {
+	switch e {
+	case Ready:
+		return "Ready"
+	case SignOff:
+		return "SignOff"
+	case PickUp:
+		return "PickUp"
+	case Deliver:
+		return "Deliver"
+	case DropOff:
+		return "DropOff"
+	default:
+		return fmt.Sprintf("%d", e)
+	}
 }
 
 type StateController struct {

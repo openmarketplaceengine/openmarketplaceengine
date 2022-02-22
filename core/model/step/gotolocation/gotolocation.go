@@ -2,6 +2,7 @@ package gotolocation
 
 import (
 	"context"
+	"fmt"
 	"time"
 )
 
@@ -17,7 +18,20 @@ const (
 )
 
 func (s State) String() string {
-	return [...]string{"New", "Moving", "Near", "Arrived", "Cancelled"}[s]
+	switch s {
+	case New:
+		return "New"
+	case Moving:
+		return "Moving"
+	case Near:
+		return "Near"
+	case Arrived:
+		return "Arrived"
+	case Cancelled:
+		return "Cancelled"
+	default:
+		return fmt.Sprintf("%d", s)
+	}
 }
 
 const (
@@ -28,7 +42,18 @@ const (
 )
 
 func (e Event) String() string {
-	return [...]string{"MoveEvent", "NearEvent", "ArrivedEvent", "CancelledEvent"}[e]
+	switch e {
+	case MoveEvent:
+		return "MoveEvent"
+	case NearEvent:
+		return "NearEvent"
+	case ArrivedEvent:
+		return "ArrivedEvent"
+	case CancelledEvent:
+		return "CancelledEvent"
+	default:
+		return fmt.Sprintf("%d", e)
+	}
 }
 
 type GoToLocation struct {

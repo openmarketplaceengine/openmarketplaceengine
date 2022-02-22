@@ -2,6 +2,7 @@ package pickup
 
 import (
 	"context"
+	"fmt"
 	"time"
 )
 
@@ -16,7 +17,18 @@ const (
 )
 
 func (s State) String() string {
-	return [...]string{"New", "Ready", "Completed", "Cancelled"}[s]
+	switch s {
+	case New:
+		return "New"
+	case Ready:
+		return "Ready"
+	case Completed:
+		return "Completed"
+	case Cancelled:
+		return "Cancelled"
+	default:
+		return fmt.Sprintf("%d", s)
+	}
 }
 
 const (
@@ -26,7 +38,16 @@ const (
 )
 
 func (e Event) String() string {
-	return [...]string{"ReadyEvent", "CompletedEvent", "CancelledEvent"}[e]
+	switch e {
+	case ReadyEvent:
+		return "ReadyEvent"
+	case CompletedEvent:
+		return "CompletedEvent"
+	case CancelledEvent:
+		return "CancelledEvent"
+	default:
+		return fmt.Sprintf("%d", e)
+	}
 }
 
 type Pickup struct {
