@@ -8,6 +8,7 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/net/context"
 )
 
 func TestStorage(t *testing.T) {
@@ -21,7 +22,7 @@ func TestStorage(t *testing.T) {
 }
 
 func testStoreAndRetrieve(t *testing.T, storage *Storage) {
-	ctx := cfg.Context()
+	ctx := context.Background()
 	driverID := uuid.New().String()
 	stateIn := GoToLocation{
 		DriverID:             driverID,
