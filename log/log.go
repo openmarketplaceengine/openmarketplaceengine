@@ -1,5 +1,10 @@
 package log
 
+import (
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+)
+
 type PrintFunc = func(format string, args ...interface{})
 
 // Logger interface describes logging functions.
@@ -17,8 +22,13 @@ type Logger interface {
 	Errorf(format string, args ...interface{})
 	Panicf(format string, args ...interface{})
 	Fatalf(format string, args ...interface{})
-	Named(s string) Logger
+	Named(name string) Logger
+	NamedLevel(name string, level Level) Logger
 	Sync() error
+}
+
+type levelSetter interface {
+	SetLevel(level Level)
 }
 
 // Log returns default Logger implementation.
@@ -56,8 +66,12 @@ func Levelf(level Level, format string, args ...interface{}) {
 	zlog.Levelf(level, format, args...)
 }
 
-func Named(s string) Logger {
-	return zlog.Named(s)
+func Named(name string) Logger {
+	return zlog.Named(name)
+}
+
+func NamedLevel(name string, level Level) Logger {
+	return zlog.NamedLevel(name, level)
 }
 
 //-----------------------------------------------------------------------------
@@ -184,9 +198,23 @@ func (z *zapLog) Levelf(level Level, format string, args ...interface{}) {
 
 //-----------------------------------------------------------------------------
 
-func (z *zapLog) Named(s string) Logger {
+func (z *zapLog) Named(name string) Logger {
 	named := new(zapLog)
-	named.set(z.z.Named(s))
+	named.set(z.z.Named(name))
+	return named
+}
+
+//-----------------------------------------------------------------------------
+
+func (z *zapLog) NamedLevel(name string, level Level) Logger {
+	nlog := z.z.Named(name).WithOptions(zap.WrapCore(func(core zapcore.Core) zapcore.Core {
+		if lc, ok := core.(*levelCore); ok {
+			return &levelCore{int32(level), lc.core}
+		}
+		return &levelCore{int32(level), core}
+	}))
+	named := new(zapLog)
+	named.set(nlog)
 	return named
 }
 

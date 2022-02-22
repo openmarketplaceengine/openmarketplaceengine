@@ -9,6 +9,7 @@ import (
 	stdlog "log"
 	"os"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"go.uber.org/zap"
@@ -92,7 +93,7 @@ func newZap(c ConfigHolder) (*zap.Logger, error) {
 		encoder = "json"
 	}
 	cfg := zap.Config{
-		Level:             lev,
+		Level:             zap.NewAtomicLevelAt(LevelDebug),
 		Development:       c.LogDevel(),
 		DisableCaller:     !c.LogCaller(),
 		DisableStacktrace: !c.LogTrace(),
@@ -104,28 +105,29 @@ func newZap(c ConfigHolder) (*zap.Logger, error) {
 		EncoderConfig: encoderConfig(c),
 		OutputPaths:   sink,
 	}
-	return cfg.Build()
+	return cfg.Build(zap.WrapCore(func(core zapcore.Core) zapcore.Core {
+		return &levelCore{int32(lev), core}
+	}))
 }
 
 //-----------------------------------------------------------------------------
 
-func zapLev(name string) (lev zap.AtomicLevel, err error) {
-	lev = zap.NewAtomicLevel()
+func zapLev(name string) (lev Level, err error) {
 	switch name {
 	case "debug":
-		lev.SetLevel(zapcore.DebugLevel)
+		lev = LevelDebug
 	case "info":
-		// set by default
+		lev = LevelInfo
 	case "warn":
-		lev.SetLevel(zapcore.WarnLevel)
+		lev = LevelWarn
 	case "error":
-		lev.SetLevel(zapcore.ErrorLevel)
+		lev = LevelError
 	case "panic":
-		lev.SetLevel(zapcore.PanicLevel)
+		lev = LevelPanic
 	case "fatal":
-		lev.SetLevel(zapcore.FatalLevel)
+		lev = LevelFatal
 	default:
-		err = fmt.Errorf("invalid zap log level: %q", name)
+		err = fmt.Errorf("invalid log level: %q", name)
 	}
 	return
 }
@@ -323,4 +325,43 @@ func trimFile(files []string) {
 			_ = os.Remove(name)
 		}
 	}
+}
+
+//-----------------------------------------------------------------------------
+
+type levelCore struct {
+	level int32
+	core  zapcore.Core
+}
+
+func (c *levelCore) Level() Level {
+	return Level(int8(atomic.LoadInt32(&c.level)))
+}
+
+func (c *levelCore) SetLevel(level Level) {
+	atomic.StoreInt32(&c.level, int32(level))
+}
+
+func (c *levelCore) Enabled(level Level) bool {
+	return level >= c.Level()
+}
+
+func (c *levelCore) With(fields []zapcore.Field) zapcore.Core {
+	level := atomic.LoadInt32(&c.level)
+	return &levelCore{level, c.core.With(fields)}
+}
+
+func (c *levelCore) Check(entry zapcore.Entry, checked *zapcore.CheckedEntry) *zapcore.CheckedEntry {
+	if !c.Enabled(entry.Level) {
+		return checked
+	}
+	return c.core.Check(entry, checked)
+}
+
+func (c *levelCore) Write(entry zapcore.Entry, fields []zapcore.Field) error {
+	return c.core.Write(entry, fields)
+}
+
+func (c *levelCore) Sync() error {
+	return c.core.Sync()
 }
