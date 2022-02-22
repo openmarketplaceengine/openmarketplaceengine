@@ -1,0 +1,42 @@
+itinerary_job:
+  id: J9876
+  start_time: immediate
+  steps:
+    - action: GO_TO_LOCATION
+      location:
+        latitude: 40.7484
+        longitude: 73.9857
+    - action: PICK_UP_PASSENGERS
+      known_passengers:
+        - id: C1234
+          name: Hester Garza
+      passenger_count: 2  # Pool trip, pax requested ride for 2
+    - action: GO_TO_LOCATION
+      location:
+        latitude: 40.7614
+        longitude: 73.9776
+    - action: PICK_UP_PASSENGERS
+      known_passengers:
+        - id: C5678
+          name: Roshan Bean
+      passenger_count: 1
+      minimum_wait_time_seconds: 600
+    - action: GO_TO_LOCATION
+      location:
+        latitude: 40.7068
+        longitude: 73.9236
+    - action: DROP_OFF_PASSENGERS
+        known_passengers:
+            - id: C5678
+              name: Roshan Bean
+        passenger_count: 1
+    - action: GO_TO_LOCATION
+      location:
+        latitude: 40.7141
+        longitude: 73.9327
+    - action: DROP_OFF_PASSENGERS
+      known_passengers:
+        - id: C1234
+          name: Hester Garza
+      passenger_count: 2
+

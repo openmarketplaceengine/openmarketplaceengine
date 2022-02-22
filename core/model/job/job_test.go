@@ -14,14 +14,14 @@ func TestJob(t *testing.T) {
 }
 
 func testCreateJob(t *testing.T) {
-	request := RideRequest{
+	transportation := Transportation{
 		PickupLocation:     Location{},
 		DropOffLocation:    Location{},
 		SubjectID:          "",
 		RequestedTime:      time.Time{},
 		RequestedStartTime: time.Time{},
 	}
-	job := NewJob(request, time.Now())
+	job := NewJob("job-1", transportation, time.Now())
 
 	assert.NotNil(t, job)
 }

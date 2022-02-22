@@ -2,6 +2,7 @@ package itinerary
 
 import (
 	"fmt"
+	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/job"
 	"testing"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step"
@@ -28,7 +29,7 @@ func TestItinerary(t *testing.T) {
 }
 
 func testAddStep(t *testing.T) {
-	itinerary := NewItinerary("test-flow-1", []*step.Step{})
+	itinerary := NewItinerary("test-flow-1", []*job.Job{})
 
 	_, err := itinerary.GetFirstStep()
 	require.EqualError(t, err, "itinerary test-flow-1 has no steps")
@@ -41,7 +42,7 @@ func testAddStep(t *testing.T) {
 }
 
 func testGetStep(t *testing.T) {
-	itinerary := NewItinerary("test-flow-1", []*step.Step{})
+	itinerary := NewItinerary("test-flow-1", []*job.Job{})
 
 	step1 := newStep("step1")
 	step2 := newStep("step2")
@@ -56,7 +57,7 @@ func testGetStep(t *testing.T) {
 }
 
 func testRemoveStep(t *testing.T) {
-	itinerary := NewItinerary("test-flow-1", []*step.Step{})
+	itinerary := NewItinerary("test-flow-1", []*job.Job{})
 
 	step1 := newStep("step1")
 	step2 := newStep("step2")
@@ -78,7 +79,7 @@ func testRemoveStep(t *testing.T) {
 }
 
 func testGetStepIndex(t *testing.T) {
-	itinerary := NewItinerary("test-flow-1", []*step.Step{})
+	itinerary := NewItinerary("test-flow-1", []*job.Job{})
 
 	step1 := newStep("step1")
 	step2 := newStep("step2")
@@ -109,6 +110,6 @@ func (it *Itinerary) dump() {
 	fmt.Println()
 }
 
-func newStep(id string) *step.Step {
+func newStep(id step.ID) *step.Step {
 	return &step.Step{ID: id}
 }
