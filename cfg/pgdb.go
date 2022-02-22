@@ -26,9 +26,9 @@ type PgdbConfig struct {
 
 // Check validates PgdbConfig params.
 func (c *PgdbConfig) Check(name ...string) error {
-	if len(c.Addr) == 0 {
-		return fmt.Errorf("%s: empty connection address", field(name, "addr"))
-	}
+	// if len(c.Addr) == 0 {
+	// 	return fmt.Errorf("%s: empty connection address", field(name, "addr"))
+	// }
 	if !c.levelValid(c.Log) {
 		return fmt.Errorf("%s: invalid log level: %q", field(name, "log"), c.Log)
 	}
