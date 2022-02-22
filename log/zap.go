@@ -27,7 +27,7 @@ type zapLog struct {
 }
 
 var (
-	z = noopZap()
+	zlog = noopZap()
 )
 
 var sink []string
@@ -57,7 +57,7 @@ func (z *zapLog) set(log *zap.Logger) {
 //-----------------------------------------------------------------------------
 
 func NewStdLog(level Level) *stdlog.Logger {
-	slog, _ := zap.NewStdLogAt(z.z, level)
+	slog, _ := zap.NewStdLogAt(zlog.z, level)
 	return slog
 }
 
@@ -68,7 +68,7 @@ func Init(c ConfigHolder) error {
 	if err != nil {
 		return err
 	}
-	z.set(log)
+	zlog.set(log)
 	zap.RedirectStdLog(log)
 	return nil
 }

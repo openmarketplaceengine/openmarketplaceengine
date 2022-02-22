@@ -23,77 +23,77 @@ type Logger interface {
 
 // Log returns default Logger implementation.
 func Log() Logger {
-	return &z
+	return &zlog
 }
 
 //-----------------------------------------------------------------------------
 
 func IsLevel(level Level) bool {
-	return z.IsLevel(level)
+	return zlog.IsLevel(level)
 }
 
 func IsDebug() bool {
-	return z.IsDebug()
+	return zlog.IsDebug()
 }
 
 func IsInfo() bool {
-	return z.IsInfo()
+	return zlog.IsInfo()
 }
 
 func IsWarn() bool {
-	return z.IsWarn()
+	return zlog.IsWarn()
 }
 
 func IsError() bool {
-	return z.IsError()
+	return zlog.IsError()
 }
 
 func LevelFunc(lev Level) PrintFunc {
-	return z.LevelFunc(lev)
+	return zlog.LevelFunc(lev)
 }
 
 func Levelf(level Level, format string, args ...interface{}) {
-	z.Levelf(level, format, args...)
+	zlog.Levelf(level, format, args...)
 }
 
 func Named(s string) Logger {
-	return z.Named(s)
+	return zlog.Named(s)
 }
 
 //-----------------------------------------------------------------------------
 
 func Debugf(format string, args ...interface{}) {
-	z.Debugf(format, args...)
+	zlog.Debugf(format, args...)
 }
 
 func Infof(format string, args ...interface{}) {
-	z.Infof(format, args...)
+	zlog.Infof(format, args...)
 }
 
 func Warnf(format string, args ...interface{}) {
-	z.Warnf(format, args...)
+	zlog.Warnf(format, args...)
 }
 
 func Errorf(format string, args ...interface{}) {
-	z.Errorf(format, args...)
+	zlog.Errorf(format, args...)
 }
 
 func Panicf(format string, args ...interface{}) {
-	z.Panicf(format, args...)
+	zlog.Panicf(format, args...)
 }
 
 func Fatalf(format string, args ...interface{}) {
-	z.Fatalf(format, args...)
+	zlog.Fatalf(format, args...)
 }
 
 //-----------------------------------------------------------------------------
 
 func Sync() error {
-	return z.Sync()
+	return zlog.Sync()
 }
 
 func SafeSync() {
-	_ = z.Sync()
+	_ = zlog.Sync()
 }
 
 //-----------------------------------------------------------------------------
