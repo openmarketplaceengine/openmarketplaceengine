@@ -31,5 +31,12 @@ type Job struct {
 	RideRequest RideRequest
 	StartTime   time.Time
 	EndTime     time.Time
-	WorkerID    string
+}
+
+func NewJob(rideRequest RideRequest, startTime time.Time) *Job {
+	return &Job{
+		RideRequest: rideRequest,
+		StartTime:   startTime,
+		EndTime:     time.Time{},
+	}
 }
