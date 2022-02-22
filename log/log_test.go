@@ -12,23 +12,51 @@ import (
 
 func TestDevelConfig(t *testing.T) {
 	callInit(t, DevelConfig())
-	sampleEntries()
+	sampleEntries(Log())
+}
+
+func TestDevelLevel(t *testing.T) {
+	callInit(t, DevelConfig().WithTrace(false).WithLevel("info"))
+	sampleEntries(Log())
 }
 
 func TestJsonConfig(t *testing.T) {
 	callInit(t, DevelConfig().WithStyle("json"))
-	sampleEntries()
+	sampleEntries(Log())
+}
+
+func TestNamedLogger(t *testing.T) {
+	callInit(t, DevelConfig().WithTrace(false))
+	sampleEntries(Log().Named("TEST"))
+}
+
+func TestNamedLevel(t *testing.T) {
+	callInit(t, DevelConfig().WithTrace(false))
+	sampleEntries(Log().NamedLevel("TEST", LevelWarn))
+}
+
+func TestLevelSetter(t *testing.T) {
+	callInit(t, DevelConfig())
+	if _, ok := zlog.c.(levelSetter); ok {
+		t.Logf("zlog.Core is a levelSetter")
+	}
+	if _, ok := zlog.c.(*levelCore); ok {
+		t.Logf("zlog.Core is a levelCore")
+	}
 }
 
 //-----------------------------------------------------------------------------
 // Helpers
 //-----------------------------------------------------------------------------
 
-func sampleEntries() {
-	Debugf("sample log text with: %q", "debug")
-	Infof("sample log text with: %q", "info")
-	Warnf("sample log text with: %q", "warn")
-	Errorf("sample log text with: %q", "error")
+func sampleEntries(log Logger) {
+	if !testing.Verbose() {
+		return
+	}
+	log.Debugf("sample log text with: %q", "debug")
+	log.Infof("sample log text with: %q", "info")
+	log.Warnf("sample log text with: %q", "warn")
+	log.Errorf("sample log text with: %q", "error")
 }
 
 //-----------------------------------------------------------------------------

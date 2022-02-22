@@ -1,5 +1,12 @@
 package log
 
+import (
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+)
+
+type PrintFunc = func(format string, args ...interface{})
+
 // Logger interface describes logging functions.
 type Logger interface {
 	IsDebug() bool
@@ -7,76 +14,95 @@ type Logger interface {
 	IsWarn() bool
 	IsError() bool
 	IsLevel(lev Level) bool
+	Levelf(level Level, format string, args ...interface{})
 	Debugf(format string, args ...interface{})
 	Infof(format string, args ...interface{})
 	Warnf(format string, args ...interface{})
 	Errorf(format string, args ...interface{})
 	Panicf(format string, args ...interface{})
 	Fatalf(format string, args ...interface{})
+	Named(name string) Logger
+	NamedLevel(name string, level Level) Logger
 	Sync() error
+}
+
+type levelSetter interface {
+	SetLevel(level Level)
 }
 
 // Log returns default Logger implementation.
 func Log() Logger {
-	return &z
+	return &zlog
 }
 
 //-----------------------------------------------------------------------------
 
 func IsLevel(level Level) bool {
-	return z.IsLevel(level)
+	return zlog.IsLevel(level)
 }
 
 func IsDebug() bool {
-	return z.IsDebug()
+	return zlog.IsDebug()
 }
 
 func IsInfo() bool {
-	return z.IsInfo()
+	return zlog.IsInfo()
 }
 
 func IsWarn() bool {
-	return z.IsWarn()
+	return zlog.IsWarn()
 }
 
 func IsError() bool {
-	return z.IsError()
+	return zlog.IsError()
+}
+
+func Levelf(level Level, format string, args ...interface{}) {
+	zlog.Levelf(level, format, args...)
+}
+
+func Named(name string) Logger {
+	return zlog.Named(name)
+}
+
+func NamedLevel(name string, level Level) Logger {
+	return zlog.NamedLevel(name, level)
 }
 
 //-----------------------------------------------------------------------------
 
 func Debugf(format string, args ...interface{}) {
-	z.Debugf(format, args...)
+	zlog.Debugf(format, args...)
 }
 
 func Infof(format string, args ...interface{}) {
-	z.Infof(format, args...)
+	zlog.Infof(format, args...)
 }
 
 func Warnf(format string, args ...interface{}) {
-	z.Warnf(format, args...)
+	zlog.Warnf(format, args...)
 }
 
 func Errorf(format string, args ...interface{}) {
-	z.Errorf(format, args...)
+	zlog.Errorf(format, args...)
 }
 
 func Panicf(format string, args ...interface{}) {
-	z.Panicf(format, args...)
+	zlog.Panicf(format, args...)
 }
 
 func Fatalf(format string, args ...interface{}) {
-	z.Fatalf(format, args...)
+	zlog.Fatalf(format, args...)
 }
 
 //-----------------------------------------------------------------------------
 
 func Sync() error {
-	return z.Sync()
+	return zlog.Sync()
 }
 
 func SafeSync() {
-	_ = z.Sync()
+	_ = zlog.Sync()
 }
 
 //-----------------------------------------------------------------------------
@@ -127,6 +153,45 @@ func (z *zapLog) Panicf(format string, args ...interface{}) {
 
 func (z *zapLog) Fatalf(format string, args ...interface{}) {
 	z.s.Fatalf(format, args...)
+}
+
+func (z *zapLog) Levelf(level Level, format string, args ...interface{}) {
+	switch level {
+	case LevelDebug:
+		z.Debugf(format, args...)
+	case LevelInfo:
+		z.Infof(format, args...)
+	case LevelWarn:
+		z.Warnf(format, args...)
+	case LevelError:
+		z.Errorf(format, args...)
+	case LevelPanic:
+		z.Panicf(format, args...)
+	case LevelFatal:
+		z.Fatalf(format, args...)
+	}
+}
+
+//-----------------------------------------------------------------------------
+
+func (z *zapLog) Named(name string) Logger {
+	named := new(zapLog)
+	named.set(z.z.Named(name))
+	return named
+}
+
+//-----------------------------------------------------------------------------
+
+func (z *zapLog) NamedLevel(name string, level Level) Logger {
+	nlog := z.z.Named(name).WithOptions(zap.WrapCore(func(core zapcore.Core) zapcore.Core {
+		if lc, ok := core.(*levelCore); ok {
+			return &levelCore{int32(level), lc.core}
+		}
+		return &levelCore{int32(level), core}
+	}))
+	named := new(zapLog)
+	named.set(nlog)
+	return named
 }
 
 //-----------------------------------------------------------------------------

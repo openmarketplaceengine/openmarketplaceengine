@@ -17,14 +17,14 @@ type GrpcConfig struct {
 		Connect uint `default:"120" usage:"timeout in #seconds# to establish a new connection (including HTTP/2 handshaking)"`
 		Stop    uint `default:"20" usage:"gRPC server graceful shutdown timeout in #seconds#"`
 	}
-	Workers uint `yaml:",omitempty" default:"0" usage:"#number# of worker goroutines that should be used to process incoming streams"`
+	Workers uint `default:"0" usage:"#number# of worker goroutines that should be used to process incoming streams"`
 }
 
 // Check validates GrpcConfig params.
 func (c *GrpcConfig) Check(name ...string) (err error) {
 	if err = checkPort(c.Port, minHttpPort, append(name, "port")); err == nil {
 		if c.Timeout.Connect < 1 {
-			err = fmt.Errorf("%s is too small", field(append(name, "timeout", "connect")))
+			err = fmt.Errorf("%s is too small", field(name, "timeout", "connect"))
 		}
 	}
 	return

@@ -26,17 +26,20 @@ const (
 
 // ServerConfig represents global OME server configuration.
 type ServerConfig struct {
-	Domain string     `env:"APP_DOMAIN" usage:"Application’s primary domain"`
-	Appurl string     `env:"APP_URL" usage:"Application’s primary domain in http format (e.g. https://my-domain.com)"`
+	Domain string     `env:"APP_DOMAIN" usage:"application’s primary domain"`
+	Appurl string     `env:"APP_URL" usage:"application’s primary domain in http format (e.g. https://my-domain.com)"`
+	Apiver string     `env:"API_VER" default:"v1" usage:"current API version"`
 	Http   HttpConfig //nolint
 	Grpc   GrpcConfig
+	Pgdb   PgdbConfig
 	Redis  RedisConfig
 	Log    LogConfig
 	flags  *flag.FlagSet   // command line arguments
 	field  []aconfig.Field // configured fields
 	files  []string        // configuration files
-	exit   bool            // must exit
-	penv   bool            // print environment flag
+	dump   func()
+	exit   bool // must exit
+	penv   bool // print environment flag
 }
 
 var _cfg ServerConfig
@@ -72,6 +75,11 @@ func Log() *LogConfig {
 	return &_cfg.Log
 }
 
+// Pgdb is a shortcut for the ServerConfig.Pgdb.
+func Pgdb() *PgdbConfig {
+	return &_cfg.Pgdb
+}
+
 // Load performs loading of ServerConfig from a file,
 // environment, and command line arguments.
 func Load() error {
@@ -91,6 +99,11 @@ func (c *ServerConfig) Load() error {
 			c.printEnviron()
 			return nil
 		}
+		if c.dump != nil {
+			c.exit = true
+			c.dump()
+			return nil
+		}
 		return c.Check()
 	}
 	if errors.Is(err, flag.ErrHelp) {
@@ -105,9 +118,13 @@ func (c *ServerConfig) Load() error {
 
 // Check validates ServerConfig fields.
 func (c *ServerConfig) Check() (err error) {
+	if len(c.Apiver) == 0 {
+		return EmptyError("apiver")
+	}
 	var check checkList
 	check.add("http", &c.Http)
 	check.add("grpc", &c.Grpc)
+	check.add("pgdb", &c.Pgdb)
 	check.add("redis", &c.Redis)
 	check.add("log", &c.Log)
 	return check.run()
@@ -176,12 +193,28 @@ func (c *ServerConfig) createConfigLoader() (*aconfig.Loader, error) {
 	c.flags.Usage = func() {}
 	c.flags.SetOutput(io.Discard)
 	c.flags.BoolVar(&c.penv, envFlag, false, "print environment variables")
+	c.flags.Func("dump", "print configuration before validation check [#yaml|json#]", c.dumpFlag)
 	c.field = make([]aconfig.Field, 0, 32)
 	loader.WalkFields(func(f aconfig.Field) bool {
 		c.field = append(c.field, f)
 		return true
 	})
 	return loader, nil
+}
+
+//-----------------------------------------------------------------------------
+
+func (c *ServerConfig) dumpFlag(kind string) (err error) {
+	const unknownFormat = ConstError("unknown dump format")
+	switch kind {
+	case "yaml":
+		c.dump = c.PrintYAML
+	case "json":
+		c.dump = c.PrintJSON
+	default:
+		err = unknownFormat
+	}
+	return
 }
 
 //-----------------------------------------------------------------------------
