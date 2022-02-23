@@ -4,75 +4,71 @@ import (
 	"context"
 	"fmt"
 	"time"
-)
 
-type State int
-type Event int
+	"github.com/cocoonspace/fsm"
+	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step"
+)
 
 const (
-	New State = iota
-	Moving
-	Near
-	Arrived
-	Cancelled
+	New      step.Status = "New"
+	Moving   step.Status = "Moving"
+	NearBy   step.Status = "NearBy"
+	Arrived  step.Status = "Arrived"
+	Canceled step.Status = "Canceled"
 )
-
-func (s State) String() string {
-	switch s {
-	case New:
-		return "New"
-	case Moving:
-		return "Moving"
-	case Near:
-		return "Near"
-	case Arrived:
-		return "Arrived"
-	case Cancelled:
-		return "Cancelled"
-	default:
-		return fmt.Sprintf("%d", s)
-	}
-}
 
 const (
-	MoveEvent Event = iota
-	NearEvent
-	ArrivedEvent
-	CancelledEvent
+	Move   step.Action = "Move"
+	Near   step.Action = "Near"
+	Arrive step.Action = "Arrive"
+	Cancel step.Action = "Cancel"
 )
-
-func (e Event) String() string {
-	switch e {
-	case MoveEvent:
-		return "MoveEvent"
-	case NearEvent:
-		return "NearEvent"
-	case ArrivedEvent:
-		return "ArrivedEvent"
-	case CancelledEvent:
-		return "CancelledEvent"
-	default:
-		return fmt.Sprintf("%d", e)
-	}
-}
 
 type GoToLocation struct {
-	DriverID             string  `json:",string"`
-	DestinationLatitude  float64 `json:",string"`
-	DestinationLongitude float64 `json:",string"`
-	UpdatedAt            string  `json:",string"`
-	UpdatedAtLatitude    float64 `json:",string"`
-	UpdatedAtLongitude   float64 `json:",string"`
-	State                State   `json:",string"`
+	StepID    string      `json:",string"`
+	UpdatedAt string      `json:",string"`
+	Status    step.Status `json:",string"`
+	fsm       *fsm.FSM
 }
 
-func NewGoToLocation(ctx context.Context, driverID string, latitude, longitude float64) (gtl *GoToLocation, err error) {
+func (gtl *GoToLocation) CurrentStatus() step.Status {
+	state := gtl.fsm.Current()
+	return stateToStatus[state]
+}
+
+func (gtl *GoToLocation) AvailableActions() []step.Action {
+	return statusToAvailableActions[gtl.Status]
+}
+
+func (gtl *GoToLocation) Handle(action step.Action) error {
+	ok := gtl.fsm.Event(actionToEvent[action])
+	if !ok {
+		return fmt.Errorf("illegal transition from status=%v by action=%v", gtl.Status, action)
+	}
+	status := stateToStatus[gtl.fsm.Current()]
+	err := gtl.updateStatus(context.Background(), status)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func RetrieveOrCreate(ctx context.Context, stepID step.ID) (gtl *GoToLocation, err error) {
+	existing, err := storage.Retrieve(ctx, stepID)
+	if err != nil {
+		return nil, err
+	}
+
+	if existing != nil {
+		existing.fsm = newFsm(existing.Status)
+		return existing, nil
+	}
+
 	gtl = &GoToLocation{
-		DriverID:             driverID,
-		DestinationLatitude:  latitude,
-		DestinationLongitude: longitude,
-		UpdatedAt:            time.Now().Format(time.RFC3339Nano),
-		State:                New,
+		StepID:    string(stepID),
+		UpdatedAt: time.Now().Format(time.RFC3339Nano),
+		Status:    New,
+		fsm:       newFsm(New),
 	}
 
 	err = storage.Store(ctx, *gtl)
@@ -82,49 +78,12 @@ func NewGoToLocation(ctx context.Context, driverID string, latitude, longitude f
 	return
 }
 
-func (gtl *GoToLocation) updateState(ctx context.Context, latitude float64, longitude float64, state State) error {
-	gtl.UpdatedAtLatitude = latitude
-	gtl.UpdatedAtLongitude = longitude
+func (gtl *GoToLocation) updateStatus(ctx context.Context, status step.Status) error {
 	gtl.UpdatedAt = time.Now().Format(time.RFC3339Nano)
-	gtl.State = state
-
+	gtl.Status = status
 	err := storage.Store(ctx, *gtl)
 	if err != nil {
 		return err
 	}
-
 	return nil
-}
-
-func (gtl *GoToLocation) Moving(ctx context.Context, latitude, longitude float64) error {
-	err := checkTransition(gtl.State, MoveEvent)
-	if err != nil {
-		return err
-	}
-	return gtl.updateState(ctx, latitude, longitude, Moving)
-}
-
-func (gtl *GoToLocation) Near(ctx context.Context, latitude, longitude float64) error {
-	err := checkTransition(gtl.State, NearEvent)
-	if err != nil {
-		return err
-	}
-	return gtl.updateState(ctx, latitude, longitude, Near)
-}
-
-func (gtl *GoToLocation) Arrived(ctx context.Context, latitude, longitude float64) error {
-	err := checkTransition(gtl.State, ArrivedEvent)
-	if err != nil {
-		return err
-	}
-
-	return gtl.updateState(ctx, latitude, longitude, Arrived)
-}
-
-func (gtl *GoToLocation) Canceled(ctx context.Context, latitude, longitude float64) error {
-	err := checkTransition(gtl.State, CancelledEvent)
-	if err != nil {
-		return err
-	}
-	return gtl.updateState(ctx, latitude, longitude, Cancelled)
 }

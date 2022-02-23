@@ -1,8 +1,11 @@
 package itinerary
 
 import (
+	"context"
 	"fmt"
 	"time"
+
+	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step/gotolocation"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/job"
 	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step"
@@ -33,8 +36,7 @@ type Itinerary struct {
 // NewItinerary builds planned slice of step.Step for a slice of job.Job.
 // Each job.Transportation consists of predefined set of steps,
 // i.e. step.GoToLocation, step.Pickup, step.DropOff, etc.
-func NewItinerary(id ID, jobs []*job.Job) *Itinerary {
-
+func NewItinerary(id ID, jobs []*job.Job) (*Itinerary, error) {
 	i := &Itinerary{
 		ID:          id,
 		Jobs:        jobs,
@@ -45,37 +47,38 @@ func NewItinerary(id ID, jobs []*job.Job) *Itinerary {
 	}
 
 	for _, j := range jobs {
-		step1 := &step.Step{
-			ID:     step.ID(fmt.Sprintf("%s-%s", j.ID, "step-1")),
-			JobID:  j.ID,
-			Action: step.GoToLocation,
+		step1, err := NewStep(context.Background(), step.ID(fmt.Sprintf("%s-%s", j.ID, "step-1")), j.ID, step.GoToLocation)
+		if err != nil {
+			return nil, err
 		}
 		i.AddStep(step1)
 
-		step2 := &step.Step{
-			ID:     step.ID(fmt.Sprintf("%s-%s", j.ID, "step-2")),
-			JobID:  j.ID,
-			Action: step.Pickup,
+		step2, err := NewStep(context.Background(), step.ID(fmt.Sprintf("%s-%s", j.ID, "step-1")), j.ID, step.Pickup)
+		if err != nil {
+			return nil, err
 		}
 		i.AddStep(step2)
 
-		step3 := &step.Step{
-			ID:     step.ID(fmt.Sprintf("%s-%s", j.ID, "step-3")),
-			JobID:  j.ID,
-			Action: step.DropOff,
+		step3, err := NewStep(context.Background(), step.ID(fmt.Sprintf("%s-%s", j.ID, "step-1")), j.ID, step.DropOff)
+		if err != nil {
+			return nil, err
 		}
 		i.AddStep(step3)
 	}
 
-	return i
+	return i, nil
 }
 
-func (it *Itinerary) GetFirstStep() (*step.Step, error) {
+func (it *Itinerary) GetCurrentStep() *step.Step {
+	return it.Steps[it.CurrentStep]
+}
+
+func (it *Itinerary) GetFirstStep() *step.Step {
 	if len(it.Steps) == 0 {
-		return nil, fmt.Errorf("itinerary %s has no steps", it.ID)
+		return nil
 	}
 	s := it.Steps[0]
-	return s, nil
+	return s
 }
 
 func (it *Itinerary) AddStep(step *step.Step) {
@@ -108,4 +111,37 @@ func (it *Itinerary) GetStepIndex(id step.ID) int {
 		}
 	}
 	return -1
+}
+
+func NewStep(ctx context.Context, stepID step.ID, jobID job.ID, atom step.Atom) (*step.Step, error) {
+	var actionable step.Actionable
+	switch atom {
+	case step.GoToLocation:
+		gtl, err := gotolocation.RetrieveOrCreate(ctx, stepID)
+		if err != nil {
+			return nil, fmt.Errorf("RetrieveOrCreate error %w", err)
+		}
+		actionable = gtl
+	case step.Pickup:
+		gtl, err := gotolocation.RetrieveOrCreate(ctx, stepID)
+		if err != nil {
+			return nil, fmt.Errorf("RetrieveOrCreate error %w", err)
+		}
+		actionable = gtl
+	case step.DropOff:
+		gtl, err := gotolocation.RetrieveOrCreate(ctx, stepID)
+		if err != nil {
+			return nil, fmt.Errorf("RetrieveOrCreate error %w", err)
+		}
+		actionable = gtl
+	default:
+		return nil, fmt.Errorf("unsupported step atom %q", atom)
+	}
+
+	return &step.Step{
+		ID:         stepID,
+		JobID:      jobID,
+		Atom:       atom,
+		Actionable: actionable,
+	}, nil
 }

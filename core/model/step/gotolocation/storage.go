@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step"
 	"github.com/openmarketplaceengine/openmarketplaceengine/redis/client"
 	"github.com/openmarketplaceengine/openmarketplaceengine/redis/marshalutils"
 )
@@ -24,8 +25,8 @@ func newStorage(expiration time.Duration) *Storage {
 	}
 }
 
-func key(driverID string) string {
-	return fmt.Sprintf("gotolocation-%s", driverID)
+func key(stepID string) string {
+	return fmt.Sprintf("gotolocation-%s", stepID)
 }
 
 func (s *Storage) Store(ctx context.Context, goToLocation GoToLocation) error {
@@ -35,7 +36,7 @@ func (s *Storage) Store(ctx context.Context, goToLocation GoToLocation) error {
 		return fmt.Errorf("store StructToMap error: %w", err)
 	}
 
-	key := key(goToLocation.DriverID)
+	key := key(goToLocation.StepID)
 
 	err = s.client.HSet(ctx, key, m).Err()
 	if err != nil {
@@ -47,8 +48,8 @@ func (s *Storage) Store(ctx context.Context, goToLocation GoToLocation) error {
 	return nil
 }
 
-func (s *Storage) Retrieve(ctx context.Context, driverID string) (goToLocation GoToLocation, err error) {
-	key := key(driverID)
+func (s *Storage) Retrieve(ctx context.Context, stepID step.ID) (goToLocation *GoToLocation, err error) {
+	key := key(string(stepID))
 	m, err := s.client.HGetAll(ctx, key).Result()
 	if err != nil {
 		err = fmt.Errorf("retrieve HGetAll error: %w", err)
@@ -56,11 +57,12 @@ func (s *Storage) Retrieve(ctx context.Context, driverID string) (goToLocation G
 	}
 
 	if len(m) == 0 {
-		err = fmt.Errorf("goToLocation not found by driverID %q", driverID)
 		return
 	}
 
-	err = marshalutils.MapToStruct(m, &goToLocation)
+	goToLocation = &GoToLocation{}
+
+	err = marshalutils.MapToStruct(m, goToLocation)
 	if err != nil {
 		err = fmt.Errorf("retrieve MapToStruct error: %w", err)
 		return

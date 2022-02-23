@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
+	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -23,25 +24,21 @@ func TestStorage(t *testing.T) {
 
 func testStoreAndRetrieve(t *testing.T, storage *Storage) {
 	ctx := context.Background()
-	driverID := uuid.New().String()
+	id := step.ID(uuid.New().String())
 	stateIn := GoToLocation{
-		DriverID:             driverID,
-		DestinationLatitude:  7,
-		DestinationLongitude: 8,
-		UpdatedAt:            time.Now().Format(time.RFC3339),
-		UpdatedAtLatitude:    9,
-		UpdatedAtLongitude:   10,
-		State:                Moving,
+		StepID:    string(id),
+		UpdatedAt: time.Now().Format(time.RFC3339Nano),
+		Status:    Moving,
 	}
 	err := storage.Store(ctx, stateIn)
 
 	require.NoError(t, err)
 
-	stateOut, err := storage.Retrieve(ctx, driverID)
+	stateOut, err := storage.Retrieve(ctx, id)
 	require.NoError(t, err)
-	assert.Equal(t, stateIn.DriverID, stateOut.DriverID)
-	assert.Equal(t, stateIn.DestinationLatitude, stateOut.DestinationLatitude)
-	assert.Equal(t, stateIn.DestinationLongitude, stateOut.DestinationLongitude)
-	assert.Equal(t, stateIn.State, stateOut.State)
-	assert.Equal(t, stateIn.UpdatedAt, stateOut.UpdatedAt)
+	assert.Equal(t, stateIn.StepID, stateOut.StepID)
+	assert.Equal(t, stateIn.Status, stateOut.Status)
+	updatedAtIn, _ := time.Parse(time.RFC3339Nano, stateIn.UpdatedAt)
+	updatedAtOut, _ := time.Parse(time.RFC3339Nano, stateOut.UpdatedAt)
+	assert.Equal(t, updatedAtIn.UnixNano(), updatedAtOut.UnixNano())
 }

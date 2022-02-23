@@ -1,24 +1,65 @@
 package gotolocation
 
 import (
-	"fmt"
+	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step"
 
 	"github.com/cocoonspace/fsm"
 )
 
-func checkTransition(current State, event Event) error {
-	f := fsm.New(fsm.State(current))
-	f.Transition(fsm.On(fsm.Event(MoveEvent)), fsm.Src(fsm.State(New)), fsm.Dst(fsm.State(Moving)))
-	f.Transition(fsm.On(fsm.Event(NearEvent)), fsm.Src(fsm.State(Moving)), fsm.Dst(fsm.State(Near)))
-	f.Transition(fsm.On(fsm.Event(ArrivedEvent)), fsm.Src(fsm.State(Near)), fsm.Dst(fsm.State(Arrived)))
-	f.Transition(fsm.On(fsm.Event(CancelledEvent)), fsm.Src(fsm.State(New)), fsm.Dst(fsm.State(Cancelled)))
-	f.Transition(fsm.On(fsm.Event(CancelledEvent)), fsm.Src(fsm.State(Moving)), fsm.Dst(fsm.State(Cancelled)))
-	f.Transition(fsm.On(fsm.Event(CancelledEvent)), fsm.Src(fsm.State(Near)), fsm.Dst(fsm.State(Cancelled)))
-	f.Transition(fsm.On(fsm.Event(CancelledEvent)), fsm.Src(fsm.State(Arrived)), fsm.Dst(fsm.State(Cancelled)))
+const (
+	MoveEvent fsm.Event = iota
+	NearEvent
+	ArriveEvent
+	CancelEvent
+)
 
-	ok := f.Event(fsm.Event(event))
-	if !ok {
-		return fmt.Errorf("illegal transition from state=%v by event=%v", current, event)
-	}
-	return nil
+var actionToEvent = map[step.Action]fsm.Event{
+	Move:   MoveEvent,
+	Near:   NearEvent,
+	Arrive: ArriveEvent,
+	Cancel: CancelEvent,
+}
+
+const (
+	NewState fsm.State = iota
+	MovingState
+	NearByState
+	ArrivedState
+	CanceledState
+)
+
+var statusToState = map[step.Status]fsm.State{
+	New:      NewState,
+	Moving:   MovingState,
+	NearBy:   NearByState,
+	Arrived:  ArrivedState,
+	Canceled: CanceledState,
+}
+
+var stateToStatus = map[fsm.State]step.Status{
+	NewState:      New,
+	MovingState:   Moving,
+	NearByState:   NearBy,
+	ArrivedState:  Arrived,
+	CanceledState: Canceled,
+}
+
+var statusToAvailableActions = map[step.Status][]step.Action{
+	New:      {Move, Cancel},
+	Moving:   {Near, Cancel},
+	NearBy:   {Arrive, Cancel},
+	Arrived:  {},
+	Canceled: {},
+}
+
+func newFsm(current step.Status) *fsm.FSM {
+	f := fsm.New(statusToState[current])
+	f.Transition(fsm.On(MoveEvent), fsm.Src(NewState), fsm.Dst(MovingState))
+	f.Transition(fsm.On(NearEvent), fsm.Src(MovingState), fsm.Dst(NearByState))
+	f.Transition(fsm.On(ArriveEvent), fsm.Src(NearByState), fsm.Dst(ArrivedState))
+	f.Transition(fsm.On(CancelEvent), fsm.Src(NewState), fsm.Dst(CanceledState))
+	f.Transition(fsm.On(CancelEvent), fsm.Src(MovingState), fsm.Dst(CanceledState))
+	f.Transition(fsm.On(CancelEvent), fsm.Src(NearByState), fsm.Dst(CanceledState))
+	f.Transition(fsm.On(CancelEvent), fsm.Src(ArrivedState), fsm.Dst(CanceledState))
+	return f
 }

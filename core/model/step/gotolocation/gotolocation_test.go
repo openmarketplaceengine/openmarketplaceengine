@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
+	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -18,8 +19,8 @@ func TestGoToLocation(t *testing.T) {
 	storage = newStorage(30 * time.Second)
 
 	ctx := context.Background()
-	driverID := uuid.New().String()
-	newGTL, err := NewGoToLocation(ctx, driverID, 7, 8)
+	id := step.ID(uuid.New().String())
+	gtl, err := RetrieveOrCreate(ctx, id)
 	require.NoError(t, err)
 
 	t.Run("testRetrieveNil", func(t *testing.T) {
@@ -27,66 +28,67 @@ func TestGoToLocation(t *testing.T) {
 	})
 
 	t.Run("testNew", func(t *testing.T) {
-		testNew(t, newGTL)
+		testNew(t, gtl)
 	})
 
 	t.Run("testNewToMoving", func(t *testing.T) {
-		testNewToMoving(t, newGTL)
+		testNewToMoving(t, gtl)
 	})
 
 	t.Run("testNewToArrived", func(t *testing.T) {
-		testNewToArrived(t, newGTL)
+		testNewToArrived(t, gtl)
 	})
 }
 
 func testRetrieveNil(t *testing.T) {
 	ctx := context.Background()
-	driverID := uuid.New().String()
-	_, err := storage.Retrieve(ctx, driverID)
-	require.Error(t, err)
+	id := step.ID(uuid.New().String())
+	retrieved, err := storage.Retrieve(ctx, id)
+	require.NoError(t, err)
+	require.Nil(t, retrieved)
 }
 
-func testNew(t *testing.T, newGTL *GoToLocation) {
+func testNew(t *testing.T, gtl *GoToLocation) {
 	ctx := context.Background()
 
-	retrieved, err := storage.Retrieve(ctx, newGTL.DriverID)
+	retrieved, err := storage.Retrieve(ctx, step.ID(gtl.StepID))
 	require.NoError(t, err)
-	assert.Equal(t, New, newGTL.State)
-	assert.Equal(t, newGTL.DriverID, retrieved.DriverID)
-	assert.Equal(t, newGTL.DestinationLatitude, retrieved.DestinationLatitude)
-	assert.Equal(t, newGTL.DestinationLongitude, retrieved.DestinationLongitude)
-	assert.Equal(t, newGTL.State, retrieved.State)
-	assert.Equal(t, newGTL.UpdatedAt, retrieved.UpdatedAt)
+	assert.Equal(t, New, gtl.Status)
+	assert.Equal(t, gtl.Status, retrieved.Status)
+	updatedAt0, _ := time.Parse(time.RFC3339Nano, gtl.UpdatedAt)
+	updatedAt1, _ := time.Parse(time.RFC3339Nano, retrieved.UpdatedAt)
+	assert.Equal(t, updatedAt0.UnixNano(), updatedAt1.UnixNano())
 }
 
-func testNewToMoving(t *testing.T, newGTL *GoToLocation) {
+func testNewToMoving(t *testing.T, gtl *GoToLocation) {
 	ctx := context.Background()
-	prevState := newGTL.State
-	prevLastModifiedAt := newGTL.UpdatedAt
-	err := newGTL.Moving(ctx, 7, 8)
+	prevState := gtl.Status
+	prevUpdatedAt := gtl.UpdatedAt
+	err := gtl.Handle(Move)
 	require.NoError(t, err)
 
-	movingGTL, err := storage.Retrieve(ctx, newGTL.DriverID)
+	movingGTL, err := storage.Retrieve(ctx, step.ID(gtl.StepID))
 	require.NoError(t, err)
 	assert.Equal(t, New, prevState)
-	assert.Equal(t, newGTL.DriverID, movingGTL.DriverID)
-	assert.Equal(t, Moving, movingGTL.State)
-	prev, err := time.Parse(time.RFC3339Nano, prevLastModifiedAt)
+	assert.Equal(t, gtl.StepID, movingGTL.StepID)
+	assert.Equal(t, Moving, movingGTL.Status)
 	require.NoError(t, err)
-	last, err := time.Parse(time.RFC3339Nano, movingGTL.UpdatedAt)
-	require.NoError(t, err)
-	assert.Less(t, prev.UnixMilli(), last.UnixMilli())
+	updatedAt0, _ := time.Parse(time.RFC3339Nano, prevUpdatedAt)
+	updatedAt1, _ := time.Parse(time.RFC3339Nano, movingGTL.UpdatedAt)
+	assert.Less(t, updatedAt0.UnixNano(), updatedAt1.UnixNano())
 }
 
-func testNewToArrived(t *testing.T, newGTL *GoToLocation) {
+func testNewToArrived(t *testing.T, gtl *GoToLocation) {
 	ctx := context.Background()
-	prevState := newGTL.State
-	prevLastModifiedAt := newGTL.UpdatedAt
-	err := newGTL.Arrived(ctx, 7, 8)
+	prevState := gtl.Status
+	prevUpdatedAt := gtl.UpdatedAt
+	err := gtl.Handle(Arrive)
 	require.Error(t, err)
 
-	retrieved, err := storage.Retrieve(ctx, newGTL.DriverID)
+	retrieved, err := storage.Retrieve(ctx, step.ID(gtl.StepID))
 	require.NoError(t, err)
-	assert.Equal(t, prevState, retrieved.State)
-	assert.Equal(t, prevLastModifiedAt, retrieved.UpdatedAt)
+	assert.Equal(t, prevState, retrieved.Status)
+	updatedAt0, _ := time.Parse(time.RFC3339Nano, prevUpdatedAt)
+	updatedAt1, _ := time.Parse(time.RFC3339Nano, retrieved.UpdatedAt)
+	assert.Equal(t, updatedAt0.UnixNano(), updatedAt1.UnixNano())
 }

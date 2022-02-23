@@ -2,8 +2,11 @@ package itinerary
 
 import (
 	"fmt"
-	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/job"
+	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step/gotolocation"
 	"testing"
+	"time"
+
+	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/job"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step"
 	"github.com/stretchr/testify/assert"
@@ -26,13 +29,17 @@ func TestItinerary(t *testing.T) {
 	t.Run("testGetStepIndex", func(t *testing.T) {
 		testGetStepIndex(t)
 	})
+
+	t.Run("testItineraryExecution", func(t *testing.T) {
+		testItineraryExecution(t)
+	})
 }
 
 func testAddStep(t *testing.T) {
-	itinerary := NewItinerary("test-flow-1", []*job.Job{})
+	itinerary, _ := NewItinerary("test-flow-1", []*job.Job{})
 
-	_, err := itinerary.GetFirstStep()
-	require.EqualError(t, err, "itinerary test-flow-1 has no steps")
+	s := itinerary.GetFirstStep()
+	require.Nil(t, s)
 
 	assert.Len(t, itinerary.Steps, 0)
 	itinerary.AddStep(newStep("step1"))
@@ -42,7 +49,7 @@ func testAddStep(t *testing.T) {
 }
 
 func testGetStep(t *testing.T) {
-	itinerary := NewItinerary("test-flow-1", []*job.Job{})
+	itinerary, _ := NewItinerary("test-flow-1", []*job.Job{})
 
 	step1 := newStep("step1")
 	step2 := newStep("step2")
@@ -51,13 +58,12 @@ func testGetStep(t *testing.T) {
 	itinerary.AddStep(step2)
 
 	assert.Equal(t, step2, itinerary.GetStep("step2"))
-	firstStep, err := itinerary.GetFirstStep()
-	require.NoError(t, err)
+	firstStep := itinerary.GetFirstStep()
 	assert.Equal(t, step1, firstStep)
 }
 
 func testRemoveStep(t *testing.T) {
-	itinerary := NewItinerary("test-flow-1", []*job.Job{})
+	itinerary, _ := NewItinerary("test-flow-1", []*job.Job{})
 
 	step1 := newStep("step1")
 	step2 := newStep("step2")
@@ -79,7 +85,7 @@ func testRemoveStep(t *testing.T) {
 }
 
 func testGetStepIndex(t *testing.T) {
-	itinerary := NewItinerary("test-flow-1", []*job.Job{})
+	itinerary, _ := NewItinerary("test-flow-1", []*job.Job{})
 
 	step1 := newStep("step1")
 	step2 := newStep("step2")
@@ -99,6 +105,41 @@ func testGetStepIndex(t *testing.T) {
 
 	i3 := itinerary.GetStepIndex("step3")
 	assert.Equal(t, 2, i3)
+}
+
+func testItineraryExecution(t *testing.T) {
+	itinerary, err := NewItinerary("test-flow-1", []*job.Job{{
+		ID: "job-1",
+		Transportation: job.Transportation{
+			PickupLocation: job.Location{
+				Longitude: 1,
+				Latitude:  1,
+				Name:      "pickup-at",
+				Address:   job.Address{},
+			},
+			DropOffLocation: job.Location{
+				Longitude: 1,
+				Latitude:  1,
+				Name:      "drop-at",
+				Address:   job.Address{},
+			},
+			SubjectID:          "passenger-1",
+			RequestedTime:      time.Now(),
+			RequestedStartTime: time.Time{},
+		},
+		Status:    job.New,
+		StartTime: time.Now(),
+		EndTime:   time.Time{},
+	}})
+	require.NoError(t, err)
+
+	require.Len(t, itinerary.Steps, 3)
+	firstStep := itinerary.GetFirstStep()
+	require.Equal(t, step.GoToLocation, firstStep.Atom)
+
+	actions := firstStep.Actionable.AvailableActions()
+	require.Len(t, actions, 2)
+	require.ElementsMatch(t, actions, []step.Action{gotolocation.Move, gotolocation.Cancel})
 }
 
 func (it *Itinerary) dump() {
