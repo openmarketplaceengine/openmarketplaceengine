@@ -3,6 +3,7 @@ package itinerary
 import (
 	"context"
 	"fmt"
+	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"testing"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/job"
@@ -13,6 +14,9 @@ import (
 )
 
 func TestItinerary(t *testing.T) {
+	err := cfg.Load()
+	require.NoError(t, err)
+
 	t.Run("testAddStep", func(t *testing.T) {
 		testAddStep(t)
 	})

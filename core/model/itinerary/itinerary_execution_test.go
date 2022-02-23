@@ -1,6 +1,7 @@
 package itinerary
 
 import (
+	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"testing"
 	"time"
 
@@ -14,6 +15,10 @@ import (
 )
 
 func TestItineraryExecution(t *testing.T) {
+
+	err := cfg.Load()
+	require.NoError(t, err)
+
 	t.Run("testItineraryExecutionOneStep", func(t *testing.T) {
 		testItineraryExecutionOneStep(t)
 	})
