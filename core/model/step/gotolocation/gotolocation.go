@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/job"
+
 	"github.com/cocoonspace/fsm"
 	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step"
 )
@@ -53,7 +55,20 @@ func (gtl *GoToLocation) Handle(action step.Action) error {
 	return nil
 }
 
-func RetrieveOrCreate(ctx context.Context, stepID step.ID) (gtl *GoToLocation, err error) {
+func NewStep(ctx context.Context, stepID step.ID, jobID job.ID) (*step.Step, error) {
+	gtl, err := retrieveOrCreate(ctx, stepID)
+	if err != nil {
+		return nil, err
+	}
+	return &step.Step{
+		ID:         stepID,
+		JobID:      jobID,
+		Actionable: gtl,
+		Atom:       step.GoToLocation,
+	}, nil
+}
+
+func retrieveOrCreate(ctx context.Context, stepID step.ID) (gtl *GoToLocation, err error) {
 	existing, err := storage.Retrieve(ctx, stepID)
 	if err != nil {
 		return nil, err

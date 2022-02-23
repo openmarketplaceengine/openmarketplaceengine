@@ -37,7 +37,7 @@ type Itinerary struct {
 // Each job.Transportation consists of predefined set of steps,
 // i.e. step.GoToLocation, step.Pickup, step.DropOff, etc.
 func NewItinerary(id ID, jobs []*job.Job) (*Itinerary, error) {
-	i := &Itinerary{
+	it := &Itinerary{
 		ID:          id,
 		Jobs:        jobs,
 		Steps:       []*step.Step{},
@@ -47,38 +47,59 @@ func NewItinerary(id ID, jobs []*job.Job) (*Itinerary, error) {
 	}
 
 	for _, j := range jobs {
-		step1, err := NewStep(context.Background(), step.ID(fmt.Sprintf("%s-%s", j.ID, "step-1")), j.ID, step.GoToLocation)
+		goTo, err := newStep(context.Background(), step.ID(fmt.Sprintf("%s-%s", j.ID, "step-1")), j.ID, step.GoToLocation)
 		if err != nil {
 			return nil, err
 		}
-		i.AddStep(step1)
+		it.AddStep(goTo)
 
-		step2, err := NewStep(context.Background(), step.ID(fmt.Sprintf("%s-%s", j.ID, "step-1")), j.ID, step.Pickup)
+		pickup, err := newStep(context.Background(), step.ID(fmt.Sprintf("%s-%s", j.ID, "step-2")), j.ID, step.Pickup)
 		if err != nil {
 			return nil, err
 		}
-		i.AddStep(step2)
+		it.AddStep(pickup)
 
-		step3, err := NewStep(context.Background(), step.ID(fmt.Sprintf("%s-%s", j.ID, "step-1")), j.ID, step.DropOff)
+		dropOff, err := newStep(context.Background(), step.ID(fmt.Sprintf("%s-%s", j.ID, "step-2")), j.ID, step.DropOff)
 		if err != nil {
 			return nil, err
 		}
-		i.AddStep(step3)
+		it.AddStep(dropOff)
 	}
 
-	return i, nil
+	return it, nil
 }
 
 func (it *Itinerary) GetCurrentStep() *step.Step {
-	return it.Steps[it.CurrentStep]
-}
-
-func (it *Itinerary) GetFirstStep() *step.Step {
 	if len(it.Steps) == 0 {
 		return nil
 	}
-	s := it.Steps[0]
-	return s
+	return it.Steps[it.CurrentStep]
+}
+
+func (it *Itinerary) CurrentStatus() step.Status {
+	currentStep := it.GetCurrentStep()
+	return currentStep.CurrentStatus()
+}
+
+func (it *Itinerary) AvailableActions() []step.Action {
+	currentStep := it.GetCurrentStep()
+	return currentStep.AvailableActions()
+}
+
+func (it *Itinerary) Handle(action step.Action) error {
+	currentStep := it.GetCurrentStep()
+	err := currentStep.Handle(action)
+	if err != nil {
+		return err
+	}
+
+	if len(currentStep.AvailableActions()) == 0 {
+		if it.CurrentStep < len(it.Steps)-1 {
+			it.CurrentStep++
+		}
+	}
+
+	return nil
 }
 
 func (it *Itinerary) AddStep(step *step.Step) {
@@ -113,35 +134,15 @@ func (it *Itinerary) GetStepIndex(id step.ID) int {
 	return -1
 }
 
-func NewStep(ctx context.Context, stepID step.ID, jobID job.ID, atom step.Atom) (*step.Step, error) {
-	var actionable step.Actionable
+func newStep(ctx context.Context, stepID step.ID, jobID job.ID, atom step.Atom) (*step.Step, error) {
 	switch atom {
 	case step.GoToLocation:
-		gtl, err := gotolocation.RetrieveOrCreate(ctx, stepID)
-		if err != nil {
-			return nil, fmt.Errorf("RetrieveOrCreate error %w", err)
-		}
-		actionable = gtl
+		return gotolocation.NewStep(ctx, stepID, jobID)
 	case step.Pickup:
-		gtl, err := gotolocation.RetrieveOrCreate(ctx, stepID)
-		if err != nil {
-			return nil, fmt.Errorf("RetrieveOrCreate error %w", err)
-		}
-		actionable = gtl
+		return gotolocation.NewStep(ctx, stepID, jobID)
 	case step.DropOff:
-		gtl, err := gotolocation.RetrieveOrCreate(ctx, stepID)
-		if err != nil {
-			return nil, fmt.Errorf("RetrieveOrCreate error %w", err)
-		}
-		actionable = gtl
+		return gotolocation.NewStep(ctx, stepID, jobID)
 	default:
 		return nil, fmt.Errorf("unsupported step atom %q", atom)
 	}
-
-	return &step.Step{
-		ID:         stepID,
-		JobID:      jobID,
-		Atom:       atom,
-		Actionable: actionable,
-	}, nil
 }

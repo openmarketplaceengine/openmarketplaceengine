@@ -20,7 +20,7 @@ func TestGoToLocation(t *testing.T) {
 
 	ctx := context.Background()
 	id := step.ID(uuid.New().String())
-	gtl, err := RetrieveOrCreate(ctx, id)
+	gtl, err := retrieveOrCreate(ctx, id)
 	require.NoError(t, err)
 
 	t.Run("testRetrieveNil", func(t *testing.T) {
