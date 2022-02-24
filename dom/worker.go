@@ -7,34 +7,24 @@ package dom
 type WorkerStatus int32
 
 const (
-	WorkerCreated   = iota // a worker registered in the system
-	WorkerApproval         // worker is pending regulatory/system approval
-	WorkerOffline          // worker is offline
-	WorkerReady            // worker is ready for a job
-	WorkerOnjob            // worker is on the job
-	WorkerSuspended        // worker is suspended for some reason
-	WorkerRetired          // worker is retired and will no longer be available
+	WorkerCreated  = iota // a worker registered in the system
+	WorkerOffline         // worker is offline
+	WorkerReady           // worker is ready for a job
+	WorkerOnjob           // worker is on the job
+	WorkerDisabled        // worker is disabled and will no longer be available
 )
 
 // Worker represents information about a driver.
 type Worker struct {
 	ID        UUID
 	Status    WorkerStatus // worker's status
-	Rank      int32        // worker's rank by customers
+	Rating    int32        // worker's rating by customers
 	Jobs      int          // total number of jobs completed
 	FirstName string       // first name
 	LastName  string       // last name
 	Vehicle   UUID         // vehicle id foreign key
-	Address   UUID         // address id foreign key
-	Email     string
-	Phone     string
-	Comment   string
-	Created   Time
-	Approved  Time
-	Suspended Time
-	Retired   Time
-	FirstJob  Time
-	LastJob   Time
+	Created   Time         // worker creation time
+	Updated   Time         // worker last modified time
 }
 
 // WorkerVehicle represents relationships among workers and vehicles.
