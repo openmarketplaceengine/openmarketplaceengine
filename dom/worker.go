@@ -4,6 +4,8 @@
 
 package dom
 
+import "fmt"
+
 type WorkerStatus int32
 
 const (
@@ -11,7 +13,7 @@ const (
 	WorkerReady           // worker is ready for a job
 	WorkerOnjob           // worker is on the job
 	WorkerPaused          // worker is on hold
-	WorkerDisabled        // worker is disabled and will no longer be available
+	WorkerDisabled        // worker is disabled
 )
 
 // Worker represents information about a driver.
@@ -34,4 +36,21 @@ type Worker struct {
 type WorkerVehicle struct {
 	Worker  UUID
 	Vehicle UUID
+}
+
+// String representation of WorkerStatus.
+func (s WorkerStatus) String() string {
+	switch s {
+	case WorkerOffline:
+		return "offline"
+	case WorkerReady:
+		return "ready"
+	case WorkerOnjob:
+		return "onjob"
+	case WorkerPaused:
+		return "paused"
+	case WorkerDisabled:
+		return "disabled"
+	}
+	return fmt.Sprintf("WorkerStatus<%d>", s)
 }
