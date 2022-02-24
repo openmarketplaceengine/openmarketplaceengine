@@ -48,13 +48,14 @@ func (t *Time) Scan(src interface{}) error {
 	switch val := src.(type) {
 	case time.Time:
 		t.Time = val
+		return nil
 	case string:
 		return t.parse(val)
 	case []byte:
 		s := *(*string)(unsafe.Pointer(&val))
 		return t.parse(s)
 	}
-	return nil
+	return fmt.Errorf("invalid Time value: %v", src)
 }
 
 func (t *Time) parse(s string) error {
