@@ -37,7 +37,7 @@ func (t *Time) Reset() {
 }
 
 func (t Time) IsNull() bool {
-	return t.IsZero() && t.Location() == nil
+	return t.IsZero() && t.Location() == time.UTC
 }
 
 func (t *Time) Scan(src interface{}) error {
