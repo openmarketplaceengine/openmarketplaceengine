@@ -54,7 +54,7 @@ func (t *Time) Scan(src interface{}) error {
 		s := *(*string)(unsafe.Pointer(&val))
 		return t.parse(s)
 	}
-	return nil
+	return fmt.Errorf("invalid Time value: %v", src)
 }
 
 func (t *Time) parse(s string) error {
