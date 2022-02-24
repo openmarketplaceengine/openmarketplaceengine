@@ -6,6 +6,7 @@ package cfg
 
 import (
 	"fmt"
+	"os"
 	"time"
 )
 
@@ -26,9 +27,6 @@ type PgdbConfig struct {
 
 // Check validates PgdbConfig params.
 func (c *PgdbConfig) Check(name ...string) error {
-	// if len(c.Addr) == 0 {
-	// 	return fmt.Errorf("%s: empty connection address", field(name, "addr"))
-	// }
 	if !c.levelValid(c.Log) {
 		return fmt.Errorf("%s: invalid log level: %q", field(name, "log"), c.Log)
 	}
@@ -39,13 +37,23 @@ func (c *PgdbConfig) Check(name ...string) error {
 }
 
 // FullAddr appends PgdbConfig.Addr with optional parameters.
-func (c *PgdbConfig) FullAddr() string {
-	const sslmode = "sslmode"
+func (c *PgdbConfig) FullAddr() (string, error) {
 	a := c.Addr
-	if len(c.Ssl) > 0 && c.Ssl != "ignore" {
-		a = a.AppendQuery(sslmode, c.Ssl, false)
+	if len(a) == 0 {
+		if user := os.Getenv("USER"); len(user) > 0 {
+			a = Address(fmt.Sprintf("postgres://%s@localhost:5432/%s", user, user))
+		} else {
+			return "", EmptyError("pgdb.addr")
+		}
 	}
-	return string(a)
+	if len(c.Ssl) > 0 && c.Ssl != "ignore" {
+		a = a.AppendQuery("sslmode", c.Ssl, false)
+	}
+	if len(c.Schema) > 0 {
+		a = a.AppendQuery("search_path", c.Schema, true)
+	}
+	a = a.AppendQuery("application_name", AppName, false)
+	return string(a), nil
 }
 
 // MaxIdleTime returns the maximum amount of time a connection may be idle.

@@ -34,9 +34,18 @@ func DB() *sql.DB {
 //-----------------------------------------------------------------------------
 
 func (p *PgdbConn) Boot() (err error) {
+
 	pcfg := cfg.Pgdb()
 
-	p.cfg, err = pgx.ParseConfig(pcfg.FullAddr())
+	var addr string
+
+	addr, err = pcfg.FullAddr()
+
+	if err != nil {
+		return
+	}
+
+	p.cfg, err = pgx.ParseConfig(addr)
 
 	if err != nil {
 		return
