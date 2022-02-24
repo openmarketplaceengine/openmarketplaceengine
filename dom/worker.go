@@ -7,8 +7,7 @@ package dom
 type WorkerStatus int32
 
 const (
-	WorkerCreated  = iota // a worker registered in the system
-	WorkerOffline         // worker is offline
+	WorkerOffline  = iota // worker is offline
 	WorkerReady           // worker is ready for a job
 	WorkerOnjob           // worker is on the job
 	WorkerPaused          // worker is on hold
