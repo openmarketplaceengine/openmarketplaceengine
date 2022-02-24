@@ -11,6 +11,7 @@ const (
 	WorkerOffline         // worker is offline
 	WorkerReady           // worker is ready for a job
 	WorkerOnjob           // worker is on the job
+	WorkerPaused          // worker is on hold
 	WorkerDisabled        // worker is disabled and will no longer be available
 )
 
