@@ -63,11 +63,11 @@ linters:
     - unconvert
     - unparam
     - varcheck
-#    - whitespace
+    - whitespace
 #    - wsl
 
 issues:
-  fix: false
+  fix: true
   exclude-rules:
     - path: _test\.go # disable some linters for test files
       linters:
