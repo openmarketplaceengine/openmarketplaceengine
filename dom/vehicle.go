@@ -16,7 +16,7 @@ const (
 	CarTypeBus
 	CarTypeTrack
 	CarTypeCargoVan
-	CarTypeLemo
+	CarTypeLimo
 )
 
 type CarClass uint8
