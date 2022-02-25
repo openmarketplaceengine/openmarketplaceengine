@@ -14,7 +14,7 @@ const (
 	CarTypeSUV
 	CarTypeVan
 	CarTypeBus
-	CarTypeTrack
+	CarTypeTruck
 	CarTypeCargoVan
 	CarTypeLimo
 )
