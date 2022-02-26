@@ -34,7 +34,7 @@ type Vehicle struct {
 	ID         UUID
 	Driver     UUID // current driver's id, nullable
 	Model      string
-	Maker      string
+	Make       string
 	Color      string
 	Plate      string // license plate
 	Class      CarClass
