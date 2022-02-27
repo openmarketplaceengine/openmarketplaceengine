@@ -34,7 +34,6 @@ func DB() *sql.DB {
 //-----------------------------------------------------------------------------
 
 func (p *PgdbConn) Boot() (err error) {
-
 	pcfg := cfg.Pgdb()
 
 	var addr string

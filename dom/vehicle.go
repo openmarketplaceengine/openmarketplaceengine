@@ -29,7 +29,7 @@ const (
 	CarClassLuxury
 )
 
-// Vehicle represents car properties
+// Vehicle represents car properties.
 type Vehicle struct {
 	ID         UUID
 	Driver     UUID // current driver's id, nullable
