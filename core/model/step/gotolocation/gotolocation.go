@@ -49,7 +49,7 @@ func (gtl *GoToLocation) Handle(action step.Action) error {
 		return fmt.Errorf("illegal transition from status=%v by action=%v", gtl.State, action)
 	}
 	status := stateToStatus[gtl.fsm.Current()]
-	err := gtl.updateStatus(context.Background(), status)
+	err := gtl.updateState(context.Background(), status)
 	if err != nil {
 		return err
 	}
@@ -71,7 +71,7 @@ func New(ctx context.Context, stepID string, jobID string) (*GoToLocation, error
 	return gtl, nil
 }
 
-func (gtl *GoToLocation) updateStatus(ctx context.Context, status step.State) error {
+func (gtl *GoToLocation) updateState(ctx context.Context, status step.State) error {
 	gtl.UpdatedAt = time.Now().Format(time.RFC3339Nano)
 	gtl.State = status
 	// persist in database
