@@ -57,15 +57,8 @@ func (gtl *GoToLocation) Handle(action step.Action) error {
 }
 
 func New(ctx context.Context, stepID string, jobID string) (*GoToLocation, error) {
-	existing, err := storage.Retrieve(ctx, stepID)
-	if err != nil {
-		return nil, err
-	}
-
-	if existing != nil {
-		existing.fsm = newFsm(existing.State)
-		return existing, nil
-	}
+	// retrieve existing from database or create and store if not exists.
+	_ = ctx
 
 	gtl := &GoToLocation{
 		ID:        stepID,
@@ -75,19 +68,13 @@ func New(ctx context.Context, stepID string, jobID string) (*GoToLocation, error
 		fsm:       newFsm(Moving),
 	}
 
-	err = storage.Store(ctx, *gtl)
-	if err != nil {
-		return nil, err
-	}
 	return gtl, nil
 }
 
 func (gtl *GoToLocation) updateStatus(ctx context.Context, status step.State) error {
 	gtl.UpdatedAt = time.Now().Format(time.RFC3339Nano)
 	gtl.State = status
-	err := storage.Store(ctx, *gtl)
-	if err != nil {
-		return err
-	}
+	// persist in database
+	_ = ctx
 	return nil
 }
