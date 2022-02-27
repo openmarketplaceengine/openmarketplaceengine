@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step"
 	"github.com/openmarketplaceengine/openmarketplaceengine/redis/client"
 	"github.com/openmarketplaceengine/openmarketplaceengine/redis/marshalutils"
 )
@@ -36,7 +35,7 @@ func (s *Storage) Store(ctx context.Context, goToLocation GoToLocation) error {
 		return fmt.Errorf("store StructToMap error: %w", err)
 	}
 
-	key := key(goToLocation.StepID)
+	key := key(goToLocation.StepID())
 
 	err = s.client.HSet(ctx, key, m).Err()
 	if err != nil {
@@ -48,8 +47,8 @@ func (s *Storage) Store(ctx context.Context, goToLocation GoToLocation) error {
 	return nil
 }
 
-func (s *Storage) Retrieve(ctx context.Context, stepID step.ID) (goToLocation *GoToLocation, err error) {
-	key := key(string(stepID))
+func (s *Storage) Retrieve(ctx context.Context, stepID string) (goToLocation *GoToLocation, err error) {
+	key := key(stepID)
 	m, err := s.client.HGetAll(ctx, key).Result()
 	if err != nil {
 		err = fmt.Errorf("retrieve HGetAll error: %w", err)

@@ -9,24 +9,20 @@ import (
 )
 
 func TestGTLTransitions(t *testing.T) {
-	assert.NoError(t, checkTransition(New, Move))
-	assert.NoError(t, checkTransition(Moving, Near))
-	assert.NoError(t, checkTransition(NearBy, Arrive))
+	assert.NoError(t, checkTransition(Moving, NearAction))
+	assert.NoError(t, checkTransition(Near, ArriveAction))
 
-	assert.NoError(t, checkTransition(New, Cancel))
-	assert.NoError(t, checkTransition(Moving, Cancel))
-	assert.NoError(t, checkTransition(NearBy, Cancel))
-	assert.NoError(t, checkTransition(Arrived, Cancel))
+	assert.NoError(t, checkTransition(Moving, CancelAction))
+	assert.NoError(t, checkTransition(Near, CancelAction))
 }
 
 func TestGTLIllegalTransitions(t *testing.T) {
-	assert.EqualError(t, checkTransition(New, Near), "illegal transition from status=New by action=Near")
-	assert.EqualError(t, checkTransition(New, Arrive), "illegal transition from status=New by action=Arrive")
-	assert.EqualError(t, checkTransition(Moving, Arrive), "illegal transition from status=Moving by action=Arrive")
-	assert.EqualError(t, checkTransition(Arrived, Move), "illegal transition from status=Arrived by action=Move")
+	assert.EqualError(t, checkTransition(Canceled, NearAction), "illegal transition from status=Canceled by action=NearAction")
+	assert.EqualError(t, checkTransition(Moving, ArriveAction), "illegal transition from status=Moving by action=ArriveAction")
+	assert.EqualError(t, checkTransition(Arrived, CancelAction), "illegal transition from status=Arrived by action=CancelAction")
 }
 
-func checkTransition(current step.Status, action step.Action) error {
+func checkTransition(current step.State, action step.Action) error {
 	f := newFsm(current)
 	ok := f.Event(actionToEvent[action])
 	if !ok {

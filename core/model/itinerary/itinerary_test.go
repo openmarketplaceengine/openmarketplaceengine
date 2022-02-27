@@ -3,10 +3,11 @@ package itinerary
 import (
 	"context"
 	"fmt"
-	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"testing"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/job"
+	"github.com/google/uuid"
+	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
+	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step/gotolocation"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step"
 	"github.com/stretchr/testify/assert"
@@ -21,117 +22,102 @@ func TestItinerary(t *testing.T) {
 		testAddStep(t)
 	})
 
-	t.Run("testGetStep", func(t *testing.T) {
-		testGetStep(t)
-	})
-
 	t.Run("testRemoveStep", func(t *testing.T) {
 		testRemoveStep(t)
 	})
 
-	t.Run("testGetStepIndex", func(t *testing.T) {
-		testGetStepIndex(t)
+	t.Run("testStepIndex", func(t *testing.T) {
+		testStepIndex(t)
 	})
 }
 
 func testAddStep(t *testing.T) {
-	itinerary, _ := NewItinerary("test-flow-1", []*job.Job{})
+	ctx := context.Background()
+	jobID := uuid.New().String()
 
-	s := itinerary.GetCurrentStep()
+	step1, err := gotolocation.New(ctx, uuid.New().String(), jobID)
+	require.NoError(t, err)
+	step2, err := gotolocation.New(ctx, uuid.New().String(), jobID)
+	require.NoError(t, err)
+	step3, err := gotolocation.New(ctx, uuid.New().String(), jobID)
+	require.NoError(t, err)
+
+	itinerary := New(uuid.New().String(), []step.Step{})
+
+	s, err := itinerary.CurrentStep()
+	require.Error(t, err)
 	require.Nil(t, s)
 
 	assert.Len(t, itinerary.Steps, 0)
 
-	ctx := context.Background()
-	step1, err := newStep(ctx, "step1", "job-1", step.GoToLocation)
-	require.NoError(t, err)
-	step2, err := newStep(ctx, "step2", "job-1", step.GoToLocation)
-	require.NoError(t, err)
-	step3, err := newStep(ctx, "step3", "job-1", step.GoToLocation)
-	require.NoError(t, err)
-
 	itinerary.AddStep(step1)
 	itinerary.AddStep(step2)
 	itinerary.AddStep(step3)
+
 	assert.Len(t, itinerary.Steps, 3)
-}
-
-func testGetStep(t *testing.T) {
-	itinerary, _ := NewItinerary("test-flow-1", []*job.Job{})
-
-	ctx := context.Background()
-	step1, err := newStep(ctx, "step1", "job-1", step.GoToLocation)
+	currentStep, err := itinerary.CurrentStep()
 	require.NoError(t, err)
-	step2, err := newStep(ctx, "step2", "job-1", step.GoToLocation)
-	require.NoError(t, err)
-
-	itinerary.AddStep(step1)
-	itinerary.AddStep(step2)
-
-	assert.Equal(t, step2, itinerary.GetStep("step2"))
-	currentStep := itinerary.GetCurrentStep()
 	assert.Equal(t, step1, currentStep)
 }
 
 func testRemoveStep(t *testing.T) {
-	itinerary, _ := NewItinerary("test-flow-1", []*job.Job{})
-
 	ctx := context.Background()
-	step1, err := newStep(ctx, "step1", "job-1", step.GoToLocation)
+	jobID := uuid.New().String()
+
+	step1, err := gotolocation.New(ctx, uuid.New().String(), jobID)
 	require.NoError(t, err)
-	step2, err := newStep(ctx, "step2", "job-1", step.GoToLocation)
+	step2, err := gotolocation.New(ctx, uuid.New().String(), jobID)
 	require.NoError(t, err)
-	step3, err := newStep(ctx, "step3", "job-1", step.GoToLocation)
+	step3, err := gotolocation.New(ctx, uuid.New().String(), jobID)
 	require.NoError(t, err)
+	itinerary := New(uuid.New().String(), []step.Step{step1, step2, step3})
 
-	itinerary.AddStep(step1)
-	itinerary.AddStep(step2)
-	itinerary.AddStep(step3)
+	assert.ElementsMatch(t, itinerary.Steps, []step.Step{step1, step2, step3})
 
-	assert.ElementsMatch(t, itinerary.Steps, []*step.Step{step1, step2, step3})
+	itinerary.RemoveStep(step2.StepID())
+	assert.ElementsMatch(t, itinerary.Steps, []step.Step{step1, step3})
 
-	itinerary.RemoveStep("step2")
-	assert.ElementsMatch(t, itinerary.Steps, []*step.Step{step1, step3})
+	itinerary.RemoveStep(step1.StepID())
+	assert.ElementsMatch(t, itinerary.Steps, []step.Step{step3})
 
-	itinerary.RemoveStep("step1")
-	assert.ElementsMatch(t, itinerary.Steps, []*step.Step{step3})
-
-	itinerary.RemoveStep("step3")
-	assert.ElementsMatch(t, itinerary.Steps, []*step.Step{})
+	itinerary.RemoveStep(step3.StepID())
+	assert.ElementsMatch(t, itinerary.Steps, []step.Step{})
 }
 
-func testGetStepIndex(t *testing.T) {
-	itinerary, _ := NewItinerary("test-flow-1", []*job.Job{})
-
+func testStepIndex(t *testing.T) {
 	ctx := context.Background()
-	step1, err := newStep(ctx, "step1", "job-1", step.GoToLocation)
+	jobID := uuid.New().String()
+
+	step1, err := gotolocation.New(ctx, uuid.New().String(), jobID)
 	require.NoError(t, err)
-	step2, err := newStep(ctx, "step2", "job-1", step.GoToLocation)
+	step2, err := gotolocation.New(ctx, uuid.New().String(), jobID)
 	require.NoError(t, err)
-	step3, err := newStep(ctx, "step3", "job-1", step.GoToLocation)
+	step3, err := gotolocation.New(ctx, uuid.New().String(), jobID)
 	require.NoError(t, err)
+
+	itinerary := New(uuid.New().String(), []step.Step{})
 
 	itinerary.AddStep(step1)
 	itinerary.AddStep(step2)
 	itinerary.AddStep(step3)
 
-	i := itinerary.GetStepIndex("none")
+	i := itinerary.stepIndex("none")
 	assert.Equal(t, -1, i)
 
-	i1 := itinerary.GetStepIndex("step1")
+	i1 := itinerary.stepIndex(step1.StepID())
 	assert.Equal(t, 0, i1)
 
-	i2 := itinerary.GetStepIndex("step2")
+	i2 := itinerary.stepIndex(step2.StepID())
 	assert.Equal(t, 1, i2)
 
-	i3 := itinerary.GetStepIndex("step3")
+	i3 := itinerary.stepIndex(step3.StepID())
 	assert.Equal(t, 2, i3)
 }
 
 func (it *Itinerary) dump() {
 	fmt.Printf("Itinerary: %s\n", it.ID)
 	for i, s := range it.Steps {
-		fmt.Printf("%v-%+v ->", i, s.ID)
+		fmt.Printf("%v-%+v ->", i, s.StepID())
 	}
 
 	fmt.Println()

@@ -14,7 +14,7 @@ func TestJob(t *testing.T) {
 }
 
 func testCreateJob(t *testing.T) {
-	transportation := Transportation{
+	transportation := Request{
 		PickupLocation:     Location{},
 		DropOffLocation:    Location{},
 		SubjectID:          "",

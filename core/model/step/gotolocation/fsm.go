@@ -7,59 +7,50 @@ import (
 )
 
 const (
-	MoveEvent fsm.Event = iota
-	NearEvent
+	NearEvent fsm.Event = iota
 	ArriveEvent
 	CancelEvent
 )
 
 var actionToEvent = map[step.Action]fsm.Event{
-	Move:   MoveEvent,
-	Near:   NearEvent,
-	Arrive: ArriveEvent,
-	Cancel: CancelEvent,
+	NearAction:   NearEvent,
+	ArriveAction: ArriveEvent,
+	CancelAction: CancelEvent,
 }
 
 const (
-	NewState fsm.State = iota
-	MovingState
-	NearByState
+	MovingState fsm.State = iota
+	NearState
 	ArrivedState
 	CanceledState
 )
 
-var statusToState = map[step.Status]fsm.State{
-	New:      NewState,
+var statusToState = map[step.State]fsm.State{
 	Moving:   MovingState,
-	NearBy:   NearByState,
+	Near:     NearState,
 	Arrived:  ArrivedState,
 	Canceled: CanceledState,
 }
 
-var stateToStatus = map[fsm.State]step.Status{
-	NewState:      New,
+var stateToStatus = map[fsm.State]step.State{
 	MovingState:   Moving,
-	NearByState:   NearBy,
+	NearState:     Near,
 	ArrivedState:  Arrived,
 	CanceledState: Canceled,
 }
 
-var statusToAvailableActions = map[step.Status][]step.Action{
-	New:      {Move, Cancel},
-	Moving:   {Near, Cancel},
-	NearBy:   {Arrive, Cancel},
+var statusToAvailableActions = map[step.State][]step.Action{
+	Moving:   {NearAction, CancelAction},
+	Near:     {ArriveAction, CancelAction},
 	Arrived:  {},
 	Canceled: {},
 }
 
-func newFsm(current step.Status) *fsm.FSM {
+func newFsm(current step.State) *fsm.FSM {
 	f := fsm.New(statusToState[current])
-	f.Transition(fsm.On(MoveEvent), fsm.Src(NewState), fsm.Dst(MovingState))
-	f.Transition(fsm.On(NearEvent), fsm.Src(MovingState), fsm.Dst(NearByState))
-	f.Transition(fsm.On(ArriveEvent), fsm.Src(NearByState), fsm.Dst(ArrivedState))
-	f.Transition(fsm.On(CancelEvent), fsm.Src(NewState), fsm.Dst(CanceledState))
+	f.Transition(fsm.On(NearEvent), fsm.Src(MovingState), fsm.Dst(NearState))
+	f.Transition(fsm.On(ArriveEvent), fsm.Src(NearState), fsm.Dst(ArrivedState))
 	f.Transition(fsm.On(CancelEvent), fsm.Src(MovingState), fsm.Dst(CanceledState))
-	f.Transition(fsm.On(CancelEvent), fsm.Src(NearByState), fsm.Dst(CanceledState))
-	f.Transition(fsm.On(CancelEvent), fsm.Src(ArrivedState), fsm.Dst(CanceledState))
+	f.Transition(fsm.On(CancelEvent), fsm.Src(NearState), fsm.Dst(CanceledState))
 	return f
 }

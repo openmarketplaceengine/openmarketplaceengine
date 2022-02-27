@@ -7,7 +7,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
-	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -24,11 +23,11 @@ func TestStorage(t *testing.T) {
 
 func testStoreAndRetrieve(t *testing.T, storage *Storage) {
 	ctx := context.Background()
-	id := step.ID(uuid.New().String())
+	id := uuid.New().String()
 	stateIn := GoToLocation{
-		StepID:    string(id),
+		ID:        id,
 		UpdatedAt: time.Now().Format(time.RFC3339Nano),
-		Status:    Moving,
+		State:     Moving,
 	}
 	err := storage.Store(ctx, stateIn)
 
@@ -36,8 +35,8 @@ func testStoreAndRetrieve(t *testing.T, storage *Storage) {
 
 	stateOut, err := storage.Retrieve(ctx, id)
 	require.NoError(t, err)
-	assert.Equal(t, stateIn.StepID, stateOut.StepID)
-	assert.Equal(t, stateIn.Status, stateOut.Status)
+	assert.Equal(t, stateIn.StepID(), stateOut.StepID())
+	assert.Equal(t, stateIn.State, stateOut.State)
 	updatedAtIn, _ := time.Parse(time.RFC3339Nano, stateIn.UpdatedAt)
 	updatedAtOut, _ := time.Parse(time.RFC3339Nano, stateOut.UpdatedAt)
 	assert.Equal(t, updatedAtIn.UnixNano(), updatedAtOut.UnixNano())
