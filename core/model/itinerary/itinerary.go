@@ -4,55 +4,72 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/job"
 	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step"
 )
 
-type Status int
-
-const (
-	Scheduled Status = iota
-	InProgress
-	Completed
-	Canceled
-)
-
-// Itinerary is a planned journey for a job.Job array.
+// Itinerary is a planned journey represented as step.Step array.
 type Itinerary struct {
-	ID          string
-	Jobs        []*job.Job
-	Steps       []*step.Step
-	CurrentStep int
-	StartTime   time.Time
-	WorkerID    string
-	Status      Status
+	ID        string
+	Steps     []step.Step
+	step      int // current step
+	StartTime time.Time
+	WorkerID  string
 }
 
-func NewItinerary(id string, steps []*step.Step) *Itinerary {
-	return &Itinerary{
-		ID:          id,
-		Jobs:        nil,
-		Steps:       steps,
-		CurrentStep: 0,
-		StartTime:   time.Time{},
-		WorkerID:    "",
+// New builds planned slice of step.Step for a slice of job.Job.
+// Each job.Request consists of predefined set of steps,
+// i.e. step.GoToLocation, step.Pickup, step.DropOff, etc.
+func New(id string, steps []step.Step) *Itinerary {
+	it := &Itinerary{
+		ID:        id,
+		Steps:     steps,
+		step:      0,
+		StartTime: time.Time{},
+		WorkerID:  "",
 	}
+	return it
 }
 
-func (it *Itinerary) GetFirstStep() (*step.Step, error) {
+func (it *Itinerary) CurrentStep() (step.Step, error) {
 	if len(it.Steps) == 0 {
-		return nil, fmt.Errorf("itinerary %s has no steps", it.ID)
+		return nil, fmt.Errorf("no current step")
 	}
-	s := it.Steps[0]
-	return s, nil
+	return it.Steps[it.step], nil
 }
 
-func (it *Itinerary) AddStep(step *step.Step) {
+func (it *Itinerary) AvailableActions() ([]step.Action, error) {
+	currentStep, err := it.CurrentStep()
+	if err != nil {
+		return nil, err
+	}
+	return currentStep.AvailableActions(), nil
+}
+
+func (it *Itinerary) Handle(action step.Action) error {
+	currentStep, err := it.CurrentStep()
+	if err != nil {
+		return err
+	}
+	err = currentStep.Handle(action)
+	if err != nil {
+		return err
+	}
+
+	if len(currentStep.AvailableActions()) == 0 {
+		if it.step < len(it.Steps)-1 {
+			it.step++
+		}
+	}
+
+	return nil
+}
+
+func (it *Itinerary) AddStep(step step.Step) {
 	it.Steps = append(it.Steps, step)
 }
 
-func (it *Itinerary) RemoveStep(stepID string) {
-	i := it.GetStepIndex(stepID)
+func (it *Itinerary) RemoveStep(id string) {
+	i := it.stepIndex(id)
 	if i > -1 {
 		copy(it.Steps[i:], it.Steps[i+1:])
 		n := len(it.Steps)
@@ -61,18 +78,18 @@ func (it *Itinerary) RemoveStep(stepID string) {
 	}
 }
 
-func (it *Itinerary) GetStep(stepID string) *step.Step {
+func (it *Itinerary) GetStep(id string) step.Step {
 	for _, s := range it.Steps {
-		if s.ID == stepID {
+		if s.StepID() == id {
 			return s
 		}
 	}
 	return nil
 }
 
-func (it *Itinerary) GetStepIndex(stepID string) int {
+func (it *Itinerary) stepIndex(id string) int {
 	for i, s := range it.Steps {
-		if s.ID == stepID {
+		if s.StepID() == id {
 			return i
 		}
 	}

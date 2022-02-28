@@ -15,78 +15,54 @@ func TestGoToLocation(t *testing.T) {
 	err := cfg.Load()
 	require.NoError(t, err)
 
-	storage = newStorage(30 * time.Second)
-
-	ctx := context.Background()
-	driverID := uuid.New().String()
-	newGTL, err := NewGoToLocation(ctx, driverID, 7, 8)
-	require.NoError(t, err)
-
-	t.Run("testRetrieveNil", func(t *testing.T) {
-		testRetrieveNil(t)
+	t.Run("testMovingToNear", func(t *testing.T) {
+		testMovingToNear(t)
 	})
 
-	t.Run("testNew", func(t *testing.T) {
-		testNew(t, newGTL)
-	})
-
-	t.Run("testNewToMoving", func(t *testing.T) {
-		testNewToMoving(t, newGTL)
-	})
-
-	t.Run("testNewToArrived", func(t *testing.T) {
-		testNewToArrived(t, newGTL)
+	t.Run("testTransitionError", func(t *testing.T) {
+		testTransitionError(t)
 	})
 }
 
-func testRetrieveNil(t *testing.T) {
+func testMovingToNear(t *testing.T) {
 	ctx := context.Background()
-	driverID := uuid.New().String()
-	_, err := storage.Retrieve(ctx, driverID)
-	require.Error(t, err)
+	id := uuid.New().String()
+	jobID := uuid.New().String()
+	gtl, err := New(ctx, id, jobID)
+	require.NoError(t, err)
+
+	prevState := gtl.State
+	prevUpdatedAt := gtl.UpdatedAt
+	err = gtl.Handle(NearAction)
+	require.NoError(t, err)
+
+	require.NoError(t, err)
+	assert.Equal(t, Moving, prevState)
+	assert.Equal(t, gtl.StepID(), gtl.StepID())
+	assert.Equal(t, Near, gtl.State)
+	require.NoError(t, err)
+	updatedAt0, _ := time.Parse(time.RFC3339Nano, prevUpdatedAt)
+	updatedAt1, _ := time.Parse(time.RFC3339Nano, gtl.UpdatedAt)
+	assert.Less(t, updatedAt0.UnixNano(), updatedAt1.UnixNano())
 }
 
-func testNew(t *testing.T, newGTL *GoToLocation) {
+func testTransitionError(t *testing.T) {
 	ctx := context.Background()
-
-	retrieved, err := storage.Retrieve(ctx, newGTL.DriverID)
-	require.NoError(t, err)
-	assert.Equal(t, New, newGTL.State)
-	assert.Equal(t, newGTL.DriverID, retrieved.DriverID)
-	assert.Equal(t, newGTL.DestinationLatitude, retrieved.DestinationLatitude)
-	assert.Equal(t, newGTL.DestinationLongitude, retrieved.DestinationLongitude)
-	assert.Equal(t, newGTL.State, retrieved.State)
-	assert.Equal(t, newGTL.UpdatedAt, retrieved.UpdatedAt)
-}
-
-func testNewToMoving(t *testing.T, newGTL *GoToLocation) {
-	ctx := context.Background()
-	prevState := newGTL.State
-	prevLastModifiedAt := newGTL.UpdatedAt
-	err := newGTL.Moving(ctx, 7, 8)
+	id := uuid.New().String()
+	jobID := uuid.New().String()
+	gtl, err := New(ctx, id, jobID)
 	require.NoError(t, err)
 
-	movingGTL, err := storage.Retrieve(ctx, newGTL.DriverID)
+	err = gtl.Handle(NearAction)
 	require.NoError(t, err)
-	assert.Equal(t, New, prevState)
-	assert.Equal(t, newGTL.DriverID, movingGTL.DriverID)
-	assert.Equal(t, Moving, movingGTL.State)
-	prev, err := time.Parse(time.RFC3339Nano, prevLastModifiedAt)
-	require.NoError(t, err)
-	last, err := time.Parse(time.RFC3339Nano, movingGTL.UpdatedAt)
-	require.NoError(t, err)
-	assert.Less(t, prev.UnixMilli(), last.UnixMilli())
-}
 
-func testNewToArrived(t *testing.T, newGTL *GoToLocation) {
-	ctx := context.Background()
-	prevState := newGTL.State
-	prevLastModifiedAt := newGTL.UpdatedAt
-	err := newGTL.Arrived(ctx, 7, 8)
+	prevState := gtl.State
+	prevUpdatedAt := gtl.UpdatedAt
+	err = gtl.Handle(NearAction)
 	require.Error(t, err)
 
-	retrieved, err := storage.Retrieve(ctx, newGTL.DriverID)
-	require.NoError(t, err)
-	assert.Equal(t, prevState, retrieved.State)
-	assert.Equal(t, prevLastModifiedAt, retrieved.UpdatedAt)
+	assert.Equal(t, prevState, gtl.State)
+	updatedAt0, _ := time.Parse(time.RFC3339Nano, prevUpdatedAt)
+	updatedAt1, _ := time.Parse(time.RFC3339Nano, gtl.UpdatedAt)
+	assert.Equal(t, updatedAt0.UnixNano(), updatedAt1.UnixNano())
 }

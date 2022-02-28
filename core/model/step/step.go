@@ -1,21 +1,18 @@
 package step
 
-// Action defines primitive action constituting a job.Job.
-type Action int
+// Action defines command that changes Step state.
+type Action string
 
-const (
-	GoToLocation Action = iota
-	Pickup
-	DropOff
-	CollectCache
-	CollectVoucher
-	CallPhone
-)
+// State is a description of Step status.
+// Step in certain State is eligible to execute certain transitions.
+type State string
 
-// Step is a part of Job execution
-// JobID refers to job.Job step belongs to.
-type Step struct {
-	ID     string
-	JobID  string
-	Action Action
+// Step interface exposes current State and Action list for eligible transitions.
+// Handle(Action) function performs state transition.
+// AvailableActions (i.e. Move, Arrive, PickUp, DropOff), empty list means entity has reached its final State.
+type Step interface {
+	StepID() string
+	CurrentState() State
+	AvailableActions() []Action
+	Handle(action Action) error
 }
