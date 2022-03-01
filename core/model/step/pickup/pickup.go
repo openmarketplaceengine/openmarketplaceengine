@@ -18,9 +18,9 @@ const (
 )
 
 var events = map[fsm.State][]fsm.Event{
-	readyState:     {Complete, Cancel},
-	completedState: {},
-	canceledState:  {},
+	Ready:     {Complete, Cancel},
+	Completed: {},
+	Canceled:  {},
 }
 
 type Pickup struct {
@@ -53,21 +53,10 @@ func New(state fsm.State) (pickup *Pickup) {
 	return
 }
 
-const (
-	readyState fsm.State = iota
-	completedState
-	canceledState
-)
-
-const (
-	completeEvent fsm.Event = iota
-	cancelEvent
-)
-
 func newFsm(initial fsm.State) *fsm.FSM {
 	f := fsm.New(initial)
-	f.Transition(fsm.On(completeEvent), fsm.Src(readyState), fsm.Dst(completedState))
-	f.Transition(fsm.On(cancelEvent), fsm.Src(readyState), fsm.Dst(canceledState))
+	f.Transition(fsm.On(Complete), fsm.Src(Ready), fsm.Dst(Completed))
+	f.Transition(fsm.On(Cancel), fsm.Src(Ready), fsm.Dst(Canceled))
 
 	return f
 }

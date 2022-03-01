@@ -20,10 +20,10 @@ const (
 )
 
 var events = map[fsm.State][]fsm.Event{
-	movingState:   {NearBy, Cancel},
-	nearState:     {Arrive, Cancel},
-	arrivedState:  {},
-	canceledState: {},
+	Moving:   {NearBy, Cancel},
+	Near:     {Arrive, Cancel},
+	Arrived:  {},
+	Canceled: {},
 }
 
 type GoToLocation struct {
@@ -56,24 +56,11 @@ func New(state fsm.State) *GoToLocation {
 	return gtl
 }
 
-const (
-	nearEvent fsm.Event = iota
-	arriveEvent
-	cancelEvent
-)
-
-const (
-	movingState fsm.State = iota
-	nearState
-	arrivedState
-	canceledState
-)
-
 func newFsm(initial fsm.State) *fsm.FSM {
 	f := fsm.New(initial)
-	f.Transition(fsm.On(nearEvent), fsm.Src(movingState), fsm.Dst(nearState))
-	f.Transition(fsm.On(arriveEvent), fsm.Src(nearState), fsm.Dst(arrivedState))
-	f.Transition(fsm.On(cancelEvent), fsm.Src(movingState), fsm.Dst(canceledState))
-	f.Transition(fsm.On(cancelEvent), fsm.Src(nearState), fsm.Dst(canceledState))
+	f.Transition(fsm.On(NearBy), fsm.Src(Moving), fsm.Dst(Near))
+	f.Transition(fsm.On(Arrive), fsm.Src(Near), fsm.Dst(Arrived))
+	f.Transition(fsm.On(Cancel), fsm.Src(Moving), fsm.Dst(Canceled))
+	f.Transition(fsm.On(Cancel), fsm.Src(Near), fsm.Dst(Canceled))
 	return f
 }
