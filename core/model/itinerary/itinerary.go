@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/cocoonspace/fsm"
+
 	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step"
 )
 
@@ -37,7 +39,7 @@ func (it *Itinerary) CurrentStep() (*step.Step, error) {
 	return it.Steps[it.step], nil
 }
 
-func (it *Itinerary) AvailableEvents() ([]step.Event, error) {
+func (it *Itinerary) AvailableEvents() ([]fsm.Event, error) {
 	currentStep, err := it.CurrentStep()
 	if err != nil {
 		return nil, err
@@ -45,7 +47,7 @@ func (it *Itinerary) AvailableEvents() ([]step.Event, error) {
 	return currentStep.AvailableEvents(), nil
 }
 
-func (it *Itinerary) Handle(event step.Event) error {
+func (it *Itinerary) Handle(event fsm.Event) error {
 	currentStep, err := it.CurrentStep()
 	if err != nil {
 		return err

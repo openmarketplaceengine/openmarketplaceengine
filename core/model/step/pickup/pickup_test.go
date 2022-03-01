@@ -35,6 +35,6 @@ func testTransitionError(t *testing.T) {
 	prevState := pickup.CurrentState()
 	assert.Equal(t, Completed, prevState)
 	err = pickup.Handle(Cancel)
-	require.EqualError(t, err, "illegal transition from state=Completed by event=Cancel")
+	require.EqualError(t, err, "illegal transition from state=1 by event=1")
 	assert.Equal(t, prevState, pickup.CurrentState())
 }

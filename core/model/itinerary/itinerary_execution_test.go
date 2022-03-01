@@ -3,6 +3,8 @@ package itinerary
 import (
 	"testing"
 
+	"github.com/cocoonspace/fsm"
+
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step"
@@ -42,7 +44,7 @@ func testItineraryExecutionOneStep(t *testing.T) {
 
 	events0 := currentStep.AvailableEvents()
 	require.Len(t, events0, 2)
-	require.ElementsMatch(t, events0, []step.Event{gotolocation.NearBy, gotolocation.Cancel})
+	require.ElementsMatch(t, events0, []fsm.Event{gotolocation.NearBy, gotolocation.Cancel})
 	require.Equal(t, gotolocation.Moving, step1.CurrentState())
 
 	err = itinerary.Handle(events0[0])
@@ -52,7 +54,7 @@ func testItineraryExecutionOneStep(t *testing.T) {
 	require.Equal(t, gotolocation.Near, nextStep.CurrentState())
 	events1 := nextStep.AvailableEvents()
 	require.Len(t, events1, 2)
-	require.ElementsMatch(t, events1, []step.Event{gotolocation.Arrive, gotolocation.Cancel})
+	require.ElementsMatch(t, events1, []fsm.Event{gotolocation.Arrive, gotolocation.Cancel})
 
 	err = nextStep.Handle(events1[0])
 	require.NoError(t, err)

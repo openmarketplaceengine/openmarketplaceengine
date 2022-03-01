@@ -3,7 +3,9 @@ package step
 import (
 	"time"
 
-	"golang.org/x/net/context"
+	"github.com/cocoonspace/fsm"
+
+	"context"
 )
 
 // Type defines Step types i.e. GoToLocation, Pickup, DropOff.
@@ -15,27 +17,20 @@ const (
 	DropOff      Type = "DropOff"
 )
 
-// Event defines command that changes State.
-type Event string
-
-// State is a description of Step status.
-// Step in certain State is eligible to execute certain transitions.
-type State string
-
 // StateMachine interface exposes current State and Event list for eligible transitions.
 // Handle(Event) function performs state transition.
 // AvailableEvents (i.e. Move, Arrive, PickUp, DropOff), empty list means entity has reached its final State.
 type StateMachine interface {
-	CurrentState() State
-	AvailableEvents() []Event
-	Handle(event Event) error
+	CurrentState() fsm.State
+	AvailableEvents() []fsm.Event
+	Handle(event fsm.Event) error
 }
 
 // Step represents itinerary step.
 type Step struct {
 	ID           string
 	Type         Type
-	State        State
+	State        fsm.State
 	StateMachine StateMachine
 	JobID        string
 	UpdatedAt    string
@@ -57,19 +52,19 @@ func (s *Step) StepID() string {
 	return s.ID
 }
 
-func (s *Step) CurrentState() State {
+func (s *Step) CurrentState() fsm.State {
 	return s.StateMachine.CurrentState()
 }
 
-func (s *Step) AvailableEvents() []Event {
+func (s *Step) AvailableEvents() []fsm.Event {
 	return s.StateMachine.AvailableEvents()
 }
 
-func (s *Step) Handle(event Event) error {
+func (s *Step) Handle(event fsm.Event) error {
 	return s.StateMachine.Handle(event)
 }
 
-func (s *Step) updateState(ctx context.Context, state State) error {
+func (s *Step) updateState(ctx context.Context, state fsm.State) error {
 	s.UpdatedAt = time.Now().Format(time.RFC3339Nano)
 	s.State = state
 	// persist in database type, state etc.

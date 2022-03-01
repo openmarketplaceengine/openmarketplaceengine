@@ -4,75 +4,53 @@ import (
 	"fmt"
 
 	"github.com/cocoonspace/fsm"
-	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step"
 )
 
 const (
-	Moving   step.State = "Moving"
-	Near     step.State = "Near"
-	Arrived  step.State = "Arrived"
-	Canceled step.State = "Canceled"
+	Moving fsm.State = iota
+	Near
+	Arrived
+	Canceled
 )
 
 const (
-	NearBy step.Event = "NearBy"
-	Arrive step.Event = "Arrive"
-	Cancel step.Event = "Cancel"
+	NearBy fsm.Event = iota
+	Arrive
+	Cancel
 )
 
-var fsm2state = map[fsm.State]step.State{
-	movingState:   Moving,
-	nearState:     Near,
-	arrivedState:  Arrived,
-	canceledState: Canceled,
-}
-
-var events = map[fsm.State][]step.Event{
+var events = map[fsm.State][]fsm.Event{
 	movingState:   {NearBy, Cancel},
 	nearState:     {Arrive, Cancel},
 	arrivedState:  {},
 	canceledState: {},
 }
 
-var event2fsm = map[step.Event]fsm.Event{
-	NearBy: nearEvent,
-	Arrive: arriveEvent,
-	Cancel: cancelEvent,
-}
-
-var state2fsm = map[step.State]fsm.State{
-	Moving:   movingState,
-	Near:     nearState,
-	Arrived:  arrivedState,
-	Canceled: canceledState,
-}
-
 type GoToLocation struct {
 	fsm *fsm.FSM
 }
 
-func (gtl *GoToLocation) CurrentState() step.State {
-	state := gtl.fsm.Current()
-	return fsm2state[state]
+func (gtl *GoToLocation) CurrentState() fsm.State {
+	return gtl.fsm.Current()
 }
 
-func (gtl *GoToLocation) AvailableEvents() []step.Event {
+func (gtl *GoToLocation) AvailableEvents() []fsm.Event {
 	state := gtl.fsm.Current()
 	return events[state]
 }
 
-func (gtl *GoToLocation) Handle(event step.Event) error {
-	ok := gtl.fsm.Event(event2fsm[event])
+func (gtl *GoToLocation) Handle(event fsm.Event) error {
+	ok := gtl.fsm.Event(event)
 	if !ok {
-		state := fsm2state[gtl.fsm.Current()]
+		state := gtl.fsm.Current()
 		return fmt.Errorf("illegal transition from state=%v by event=%v", state, event)
 	}
 	return nil
 }
 
-func New(state step.State) *GoToLocation {
+func New(state fsm.State) *GoToLocation {
 	gtl := &GoToLocation{
-		fsm: newFsm(state2fsm[state]),
+		fsm: newFsm(state),
 	}
 
 	return gtl

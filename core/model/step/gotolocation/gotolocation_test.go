@@ -41,7 +41,7 @@ func testTransitionError(t *testing.T) {
 
 	prevState := gtl.CurrentState()
 	err = gtl.Handle(NearBy)
-	require.EqualError(t, err, "illegal transition from state=Near by event=NearBy")
+	require.EqualError(t, err, "illegal transition from state=1 by event=0")
 
 	assert.Equal(t, prevState, gtl.CurrentState())
 }

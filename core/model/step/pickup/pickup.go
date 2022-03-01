@@ -4,38 +4,20 @@ import (
 	"fmt"
 
 	"github.com/cocoonspace/fsm"
-	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step"
 )
 
 const (
-	Ready     step.State = "Ready"
-	Completed step.State = "Completed"
-	Canceled  step.State = "Canceled"
+	Ready fsm.State = iota
+	Completed
+	Canceled
 )
 
 const (
-	Complete step.Event = "Complete"
-	Cancel   step.Event = "Cancel"
+	Complete fsm.Event = iota
+	Cancel
 )
 
-var event2fsm = map[step.Event]fsm.Event{
-	Complete: completeEvent,
-	Cancel:   cancelEvent,
-}
-
-var state2fsm = map[step.State]fsm.State{
-	Ready:     readyState,
-	Completed: completedState,
-	Canceled:  canceledState,
-}
-
-var fsm2state = map[fsm.State]step.State{
-	readyState:     Ready,
-	completedState: Completed,
-	canceledState:  Canceled,
-}
-
-var events = map[fsm.State][]step.Event{
+var events = map[fsm.State][]fsm.Event{
 	readyState:     {Complete, Cancel},
 	completedState: {},
 	canceledState:  {},
@@ -45,28 +27,27 @@ type Pickup struct {
 	fsm *fsm.FSM
 }
 
-func (gtl *Pickup) CurrentState() step.State {
-	state := gtl.fsm.Current()
-	return fsm2state[state]
+func (gtl *Pickup) CurrentState() fsm.State {
+	return gtl.fsm.Current()
 }
 
-func (gtl *Pickup) AvailableEvents() []step.Event {
+func (gtl *Pickup) AvailableEvents() []fsm.Event {
 	state := gtl.fsm.Current()
 	return events[state]
 }
 
-func (gtl *Pickup) Handle(event step.Event) error {
-	ok := gtl.fsm.Event(event2fsm[event])
+func (gtl *Pickup) Handle(event fsm.Event) error {
+	ok := gtl.fsm.Event(event)
 	if !ok {
-		state := fsm2state[gtl.fsm.Current()]
+		state := gtl.fsm.Current()
 		return fmt.Errorf("illegal transition from state=%v by event=%v", state, event)
 	}
 	return nil
 }
 
-func New(state step.State) (pickup *Pickup) {
+func New(state fsm.State) (pickup *Pickup) {
 	pickup = &Pickup{
-		fsm: newFsm(state2fsm[state]),
+		fsm: newFsm(state),
 	}
 
 	return
