@@ -1,11 +1,8 @@
 package pickup
 
 import (
-	"context"
 	"testing"
-	"time"
 
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -21,40 +18,23 @@ func TestPickup(t *testing.T) {
 }
 
 func testReadyToCompleted(t *testing.T) {
-	ctx := context.Background()
-	id := uuid.New().String()
-	jobID := uuid.New().String()
-	pickup, err := New(ctx, id, jobID)
-	require.NoError(t, err)
+	pickup := New(Ready)
 
-	prevState := pickup.State
-	prevUpdatedAt := pickup.UpdatedAt
-	err = pickup.Handle(CompleteAction)
+	prevState := pickup.CurrentState()
+	err := pickup.Handle(Complete)
 	require.NoError(t, err)
 	assert.Equal(t, Ready, prevState)
-	assert.Equal(t, Completed, pickup.State)
-	prev, err := time.Parse(time.RFC3339Nano, prevUpdatedAt)
-	require.NoError(t, err)
-	last, err := time.Parse(time.RFC3339Nano, pickup.UpdatedAt)
-	require.NoError(t, err)
-	assert.Less(t, prev.UnixNano(), last.UnixNano())
+	assert.Equal(t, Completed, pickup.CurrentState())
 }
 
 func testTransitionError(t *testing.T) {
-	ctx := context.Background()
-	id := uuid.New().String()
-	jobID := uuid.New().String()
-	pickup, err := New(ctx, id, jobID)
+	pickup := New(Ready)
+	err := pickup.Handle(Complete)
 	require.NoError(t, err)
 
-	err = pickup.Handle(CompleteAction)
-	require.NoError(t, err)
-
-	prevState := pickup.State
-	prevUpdatedAt := pickup.UpdatedAt
-	assert.Equal(t, Completed, pickup.State)
-	err = pickup.Handle(CancelAction)
-	require.Error(t, err)
-	assert.Equal(t, prevState, pickup.State)
-	assert.Equal(t, prevUpdatedAt, pickup.UpdatedAt)
+	prevState := pickup.CurrentState()
+	assert.Equal(t, Completed, prevState)
+	err = pickup.Handle(Cancel)
+	require.EqualError(t, err, "illegal transition from state=Completed by event=Cancel")
+	assert.Equal(t, prevState, pickup.CurrentState())
 }

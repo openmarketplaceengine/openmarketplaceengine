@@ -1,9 +1,7 @@
 package gotolocation
 
 import (
-	"context"
 	"fmt"
-	"time"
 
 	"github.com/cocoonspace/fsm"
 	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step"
@@ -17,64 +15,87 @@ const (
 )
 
 const (
-	NearAction   step.Action = "NearAction"
-	ArriveAction step.Action = "ArriveAction"
-	CancelAction step.Action = "CancelAction"
+	NearBy step.Event = "NearBy"
+	Arrive step.Event = "Arrive"
+	Cancel step.Event = "Cancel"
 )
 
-type GoToLocation struct {
-	ID        string     `json:",string"`
-	JobID     string     `json:",string"`
-	UpdatedAt string     `json:",string"`
-	State     step.State `json:",string"`
-	fsm       *fsm.FSM
+var fsm2state = map[fsm.State]step.State{
+	movingState:   Moving,
+	nearState:     Near,
+	arrivedState:  Arrived,
+	canceledState: Canceled,
 }
 
-func (gtl *GoToLocation) StepID() string {
-	return gtl.ID
+var events = map[fsm.State][]step.Event{
+	movingState:   {NearBy, Cancel},
+	nearState:     {Arrive, Cancel},
+	arrivedState:  {},
+	canceledState: {},
+}
+
+var event2fsm = map[step.Event]fsm.Event{
+	NearBy: nearEvent,
+	Arrive: arriveEvent,
+	Cancel: cancelEvent,
+}
+
+var state2fsm = map[step.State]fsm.State{
+	Moving:   movingState,
+	Near:     nearState,
+	Arrived:  arrivedState,
+	Canceled: canceledState,
+}
+
+type GoToLocation struct {
+	fsm *fsm.FSM
 }
 
 func (gtl *GoToLocation) CurrentState() step.State {
 	state := gtl.fsm.Current()
-	return stateToStatus[state]
+	return fsm2state[state]
 }
 
-func (gtl *GoToLocation) AvailableActions() []step.Action {
-	return statusToAvailableActions[gtl.State]
+func (gtl *GoToLocation) AvailableEvents() []step.Event {
+	state := gtl.fsm.Current()
+	return events[state]
 }
 
-func (gtl *GoToLocation) Handle(action step.Action) error {
-	ok := gtl.fsm.Event(actionToEvent[action])
+func (gtl *GoToLocation) Handle(event step.Event) error {
+	ok := gtl.fsm.Event(event2fsm[event])
 	if !ok {
-		return fmt.Errorf("illegal transition from status=%v by action=%v", gtl.State, action)
-	}
-	status := stateToStatus[gtl.fsm.Current()]
-	err := gtl.updateState(context.Background(), status)
-	if err != nil {
-		return err
+		state := fsm2state[gtl.fsm.Current()]
+		return fmt.Errorf("illegal transition from state=%v by event=%v", state, event)
 	}
 	return nil
 }
 
-func New(ctx context.Context, stepID string, jobID string) (*GoToLocation, error) {
-	// retrieve existing from database or create and store if not exists.
-	_ = ctx
-
+func New(state step.State) *GoToLocation {
 	gtl := &GoToLocation{
-		ID:        stepID,
-		JobID:     jobID,
-		UpdatedAt: time.Now().Format(time.RFC3339Nano),
-		State:     Moving,
-		fsm:       newFsm(Moving),
+		fsm: newFsm(state2fsm[state]),
 	}
 
-	return gtl, nil
+	return gtl
 }
 
-func (gtl *GoToLocation) updateState(ctx context.Context, status step.State) error {
-	gtl.UpdatedAt = time.Now().Format(time.RFC3339Nano)
-	gtl.State = status
-	// persist in database
-	_ = ctx
-	return nil
+const (
+	nearEvent fsm.Event = iota
+	arriveEvent
+	cancelEvent
+)
+
+const (
+	movingState fsm.State = iota
+	nearState
+	arrivedState
+	canceledState
+)
+
+func newFsm(initial fsm.State) *fsm.FSM {
+	f := fsm.New(initial)
+	f.Transition(fsm.On(nearEvent), fsm.Src(movingState), fsm.Dst(nearState))
+	f.Transition(fsm.On(arriveEvent), fsm.Src(nearState), fsm.Dst(arrivedState))
+	f.Transition(fsm.On(cancelEvent), fsm.Src(movingState), fsm.Dst(canceledState))
+	f.Transition(fsm.On(cancelEvent), fsm.Src(nearState), fsm.Dst(canceledState))
+	return f
 }

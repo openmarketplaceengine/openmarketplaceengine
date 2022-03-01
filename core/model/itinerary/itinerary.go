@@ -10,7 +10,7 @@ import (
 // Itinerary is a planned journey represented as step.Step array.
 type Itinerary struct {
 	ID        string
-	Steps     []step.Step
+	Steps     []*step.Step
 	step      int // current step
 	StartTime time.Time
 	WorkerID  string
@@ -19,7 +19,7 @@ type Itinerary struct {
 // New builds planned slice of step.Step for a slice of job.Job.
 // Each job.Request consists of predefined set of steps,
 // i.e. step.GoToLocation, step.Pickup, step.DropOff, etc.
-func New(id string, steps []step.Step) *Itinerary {
+func New(id string, steps []*step.Step) *Itinerary {
 	it := &Itinerary{
 		ID:        id,
 		Steps:     steps,
@@ -30,32 +30,32 @@ func New(id string, steps []step.Step) *Itinerary {
 	return it
 }
 
-func (it *Itinerary) CurrentStep() (step.Step, error) {
+func (it *Itinerary) CurrentStep() (*step.Step, error) {
 	if len(it.Steps) == 0 {
 		return nil, fmt.Errorf("no current step")
 	}
 	return it.Steps[it.step], nil
 }
 
-func (it *Itinerary) AvailableActions() ([]step.Action, error) {
+func (it *Itinerary) AvailableEvents() ([]step.Event, error) {
 	currentStep, err := it.CurrentStep()
 	if err != nil {
 		return nil, err
 	}
-	return currentStep.AvailableActions(), nil
+	return currentStep.AvailableEvents(), nil
 }
 
-func (it *Itinerary) Handle(action step.Action) error {
+func (it *Itinerary) Handle(event step.Event) error {
 	currentStep, err := it.CurrentStep()
 	if err != nil {
 		return err
 	}
-	err = currentStep.Handle(action)
+	err = currentStep.Handle(event)
 	if err != nil {
 		return err
 	}
 
-	if len(currentStep.AvailableActions()) == 0 {
+	if len(currentStep.AvailableEvents()) == 0 {
 		if it.step < len(it.Steps)-1 {
 			it.step++
 		}
@@ -64,7 +64,7 @@ func (it *Itinerary) Handle(action step.Action) error {
 	return nil
 }
 
-func (it *Itinerary) AddStep(step step.Step) {
+func (it *Itinerary) AddStep(step *step.Step) {
 	it.Steps = append(it.Steps, step)
 }
 
@@ -78,7 +78,7 @@ func (it *Itinerary) RemoveStep(id string) {
 	}
 }
 
-func (it *Itinerary) GetStep(id string) step.Step {
+func (it *Itinerary) GetStep(id string) *step.Step {
 	for _, s := range it.Steps {
 		if s.StepID() == id {
 			return s

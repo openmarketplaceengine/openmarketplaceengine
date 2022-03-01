@@ -1,9 +1,7 @@
 package pickup
 
 import (
-	"context"
 	"fmt"
-	"time"
 
 	"github.com/cocoonspace/fsm"
 	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step"
@@ -16,63 +14,79 @@ const (
 )
 
 const (
-	CompleteAction step.Action = "CompleteAction"
-	CancelAction   step.Action = "CancelAction"
+	Complete step.Event = "Complete"
+	Cancel   step.Event = "Cancel"
 )
 
+var event2fsm = map[step.Event]fsm.Event{
+	Complete: completeEvent,
+	Cancel:   cancelEvent,
+}
+
+var state2fsm = map[step.State]fsm.State{
+	Ready:     readyState,
+	Completed: completedState,
+	Canceled:  canceledState,
+}
+
+var fsm2state = map[fsm.State]step.State{
+	readyState:     Ready,
+	completedState: Completed,
+	canceledState:  Canceled,
+}
+
+var events = map[fsm.State][]step.Event{
+	readyState:     {Complete, Cancel},
+	completedState: {},
+	canceledState:  {},
+}
+
 type Pickup struct {
-	ID        string     `json:",string"`
-	JobID     string     `json:",string"`
-	UpdatedAt string     `json:",string"`
-	State     step.State `json:",string"`
-	fsm       *fsm.FSM
+	fsm *fsm.FSM
 }
 
-func (p *Pickup) StepID() string {
-	return p.ID
+func (gtl *Pickup) CurrentState() step.State {
+	state := gtl.fsm.Current()
+	return fsm2state[state]
 }
 
-func (p *Pickup) CurrentState() step.State {
-	state := p.fsm.Current()
-	return stateToStatus[state]
+func (gtl *Pickup) AvailableEvents() []step.Event {
+	state := gtl.fsm.Current()
+	return events[state]
 }
 
-func (p *Pickup) AvailableActions() []step.Action {
-	return statusToAvailableActions[p.State]
-}
-
-func (p *Pickup) Handle(action step.Action) error {
-	ok := p.fsm.Event(actionToEvent[action])
+func (gtl *Pickup) Handle(event step.Event) error {
+	ok := gtl.fsm.Event(event2fsm[event])
 	if !ok {
-		return fmt.Errorf("illegal transition from status=%v by action=%v", p.State, action)
-	}
-	status := stateToStatus[p.fsm.Current()]
-	err := p.updateState(context.Background(), status)
-	if err != nil {
-		return err
+		state := fsm2state[gtl.fsm.Current()]
+		return fmt.Errorf("illegal transition from state=%v by event=%v", state, event)
 	}
 	return nil
 }
 
-func New(ctx context.Context, stepID string, jobID string) (pickup *Pickup, err error) {
-	// retrieve existing from database or create and store if not exists.
-	_ = ctx
+func New(state step.State) (pickup *Pickup) {
 	pickup = &Pickup{
-		ID:        stepID,
-		JobID:     jobID,
-		UpdatedAt: time.Now().Format(time.RFC3339Nano),
-		State:     Ready,
-		fsm:       newFsm(Ready),
+		fsm: newFsm(state2fsm[state]),
 	}
 
 	return
 }
 
-func (p *Pickup) updateState(ctx context.Context, state step.State) error {
-	p.UpdatedAt = time.Now().Format(time.RFC3339Nano)
-	p.State = state
+const (
+	readyState fsm.State = iota
+	completedState
+	canceledState
+)
 
-	// persist in database
-	_ = ctx
-	return nil
+const (
+	completeEvent fsm.Event = iota
+	cancelEvent
+)
+
+func newFsm(initial fsm.State) *fsm.FSM {
+	f := fsm.New(initial)
+	f.Transition(fsm.On(completeEvent), fsm.Src(readyState), fsm.Dst(completedState))
+	f.Transition(fsm.On(cancelEvent), fsm.Src(readyState), fsm.Dst(canceledState))
+
+	return f
 }
