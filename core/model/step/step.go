@@ -36,15 +36,15 @@ type Step struct {
 	UpdatedAt    string
 }
 
-func New(id string, jobID string, stateAware StateMachine, stepType Type) *Step {
-	state := stateAware.CurrentState()
+func New(id string, jobID string, stateMachine StateMachine, stepType Type) *Step {
+	state := stateMachine.CurrentState()
 	return &Step{
 		ID:           id,
 		JobID:        jobID,
 		UpdatedAt:    time.Now().String(),
 		State:        state,
 		Type:         stepType,
-		StateMachine: stateAware,
+		StateMachine: stateMachine,
 	}
 }
 
