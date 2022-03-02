@@ -1,78 +1,62 @@
 package pickup
 
 import (
-	"context"
 	"fmt"
-	"time"
 
 	"github.com/cocoonspace/fsm"
-	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step"
 )
 
 const (
-	Ready     step.State = "Ready"
-	Completed step.State = "Completed"
-	Canceled  step.State = "Canceled"
+	Ready fsm.State = iota
+	Completed
+	Canceled
 )
 
 const (
-	CompleteAction step.Action = "CompleteAction"
-	CancelAction   step.Action = "CancelAction"
+	Complete fsm.Event = iota
+	Cancel
 )
+
+var events = map[fsm.State][]fsm.Event{
+	Ready:     {Complete, Cancel},
+	Completed: {},
+	Canceled:  {},
+}
 
 type Pickup struct {
-	ID        string     `json:",string"`
-	JobID     string     `json:",string"`
-	UpdatedAt string     `json:",string"`
-	State     step.State `json:",string"`
-	fsm       *fsm.FSM
+	fsm *fsm.FSM
 }
 
-func (p *Pickup) StepID() string {
-	return p.ID
+func (gtl *Pickup) CurrentState() fsm.State {
+	return gtl.fsm.Current()
 }
 
-func (p *Pickup) CurrentState() step.State {
-	state := p.fsm.Current()
-	return stateToStatus[state]
+func (gtl *Pickup) AvailableEvents() []fsm.Event {
+	state := gtl.fsm.Current()
+	return events[state]
 }
 
-func (p *Pickup) AvailableActions() []step.Action {
-	return statusToAvailableActions[p.State]
-}
-
-func (p *Pickup) Handle(action step.Action) error {
-	ok := p.fsm.Event(actionToEvent[action])
+func (gtl *Pickup) Handle(event fsm.Event) error {
+	ok := gtl.fsm.Event(event)
 	if !ok {
-		return fmt.Errorf("illegal transition from status=%v by action=%v", p.State, action)
-	}
-	status := stateToStatus[p.fsm.Current()]
-	err := p.updateState(context.Background(), status)
-	if err != nil {
-		return err
+		state := gtl.fsm.Current()
+		return fmt.Errorf("illegal transition from state=%v by event=%v", state, event)
 	}
 	return nil
 }
 
-func New(ctx context.Context, stepID string, jobID string) (pickup *Pickup, err error) {
-	// retrieve existing from database or create and store if not exists.
-	_ = ctx
+func New(state fsm.State) (pickup *Pickup) {
 	pickup = &Pickup{
-		ID:        stepID,
-		JobID:     jobID,
-		UpdatedAt: time.Now().Format(time.RFC3339Nano),
-		State:     Ready,
-		fsm:       newFsm(Ready),
+		fsm: newFsm(state),
 	}
 
 	return
 }
 
-func (p *Pickup) updateState(ctx context.Context, state step.State) error {
-	p.UpdatedAt = time.Now().Format(time.RFC3339Nano)
-	p.State = state
+func newFsm(initial fsm.State) *fsm.FSM {
+	f := fsm.New(initial)
+	f.Transition(fsm.On(Complete), fsm.Src(Ready), fsm.Dst(Completed))
+	f.Transition(fsm.On(Cancel), fsm.Src(Ready), fsm.Dst(Canceled))
 
-	// persist in database
-	_ = ctx
-	return nil
+	return f
 }

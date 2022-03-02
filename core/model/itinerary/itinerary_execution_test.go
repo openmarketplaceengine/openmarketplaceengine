@@ -3,12 +3,13 @@ package itinerary
 import (
 	"testing"
 
+	"github.com/cocoonspace/fsm"
+
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step"
 	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step/gotolocation"
 	"github.com/stretchr/testify/require"
-	"golang.org/x/net/context"
 )
 
 func TestItineraryExecution(t *testing.T) {
@@ -25,62 +26,63 @@ func TestItineraryExecution(t *testing.T) {
 }
 
 func testItineraryExecutionOneStep(t *testing.T) {
-	ctx := context.Background()
 	jobID := uuid.New().String()
-	step1, err := gotolocation.New(ctx, uuid.New().String(), jobID)
-	require.NoError(t, err)
-	step2, err := gotolocation.New(ctx, uuid.New().String(), jobID)
-	require.NoError(t, err)
-	step3, err := gotolocation.New(ctx, uuid.New().String(), jobID)
-	require.NoError(t, err)
+	goToLocation1 := gotolocation.New(gotolocation.Moving)
+	goToLocation2 := gotolocation.New(gotolocation.Moving)
 
-	itinerary := New(uuid.New().String(), []step.Step{step1, step2, step3})
+	itinerary := New(uuid.New().String(), []*step.Step{})
 
-	require.Len(t, itinerary.Steps, 3)
+	step1 := step.New(uuid.NewString(), jobID, goToLocation1, step.GoToLocation)
+	itinerary.AddStep(step1)
+	step2 := step.New(uuid.NewString(), jobID, goToLocation2, step.GoToLocation)
+	itinerary.AddStep(step2)
+
+	require.Len(t, itinerary.Steps, 2)
 	currentStep, err := itinerary.CurrentStep()
 	require.NoError(t, err)
 	require.Equal(t, step1, currentStep)
 
-	actions0 := currentStep.AvailableActions()
-	require.Len(t, actions0, 2)
-	require.ElementsMatch(t, actions0, []step.Action{gotolocation.NearAction, gotolocation.CancelAction})
+	events0 := currentStep.AvailableEvents()
+	require.Len(t, events0, 2)
+	require.ElementsMatch(t, events0, []fsm.Event{gotolocation.NearBy, gotolocation.Cancel})
 	require.Equal(t, gotolocation.Moving, step1.CurrentState())
 
-	err = itinerary.Handle(actions0[0])
+	err = itinerary.Handle(events0[0])
 	require.NoError(t, err)
 
 	nextStep, _ := itinerary.CurrentStep()
 	require.Equal(t, gotolocation.Near, nextStep.CurrentState())
-	actions1 := nextStep.AvailableActions()
-	require.Len(t, actions1, 2)
-	require.ElementsMatch(t, actions1, []step.Action{gotolocation.ArriveAction, gotolocation.CancelAction})
+	events1 := nextStep.AvailableEvents()
+	require.Len(t, events1, 2)
+	require.ElementsMatch(t, events1, []fsm.Event{gotolocation.Arrive, gotolocation.Cancel})
 
-	err = nextStep.Handle(actions1[0])
+	err = nextStep.Handle(events1[0])
 	require.NoError(t, err)
 
 	nextStep, _ = itinerary.CurrentStep()
 	require.Equal(t, gotolocation.Arrived, nextStep.CurrentState())
-	actions2, _ := itinerary.AvailableActions()
-	require.Len(t, actions2, 0)
+	events2, _ := itinerary.AvailableEvents()
+	require.Len(t, events2, 0)
 }
 
 func testItineraryExecutionAllSteps(t *testing.T) {
-	ctx := context.Background()
 	jobID := uuid.New().String()
-	step1, _ := gotolocation.New(ctx, uuid.New().String(), jobID)
-	step2, _ := gotolocation.New(ctx, uuid.New().String(), jobID)
-	step3, _ := gotolocation.New(ctx, uuid.New().String(), jobID)
 
-	itinerary := New(uuid.New().String(), []step.Step{step1, step2, step3})
+	goToLocation1 := gotolocation.New(gotolocation.Moving)
+	goToLocation2 := gotolocation.New(gotolocation.Moving)
 
-	require.Len(t, itinerary.Steps, 3)
+	step1 := step.New(uuid.NewString(), jobID, goToLocation1, step.GoToLocation)
+	step2 := step.New(uuid.NewString(), jobID, goToLocation2, step.GoToLocation)
+	itinerary := New(uuid.New().String(), []*step.Step{step1, step2})
+
+	require.Len(t, itinerary.Steps, 2)
 	currentStep, _ := itinerary.CurrentStep()
 	counter := 0
-	for len(currentStep.AvailableActions()) != 0 {
-		actions, _ := itinerary.AvailableActions()
+	for len(currentStep.AvailableEvents()) != 0 {
+		events, _ := itinerary.AvailableEvents()
 
-		for len(actions) != 0 {
-			err := itinerary.Handle(actions[0])
+		for len(events) != 0 {
+			err := itinerary.Handle(events[0])
 			require.NoError(t, err)
 			counter++
 			currentStep, _ = itinerary.CurrentStep()
@@ -88,5 +90,5 @@ func testItineraryExecutionAllSteps(t *testing.T) {
 		}
 	}
 
-	require.Equal(t, 6, counter)
+	require.Equal(t, 4, counter)
 }

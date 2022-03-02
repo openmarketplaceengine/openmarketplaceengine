@@ -1,7 +1,6 @@
 package itinerary
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -32,17 +31,14 @@ func TestItinerary(t *testing.T) {
 }
 
 func testAddStep(t *testing.T) {
-	ctx := context.Background()
 	jobID := uuid.New().String()
 
-	step1, err := gotolocation.New(ctx, uuid.New().String(), jobID)
-	require.NoError(t, err)
-	step2, err := gotolocation.New(ctx, uuid.New().String(), jobID)
-	require.NoError(t, err)
-	step3, err := gotolocation.New(ctx, uuid.New().String(), jobID)
-	require.NoError(t, err)
+	goToLocation1 := gotolocation.New(gotolocation.Moving)
+	goToLocation2 := gotolocation.New(gotolocation.Moving)
 
-	itinerary := New(uuid.New().String(), []step.Step{})
+	itinerary := New(uuid.New().String(), []*step.Step{})
+	step1 := step.New(uuid.NewString(), jobID, goToLocation1, step.GoToLocation)
+	step2 := step.New(uuid.NewString(), jobID, goToLocation2, step.GoToLocation)
 
 	s, err := itinerary.CurrentStep()
 	require.Error(t, err)
@@ -52,54 +48,47 @@ func testAddStep(t *testing.T) {
 
 	itinerary.AddStep(step1)
 	itinerary.AddStep(step2)
-	itinerary.AddStep(step3)
 
-	assert.Len(t, itinerary.Steps, 3)
+	assert.Len(t, itinerary.Steps, 2)
 	currentStep, err := itinerary.CurrentStep()
 	require.NoError(t, err)
 	assert.Equal(t, step1, currentStep)
 }
 
 func testRemoveStep(t *testing.T) {
-	ctx := context.Background()
 	jobID := uuid.New().String()
 
-	step1, err := gotolocation.New(ctx, uuid.New().String(), jobID)
-	require.NoError(t, err)
-	step2, err := gotolocation.New(ctx, uuid.New().String(), jobID)
-	require.NoError(t, err)
-	step3, err := gotolocation.New(ctx, uuid.New().String(), jobID)
-	require.NoError(t, err)
-	itinerary := New(uuid.New().String(), []step.Step{step1, step2, step3})
+	goToLocation1 := gotolocation.New(gotolocation.Moving)
+	goToLocation2 := gotolocation.New(gotolocation.Moving)
 
-	assert.ElementsMatch(t, itinerary.Steps, []step.Step{step1, step2, step3})
+	itinerary := New(uuid.New().String(), []*step.Step{})
+
+	step1 := step.New(uuid.NewString(), jobID, goToLocation1, step.GoToLocation)
+	itinerary.AddStep(step1)
+	step2 := step.New(uuid.NewString(), jobID, goToLocation2, step.GoToLocation)
+	itinerary.AddStep(step2)
+
+	assert.ElementsMatch(t, itinerary.Steps, []*step.Step{step1, step2})
 
 	itinerary.RemoveStep(step2.StepID())
-	assert.ElementsMatch(t, itinerary.Steps, []step.Step{step1, step3})
+	assert.ElementsMatch(t, itinerary.Steps, []*step.Step{step1})
 
 	itinerary.RemoveStep(step1.StepID())
-	assert.ElementsMatch(t, itinerary.Steps, []step.Step{step3})
-
-	itinerary.RemoveStep(step3.StepID())
-	assert.ElementsMatch(t, itinerary.Steps, []step.Step{})
+	assert.ElementsMatch(t, itinerary.Steps, []*step.Step{})
 }
 
 func testStepIndex(t *testing.T) {
-	ctx := context.Background()
-	jobID := uuid.New().String()
+	jobID := uuid.NewString()
 
-	step1, err := gotolocation.New(ctx, uuid.New().String(), jobID)
-	require.NoError(t, err)
-	step2, err := gotolocation.New(ctx, uuid.New().String(), jobID)
-	require.NoError(t, err)
-	step3, err := gotolocation.New(ctx, uuid.New().String(), jobID)
-	require.NoError(t, err)
+	goToLocation1 := gotolocation.New(gotolocation.Moving)
+	goToLocation2 := gotolocation.New(gotolocation.Moving)
 
-	itinerary := New(uuid.New().String(), []step.Step{})
+	itinerary := New(uuid.New().String(), []*step.Step{})
 
+	step1 := step.New(uuid.NewString(), jobID, goToLocation1, step.GoToLocation)
 	itinerary.AddStep(step1)
+	step2 := step.New(uuid.NewString(), jobID, goToLocation2, step.GoToLocation)
 	itinerary.AddStep(step2)
-	itinerary.AddStep(step3)
 
 	i := itinerary.stepIndex("none")
 	assert.Equal(t, -1, i)
@@ -109,9 +98,6 @@ func testStepIndex(t *testing.T) {
 
 	i2 := itinerary.stepIndex(step2.StepID())
 	assert.Equal(t, 1, i2)
-
-	i3 := itinerary.stepIndex(step3.StepID())
-	assert.Equal(t, 2, i3)
 }
 
 func (it *Itinerary) dump() {
