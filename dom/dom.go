@@ -7,6 +7,8 @@ package dom
 import "github.com/openmarketplaceengine/openmarketplaceengine/dao"
 
 type (
-	UUID = string
+	// SUID represents opaque UUID string coming from external sources.
+	// Neither format, nor length known in advance.
+	SUID = string
 	Time = dao.Time
 )
