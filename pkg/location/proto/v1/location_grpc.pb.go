@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.19.4
-// source: core/model/location/protos/v1/location.proto
+// source: api/proto/location/v1/location.proto
 
 package v1
 
@@ -38,7 +38,7 @@ func NewLocationServiceClient(cc grpc.ClientConnInterface) LocationServiceClient
 
 func (c *locationServiceClient) UpdateLocation(ctx context.Context, in *UpdateLocationRequest, opts ...grpc.CallOption) (*UpdateLocationResponse, error) {
 	out := new(UpdateLocationResponse)
-	err := c.cc.Invoke(ctx, "/protos.location.v1.LocationService/UpdateLocation", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/location.proto.v1.LocationService/UpdateLocation", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (c *locationServiceClient) UpdateLocation(ctx context.Context, in *UpdateLo
 
 func (c *locationServiceClient) QueryLocation(ctx context.Context, in *QueryLocationRequest, opts ...grpc.CallOption) (*QueryLocationResponse, error) {
 	out := new(QueryLocationResponse)
-	err := c.cc.Invoke(ctx, "/protos.location.v1.LocationService/QueryLocation", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/location.proto.v1.LocationService/QueryLocation", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (c *locationServiceClient) QueryLocation(ctx context.Context, in *QueryLoca
 }
 
 func (c *locationServiceClient) UpdateLocationStreaming(ctx context.Context, opts ...grpc.CallOption) (LocationService_UpdateLocationStreamingClient, error) {
-	stream, err := c.cc.NewStream(ctx, &LocationService_ServiceDesc.Streams[0], "/protos.location.v1.LocationService/UpdateLocationStreaming", opts...)
+	stream, err := c.cc.NewStream(ctx, &LocationService_ServiceDesc.Streams[0], "/location.proto.v1.LocationService/UpdateLocationStreaming", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func (x *locationServiceUpdateLocationStreamingClient) CloseAndRecv() (*UpdateLo
 }
 
 func (c *locationServiceClient) QueryLocationStreaming(ctx context.Context, in *QueryLocationRequest, opts ...grpc.CallOption) (LocationService_QueryLocationStreamingClient, error) {
-	stream, err := c.cc.NewStream(ctx, &LocationService_ServiceDesc.Streams[1], "/protos.location.v1.LocationService/QueryLocationStreaming", opts...)
+	stream, err := c.cc.NewStream(ctx, &LocationService_ServiceDesc.Streams[1], "/location.proto.v1.LocationService/QueryLocationStreaming", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -170,7 +170,7 @@ func _LocationService_UpdateLocation_Handler(srv interface{}, ctx context.Contex
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protos.location.v1.LocationService/UpdateLocation",
+		FullMethod: "/location.proto.v1.LocationService/UpdateLocation",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(LocationServiceServer).UpdateLocation(ctx, req.(*UpdateLocationRequest))
@@ -188,7 +188,7 @@ func _LocationService_QueryLocation_Handler(srv interface{}, ctx context.Context
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protos.location.v1.LocationService/QueryLocation",
+		FullMethod: "/location.proto.v1.LocationService/QueryLocation",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(LocationServiceServer).QueryLocation(ctx, req.(*QueryLocationRequest))
@@ -247,7 +247,7 @@ func (x *locationServiceQueryLocationStreamingServer) Send(m *QueryLocationRespo
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var LocationService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "protos.location.v1.LocationService",
+	ServiceName: "location.proto.v1.LocationService",
 	HandlerType: (*LocationServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -271,5 +271,5 @@ var LocationService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "core/model/location/protos/v1/location.proto",
+	Metadata: "api/proto/location/v1/location.proto",
 }

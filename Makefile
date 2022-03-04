@@ -101,9 +101,9 @@ lint-buf: ## Run buf linter
 protoc: ## Run protoc
 	@echo "==> Running protoc"
 	protoc 	--proto_path=. \
-			--go_out=. --go_opt=paths=source_relative \
-        	--go-grpc_out=. --go-grpc_opt=paths=source_relative \
-        	core/model/location/protos/v1/location.proto
+			--go_out=pkg \
+        	--go-grpc_out=pkg \
+        	api/proto/location/v1/location.proto
 
 help: echo-env
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

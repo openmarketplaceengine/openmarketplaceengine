@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/location"
+
 	"github.com/go-redis/redis/v8"
-	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/location"
 )
 
 type LocationStorage struct {

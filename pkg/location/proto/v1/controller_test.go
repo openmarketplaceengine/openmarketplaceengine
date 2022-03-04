@@ -1,15 +1,13 @@
-package location
+package v1
 
 import (
 	"context"
 	"fmt"
-	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/location/protos"
 	"io"
 	"net"
 	"testing"
 
 	"github.com/google/uuid"
-	v1 "github.com/openmarketplaceengine/openmarketplaceengine/core/model/location/protos/v1"
 
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -18,14 +16,14 @@ import (
 
 const port = 10123
 
-func TestLocationGRPC(t *testing.T) {
+func TestController(t *testing.T) {
 	go func() {
 		lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", port))
 		if err != nil {
 			panic(err)
 		}
 		grpcServer := grpc.NewServer()
-		v1.RegisterLocationServiceServer(grpcServer, &protos.Server{})
+		RegisterLocationServiceServer(grpcServer, &Controller{})
 		err = grpcServer.Serve(lis)
 		if err != nil {
 			panic(err)
@@ -43,7 +41,7 @@ func TestLocationGRPC(t *testing.T) {
 		}
 	}(conn)
 
-	client := v1.NewLocationServiceClient(conn)
+	client := NewLocationServiceClient(conn)
 
 	t.Run("testUpdateLocation", func(t *testing.T) {
 		testUpdateLocation(t, client)
@@ -53,9 +51,9 @@ func TestLocationGRPC(t *testing.T) {
 	})
 }
 
-func testUpdateLocation(t *testing.T, client v1.LocationServiceClient) {
+func testUpdateLocation(t *testing.T, client LocationServiceClient) {
 	id := uuid.NewString()
-	request := &v1.UpdateLocationRequest{
+	request := &UpdateLocationRequest{
 		WorkerId:  id,
 		Longitude: 3,
 		Latitude:  3,
@@ -65,9 +63,9 @@ func testUpdateLocation(t *testing.T, client v1.LocationServiceClient) {
 	require.Equal(t, request.WorkerId, response.WorkerId)
 }
 
-func testQueryLocationStreaming(t *testing.T, client v1.LocationServiceClient) {
+func testQueryLocationStreaming(t *testing.T, client LocationServiceClient) {
 	id := uuid.NewString()
-	query := &v1.QueryLocationRequest{
+	query := &QueryLocationRequest{
 		WorkerId: id,
 	}
 
@@ -88,7 +86,7 @@ func testQueryLocationStreaming(t *testing.T, client v1.LocationServiceClient) {
 		}
 	}()
 
-	upd := &v1.UpdateLocationRequest{
+	upd := &UpdateLocationRequest{
 		WorkerId:  id,
 		Longitude: 3,
 		Latitude:  3,

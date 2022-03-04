@@ -5,8 +5,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/location"
+
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
-	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/location"
 	redisClient "github.com/openmarketplaceengine/openmarketplaceengine/redis/client"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

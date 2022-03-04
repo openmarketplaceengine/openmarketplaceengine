@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-package protos.location.v1;
+package location.proto.v1;
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "protos/location/v1";
+option go_package = "location/proto/v1";
 
 service LocationService {
   rpc UpdateLocation(UpdateLocationRequest) returns (UpdateLocationResponse) {}
