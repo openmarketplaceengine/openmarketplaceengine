@@ -25,7 +25,7 @@ type LocationServiceClient interface {
 	UpdateLocation(ctx context.Context, in *UpdateLocationRequest, opts ...grpc.CallOption) (*UpdateLocationResponse, error)
 	QueryLocation(ctx context.Context, in *QueryLocationRequest, opts ...grpc.CallOption) (*QueryLocationResponse, error)
 	UpdateLocationStreaming(ctx context.Context, opts ...grpc.CallOption) (LocationService_UpdateLocationStreamingClient, error)
-	QueryLocationStreaming(ctx context.Context, in *QueryLocationRequest, opts ...grpc.CallOption) (LocationService_QueryLocationStreamingClient, error)
+	QueryLocationStreaming(ctx context.Context, in *QueryLocationStreamingRequest, opts ...grpc.CallOption) (LocationService_QueryLocationStreamingClient, error)
 }
 
 type locationServiceClient struct {
@@ -38,7 +38,7 @@ func NewLocationServiceClient(cc grpc.ClientConnInterface) LocationServiceClient
 
 func (c *locationServiceClient) UpdateLocation(ctx context.Context, in *UpdateLocationRequest, opts ...grpc.CallOption) (*UpdateLocationResponse, error) {
 	out := new(UpdateLocationResponse)
-	err := c.cc.Invoke(ctx, "/location.proto.v1.LocationService/UpdateLocation", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.proto.location.v1.LocationService/UpdateLocation", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (c *locationServiceClient) UpdateLocation(ctx context.Context, in *UpdateLo
 
 func (c *locationServiceClient) QueryLocation(ctx context.Context, in *QueryLocationRequest, opts ...grpc.CallOption) (*QueryLocationResponse, error) {
 	out := new(QueryLocationResponse)
-	err := c.cc.Invoke(ctx, "/location.proto.v1.LocationService/QueryLocation", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.proto.location.v1.LocationService/QueryLocation", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (c *locationServiceClient) QueryLocation(ctx context.Context, in *QueryLoca
 }
 
 func (c *locationServiceClient) UpdateLocationStreaming(ctx context.Context, opts ...grpc.CallOption) (LocationService_UpdateLocationStreamingClient, error) {
-	stream, err := c.cc.NewStream(ctx, &LocationService_ServiceDesc.Streams[0], "/location.proto.v1.LocationService/UpdateLocationStreaming", opts...)
+	stream, err := c.cc.NewStream(ctx, &LocationService_ServiceDesc.Streams[0], "/api.proto.location.v1.LocationService/UpdateLocationStreaming", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -64,8 +64,8 @@ func (c *locationServiceClient) UpdateLocationStreaming(ctx context.Context, opt
 }
 
 type LocationService_UpdateLocationStreamingClient interface {
-	Send(*UpdateLocationRequest) error
-	CloseAndRecv() (*UpdateLocationResponse, error)
+	Send(*UpdateLocationStreamingRequest) error
+	CloseAndRecv() (*UpdateLocationStreamingResponse, error)
 	grpc.ClientStream
 }
 
@@ -73,23 +73,23 @@ type locationServiceUpdateLocationStreamingClient struct {
 	grpc.ClientStream
 }
 
-func (x *locationServiceUpdateLocationStreamingClient) Send(m *UpdateLocationRequest) error {
+func (x *locationServiceUpdateLocationStreamingClient) Send(m *UpdateLocationStreamingRequest) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *locationServiceUpdateLocationStreamingClient) CloseAndRecv() (*UpdateLocationResponse, error) {
+func (x *locationServiceUpdateLocationStreamingClient) CloseAndRecv() (*UpdateLocationStreamingResponse, error) {
 	if err := x.ClientStream.CloseSend(); err != nil {
 		return nil, err
 	}
-	m := new(UpdateLocationResponse)
+	m := new(UpdateLocationStreamingResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func (c *locationServiceClient) QueryLocationStreaming(ctx context.Context, in *QueryLocationRequest, opts ...grpc.CallOption) (LocationService_QueryLocationStreamingClient, error) {
-	stream, err := c.cc.NewStream(ctx, &LocationService_ServiceDesc.Streams[1], "/location.proto.v1.LocationService/QueryLocationStreaming", opts...)
+func (c *locationServiceClient) QueryLocationStreaming(ctx context.Context, in *QueryLocationStreamingRequest, opts ...grpc.CallOption) (LocationService_QueryLocationStreamingClient, error) {
+	stream, err := c.cc.NewStream(ctx, &LocationService_ServiceDesc.Streams[1], "/api.proto.location.v1.LocationService/QueryLocationStreaming", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +104,7 @@ func (c *locationServiceClient) QueryLocationStreaming(ctx context.Context, in *
 }
 
 type LocationService_QueryLocationStreamingClient interface {
-	Recv() (*QueryLocationResponse, error)
+	Recv() (*QueryLocationStreamingResponse, error)
 	grpc.ClientStream
 }
 
@@ -112,8 +112,8 @@ type locationServiceQueryLocationStreamingClient struct {
 	grpc.ClientStream
 }
 
-func (x *locationServiceQueryLocationStreamingClient) Recv() (*QueryLocationResponse, error) {
-	m := new(QueryLocationResponse)
+func (x *locationServiceQueryLocationStreamingClient) Recv() (*QueryLocationStreamingResponse, error) {
+	m := new(QueryLocationStreamingResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -127,7 +127,7 @@ type LocationServiceServer interface {
 	UpdateLocation(context.Context, *UpdateLocationRequest) (*UpdateLocationResponse, error)
 	QueryLocation(context.Context, *QueryLocationRequest) (*QueryLocationResponse, error)
 	UpdateLocationStreaming(LocationService_UpdateLocationStreamingServer) error
-	QueryLocationStreaming(*QueryLocationRequest, LocationService_QueryLocationStreamingServer) error
+	QueryLocationStreaming(*QueryLocationStreamingRequest, LocationService_QueryLocationStreamingServer) error
 	mustEmbedUnimplementedLocationServiceServer()
 }
 
@@ -144,7 +144,7 @@ func (UnimplementedLocationServiceServer) QueryLocation(context.Context, *QueryL
 func (UnimplementedLocationServiceServer) UpdateLocationStreaming(LocationService_UpdateLocationStreamingServer) error {
 	return status.Errorf(codes.Unimplemented, "method UpdateLocationStreaming not implemented")
 }
-func (UnimplementedLocationServiceServer) QueryLocationStreaming(*QueryLocationRequest, LocationService_QueryLocationStreamingServer) error {
+func (UnimplementedLocationServiceServer) QueryLocationStreaming(*QueryLocationStreamingRequest, LocationService_QueryLocationStreamingServer) error {
 	return status.Errorf(codes.Unimplemented, "method QueryLocationStreaming not implemented")
 }
 func (UnimplementedLocationServiceServer) mustEmbedUnimplementedLocationServiceServer() {}
@@ -170,7 +170,7 @@ func _LocationService_UpdateLocation_Handler(srv interface{}, ctx context.Contex
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/location.proto.v1.LocationService/UpdateLocation",
+		FullMethod: "/api.proto.location.v1.LocationService/UpdateLocation",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(LocationServiceServer).UpdateLocation(ctx, req.(*UpdateLocationRequest))
@@ -188,7 +188,7 @@ func _LocationService_QueryLocation_Handler(srv interface{}, ctx context.Context
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/location.proto.v1.LocationService/QueryLocation",
+		FullMethod: "/api.proto.location.v1.LocationService/QueryLocation",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(LocationServiceServer).QueryLocation(ctx, req.(*QueryLocationRequest))
@@ -201,8 +201,8 @@ func _LocationService_UpdateLocationStreaming_Handler(srv interface{}, stream gr
 }
 
 type LocationService_UpdateLocationStreamingServer interface {
-	SendAndClose(*UpdateLocationResponse) error
-	Recv() (*UpdateLocationRequest, error)
+	SendAndClose(*UpdateLocationStreamingResponse) error
+	Recv() (*UpdateLocationStreamingRequest, error)
 	grpc.ServerStream
 }
 
@@ -210,12 +210,12 @@ type locationServiceUpdateLocationStreamingServer struct {
 	grpc.ServerStream
 }
 
-func (x *locationServiceUpdateLocationStreamingServer) SendAndClose(m *UpdateLocationResponse) error {
+func (x *locationServiceUpdateLocationStreamingServer) SendAndClose(m *UpdateLocationStreamingResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func (x *locationServiceUpdateLocationStreamingServer) Recv() (*UpdateLocationRequest, error) {
-	m := new(UpdateLocationRequest)
+func (x *locationServiceUpdateLocationStreamingServer) Recv() (*UpdateLocationStreamingRequest, error) {
+	m := new(UpdateLocationStreamingRequest)
 	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -223,7 +223,7 @@ func (x *locationServiceUpdateLocationStreamingServer) Recv() (*UpdateLocationRe
 }
 
 func _LocationService_QueryLocationStreaming_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(QueryLocationRequest)
+	m := new(QueryLocationStreamingRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
@@ -231,7 +231,7 @@ func _LocationService_QueryLocationStreaming_Handler(srv interface{}, stream grp
 }
 
 type LocationService_QueryLocationStreamingServer interface {
-	Send(*QueryLocationResponse) error
+	Send(*QueryLocationStreamingResponse) error
 	grpc.ServerStream
 }
 
@@ -239,7 +239,7 @@ type locationServiceQueryLocationStreamingServer struct {
 	grpc.ServerStream
 }
 
-func (x *locationServiceQueryLocationStreamingServer) Send(m *QueryLocationResponse) error {
+func (x *locationServiceQueryLocationStreamingServer) Send(m *QueryLocationStreamingResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
@@ -247,7 +247,7 @@ func (x *locationServiceQueryLocationStreamingServer) Send(m *QueryLocationRespo
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var LocationService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "location.proto.v1.LocationService",
+	ServiceName: "api.proto.location.v1.LocationService",
 	HandlerType: (*LocationServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

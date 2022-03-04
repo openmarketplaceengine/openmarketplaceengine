@@ -51,7 +51,7 @@ func (c *Controller) UpdateLocationStreaming(stream LocationService_UpdateLocati
 	for {
 		_, err := stream.Recv()
 		if err == io.EOF {
-			return stream.SendAndClose(&UpdateLocationResponse{})
+			return stream.SendAndClose(&UpdateLocationStreamingResponse{})
 		}
 		if err != nil {
 			return err
@@ -59,8 +59,8 @@ func (c *Controller) UpdateLocationStreaming(stream LocationService_UpdateLocati
 	}
 }
 
-func (c *Controller) QueryLocationStreaming(request *QueryLocationRequest, stream LocationService_QueryLocationStreamingServer) error {
-	if err := stream.Send(&QueryLocationResponse{
+func (c *Controller) QueryLocationStreaming(request *QueryLocationStreamingRequest, stream LocationService_QueryLocationStreamingServer) error {
+	if err := stream.Send(&QueryLocationStreamingResponse{
 		WorkerId:  request.WorkerId,
 		Longitude: 0,
 		Latitude:  0,

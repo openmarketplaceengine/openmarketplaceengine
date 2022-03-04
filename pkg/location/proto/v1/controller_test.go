@@ -83,7 +83,7 @@ func testUpdateLocation(t *testing.T, client LocationServiceClient) {
 
 func testQueryLocationStreaming(t *testing.T, client LocationServiceClient) {
 	id := uuid.NewString()
-	query := &QueryLocationRequest{
+	query := &QueryLocationStreamingRequest{
 		WorkerId: id,
 	}
 
