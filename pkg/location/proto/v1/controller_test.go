@@ -7,6 +7,9 @@ import (
 	"net"
 	"testing"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
+	redisClient "github.com/openmarketplaceengine/openmarketplaceengine/redis/client"
+
 	"github.com/google/uuid"
 
 	"github.com/stretchr/testify/require"
@@ -15,18 +18,25 @@ import (
 )
 
 const port = 10123
+const areaKey = "san_fran"
 
 func TestController(t *testing.T) {
+	err := cfg.Load()
+	require.NoError(t, err)
+
+	storeClient := redisClient.NewStoreClient()
+	require.NotNil(t, storeClient)
+
 	go func() {
-		lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", port))
-		if err != nil {
-			panic(err)
+		lis, innerErr := net.Listen("tcp", fmt.Sprintf("localhost:%d", port))
+		if innerErr != nil {
+			panic(innerErr)
 		}
 		grpcServer := grpc.NewServer()
-		RegisterLocationServiceServer(grpcServer, &Controller{})
-		err = grpcServer.Serve(lis)
-		if err != nil {
-			panic(err)
+		RegisterLocationServiceServer(grpcServer, New(storeClient, areaKey))
+		innerErr = grpcServer.Serve(lis)
+		if innerErr != nil {
+			panic(innerErr)
 		}
 	}()
 
@@ -55,12 +65,20 @@ func testUpdateLocation(t *testing.T, client LocationServiceClient) {
 	id := uuid.NewString()
 	request := &UpdateLocationRequest{
 		WorkerId:  id,
-		Longitude: 3,
-		Latitude:  3,
+		Longitude: 12.000001966953278,
+		Latitude:  13.000001966953278,
 	}
 	response, err := client.UpdateLocation(context.Background(), request)
 	require.NoError(t, err)
 	require.Equal(t, request.WorkerId, response.WorkerId)
+
+	location, err := client.QueryLocation(context.Background(), &QueryLocationRequest{
+		WorkerId: id,
+	})
+	require.NoError(t, err)
+	require.Equal(t, request.WorkerId, location.WorkerId)
+	require.InDelta(t, request.Longitude, location.Longitude, 0.001)
+	require.InDelta(t, request.Latitude, location.Latitude, 0.001)
 }
 
 func testQueryLocationStreaming(t *testing.T, client LocationServiceClient) {

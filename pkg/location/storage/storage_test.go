@@ -13,20 +13,20 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var locations = []location.UpdateLocation{
-	{PrincipalID: "user0", Longitude: -122.47304848490842, Latitude: 37.65617701286946},
-	{PrincipalID: "user1", Longitude: -122.43073395709482, Latitude: 37.65046887713942},
-	{PrincipalID: "user2", Longitude: -122.43536881409672, Latitude: 37.64061451520277},
-	{PrincipalID: "user3", Longitude: -122.48575142632102, Latitude: 37.633953585386486},
-	{PrincipalID: "user4", Longitude: -122.47708252711378, Latitude: 37.63191440586108},
-	{PrincipalID: "user5", Longitude: -122.48025826264276, Latitude: 37.68681676281144},
-	{PrincipalID: "user6", Longitude: -122.46781281326953, Latitude: 37.729188812252616},
+var locations = []location.Location{
+	{WorkerID: "user0", Longitude: -122.47304848490842, Latitude: 37.65617701286946},
+	{WorkerID: "user1", Longitude: -122.43073395709482, Latitude: 37.65046887713942},
+	{WorkerID: "user2", Longitude: -122.43536881409672, Latitude: 37.64061451520277},
+	{WorkerID: "user3", Longitude: -122.48575142632102, Latitude: 37.633953585386486},
+	{WorkerID: "user4", Longitude: -122.47708252711378, Latitude: 37.63191440586108},
+	{WorkerID: "user5", Longitude: -122.48025826264276, Latitude: 37.68681676281144},
+	{WorkerID: "user6", Longitude: -122.46781281326953, Latitude: 37.729188812252616},
 }
 
-var myLocation = location.UpdateLocation{
-	PrincipalID: "userMe",
-	Longitude:   -122.45476654908023,
-	Latitude:    37.6777824094095,
+var myLocation = location.Location{
+	WorkerID:  "userMe",
+	Longitude: -122.45476654908023,
+	Latitude:  37.6777824094095,
 }
 
 const areaKey = "san_fran"
@@ -38,12 +38,12 @@ func TestLocationStorage(t *testing.T) {
 	client := redisClient.NewStoreClient()
 	require.NotNil(t, client)
 
-	storage := NewLocationStorage(client)
+	storage := New(client)
 
 	ctx := context.Background()
 
 	for _, loc := range locations {
-		err = storage.updateLocation(ctx, areaKey, loc)
+		err = storage.Update(ctx, areaKey, loc)
 		require.NoError(t, err)
 	}
 
@@ -64,25 +64,25 @@ func TestLocationStorage(t *testing.T) {
 	})
 }
 
-func testGeoSearchRadius5(ctx context.Context, t *testing.T, storage *LocationStorage) {
+func testGeoSearchRadius5(ctx context.Context, t *testing.T, storage *Storage) {
 	result, err := storage.QueryLocations(ctx, areaKey, myLocation.Longitude, myLocation.Latitude, 5, "km")
 	require.NoError(t, err)
 	require.Len(t, result, 4)
 }
 
-func testGeoSearchRadius3(ctx context.Context, t *testing.T, storage *LocationStorage) {
+func testGeoSearchRadius3(ctx context.Context, t *testing.T, storage *Storage) {
 	result, err := storage.QueryLocations(ctx, areaKey, myLocation.Longitude, myLocation.Latitude, 3, "km")
 
 	require.NoError(t, err)
 	require.Len(t, result, 2)
 }
 
-func testForgetLocation(ctx context.Context, t *testing.T, storage *LocationStorage) {
+func testForgetLocation(ctx context.Context, t *testing.T, storage *Storage) {
 	result, err := storage.QueryLocations(ctx, areaKey, myLocation.Longitude, myLocation.Latitude, 3, "km")
 	require.NoError(t, err)
 	require.Len(t, result, 2)
-	assert.Equal(t, "user5", result[0].PrincipalID)
-	assert.Equal(t, "user0", result[1].PrincipalID)
+	assert.Equal(t, "user5", result[0].WorkerID)
+	assert.Equal(t, "user0", result[1].WorkerID)
 
 	err = storage.ForgetLocation(ctx, areaKey, "user0")
 	require.NoError(t, err)
@@ -90,13 +90,13 @@ func testForgetLocation(ctx context.Context, t *testing.T, storage *LocationStor
 	result, err = storage.QueryLocations(ctx, areaKey, myLocation.Longitude, myLocation.Latitude, 3, "km")
 	require.NoError(t, err)
 	require.Len(t, result, 1)
-	assert.Equal(t, "user5", result[0].PrincipalID)
+	assert.Equal(t, "user5", result[0].WorkerID)
 }
 
-func testRemoveExpiredLocations(ctx context.Context, t *testing.T, storage *LocationStorage) {
+func testRemoveExpiredLocations(ctx context.Context, t *testing.T, storage *Storage) {
 	var start time.Time
 	for i, loc := range locations {
-		err := storage.updateLocation(ctx, areaKey, loc)
+		err := storage.Update(ctx, areaKey, loc)
 		require.NoError(t, err)
 		time.Sleep(10 * time.Millisecond)
 		if i == len(locations)/2 {
@@ -116,12 +116,12 @@ func testRemoveExpiredLocations(ctx context.Context, t *testing.T, storage *Loca
 	require.Less(t, len(result2), len(result1))
 }
 
-func testCheckLastSeen(ctx context.Context, t *testing.T, storage *LocationStorage) {
+func testCheckLastSeen(ctx context.Context, t *testing.T, storage *Storage) {
 	start := time.Now()
 	time.Sleep(10 * time.Millisecond)
 
 	for _, loc := range locations {
-		err := storage.updateLocation(ctx, areaKey, loc)
+		err := storage.Update(ctx, areaKey, loc)
 		require.NoError(t, err)
 	}
 
