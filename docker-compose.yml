@@ -9,3 +9,13 @@ services:
     restart: always
     ports:
       - 6379:6379
+
+  db:
+    container_name: ome-db
+    image: postgres:12.3-alpine
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: $USER
+      POSTGRES_DB: $USER
+    ports:
+      - 5432:5432

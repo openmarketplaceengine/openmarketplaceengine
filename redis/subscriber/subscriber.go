@@ -23,6 +23,12 @@ func NewSubscriber() (sub Subscriber) {
 	}
 }
 
+func New(client *redis.Client) (sub Subscriber) {
+	return &subscriber{
+		pubSubClient: client,
+	}
+}
+
 func (s *subscriber) Subscribe(ctx context.Context, channel string, messages chan<- string) {
 	pubSub := s.pubSubClient.Subscribe(ctx, channel)
 	log.Infof("[Subscriber] subscribed to %s", channel)
