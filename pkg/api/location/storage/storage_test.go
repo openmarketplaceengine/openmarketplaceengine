@@ -2,18 +2,15 @@ package storage
 
 import (
 	"context"
-	"testing"
-	"time"
-
-	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/location"
-
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	redisClient "github.com/openmarketplaceengine/openmarketplaceengine/redis/client"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"testing"
+	"time"
 )
 
-var locations = []location.Location{
+var locations = []Location{
 	{WorkerID: "user0", Longitude: -122.47304848490842, Latitude: 37.65617701286946},
 	{WorkerID: "user1", Longitude: -122.43073395709482, Latitude: 37.65046887713942},
 	{WorkerID: "user2", Longitude: -122.43536881409672, Latitude: 37.64061451520277},
@@ -23,7 +20,7 @@ var locations = []location.Location{
 	{WorkerID: "user6", Longitude: -122.46781281326953, Latitude: 37.729188812252616},
 }
 
-var myLocation = location.Location{
+var myLocation = Location{
 	WorkerID:  "userMe",
 	Longitude: -122.45476654908023,
 	Latitude:  37.6777824094095,

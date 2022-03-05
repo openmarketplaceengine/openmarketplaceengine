@@ -9,7 +9,6 @@ option go_package = "location/proto/v1";
 service LocationService {
   rpc UpdateLocation(UpdateLocationRequest) returns (UpdateLocationResponse) {}
   rpc QueryLocation(QueryLocationRequest) returns (QueryLocationResponse) {}
-  rpc UpdateLocationStreaming(stream UpdateLocationStreamingRequest) returns (UpdateLocationStreamingResponse) {}
   rpc QueryLocationStreaming(QueryLocationStreamingRequest) returns (stream QueryLocationStreamingResponse) {}
 }
 
@@ -33,16 +32,6 @@ message QueryLocationResponse {
   double latitude = 3;
 }
 
-message UpdateLocationStreamingRequest {
-  string worker_id = 1;
-  double longitude = 2;
-  double latitude = 3;
-}
-
-message UpdateLocationStreamingResponse {
-  string worker_id = 1;
-}
-
 message QueryLocationStreamingRequest {
   string worker_id = 1;
 }
@@ -52,5 +41,5 @@ message QueryLocationStreamingResponse {
   double longitude = 2;
   double latitude = 3;
   double distance = 4;
-  google.protobuf.Timestamp last_seen = 5;
+  google.protobuf.Timestamp last_seen_time = 5;
 }

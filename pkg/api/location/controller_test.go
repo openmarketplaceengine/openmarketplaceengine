@@ -1,20 +1,18 @@
-package v1
+package location
 
 import (
 	"context"
 	"fmt"
-	"io"
-	"net"
-	"testing"
-
-	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
-	redisClient "github.com/openmarketplaceengine/openmarketplaceengine/redis/client"
-
 	"github.com/google/uuid"
-
+	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
+	v1 "github.com/openmarketplaceengine/openmarketplaceengine/pkg/api/location/proto/v1"
+	redisClient "github.com/openmarketplaceengine/openmarketplaceengine/redis/client"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"io"
+	"net"
+	"testing"
 )
 
 const port = 10123
@@ -24,34 +22,25 @@ func TestController(t *testing.T) {
 	err := cfg.Load()
 	require.NoError(t, err)
 
-	storeClient := redisClient.NewStoreClient()
-	require.NotNil(t, storeClient)
+	address := fmt.Sprintf("localhost:%d", port)
 
 	go func() {
-		lis, innerErr := net.Listen("tcp", fmt.Sprintf("localhost:%d", port))
+		lis, innerErr := net.Listen("tcp", address)
 		if innerErr != nil {
 			panic(innerErr)
 		}
 		grpcServer := grpc.NewServer()
-		RegisterLocationServiceServer(grpcServer, New(storeClient, areaKey))
+		controller := New(redisClient.NewStoreClient(), redisClient.NewPubSubClient(), redisClient.NewPubSubClient(), areaKey)
+		v1.RegisterLocationServiceServer(grpcServer, controller)
 		innerErr = grpcServer.Serve(lis)
 		if innerErr != nil {
 			panic(innerErr)
 		}
 	}()
 
-	conn, err := grpc.Dial(fmt.Sprintf("localhost:%d", port), grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials()))
-
+	conn, err := grpc.Dial(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	require.NoError(t, err)
-
-	defer func(conn *grpc.ClientConn) {
-		innerErr := conn.Close()
-		if innerErr != nil {
-			require.NoError(t, innerErr)
-		}
-	}(conn)
-
-	client := NewLocationServiceClient(conn)
+	client := v1.NewLocationServiceClient(conn)
 
 	t.Run("testUpdateLocation", func(t *testing.T) {
 		testUpdateLocation(t, client)
@@ -61,9 +50,9 @@ func TestController(t *testing.T) {
 	})
 }
 
-func testUpdateLocation(t *testing.T, client LocationServiceClient) {
+func testUpdateLocation(t *testing.T, client v1.LocationServiceClient) {
 	id := uuid.NewString()
-	request := &UpdateLocationRequest{
+	request := &v1.UpdateLocationRequest{
 		WorkerId:  id,
 		Longitude: 12.000001966953278,
 		Latitude:  13.000001966953278,
@@ -72,7 +61,7 @@ func testUpdateLocation(t *testing.T, client LocationServiceClient) {
 	require.NoError(t, err)
 	require.Equal(t, request.WorkerId, response.WorkerId)
 
-	location, err := client.QueryLocation(context.Background(), &QueryLocationRequest{
+	location, err := client.QueryLocation(context.Background(), &v1.QueryLocationRequest{
 		WorkerId: id,
 	})
 	require.NoError(t, err)
@@ -81,37 +70,43 @@ func testUpdateLocation(t *testing.T, client LocationServiceClient) {
 	require.InDelta(t, request.Latitude, location.Latitude, 0.001)
 }
 
-func testQueryLocationStreaming(t *testing.T, client LocationServiceClient) {
+func testQueryLocationStreaming(t *testing.T, client v1.LocationServiceClient) {
 	id := uuid.NewString()
-	query := &QueryLocationStreamingRequest{
+	query := &v1.QueryLocationStreamingRequest{
 		WorkerId: id,
 	}
 
-	streaming, err := client.QueryLocationStreaming(context.Background(), query)
+	ctx := context.Background()
+
+	streaming, err := client.QueryLocationStreaming(ctx, query)
 	require.NoError(t, err)
-	sync := make(chan string, 1)
+	done := make(chan string)
+
 	go func() {
-		for i := 0; i < 3; i++ {
-			response, innerErr := streaming.Recv()
-			if innerErr == io.EOF {
-				break
+		for {
+			response, err := streaming.Recv()
+			if err == io.EOF {
+				fmt.Printf("===> Recv EOF %s\n", err)
+				return
 			}
-			require.NoError(t, innerErr)
-			require.NotNil(t, response)
-			if i <= 2 {
-				sync <- response.WorkerId
+			if err != nil {
+				fmt.Printf("===> Recv err %s\n", err)
+				return
 			}
+			fmt.Printf("===> Recv %s\n", response)
+			done <- response.WorkerId
 		}
 	}()
 
-	upd := &UpdateLocationRequest{
-		WorkerId:  id,
-		Longitude: 3,
-		Latitude:  3,
-	}
 	for i := 0; i < 3; i++ {
-		_, err = client.UpdateLocation(context.Background(), upd)
+		_, err = client.UpdateLocation(ctx, &v1.UpdateLocationRequest{
+			WorkerId:  query.WorkerId,
+			Longitude: 13,
+			Latitude:  14,
+		},
+		)
 		require.NoError(t, err)
 	}
-	require.Equal(t, query.WorkerId, <-sync)
+
+	require.Equal(t, query.WorkerId, <-done)
 }

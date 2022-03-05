@@ -3,11 +3,8 @@ package storage
 import (
 	"context"
 	"fmt"
-	"time"
-
-	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/location"
-
 	"github.com/go-redis/redis/v8"
+	"time"
 )
 
 type Storage struct {
@@ -21,7 +18,7 @@ func New(client *redis.Client) *Storage {
 	return &s
 }
 
-func (s *Storage) Update(ctx context.Context, areaKey string, location location.Location) (err error) {
+func (s *Storage) Update(ctx context.Context, areaKey string, location Location) (err error) {
 	err = s.client.GeoAdd(ctx, areaKey, &redis.GeoLocation{
 		Name:      location.WorkerID,
 		Longitude: location.Longitude,
@@ -49,11 +46,11 @@ func (s *Storage) Update(ctx context.Context, areaKey string, location location.
 	return nil
 }
 
-func (s *Storage) QueryLocation(ctx context.Context, areaKey string, workerID string) *location.Location {
+func (s *Storage) QueryLocation(ctx context.Context, areaKey string, workerID string) *Location {
 	v := s.client.GeoPos(ctx, areaKey, workerID).Val()
 	// At the moment we expect max one element
 	if len(v) > 0 {
-		return &location.Location{
+		return &Location{
 			WorkerID:  workerID,
 			Longitude: v[0].Longitude,
 			Latitude:  v[0].Latitude,
@@ -103,7 +100,7 @@ func (s *Storage) RemoveExpiredLocations(ctx context.Context, areaKey string, be
 	return nil
 }
 
-func (s *Storage) QueryLocations(ctx context.Context, areaKey string, fromLongitude float64, fromLatitude float64, radius float64, radiusUnit string) (locations []*location.QueryLocation, err error) {
+func (s *Storage) QueryLocations(ctx context.Context, areaKey string, fromLongitude float64, fromLatitude float64, radius float64, radiusUnit string) (locations []*QueryLocation, err error) {
 	geoLocations, err := s.client.GeoSearchLocation(ctx, areaKey, &redis.GeoSearchLocationQuery{
 		GeoSearchQuery: redis.GeoSearchQuery{
 			Member:     "",
@@ -137,7 +134,7 @@ func (s *Storage) QueryLocations(ctx context.Context, areaKey string, fromLongit
 			score := s.client.ZScore(ctx, expireTrackingKey, geoLocation.Name).Val()
 			lastSeen = time.UnixMilli(int64(score))
 		}
-		locations = append(locations, &location.QueryLocation{
+		locations = append(locations, &QueryLocation{
 			WorkerID:      geoLocation.Name,
 			Longitude:     geoLocation.Longitude,
 			Latitude:      geoLocation.Latitude,
