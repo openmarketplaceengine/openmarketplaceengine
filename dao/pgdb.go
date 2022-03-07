@@ -7,7 +7,6 @@ package dao
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"strings"
 
 	"github.com/jackc/pgx/v4"
@@ -17,17 +16,16 @@ import (
 )
 
 type PgdbConn struct {
-	cfg *pgx.ConnConfig
-	sdb *sql.DB
-	log log.Logger
+	state cfg.State64
+	cfg   *pgx.ConnConfig
+	sdb   *sql.DB
+	log   log.Logger
 }
 
 const (
 	pfxErr = "pgdb" // error prefix
 	pfxLog = "PGDB" // log prefix
 )
-
-var ErrNotStarted = errors.New("Pgdb not started")
 
 var Pgdb = new(PgdbConn)
 
@@ -41,6 +39,12 @@ func DB() *sql.DB {
 
 func (p *PgdbConn) Boot() (err error) {
 	//
+	if !p.state.TryBoot() {
+		return p.stateError()
+	}
+
+	defer p.state.BootOrFail(&err)
+
 	p.log = log.Named(pfxLog)
 
 	pcfg := cfg.Pgdb()
@@ -81,18 +85,21 @@ func (p *PgdbConn) Boot() (err error) {
 		p.sdb.SetMaxOpenConns(n)
 	}
 
-	err = p.sdb.PingContext(cfg.Context())
+	ctx := cfg.Context()
+
+	err = p.sdb.PingContext(ctx)
 
 	if err != nil {
-		p.sdb = nil
+		p.abort()
 		return
 	}
+
+	p.state.SetRunning()
 
 	if len(pcfg.Schema) > 0 {
 		err = p.SwitchSchema(pcfg.Schema)
 		if err != nil {
-			_ = p.sdb.Close()
-			p.sdb = nil
+			p.abort()
 			return
 		}
 		infof("using schema %q", pcfg.Schema)
@@ -104,10 +111,22 @@ func (p *PgdbConn) Boot() (err error) {
 //-----------------------------------------------------------------------------
 
 func (p *PgdbConn) Stop() error {
-	if p.sdb == nil {
-		return cfg.CantStop("Pgdb")
+	if p.state.TryStop() {
+		return p.state.StopOrFail(p.sdb.Close)
 	}
-	return p.sdb.Close()
+	return p.stateError()
+}
+
+//-----------------------------------------------------------------------------
+
+func Running() bool {
+	return Pgdb.state.Running()
+}
+
+//-----------------------------------------------------------------------------
+
+func Invalid() bool {
+	return Pgdb.state.Invalid()
 }
 
 //-----------------------------------------------------------------------------
@@ -152,10 +171,24 @@ func matchLevel(level pgx.LogLevel) log.Level {
 
 //-----------------------------------------------------------------------------
 
+func (p *PgdbConn) stateError() error {
+	return p.state.StateError(pfxErr)
+}
+
+//-----------------------------------------------------------------------------
+
+func (p PgdbConn) abort() {
+	if p.sdb != nil {
+		_ = p.sdb.Close()
+	}
+}
+
+//-----------------------------------------------------------------------------
+
 func failInit(err *error) bool {
-	if Pgdb.sdb == nil {
+	if Pgdb.state.Invalid() {
 		if err != nil {
-			*err = ErrNotStarted
+			*err = Pgdb.stateError()
 		}
 		return true
 	}
