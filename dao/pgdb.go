@@ -15,6 +15,11 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/log"
 )
 
+type (
+	Result  = sql.Result
+	Context = context.Context
+)
+
 type PgdbConn struct {
 	state cfg.State64
 	cfg   *pgx.ConnConfig
