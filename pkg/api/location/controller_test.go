@@ -16,7 +16,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-const port = 10123
+const port = 8090
 const areaKey = "san_fran"
 
 func TestController(t *testing.T) {
