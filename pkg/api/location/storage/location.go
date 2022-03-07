@@ -4,15 +4,23 @@ import (
 	"time"
 )
 
-// QueryLocation represents geographic coordinates of principal relative to querying coordinates.
-type QueryLocation struct {
+// RangeLocation represents geographic coordinates of principal relative to querying coordinates.
+type RangeLocation struct {
 	WorkerID      string
 	Longitude     float64
 	Latitude      float64
 	Distance      float64
 	FromLongitude float64
 	FromLatitude  float64
-	LastSeen      time.Time
+	LastSeenTime  time.Time
+}
+
+// LastLocation represents geographic coordinates of principal with LastSeenTime.
+type LastLocation struct {
+	WorkerID     string
+	Longitude    float64
+	Latitude     float64
+	LastSeenTime time.Time
 }
 
 // Location represents geographic coordinates of WorkerID.

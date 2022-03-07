@@ -94,7 +94,7 @@ lint: ## Run linter
 	@echo "==> Running linter"
 	golangci-lint run
 
-lint-buf: ## Run buf linter
+buf-lint: ## Run buf linter
 	@echo "==> Running buf linter"
 	buf lint
 

@@ -3,8 +3,9 @@ package storage
 import (
 	"context"
 	"fmt"
-	"github.com/go-redis/redis/v8"
 	"time"
+
+	"github.com/go-redis/redis/v8"
 )
 
 type Storage struct {
@@ -18,7 +19,7 @@ func New(client *redis.Client) *Storage {
 	return &s
 }
 
-func (s *Storage) Update(ctx context.Context, areaKey string, location Location) (err error) {
+func (s *Storage) Update(ctx context.Context, areaKey string, location *Location) (err error) {
 	err = s.client.GeoAdd(ctx, areaKey, &redis.GeoLocation{
 		Name:      location.WorkerID,
 		Longitude: location.Longitude,
@@ -46,14 +47,20 @@ func (s *Storage) Update(ctx context.Context, areaKey string, location Location)
 	return nil
 }
 
-func (s *Storage) QueryLocation(ctx context.Context, areaKey string, workerID string) *Location {
+func (s *Storage) LastLocation(ctx context.Context, areaKey string, workerID string) *LastLocation {
 	v := s.client.GeoPos(ctx, areaKey, workerID).Val()
+
+	expireTrackingKey := expireTrackingKey(areaKey)
+	score := s.client.ZScore(ctx, expireTrackingKey, workerID).Val()
+
+	lastSeen := time.UnixMilli(int64(score))
 	// At the moment we expect max one element
-	if len(v) > 0 {
-		return &Location{
-			WorkerID:  workerID,
-			Longitude: v[0].Longitude,
-			Latitude:  v[0].Latitude,
+	if len(v) > 0 && v[0] != nil {
+		return &LastLocation{
+			WorkerID:     workerID,
+			Longitude:    v[0].Longitude,
+			Latitude:     v[0].Latitude,
+			LastSeenTime: lastSeen,
 		}
 	}
 	return nil
@@ -100,7 +107,7 @@ func (s *Storage) RemoveExpiredLocations(ctx context.Context, areaKey string, be
 	return nil
 }
 
-func (s *Storage) QueryLocations(ctx context.Context, areaKey string, fromLongitude float64, fromLatitude float64, radius float64, radiusUnit string) (locations []*QueryLocation, err error) {
+func (s *Storage) RangeLocations(ctx context.Context, areaKey string, fromLongitude float64, fromLatitude float64, radius float64, radiusUnit string) (locations []*RangeLocation, err error) {
 	geoLocations, err := s.client.GeoSearchLocation(ctx, areaKey, &redis.GeoSearchLocationQuery{
 		GeoSearchQuery: redis.GeoSearchQuery{
 			Member:     "",
@@ -134,14 +141,14 @@ func (s *Storage) QueryLocations(ctx context.Context, areaKey string, fromLongit
 			score := s.client.ZScore(ctx, expireTrackingKey, geoLocation.Name).Val()
 			lastSeen = time.UnixMilli(int64(score))
 		}
-		locations = append(locations, &QueryLocation{
+		locations = append(locations, &RangeLocation{
 			WorkerID:      geoLocation.Name,
 			Longitude:     geoLocation.Longitude,
 			Latitude:      geoLocation.Latitude,
 			Distance:      geoLocation.Dist,
 			FromLatitude:  fromLatitude,
 			FromLongitude: fromLongitude,
-			LastSeen:      lastSeen,
+			LastSeenTime:  lastSeen,
 		})
 	}
 
