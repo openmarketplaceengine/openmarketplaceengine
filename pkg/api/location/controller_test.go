@@ -26,6 +26,13 @@ func TestController(t *testing.T) {
 
 	ctx := context.Background()
 	conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(dialer()))
+	defer func(conn *grpc.ClientConn) {
+		innerErr := conn.Close()
+		if innerErr != nil {
+			log.Fatal(innerErr)
+		}
+	}(conn)
+
 	require.NoError(t, err)
 	client := v1.NewLocationServiceClient(conn)
 
