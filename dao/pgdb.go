@@ -8,6 +8,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"strings"
 
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/stdlib"
@@ -20,6 +21,11 @@ type PgdbConn struct {
 	sdb *sql.DB
 	log log.Logger
 }
+
+const (
+	pfxErr = "pgdb" // error prefix
+	pfxLog = "PGDB" // log prefix
+)
 
 var ErrNotStarted = errors.New("Pgdb not started")
 
@@ -34,6 +40,9 @@ func DB() *sql.DB {
 //-----------------------------------------------------------------------------
 
 func (p *PgdbConn) Boot() (err error) {
+	//
+	p.log = log.Named(pfxLog)
+
 	pcfg := cfg.Pgdb()
 
 	var addr string
@@ -53,8 +62,6 @@ func (p *PgdbConn) Boot() (err error) {
 	p.cfg.PreferSimpleProtocol = pcfg.Simple
 
 	p.cfg.LogLevel = pgx.LogLevelNone
-
-	p.log = log.Named("PGDB")
 
 	p.sdb = stdlib.OpenDB(*p.cfg)
 
@@ -160,5 +167,25 @@ func failInit(err *error) bool {
 func infof(format string, args ...interface{}) {
 	if Pgdb.log != nil {
 		Pgdb.log.Infof(format, args...)
+	}
+}
+
+//-----------------------------------------------------------------------------
+
+func errorf(format string, args ...interface{}) {
+	if Pgdb.log != nil {
+		Pgdb.log.Errorf(format, args...)
+	}
+}
+
+//-----------------------------------------------------------------------------
+
+func logerr(err error, prefix ...string) {
+	if err != nil {
+		if len(prefix) > 0 {
+			errorf("%s %s", strings.Join(prefix, " "), err)
+			return
+		}
+		errorf("%s", err)
 	}
 }
