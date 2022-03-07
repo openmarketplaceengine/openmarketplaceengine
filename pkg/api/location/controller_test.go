@@ -3,6 +3,7 @@ package location
 import (
 	"context"
 	"fmt"
+	"log"
 	"net"
 	"testing"
 	"time"
@@ -14,32 +15,17 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/test/bufconn"
 )
 
-const port = 8090
 const areaKey = "san_fran"
 
 func TestController(t *testing.T) {
 	err := cfg.Load()
 	require.NoError(t, err)
 
-	address := fmt.Sprintf("localhost:%d", port)
-
-	go func() {
-		lis, innerErr := net.Listen("tcp", address)
-		if innerErr != nil {
-			panic(innerErr)
-		}
-		grpcServer := grpc.NewServer()
-		controller := New(redisClient.NewStoreClient(), redisClient.NewPubSubClient(), areaKey)
-		v1.RegisterLocationServiceServer(grpcServer, controller)
-		innerErr = grpcServer.Serve(lis)
-		if innerErr != nil {
-			panic(innerErr)
-		}
-	}()
-
-	conn, err := grpc.Dial(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	ctx := context.Background()
+	conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(dialer()))
 	require.NoError(t, err)
 	client := v1.NewLocationServiceClient(conn)
 
@@ -49,6 +35,24 @@ func TestController(t *testing.T) {
 	t.Run("testQueryLocation", func(t *testing.T) {
 		testQueryLocation(t, client)
 	})
+}
+
+func dialer() func(context.Context, string) (net.Conn, error) {
+	listener := bufconn.Listen(1024 * 1024)
+
+	server := grpc.NewServer()
+	controller := New(redisClient.NewStoreClient(), redisClient.NewPubSubClient(), areaKey)
+	v1.RegisterLocationServiceServer(server, controller)
+
+	go func() {
+		if err := server.Serve(listener); err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	return func(context.Context, string) (net.Conn, error) {
+		return listener.Dial()
+	}
 }
 
 func testUpdateLocation(t *testing.T, client v1.LocationServiceClient) {
