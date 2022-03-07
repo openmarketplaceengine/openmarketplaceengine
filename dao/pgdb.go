@@ -101,16 +101,17 @@ func (p *PgdbConn) Boot() (err error) {
 
 	p.state.SetRunning()
 
-	if len(pcfg.Schema) > 0 {
-		err = p.SwitchSchema(pcfg.Schema)
+	if schema := pcfg.Schema; len(schema) > 0 {
+		err = p.SwitchSchema(ctx, schema)
 		if err != nil {
 			p.abort()
 			return
 		}
-		infof("using schema %q", pcfg.Schema)
+		infof("using schema %q", schema)
 	}
 
 	return nil
+
 }
 
 //-----------------------------------------------------------------------------
@@ -136,11 +137,11 @@ func Invalid() bool {
 
 //-----------------------------------------------------------------------------
 
-func (p *PgdbConn) SwitchSchema(name string) error {
-	var rs RawSQL
-	rs.Appendf("CREATE SCHEMA IF NOT EXISTS %q", name)
-	rs.Appendf("SET search_path TO %q", name)
-	return rs.Exec()
+func (p *PgdbConn) SwitchSchema(ctx Context, name string) error {
+	return ExecDB(ctx,
+		SQLExecf("CREATE SCHEMA IF NOT EXISTS %q", name),
+		SQLExecf("SET search_path TO %q", name),
+	)
 }
 
 //-----------------------------------------------------------------------------
