@@ -9,6 +9,10 @@ import (
 	"fmt"
 )
 
+//-----------------------------------------------------------------------------
+// Executable Interfaces
+//-----------------------------------------------------------------------------
+
 // Executor interface depicts ExecContext from
 // sql.DB, sql.Conn, sql.Tx, sql.Stmt.
 type Executor interface {
@@ -18,24 +22,6 @@ type Executor interface {
 // Executable implementers perform actual Executor.ExecContext calls.
 type Executable interface {
 	Execute(ctx Context, exe Executor) error
-}
-
-//-----------------------------------------------------------------------------
-
-// SQLExec represents plain SQL statement without any parameter bindings.
-type SQLExec string
-
-func SQLExecf(format string, args ...interface{}) SQLExec {
-	return SQLExec(fmt.Sprintf(format, args...))
-}
-
-func (e SQLExec) Execute(ctx Context, exe Executor) error {
-	_, err := exe.ExecContext(ctx, string(e))
-	return err
-}
-
-func (e SQLExec) String() string {
-	return string(e)
 }
 
 //-----------------------------------------------------------------------------
@@ -60,4 +46,49 @@ func ExecTX(ctx Context, execs ...Executable) error {
 		}
 		return
 	})
+}
+
+//-----------------------------------------------------------------------------
+// Executors
+//-----------------------------------------------------------------------------
+
+// ArgsExec executes SQL CRUD statements with parameters binding.
+type ArgsExec struct {
+	Stmt string
+	Args []interface{}
+}
+
+func NewArgsExec(stmt string, args ...interface{}) *ArgsExec {
+	return &ArgsExec{stmt, args}
+}
+
+func (a *ArgsExec) Execute(ctx Context, exe Executor) (err error) {
+	if len(a.Args) > 0 {
+		_, err = exe.ExecContext(ctx, a.Stmt, a.Args...)
+	} else {
+		_, err = exe.ExecContext(ctx, a.Stmt)
+	}
+	return
+}
+
+//-----------------------------------------------------------------------------
+
+// SQLExec represents plain SQL statement without any parameter bindings.
+//
+// Attention! Do not use this executor for regular CRUD operations.
+// It is only intended to be used for special statements where
+// parameters binding do not work.
+type SQLExec string
+
+func SQLExecf(format string, args ...interface{}) SQLExec {
+	return SQLExec(fmt.Sprintf(format, args...))
+}
+
+func (e SQLExec) Execute(ctx Context, exe Executor) error {
+	_, err := exe.ExecContext(ctx, string(e))
+	return err
+}
+
+func (e SQLExec) String() string {
+	return string(e)
 }
