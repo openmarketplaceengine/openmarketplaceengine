@@ -18,13 +18,13 @@ const (
 
 // Worker represents information about a driver.
 type Worker struct {
-	ID        UUID
+	ID        SUID
 	Status    WorkerStatus // worker's status
 	Rating    int32        // worker's rating by customers
 	Jobs      int          // total number of jobs completed
 	FirstName string       // first name
 	LastName  string       // last name
-	Vehicle   UUID         // vehicle id foreign key
+	Vehicle   SUID         // vehicle id foreign key
 	Created   Time         // worker creation time
 	Updated   Time         // worker last modified time
 }
@@ -34,8 +34,8 @@ type Worker struct {
 // One worker can operate one or more vehicles and one vehicle can be shared among
 // several workers.
 type WorkerVehicle struct {
-	Worker  UUID
-	Vehicle UUID
+	Worker  SUID
+	Vehicle SUID
 }
 
 // String representation of WorkerStatus.

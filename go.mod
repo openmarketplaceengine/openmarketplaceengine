@@ -12,6 +12,7 @@ require (
 	github.com/jackc/pgx/v4 v4.15.0
 	github.com/leporo/sqlf v1.3.0
 	github.com/pkg/errors v0.9.1
+	github.com/rs/xid v1.2.1
 	github.com/stretchr/testify v1.7.0
 	go.uber.org/zap v1.21.0
 	google.golang.org/grpc v1.44.0

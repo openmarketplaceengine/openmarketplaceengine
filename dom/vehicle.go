@@ -31,8 +31,8 @@ const (
 
 // Vehicle represents car properties.
 type Vehicle struct {
-	ID         UUID
-	Driver     UUID // current driver's id, nullable
+	ID         SUID
+	Driver     SUID // current driver's id, nullable
 	Model      string
 	Make       string
 	Color      string

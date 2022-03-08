@@ -5,35 +5,90 @@
 package dao
 
 import (
+	"database/sql"
 	"fmt"
-
-	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 )
 
-type RawSQL struct {
-	sql []string
+//-----------------------------------------------------------------------------
+// Executable Interfaces
+//-----------------------------------------------------------------------------
+
+// Executor interface depicts ExecContext from
+// sql.DB, sql.Conn, sql.Tx, sql.Stmt.
+type Executor interface {
+	ExecContext(ctx Context, query string, args ...interface{}) (Result, error)
+}
+
+// Executable implementers perform actual Executor.ExecContext calls.
+type Executable interface {
+	Execute(ctx Context, exe Executor) error
 }
 
 //-----------------------------------------------------------------------------
-
-func (r *RawSQL) Appendf(format string, args ...interface{}) *RawSQL {
-	r.sql = append(r.sql, fmt.Sprintf(format, args...))
-	return r
-}
-
+// Executable Runners
 //-----------------------------------------------------------------------------
 
-func (r *RawSQL) Exec(sql ...string) (err error) {
-	if failInit(&err) {
+// ExecDB runs executables with sql.DB.
+func ExecDB(ctx Context, execs ...Executable) error {
+	return WithConn(ctx, func(ctx Context, con *sql.Conn) (err error) {
+		for i := 0; i < len(execs) && err == nil; i++ {
+			err = execs[i].Execute(ctx, con)
+		}
 		return
-	}
-	if len(sql) > 0 {
-		r.sql = append(r.sql, sql...)
-	}
-	ctx := cfg.Context()
-	db := DB()
-	for i := 0; i < len(r.sql) && err == nil; i++ {
-		_, err = db.ExecContext(ctx, r.sql[i])
+	})
+}
+
+// ExecTX runs executables with sql.Tx.
+func ExecTX(ctx Context, execs ...Executable) error {
+	return WithTran(ctx, func(ctx Context, tx *sql.Tx) (err error) {
+		for i := 0; i < len(execs) && err == nil; i++ {
+			err = execs[i].Execute(ctx, tx)
+		}
+		return
+	})
+}
+
+//-----------------------------------------------------------------------------
+// Executors
+//-----------------------------------------------------------------------------
+
+// ArgsExec executes SQL CRUD statements with parameters binding.
+type ArgsExec struct {
+	Stmt string
+	Args []interface{}
+}
+
+func NewArgsExec(stmt string, args ...interface{}) *ArgsExec {
+	return &ArgsExec{stmt, args}
+}
+
+func (a *ArgsExec) Execute(ctx Context, exe Executor) (err error) {
+	if len(a.Args) > 0 {
+		_, err = exe.ExecContext(ctx, a.Stmt, a.Args...)
+	} else {
+		_, err = exe.ExecContext(ctx, a.Stmt)
 	}
 	return
+}
+
+//-----------------------------------------------------------------------------
+
+// SQLExec represents plain SQL statement without any parameter bindings.
+//
+// Attention! Do not use this executor for regular CRUD operations.
+// It is only intended to be used for special statements where
+// parameters binding do not work.
+type SQLExec string
+
+func SQLExecf(format string, args ...interface{}) SQLExec {
+	return SQLExec(fmt.Sprintf(format, args...))
+}
+
+func (e SQLExec) Execute(ctx Context, exe Executor) error {
+	_, err := exe.ExecContext(ctx, string(e))
+	return err
+}
+
+func (e SQLExec) String() string {
+	return string(e)
 }
