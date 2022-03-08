@@ -6,23 +6,22 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/location"
 )
 
-type LocationStorage struct {
+type Storage struct {
 	client *redis.Client
 }
 
-func NewLocationStorage(client *redis.Client) *LocationStorage {
-	s := LocationStorage{
+func New(client *redis.Client) *Storage {
+	s := Storage{
 		client: client,
 	}
 	return &s
 }
 
-func (s *LocationStorage) updateLocation(ctx context.Context, areaKey string, location location.UpdateLocation) (err error) {
+func (s *Storage) Update(ctx context.Context, areaKey string, location *Location) (err error) {
 	err = s.client.GeoAdd(ctx, areaKey, &redis.GeoLocation{
-		Name:      location.PrincipalID,
+		Name:      location.WorkerID,
 		Longitude: location.Longitude,
 		Latitude:  location.Latitude,
 		Dist:      0,
@@ -41,20 +40,39 @@ func (s *LocationStorage) updateLocation(ctx context.Context, areaKey string, lo
 		Ch: false,
 		Members: []redis.Z{{
 			Score:  float64(time.Now().UnixMilli()),
-			Member: location.PrincipalID,
+			Member: location.WorkerID,
 		}},
 	})
 
 	return nil
 }
 
-func (s *LocationStorage) ForgetLocation(ctx context.Context, areaKey string, principalID string) (err error) {
-	err = s.client.ZRem(ctx, areaKey, principalID).Err()
+func (s *Storage) LastLocation(ctx context.Context, areaKey string, workerID string) *LastLocation {
+	v := s.client.GeoPos(ctx, areaKey, workerID).Val()
+
+	expireTrackingKey := expireTrackingKey(areaKey)
+	score := s.client.ZScore(ctx, expireTrackingKey, workerID).Val()
+
+	lastSeen := time.UnixMilli(int64(score))
+	// At the moment we expect max one element
+	if len(v) > 0 && v[0] != nil {
+		return &LastLocation{
+			WorkerID:     workerID,
+			Longitude:    v[0].Longitude,
+			Latitude:     v[0].Latitude,
+			LastSeenTime: lastSeen,
+		}
+	}
+	return nil
+}
+
+func (s *Storage) ForgetLocation(ctx context.Context, areaKey string, workerID string) (err error) {
+	err = s.client.ZRem(ctx, areaKey, workerID).Err()
 	if err != nil {
 		return err
 	}
 	expireTrackingKey := expireTrackingKey(areaKey)
-	err = s.client.ZRem(ctx, expireTrackingKey, principalID).Err()
+	err = s.client.ZRem(ctx, expireTrackingKey, workerID).Err()
 	if err != nil {
 		return err
 	}
@@ -62,7 +80,7 @@ func (s *LocationStorage) ForgetLocation(ctx context.Context, areaKey string, pr
 	return nil
 }
 
-func (s *LocationStorage) RemoveExpiredLocations(ctx context.Context, areaKey string, before time.Time) (err error) {
+func (s *Storage) RemoveExpiredLocations(ctx context.Context, areaKey string, before time.Time) (err error) {
 	key := expireTrackingKey(areaKey)
 	min := fmt.Sprintf("%v", float64(0))
 	max := fmt.Sprintf("%v", float64(before.UnixMilli()))
@@ -79,22 +97,22 @@ func (s *LocationStorage) RemoveExpiredLocations(ctx context.Context, areaKey st
 	if len(keys) > 0 {
 		innerErr := s.client.ZRemRangeByScore(ctx, key, min, max).Err()
 		if innerErr != nil {
-			return fmt.Errorf("LocationStorage ZRemRangeByScore error: %s", innerErr)
+			return fmt.Errorf("Storage ZRemRangeByScore error: %s", innerErr)
 		}
 		innerErr = s.client.ZRem(ctx, areaKey, keys).Err()
 		if innerErr != nil {
-			return fmt.Errorf("LocationStorage HDel error: %s", innerErr)
+			return fmt.Errorf("Storage HDel error: %s", innerErr)
 		}
 	}
 	return nil
 }
 
-func (s *LocationStorage) QueryLocations(ctx context.Context, areaKey string, longitude float64, latitude float64, radius float64, radiusUnit string) (locations []*location.QueryLocation, err error) {
+func (s *Storage) RangeLocations(ctx context.Context, areaKey string, fromLongitude float64, fromLatitude float64, radius float64, radiusUnit string) (locations []*RangeLocation, err error) {
 	geoLocations, err := s.client.GeoSearchLocation(ctx, areaKey, &redis.GeoSearchLocationQuery{
 		GeoSearchQuery: redis.GeoSearchQuery{
 			Member:     "",
-			Longitude:  longitude,
-			Latitude:   latitude,
+			Longitude:  fromLongitude,
+			Latitude:   fromLatitude,
 			Radius:     radius,
 			RadiusUnit: radiusUnit,
 			BoxWidth:   0,
@@ -123,12 +141,14 @@ func (s *LocationStorage) QueryLocations(ctx context.Context, areaKey string, lo
 			score := s.client.ZScore(ctx, expireTrackingKey, geoLocation.Name).Val()
 			lastSeen = time.UnixMilli(int64(score))
 		}
-		locations = append(locations, &location.QueryLocation{
-			PrincipalID: geoLocation.Name,
-			Longitude:   geoLocation.Longitude,
-			Latitude:    geoLocation.Latitude,
-			Distance:    geoLocation.Dist,
-			LastSeen:    lastSeen,
+		locations = append(locations, &RangeLocation{
+			WorkerID:      geoLocation.Name,
+			Longitude:     geoLocation.Longitude,
+			Latitude:      geoLocation.Latitude,
+			Distance:      geoLocation.Dist,
+			FromLatitude:  fromLatitude,
+			FromLongitude: fromLongitude,
+			LastSeenTime:  lastSeen,
 		})
 	}
 

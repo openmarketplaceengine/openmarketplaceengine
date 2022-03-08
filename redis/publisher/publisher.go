@@ -22,6 +22,12 @@ func NewPublisher() (pub Publisher) {
 	}
 }
 
+func New(client *redis.Client) (pub Publisher) {
+	return &publisher{
+		pubSubClient: client,
+	}
+}
+
 func (p *publisher) Publish(ctx context.Context, channel string, message interface{}) error {
 	_, err := p.pubSubClient.Publish(ctx, channel, message).Result()
 	return err

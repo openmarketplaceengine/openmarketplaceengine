@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package api.location.proto.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "location/proto/v1";
+
+service LocationService {
+  rpc UpdateLocation(UpdateLocationRequest) returns (UpdateLocationResponse) {}
+  rpc QueryLocation(QueryLocationRequest) returns (QueryLocationResponse) {}
+}
+
+message UpdateLocationRequest {
+  string worker_id = 1;
+  double longitude = 2;
+  double latitude = 3;
+}
+
+message UpdateLocationResponse {
+  string worker_id = 1;
+}
+
+message QueryLocationRequest {
+  string worker_id = 1;
+}
+
+message QueryLocationResponse {
+  string worker_id = 1;
+  double longitude = 2;
+  double latitude = 3;
+  google.protobuf.Timestamp last_seen_time = 5;
+}

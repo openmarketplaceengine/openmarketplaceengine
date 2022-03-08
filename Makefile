@@ -94,16 +94,13 @@ lint: ## Run linter
 	@echo "==> Running linter"
 	golangci-lint run
 
-lint-buf: ## Run buf linter
+buf-lint: ## Run buf linter
 	@echo "==> Running buf linter"
 	buf lint
 
-protoc: ## Run protoc
-	@echo "==> Running protoc"
-	protoc 	--proto_path=. \
-			--go_out=. --go_opt=paths=source_relative \
-        	--go-grpc_out=. --go-grpc_opt=paths=source_relative \
-        	protos/location/v1/location.proto
+buf-gen: ## Run buf generate
+	@echo "==> Running buf generate"
+	buf generate
 
 help: echo-env
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
