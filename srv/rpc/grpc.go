@@ -8,8 +8,9 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/api/location"
-	v1 "github.com/openmarketplaceengine/openmarketplaceengine/pkg/api/location/proto/v1"
+	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/protos/ome/location/v1beta1"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/location"
+
 	redisClient "github.com/openmarketplaceengine/openmarketplaceengine/redis/client"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
@@ -42,7 +43,7 @@ func (s *GrpcServer) Boot() (err error) {
 	s.srv = grpc.NewServer(s.configOptions()...)
 
 	controller := location.New(redisClient.NewStoreClient(), redisClient.NewPubSubClient(), "global")
-	v1.RegisterLocationServiceServer(s.srv, controller)
+	locationV1beta1.RegisterLocationServiceServer(s.srv, controller)
 
 	go s.serve()
 	return nil

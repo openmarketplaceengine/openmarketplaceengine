@@ -102,6 +102,9 @@ buf-gen: ## Run buf generate
 	@echo "==> Running buf generate"
 	buf generate
 
+buf-ls: ## Run buf list
+	buf build -o -#format=json | jq '.file[] | .package' | sort | uniq | head
+
 help: echo-env
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
