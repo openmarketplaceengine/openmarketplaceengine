@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/ome/location/v1beta1"
+	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/ome/location/v1beta1"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/location/storage"
 
 	"github.com/go-redis/redis/v8"

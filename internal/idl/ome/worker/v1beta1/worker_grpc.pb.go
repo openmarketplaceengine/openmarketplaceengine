@@ -167,5 +167,5 @@ var WorkerService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "protos/ome/worker/v1beta1/worker.proto",
+	Metadata: "idl/ome/worker/v1beta1/worker.proto",
 }

@@ -1,8 +1,8 @@
 version: v1
 plugins:
   - name: go
-    out: internal
+    out: internal/idl
   - name: go-grpc
-    out: internal
+    out: internal/idl
     opt:
       - require_unimplemented_servers=false

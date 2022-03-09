@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/ome/location/v1beta1"
+	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/ome/location/v1beta1"
 
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"

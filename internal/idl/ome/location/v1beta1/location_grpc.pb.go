@@ -131,5 +131,5 @@ var LocationService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "protos/ome/location/v1beta1/location.proto",
+	Metadata: "idl/ome/location/v1beta1/location.proto",
 }
