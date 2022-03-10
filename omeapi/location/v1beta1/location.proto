@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package ome.location.v1beta1;
+package omeapi.location.v1beta1;
 
-option go_package = "ome/location/v1beta1";
+option go_package = "omeapi/location/v1beta1";
 
 import "google/protobuf/timestamp.proto";
 
