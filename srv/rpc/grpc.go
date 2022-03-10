@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"net"
 
-	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/protos/ome/location/v1beta1"
+	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/ome/location/v1beta1"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/location"
 
 	redisClient "github.com/openmarketplaceengine/openmarketplaceengine/redis/client"
