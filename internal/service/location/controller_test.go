@@ -8,9 +8,10 @@ import (
 	"testing"
 	"time"
 
+	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/location/v1beta1"
+
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
-	v1 "github.com/openmarketplaceengine/openmarketplaceengine/pkg/api/location/proto/v1"
 	redisClient "github.com/openmarketplaceengine/openmarketplaceengine/redis/client"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -34,7 +35,7 @@ func TestController(t *testing.T) {
 	}(conn)
 
 	require.NoError(t, err)
-	client := v1.NewLocationServiceClient(conn)
+	client := locationV1beta1.NewLocationServiceClient(conn)
 
 	t.Run("testUpdateLocation", func(t *testing.T) {
 		testUpdateLocation(t, client)
@@ -49,7 +50,7 @@ func dialer() func(context.Context, string) (net.Conn, error) {
 
 	server := grpc.NewServer()
 	controller := New(redisClient.NewStoreClient(), redisClient.NewPubSubClient(), areaKey)
-	v1.RegisterLocationServiceServer(server, controller)
+	locationV1beta1.RegisterLocationServiceServer(server, controller)
 
 	go func() {
 		if err := server.Serve(listener); err != nil {
@@ -62,9 +63,9 @@ func dialer() func(context.Context, string) (net.Conn, error) {
 	}
 }
 
-func testUpdateLocation(t *testing.T, client v1.LocationServiceClient) {
+func testUpdateLocation(t *testing.T, client locationV1beta1.LocationServiceClient) {
 	id := uuid.NewString()
-	request := &v1.UpdateLocationRequest{
+	request := &locationV1beta1.UpdateLocationRequest{
 		WorkerId:  id,
 		Longitude: 12.000001966953278,
 		Latitude:  13.000001966953278,
@@ -73,7 +74,7 @@ func testUpdateLocation(t *testing.T, client v1.LocationServiceClient) {
 	require.NoError(t, err)
 	require.Equal(t, request.WorkerId, response.WorkerId)
 
-	location, err := client.QueryLocation(context.Background(), &v1.QueryLocationRequest{
+	location, err := client.QueryLocation(context.Background(), &locationV1beta1.QueryLocationRequest{
 		WorkerId: id,
 	})
 	require.NoError(t, err)
@@ -82,9 +83,9 @@ func testUpdateLocation(t *testing.T, client v1.LocationServiceClient) {
 	require.InDelta(t, request.Latitude, location.Latitude, 0.001)
 }
 
-func testQueryLocation(t *testing.T, client v1.LocationServiceClient) {
+func testQueryLocation(t *testing.T, client locationV1beta1.LocationServiceClient) {
 	id := uuid.NewString()
-	request := &v1.QueryLocationRequest{
+	request := &locationV1beta1.QueryLocationRequest{
 		WorkerId: id,
 	}
 
@@ -94,7 +95,7 @@ func testQueryLocation(t *testing.T, client v1.LocationServiceClient) {
 	require.Error(t, err)
 	require.Contains(t, err.Error(), fmt.Sprintf("location not found for WorkerId=%s", request.WorkerId))
 
-	response, err := client.UpdateLocation(ctx, &v1.UpdateLocationRequest{
+	response, err := client.UpdateLocation(ctx, &locationV1beta1.UpdateLocationRequest{
 		WorkerId:  id,
 		Longitude: 12,
 		Latitude:  13,

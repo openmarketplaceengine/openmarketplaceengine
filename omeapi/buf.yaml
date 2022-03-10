@@ -5,3 +5,5 @@ breaking:
 lint:
   use:
     - DEFAULT
+    - UNARY_RPC
+    - PACKAGE_NO_IMPORT_CYCLE

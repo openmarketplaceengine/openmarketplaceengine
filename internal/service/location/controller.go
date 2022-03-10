@@ -5,15 +5,16 @@ import (
 	"encoding/json"
 	"fmt"
 
+	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/location/v1beta1"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/location/storage"
+
 	"github.com/go-redis/redis/v8"
-	v1 "github.com/openmarketplaceengine/openmarketplaceengine/pkg/api/location/proto/v1"
-	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/api/location/storage"
 	"github.com/openmarketplaceengine/openmarketplaceengine/redis/publisher"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type Controller struct {
-	v1.UnimplementedLocationServiceServer
+	locationV1beta1.UnimplementedLocationServiceServer
 	store   *storage.Storage
 	pub     publisher.Publisher
 	areaKey string
@@ -27,7 +28,7 @@ func New(storeClient *redis.Client, pubClient *redis.Client, areaKey string) *Co
 	}
 }
 
-func (c *Controller) UpdateLocation(ctx context.Context, request *v1.UpdateLocationRequest) (*v1.UpdateLocationResponse, error) {
+func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta1.UpdateLocationRequest) (*locationV1beta1.UpdateLocationResponse, error) {
 	err := c.store.Update(ctx, c.areaKey, &storage.Location{
 		WorkerID:  request.WorkerId,
 		Longitude: request.Longitude,
@@ -54,14 +55,14 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *v1.UpdateLocat
 		return nil, err
 	}
 
-	return &v1.UpdateLocationResponse{
+	return &locationV1beta1.UpdateLocationResponse{
 		WorkerId: request.WorkerId,
 	}, nil
 }
-func (c *Controller) QueryLocation(ctx context.Context, request *v1.QueryLocationRequest) (*v1.QueryLocationResponse, error) {
+func (c *Controller) QueryLocation(ctx context.Context, request *locationV1beta1.QueryLocationRequest) (*locationV1beta1.QueryLocationResponse, error) {
 	l := c.store.LastLocation(ctx, c.areaKey, request.WorkerId)
 	if l != nil {
-		return &v1.QueryLocationResponse{
+		return &locationV1beta1.QueryLocationResponse{
 			WorkerId:  l.WorkerID,
 			Longitude: l.Longitude,
 			Latitude:  l.Latitude,

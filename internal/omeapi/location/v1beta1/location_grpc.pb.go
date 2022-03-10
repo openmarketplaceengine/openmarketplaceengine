@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             (unknown)
-// source: api/location/proto/v1/location.proto
+// source: omeapi/location/v1beta1/location.proto
 
-package v1
+package v1beta1
 
 import (
 	context "context"
@@ -36,7 +36,7 @@ func NewLocationServiceClient(cc grpc.ClientConnInterface) LocationServiceClient
 
 func (c *locationServiceClient) UpdateLocation(ctx context.Context, in *UpdateLocationRequest, opts ...grpc.CallOption) (*UpdateLocationResponse, error) {
 	out := new(UpdateLocationResponse)
-	err := c.cc.Invoke(ctx, "/api.location.proto.v1.LocationService/UpdateLocation", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/omeapi.location.v1beta1.LocationService/UpdateLocation", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (c *locationServiceClient) UpdateLocation(ctx context.Context, in *UpdateLo
 
 func (c *locationServiceClient) QueryLocation(ctx context.Context, in *QueryLocationRequest, opts ...grpc.CallOption) (*QueryLocationResponse, error) {
 	out := new(QueryLocationResponse)
-	err := c.cc.Invoke(ctx, "/api.location.proto.v1.LocationService/QueryLocation", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/omeapi.location.v1beta1.LocationService/QueryLocation", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +92,7 @@ func _LocationService_UpdateLocation_Handler(srv interface{}, ctx context.Contex
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.location.proto.v1.LocationService/UpdateLocation",
+		FullMethod: "/omeapi.location.v1beta1.LocationService/UpdateLocation",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(LocationServiceServer).UpdateLocation(ctx, req.(*UpdateLocationRequest))
@@ -110,7 +110,7 @@ func _LocationService_QueryLocation_Handler(srv interface{}, ctx context.Context
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.location.proto.v1.LocationService/QueryLocation",
+		FullMethod: "/omeapi.location.v1beta1.LocationService/QueryLocation",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(LocationServiceServer).QueryLocation(ctx, req.(*QueryLocationRequest))
@@ -122,7 +122,7 @@ func _LocationService_QueryLocation_Handler(srv interface{}, ctx context.Context
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var LocationService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "api.location.proto.v1.LocationService",
+	ServiceName: "omeapi.location.v1beta1.LocationService",
 	HandlerType: (*LocationServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -135,5 +135,5 @@ var LocationService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/location/proto/v1/location.proto",
+	Metadata: "omeapi/location/v1beta1/location.proto",
 }

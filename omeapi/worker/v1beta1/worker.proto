@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package omeapi.worker.v1beta1;
+
+option go_package = "omeapi/worker/v1beta1";
+
+service WorkerService {
+  rpc GetStatus(GetStatusRequest) returns (GetStatusResponse) {}
+  rpc GoOnline(GoOnlineRequest) returns (GoOnlineResponse) {}
+  rpc GoOnPause(GoOnPauseRequest) returns (GoOnPauseResponse) {}
+}
+
+message GetStatusRequest {
+  string worker_id = 1;
+}
+
+message GetStatusResponse {
+  string worker_id = 1;
+  string status = 2;
+}
+
+message GoOnlineRequest {
+  string worker_id = 1;
+}
+
+message GoOnlineResponse {
+  string worker_id = 1;
+  string status = 2;
+}
+
+message GoOnPauseRequest {
+  string worker_id = 1;
+}
+
+message GoOnPauseResponse {
+  string worker_id = 1;
+  string status = 2;
+}
