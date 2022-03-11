@@ -1,0 +1,54 @@
+package worker
+
+import (
+	"context"
+
+	workerV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/worker/v1beta1"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+)
+
+type Controller struct {
+	workerV1beta1.UnimplementedWorkerServiceServer
+	states map[string]workerV1beta1.WorkerState
+}
+
+func New() *Controller {
+	return &Controller{
+		states: make(map[string]workerV1beta1.WorkerState),
+	}
+}
+
+func (c *Controller) GetState(ctx context.Context, request *workerV1beta1.GetStateRequest) (*workerV1beta1.GetStateResponse, error) {
+	v, ok := c.states[request.WorkerId]
+	if !ok {
+		return nil, status.Errorf(codes.NotFound, "WorkerId=%s", request.WorkerId)
+	}
+	return &workerV1beta1.GetStateResponse{
+		WorkerId: request.WorkerId,
+		State:    v,
+	}, nil
+}
+func (c *Controller) SetState(ctx context.Context, request *workerV1beta1.SetStateRequest) (*workerV1beta1.SetStateResponse, error) {
+	c.states[request.WorkerId] = request.GetState()
+	return &workerV1beta1.SetStateResponse{
+		WorkerId: request.GetWorkerId(),
+		State:    request.State,
+	}, nil
+}
+
+func (c *Controller) QueryByState(ctx context.Context, request *workerV1beta1.QueryByStateRequest) (*workerV1beta1.QueryByStateResponse, error) {
+	var workers []*workerV1beta1.Worker
+	for k, v := range c.states {
+		if v == request.GetState() {
+			workers = append(workers, &workerV1beta1.Worker{
+				WorkerId: k,
+				State:    v,
+			})
+		}
+	}
+
+	return &workerV1beta1.QueryByStateResponse{
+		Workers: workers,
+	}, nil
+}

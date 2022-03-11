@@ -5,34 +5,47 @@ package omeapi.worker.v1beta1;
 option go_package = "omeapi/worker/v1beta1";
 
 service WorkerService {
-  rpc GetStatus(GetStatusRequest) returns (GetStatusResponse) {}
-  rpc GoOnline(GoOnlineRequest) returns (GoOnlineResponse) {}
-  rpc GoOnPause(GoOnPauseRequest) returns (GoOnPauseResponse) {}
+  rpc GetState(GetStateRequest) returns (GetStateResponse) {}
+  rpc SetState(SetStateRequest) returns (SetStateResponse) {}
+  rpc QueryByState(QueryByStateRequest) returns (QueryByStateResponse) {}
 }
 
-message GetStatusRequest {
+enum WorkerState {
+  WORKER_STATE_UNSPECIFIED = 0;
+  WORKER_STATE_ONLINE = 1;
+  WORKER_STATE_OFFLINE = 2;
+  WORKER_STATE_ON_JOB = 3;
+}
+
+message GetStateRequest {
   string worker_id = 1;
 }
 
-message GetStatusResponse {
+message GetStateResponse {
   string worker_id = 1;
-  string status = 2;
+  WorkerState state = 2;
 }
 
-message GoOnlineRequest {
+message SetStateRequest {
   string worker_id = 1;
+  WorkerState state = 2;
 }
 
-message GoOnlineResponse {
+message SetStateResponse {
   string worker_id = 1;
-  string status = 2;
+  WorkerState state = 2;
 }
 
-message GoOnPauseRequest {
-  string worker_id = 1;
+message QueryByStateRequest {
+  WorkerState state = 1;
 }
 
-message GoOnPauseResponse {
+message Worker {
   string worker_id = 1;
-  string status = 2;
+  WorkerState state = 2;
 }
+
+message QueryByStateResponse {
+  repeated Worker workers = 1;
+}
+
