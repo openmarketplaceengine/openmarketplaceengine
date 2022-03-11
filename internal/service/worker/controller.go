@@ -19,21 +19,25 @@ func New() *Controller {
 	}
 }
 
-func (c *Controller) GetState(ctx context.Context, request *workerV1beta1.GetStateRequest) (*workerV1beta1.GetStateResponse, error) {
+func (c *Controller) GetWorker(ctx context.Context, request *workerV1beta1.GetWorkerRequest) (*workerV1beta1.GetWorkerResponse, error) {
 	v, ok := c.states[request.WorkerId]
 	if !ok {
 		return nil, status.Errorf(codes.NotFound, "WorkerId=%s", request.WorkerId)
 	}
-	return &workerV1beta1.GetStateResponse{
-		WorkerId: request.WorkerId,
-		State:    v,
+	return &workerV1beta1.GetWorkerResponse{
+		Worker: &workerV1beta1.Worker{
+			WorkerId: request.WorkerId,
+			State:    v,
+		},
 	}, nil
 }
 func (c *Controller) SetState(ctx context.Context, request *workerV1beta1.SetStateRequest) (*workerV1beta1.SetStateResponse, error) {
 	c.states[request.WorkerId] = request.GetState()
 	return &workerV1beta1.SetStateResponse{
-		WorkerId: request.GetWorkerId(),
-		State:    request.State,
+		Worker: &workerV1beta1.Worker{
+			WorkerId: request.GetWorkerId(),
+			State:    request.State,
+		},
 	}, nil
 }
 

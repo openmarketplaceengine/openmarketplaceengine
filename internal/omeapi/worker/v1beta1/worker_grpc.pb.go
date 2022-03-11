@@ -22,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type WorkerServiceClient interface {
-	GetState(ctx context.Context, in *GetStateRequest, opts ...grpc.CallOption) (*GetStateResponse, error)
+	GetWorker(ctx context.Context, in *GetWorkerRequest, opts ...grpc.CallOption) (*GetWorkerResponse, error)
 	SetState(ctx context.Context, in *SetStateRequest, opts ...grpc.CallOption) (*SetStateResponse, error)
 	QueryByState(ctx context.Context, in *QueryByStateRequest, opts ...grpc.CallOption) (*QueryByStateResponse, error)
 }
@@ -35,9 +35,9 @@ func NewWorkerServiceClient(cc grpc.ClientConnInterface) WorkerServiceClient {
 	return &workerServiceClient{cc}
 }
 
-func (c *workerServiceClient) GetState(ctx context.Context, in *GetStateRequest, opts ...grpc.CallOption) (*GetStateResponse, error) {
-	out := new(GetStateResponse)
-	err := c.cc.Invoke(ctx, "/omeapi.worker.v1beta1.WorkerService/GetState", in, out, opts...)
+func (c *workerServiceClient) GetWorker(ctx context.Context, in *GetWorkerRequest, opts ...grpc.CallOption) (*GetWorkerResponse, error) {
+	out := new(GetWorkerResponse)
+	err := c.cc.Invoke(ctx, "/omeapi.worker.v1beta1.WorkerService/GetWorker", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (c *workerServiceClient) QueryByState(ctx context.Context, in *QueryByState
 // All implementations should embed UnimplementedWorkerServiceServer
 // for forward compatibility
 type WorkerServiceServer interface {
-	GetState(context.Context, *GetStateRequest) (*GetStateResponse, error)
+	GetWorker(context.Context, *GetWorkerRequest) (*GetWorkerResponse, error)
 	SetState(context.Context, *SetStateRequest) (*SetStateResponse, error)
 	QueryByState(context.Context, *QueryByStateRequest) (*QueryByStateResponse, error)
 }
@@ -75,8 +75,8 @@ type WorkerServiceServer interface {
 type UnimplementedWorkerServiceServer struct {
 }
 
-func (UnimplementedWorkerServiceServer) GetState(context.Context, *GetStateRequest) (*GetStateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetState not implemented")
+func (UnimplementedWorkerServiceServer) GetWorker(context.Context, *GetWorkerRequest) (*GetWorkerResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetWorker not implemented")
 }
 func (UnimplementedWorkerServiceServer) SetState(context.Context, *SetStateRequest) (*SetStateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetState not implemented")
@@ -96,20 +96,20 @@ func RegisterWorkerServiceServer(s grpc.ServiceRegistrar, srv WorkerServiceServe
 	s.RegisterService(&WorkerService_ServiceDesc, srv)
 }
 
-func _WorkerService_GetState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetStateRequest)
+func _WorkerService_GetWorker_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetWorkerRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(WorkerServiceServer).GetState(ctx, in)
+		return srv.(WorkerServiceServer).GetWorker(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/omeapi.worker.v1beta1.WorkerService/GetState",
+		FullMethod: "/omeapi.worker.v1beta1.WorkerService/GetWorker",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WorkerServiceServer).GetState(ctx, req.(*GetStateRequest))
+		return srv.(WorkerServiceServer).GetWorker(ctx, req.(*GetWorkerRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -158,8 +158,8 @@ var WorkerService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*WorkerServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetState",
-			Handler:    _WorkerService_GetState_Handler,
+			MethodName: "GetWorker",
+			Handler:    _WorkerService_GetWorker_Handler,
 		},
 		{
 			MethodName: "SetState",

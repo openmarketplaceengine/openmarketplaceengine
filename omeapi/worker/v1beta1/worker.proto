@@ -5,7 +5,7 @@ package omeapi.worker.v1beta1;
 option go_package = "omeapi/worker/v1beta1";
 
 service WorkerService {
-  rpc GetState(GetStateRequest) returns (GetStateResponse) {}
+  rpc GetWorker(GetWorkerRequest) returns (GetWorkerResponse) {}
   rpc SetState(SetStateRequest) returns (SetStateResponse) {}
   rpc QueryByState(QueryByStateRequest) returns (QueryByStateResponse) {}
 }
@@ -17,13 +17,12 @@ enum WorkerState {
   WORKER_STATE_ON_JOB = 3;
 }
 
-message GetStateRequest {
+message GetWorkerRequest {
   string worker_id = 1;
 }
 
-message GetStateResponse {
-  string worker_id = 1;
-  WorkerState state = 2;
+message GetWorkerResponse {
+  Worker worker = 1;
 }
 
 message SetStateRequest {
@@ -32,8 +31,7 @@ message SetStateRequest {
 }
 
 message SetStateResponse {
-  string worker_id = 1;
-  WorkerState state = 2;
+  Worker worker = 1;
 }
 
 message QueryByStateRequest {

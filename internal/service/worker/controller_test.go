@@ -63,14 +63,14 @@ func testSetState(t *testing.T, client workerV1beta1.WorkerServiceClient) {
 	}
 	response, err := client.SetState(context.Background(), request)
 	require.NoError(t, err)
-	require.Equal(t, request.WorkerId, response.WorkerId)
+	require.Equal(t, request.WorkerId, response.Worker.WorkerId)
 
-	state, err := client.GetState(context.Background(), &workerV1beta1.GetStateRequest{
+	state, err := client.GetWorker(context.Background(), &workerV1beta1.GetWorkerRequest{
 		WorkerId: id,
 	})
 	require.NoError(t, err)
-	require.Equal(t, request.WorkerId, state.WorkerId)
-	require.Equal(t, request.State, state.State, 0.001)
+	require.Equal(t, request.WorkerId, state.Worker.WorkerId)
+	require.Equal(t, request.State, state.Worker.State, 0.001)
 }
 
 func testQueryByState(t *testing.T, client workerV1beta1.WorkerServiceClient) {
