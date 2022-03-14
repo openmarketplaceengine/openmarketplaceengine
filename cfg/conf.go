@@ -260,7 +260,10 @@ func (c *ServerConfig) PrintYAML() {
 // Returns ok if variable found and has non-zero length.
 func GetEnv(key string) (val string, ok bool) {
 	const pfx = EnvPrefix + "_"
-	val, ok = os.LookupEnv(pfx + key)
+	if !strings.HasPrefix(key, pfx) {
+		key = pfx + key
+	}
+	val, ok = os.LookupEnv(key)
 	ok = ok && len(val) > 0
 	return
 }
