@@ -110,14 +110,29 @@ func (p *PgdbConn) Boot() (err error) {
 		infof("using schema %q", schema)
 	}
 
-	if len(autoExec) > 0 {
-		err = ExecTX(ctx, autoExec...)
-		if err != nil {
-			p.abort()
-			return
-		}
+	err = p.autoExec(ctx)
+
+	if err != nil {
+		p.abort()
+		return
 	}
 
+	return nil
+}
+
+//-----------------------------------------------------------------------------
+
+func (p *PgdbConn) autoExec(ctx Context) error {
+	auto := make([]Executable, 0, len(autoDrop)+len(autoExec))
+	if len(autoDrop) > 0 {
+		auto = append(auto, autoDrop...)
+	}
+	if len(autoExec) > 0 {
+		auto = append(auto, autoExec...)
+	}
+	if len(auto) > 0 {
+		return ExecTX(ctx, auto...)
+	}
 	return nil
 }
 
