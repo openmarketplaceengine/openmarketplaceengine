@@ -227,3 +227,56 @@ func logerr(err error, prefix ...string) {
 		errorf("%s", err)
 	}
 }
+
+//-----------------------------------------------------------------------------
+// Testing
+//-----------------------------------------------------------------------------
+
+type Tester interface {
+	Fatalf(format string, args ...interface{})
+	Cleanup(f func())
+	SkipNow()
+}
+
+//-----------------------------------------------------------------------------
+
+func SkipTest() bool {
+	_, ok := cfg.GetEnv(cfg.EnvPgdbAddr)
+	return !ok
+}
+
+//-----------------------------------------------------------------------------
+
+func WillTest(t Tester, schema string) {
+	if SkipTest() {
+		t.SkipNow()
+		return
+	}
+	if len(schema) > 0 {
+		err := cfg.SetEnv(cfg.EnvPgdbSchema, schema)
+		if err != nil {
+			t.Fatalf("setenv %q=%q failed: %s", cfg.EnvPgdbSchema, schema, err)
+		}
+	}
+	err := cfg.Load()
+	if err != nil {
+		t.Fatalf("config load failed: %s", err)
+	}
+	err = log.Init(log.DevelConfig().WithTrace(false).WithCaller(false))
+	if err != nil {
+		t.Fatalf("log init failed: %s", err)
+	}
+	err = Pgdb.Boot()
+	if err != nil {
+		log.Fatalf("%s", err)
+	}
+	t.Cleanup(func() {
+		if Running() {
+			infof("stopping...")
+			err = Pgdb.Stop()
+			if err != nil {
+				t.Fatalf("%s", err)
+			}
+		}
+	})
+}
