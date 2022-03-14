@@ -20,7 +20,10 @@ func Boot() error {
 	return nil
 }
 
-func WillTest(t dao.Tester, schema string) {
+func WillTest(t dao.Tester, schema string, drop bool) {
+	if drop {
+		dao.AutoDrop(dropAll)
+	}
 	_ = Boot()
 	dao.WillTest(t, schema)
 }

@@ -12,5 +12,5 @@ func TestDropAll(t *testing.T) {
 }
 
 func TestSchema(t *testing.T) {
-	WillTest(t, "test")
+	WillTest(t, "test", false)
 }
