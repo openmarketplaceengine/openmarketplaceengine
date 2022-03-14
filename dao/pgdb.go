@@ -202,6 +202,20 @@ func failInit(err *error) bool {
 
 //-----------------------------------------------------------------------------
 
+func isdebug() bool {
+	return Pgdb.log != nil && Pgdb.log.IsDebug()
+}
+
+//-----------------------------------------------------------------------------
+
+func debugf(format string, args ...interface{}) { //nolint:deadcode
+	if isdebug() {
+		Pgdb.log.Debugf(format, args...)
+	}
+}
+
+//-----------------------------------------------------------------------------
+
 func infof(format string, args ...interface{}) {
 	if Pgdb.log != nil {
 		Pgdb.log.Infof(format, args...)
