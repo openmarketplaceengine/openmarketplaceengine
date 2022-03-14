@@ -10,6 +10,11 @@ import (
 	"time"
 )
 
+const (
+	EnvPgdbAddr   = "PGDB_ADDR"
+	EnvPgdbSchema = "PGDB_SCHEMA"
+)
+
 // PgdbConfig represents PostgreSQL connection properties.
 type PgdbConfig struct {
 	Addr Address `usage:"database connection #URL#, e.g. postgres://user:pass@localhost:5432/dbname"`
