@@ -110,6 +110,14 @@ func (p *PgdbConn) Boot() (err error) {
 		infof("using schema %q", schema)
 	}
 
+	if len(autoExec) > 0 {
+		err = ExecTX(ctx, autoExec...)
+		if err != nil {
+			p.abort()
+			return
+		}
+	}
+
 	return nil
 }
 
