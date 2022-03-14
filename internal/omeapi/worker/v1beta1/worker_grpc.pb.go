@@ -22,9 +22,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type WorkerServiceClient interface {
-	GetStatus(ctx context.Context, in *GetStatusRequest, opts ...grpc.CallOption) (*GetStatusResponse, error)
-	GoOnline(ctx context.Context, in *GoOnlineRequest, opts ...grpc.CallOption) (*GoOnlineResponse, error)
-	GoOnPause(ctx context.Context, in *GoOnPauseRequest, opts ...grpc.CallOption) (*GoOnPauseResponse, error)
+	GetWorker(ctx context.Context, in *GetWorkerRequest, opts ...grpc.CallOption) (*GetWorkerResponse, error)
+	SetState(ctx context.Context, in *SetStateRequest, opts ...grpc.CallOption) (*SetStateResponse, error)
+	QueryByState(ctx context.Context, in *QueryByStateRequest, opts ...grpc.CallOption) (*QueryByStateResponse, error)
 }
 
 type workerServiceClient struct {
@@ -35,27 +35,27 @@ func NewWorkerServiceClient(cc grpc.ClientConnInterface) WorkerServiceClient {
 	return &workerServiceClient{cc}
 }
 
-func (c *workerServiceClient) GetStatus(ctx context.Context, in *GetStatusRequest, opts ...grpc.CallOption) (*GetStatusResponse, error) {
-	out := new(GetStatusResponse)
-	err := c.cc.Invoke(ctx, "/omeapi.worker.v1beta1.WorkerService/GetStatus", in, out, opts...)
+func (c *workerServiceClient) GetWorker(ctx context.Context, in *GetWorkerRequest, opts ...grpc.CallOption) (*GetWorkerResponse, error) {
+	out := new(GetWorkerResponse)
+	err := c.cc.Invoke(ctx, "/omeapi.worker.v1beta1.WorkerService/GetWorker", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *workerServiceClient) GoOnline(ctx context.Context, in *GoOnlineRequest, opts ...grpc.CallOption) (*GoOnlineResponse, error) {
-	out := new(GoOnlineResponse)
-	err := c.cc.Invoke(ctx, "/omeapi.worker.v1beta1.WorkerService/GoOnline", in, out, opts...)
+func (c *workerServiceClient) SetState(ctx context.Context, in *SetStateRequest, opts ...grpc.CallOption) (*SetStateResponse, error) {
+	out := new(SetStateResponse)
+	err := c.cc.Invoke(ctx, "/omeapi.worker.v1beta1.WorkerService/SetState", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *workerServiceClient) GoOnPause(ctx context.Context, in *GoOnPauseRequest, opts ...grpc.CallOption) (*GoOnPauseResponse, error) {
-	out := new(GoOnPauseResponse)
-	err := c.cc.Invoke(ctx, "/omeapi.worker.v1beta1.WorkerService/GoOnPause", in, out, opts...)
+func (c *workerServiceClient) QueryByState(ctx context.Context, in *QueryByStateRequest, opts ...grpc.CallOption) (*QueryByStateResponse, error) {
+	out := new(QueryByStateResponse)
+	err := c.cc.Invoke(ctx, "/omeapi.worker.v1beta1.WorkerService/QueryByState", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -66,23 +66,23 @@ func (c *workerServiceClient) GoOnPause(ctx context.Context, in *GoOnPauseReques
 // All implementations should embed UnimplementedWorkerServiceServer
 // for forward compatibility
 type WorkerServiceServer interface {
-	GetStatus(context.Context, *GetStatusRequest) (*GetStatusResponse, error)
-	GoOnline(context.Context, *GoOnlineRequest) (*GoOnlineResponse, error)
-	GoOnPause(context.Context, *GoOnPauseRequest) (*GoOnPauseResponse, error)
+	GetWorker(context.Context, *GetWorkerRequest) (*GetWorkerResponse, error)
+	SetState(context.Context, *SetStateRequest) (*SetStateResponse, error)
+	QueryByState(context.Context, *QueryByStateRequest) (*QueryByStateResponse, error)
 }
 
 // UnimplementedWorkerServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedWorkerServiceServer struct {
 }
 
-func (UnimplementedWorkerServiceServer) GetStatus(context.Context, *GetStatusRequest) (*GetStatusResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetStatus not implemented")
+func (UnimplementedWorkerServiceServer) GetWorker(context.Context, *GetWorkerRequest) (*GetWorkerResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetWorker not implemented")
 }
-func (UnimplementedWorkerServiceServer) GoOnline(context.Context, *GoOnlineRequest) (*GoOnlineResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GoOnline not implemented")
+func (UnimplementedWorkerServiceServer) SetState(context.Context, *SetStateRequest) (*SetStateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetState not implemented")
 }
-func (UnimplementedWorkerServiceServer) GoOnPause(context.Context, *GoOnPauseRequest) (*GoOnPauseResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GoOnPause not implemented")
+func (UnimplementedWorkerServiceServer) QueryByState(context.Context, *QueryByStateRequest) (*QueryByStateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryByState not implemented")
 }
 
 // UnsafeWorkerServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -96,56 +96,56 @@ func RegisterWorkerServiceServer(s grpc.ServiceRegistrar, srv WorkerServiceServe
 	s.RegisterService(&WorkerService_ServiceDesc, srv)
 }
 
-func _WorkerService_GetStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetStatusRequest)
+func _WorkerService_GetWorker_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetWorkerRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(WorkerServiceServer).GetStatus(ctx, in)
+		return srv.(WorkerServiceServer).GetWorker(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/omeapi.worker.v1beta1.WorkerService/GetStatus",
+		FullMethod: "/omeapi.worker.v1beta1.WorkerService/GetWorker",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WorkerServiceServer).GetStatus(ctx, req.(*GetStatusRequest))
+		return srv.(WorkerServiceServer).GetWorker(ctx, req.(*GetWorkerRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _WorkerService_GoOnline_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GoOnlineRequest)
+func _WorkerService_SetState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetStateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(WorkerServiceServer).GoOnline(ctx, in)
+		return srv.(WorkerServiceServer).SetState(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/omeapi.worker.v1beta1.WorkerService/GoOnline",
+		FullMethod: "/omeapi.worker.v1beta1.WorkerService/SetState",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WorkerServiceServer).GoOnline(ctx, req.(*GoOnlineRequest))
+		return srv.(WorkerServiceServer).SetState(ctx, req.(*SetStateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _WorkerService_GoOnPause_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GoOnPauseRequest)
+func _WorkerService_QueryByState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryByStateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(WorkerServiceServer).GoOnPause(ctx, in)
+		return srv.(WorkerServiceServer).QueryByState(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/omeapi.worker.v1beta1.WorkerService/GoOnPause",
+		FullMethod: "/omeapi.worker.v1beta1.WorkerService/QueryByState",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WorkerServiceServer).GoOnPause(ctx, req.(*GoOnPauseRequest))
+		return srv.(WorkerServiceServer).QueryByState(ctx, req.(*QueryByStateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -158,16 +158,16 @@ var WorkerService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*WorkerServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetStatus",
-			Handler:    _WorkerService_GetStatus_Handler,
+			MethodName: "GetWorker",
+			Handler:    _WorkerService_GetWorker_Handler,
 		},
 		{
-			MethodName: "GoOnline",
-			Handler:    _WorkerService_GoOnline_Handler,
+			MethodName: "SetState",
+			Handler:    _WorkerService_SetState_Handler,
 		},
 		{
-			MethodName: "GoOnPause",
-			Handler:    _WorkerService_GoOnPause_Handler,
+			MethodName: "QueryByState",
+			Handler:    _WorkerService_QueryByState_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
