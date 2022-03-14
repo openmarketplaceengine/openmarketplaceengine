@@ -267,3 +267,12 @@ func GetEnv(key string) (val string, ok bool) {
 	ok = ok && len(val) > 0
 	return
 }
+
+// SetEnv sets environment variable prefixed with EnvPrefix.
+func SetEnv(key string, val string) error {
+	const pfx = EnvPrefix + "_"
+	if !strings.HasPrefix(key, pfx) {
+		key = pfx + key
+	}
+	return os.Setenv(key, val)
+}
