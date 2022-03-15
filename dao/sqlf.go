@@ -6,32 +6,23 @@ package dao
 
 import (
 	"github.com/leporo/sqlf"
-	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 )
 
-type (
-	SQL = sqlf.Stmt
-)
+type SQL struct {
+	*sqlf.Stmt
+}
 
 func init() {
 	sqlf.SetDialect(sqlf.PostgreSQL)
 }
 
-//-----------------------------------------------------------------------------
-
 func NewSQL(verb string, args ...interface{}) *SQL {
-	return sqlf.New(verb, args...)
+	return &SQL{sqlf.New(verb, args...)}
 }
 
 //-----------------------------------------------------------------------------
 
-func Exec(sql ...*SQL) (err error) {
-	if failInit(&err) {
-		return
-	}
-	ctx := cfg.Context()
-	for i := 0; i < len(sql) && err == nil; i++ {
-		_, err = sql[i].ExecAndClose(ctx, DB())
-	}
-	return
+func (s *SQL) Execute(ctx Context, exe Executor) error {
+	_, err := s.ExecAndClose(ctx, exe)
+	return err
 }
