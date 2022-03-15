@@ -215,18 +215,6 @@ func (p PgdbConn) abort() {
 
 //-----------------------------------------------------------------------------
 
-func failInit(err *error) bool {
-	if Pgdb.state.Invalid() {
-		if err != nil {
-			*err = Pgdb.stateError()
-		}
-		return true
-	}
-	return false
-}
-
-//-----------------------------------------------------------------------------
-
 func isdebug() bool {
 	return Pgdb.log != nil && Pgdb.log.IsDebug()
 }
