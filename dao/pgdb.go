@@ -17,6 +17,8 @@ import (
 
 type (
 	Result  = sql.Result
+	Rows    = sql.Rows
+	Row     = sql.Row
 	Context = context.Context
 )
 

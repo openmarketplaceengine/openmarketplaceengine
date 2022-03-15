@@ -13,10 +13,12 @@ import (
 // Executable Interfaces
 //-----------------------------------------------------------------------------
 
-// Executor interface depicts ExecContext from
-// sql.DB, sql.Conn, sql.Tx, sql.Stmt.
+// Executor interface depicts ExecContext, QueryContext, and QueryRowContext
+// from sql.DB, sql.Conn, sql.Tx, sql.Stmt.
 type Executor interface {
 	ExecContext(ctx Context, query string, args ...interface{}) (Result, error)
+	QueryContext(ctx Context, query string, args ...interface{}) (*Rows, error)
+	QueryRowContext(ctx Context, query string, args ...interface{}) *Row
 }
 
 // Executable implementers perform actual Executor.ExecContext calls.
