@@ -9,6 +9,11 @@ import (
 	"fmt"
 )
 
+var txExecOpts = sql.TxOptions{
+	Isolation: sql.LevelReadCommitted,
+	ReadOnly:  false,
+}
+
 //-----------------------------------------------------------------------------
 // Executable Interfaces
 //-----------------------------------------------------------------------------
@@ -42,7 +47,7 @@ func ExecDB(ctx Context, execs ...Executable) error {
 
 // ExecTX runs executables with sql.Tx.
 func ExecTX(ctx Context, execs ...Executable) error {
-	return WithTran(ctx, func(ctx Context, tx *sql.Tx) (err error) {
+	return WithTran(ctx, &txExecOpts, func(ctx Context, tx *sql.Tx) (err error) {
 		for i := 0; i < len(execs) && err == nil; i++ {
 			err = execs[i].Execute(ctx, tx)
 		}
