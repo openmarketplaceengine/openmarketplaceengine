@@ -9,9 +9,10 @@ import (
 
 func TestWorkerLocation_Persist(t *testing.T) {
 	WillTest(t, "test", false)
+	ctx := cfg.Context()
 	for i := 0; i < 100; i++ {
 		wloc := genWorkerLocation()
-		require.NoError(t, wloc.Persist(cfg.Context()))
+		require.NoError(t, wloc.Persist(ctx))
 	}
 }
 

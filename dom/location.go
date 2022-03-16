@@ -34,7 +34,6 @@ func (w *WorkerLocation) Insert() dao.Executable {
 	sql.Set("longitude", w.Longitude)
 	sql.Set("latitude", w.Latitude)
 	sql.Set("speed", w.Speed)
-	sql.Returning("recnum").To(&w.Recnum)
 	return sql
 }
 
