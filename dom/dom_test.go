@@ -56,6 +56,10 @@ func mockIntn(n int) int {
 	return _rnd.Intn(n)
 }
 
+func mockString(list ...string) string {
+	return list[_rnd.Intn(len(list))]
+}
+
 //-----------------------------------------------------------------------------
 
 func mockFirstName() string {
