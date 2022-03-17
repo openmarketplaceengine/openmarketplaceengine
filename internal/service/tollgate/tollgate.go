@@ -1,6 +1,9 @@
 package tollgate
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 // LocationXY is longitude latitude corresponding to linear algebra X Y axis.
 type LocationXY struct {
@@ -17,9 +20,9 @@ type Tollgate struct {
 
 // Movement represents the latest trace driver moved in form of two points line from previous to current location.
 type Movement struct {
-	DriverID     string
-	PrevLocation LocationXY
-	CurrLocation LocationXY
+	DriverID string
+	From     LocationXY
+	To       LocationXY
 }
 
 // Crossing represents location at which Tollgate was crossed.
@@ -28,6 +31,8 @@ type Crossing struct {
 	TollgateID string
 	Location   LocationXY
 }
+
+type Direction string
 
 // A little of linear algebra math on lines Crossing.
 // Line equation is ax + by + c = 0.
@@ -59,10 +64,10 @@ func detectCrossing(tollgate *Tollgate, movement *Movement, precision float64) *
 	C1 := ty1*tx2 - tx1*ty2
 
 	//Movement-representing line
-	mx1 := movement.PrevLocation.longitudeX
-	my1 := movement.PrevLocation.latitudeY
-	mx2 := movement.CurrLocation.longitudeX
-	my2 := movement.CurrLocation.latitudeY
+	mx1 := movement.From.longitudeX
+	my1 := movement.From.latitudeY
+	mx2 := movement.To.longitudeX
+	my2 := movement.To.latitudeY
 
 	A2 := my2 - my1
 	B2 := mx1 - mx2
@@ -82,4 +87,36 @@ func detectCrossing(tollgate *Tollgate, movement *Movement, precision float64) *
 		}
 	}
 	return nil
+}
+
+// When moving to North - latitude increases until 90.
+// When moving to South - latitude decreases until -90.
+// When moving to East - longitude increases until 180.
+// When moving to West - longitude decreases until -180.
+// If 90/180 limit crossed it jumps to -90/-180 and vice versa.
+// Movement represents a moving subject
+// returns Direction in form of N, S, E, W, NE, NW, SE, SW.
+func detectDirection(movement *Movement) Direction {
+	fromX := movement.From.longitudeX
+	fromY := movement.From.latitudeY
+	toX := movement.To.longitudeX
+	toY := movement.To.latitudeY
+
+	var pole string
+	var side string
+	if fromY < toY {
+		pole = "N"
+	}
+	if fromY > toY {
+		pole = "S"
+	}
+
+	if fromX < toX {
+		side = "E"
+	}
+	if fromX > toX {
+		side = "W"
+	}
+
+	return Direction(fmt.Sprintf("%s%s", pole, side))
 }
