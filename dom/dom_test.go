@@ -18,8 +18,21 @@ func mockUUID(prefix ...string) string {
 	return dao.MockUUID()
 }
 
-func numUUID(n int) string { //nolint
-	return fmt.Sprintf("%08x", n)
+func realUUID(prefix ...string) string { //nolint
+	if len(prefix) > 0 {
+		prefix = append(prefix, dao.NewXid())
+		return strings.Join(prefix, "-")
+	}
+	return dao.NewXid()
+}
+
+func numUUID(n int, prefix ...string) string { //nolint
+	uuid := fmt.Sprintf("%08x", n)
+	if len(prefix) > 0 {
+		prefix = append(prefix, uuid)
+		return strings.Join(prefix, "-")
+	}
+	return uuid
 }
 
 func mockStamp() (time Time) {
