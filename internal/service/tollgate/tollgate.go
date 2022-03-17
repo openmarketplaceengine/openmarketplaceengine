@@ -11,23 +11,23 @@ type LocationXY struct {
 	latitudeY  float64
 }
 
-// Tollgate represents a two points line that driver crosses.
+// Tollgate represents a two points line that Subject crosses.
 type Tollgate struct {
 	ID     string
 	Point1 LocationXY
 	Point2 LocationXY
 }
 
-// Movement represents the latest trace driver moved in form of two points line from previous to current location.
+// Movement represents a moving SubjectID from one LocationXY to another.
 type Movement struct {
-	DriverID string
-	From     LocationXY
-	To       LocationXY
+	SubjectID string
+	From      LocationXY
+	To        LocationXY
 }
 
 // Crossing represents location at which Tollgate was crossed.
 type Crossing struct {
-	DriverID   string
+	SubjectID  string
 	TollgateID string
 	Location   LocationXY
 }
@@ -52,7 +52,7 @@ type Direction string
 // Tollgate - two points representing Tollgate line
 // Movement - two points representing Movement line, from previous to current LocationXY
 // precision - float greater than 0, i.e. 0.001.
-// returns nil if no crossing, otherwise the location at which crossing detected.
+// returns nil if no Crossing, otherwise the location at which Crossing detected.
 func detectCrossing(tollgate *Tollgate, movement *Movement, precision float64) *Crossing {
 	//Tollgate-representing line
 	tx1 := tollgate.Point1.longitudeX
@@ -79,7 +79,7 @@ func detectCrossing(tollgate *Tollgate, movement *Movement, precision float64) *
 		x := -(C1*B2 - B1*C2) / v
 		y := -(A1*C2 - C1*A2) / v
 		return &Crossing{
-			DriverID:   movement.DriverID,
+			SubjectID:  movement.SubjectID,
 			TollgateID: tollgate.ID,
 			Location: LocationXY{
 				longitudeX: x,
