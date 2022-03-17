@@ -39,6 +39,10 @@ func mockEnum(last int) int {
 	return _rnd.Intn(last + 1)
 }
 
+func mockIntn(n int) int {
+	return _rnd.Intn(n)
+}
+
 //-----------------------------------------------------------------------------
 
 func mockFirstName() string {
