@@ -24,52 +24,52 @@ func testCrossed(t *testing.T) {
 	tol := Tollgate{
 		ID: "",
 		Point1: LocationXY{
-			longitudeX: 2,
-			latitudeY:  5,
+			LongitudeX: 2,
+			LatitudeY:  5,
 		},
 		Point2: LocationXY{
-			longitudeX: 5,
-			latitudeY:  2,
+			LongitudeX: 5,
+			LatitudeY:  2,
 		},
 	}
 
 	m := Movement{
 		From: LocationXY{
-			longitudeX: 2,
-			latitudeY:  2,
+			LongitudeX: 2,
+			LatitudeY:  2,
 		},
 		To: LocationXY{
-			longitudeX: 5,
-			latitudeY:  5,
+			LongitudeX: 5,
+			LatitudeY:  5,
 		},
 	}
 
 	crossing := detectCrossing(&tol, &m, 0.001)
-	assert.Equal(t, 3.5, crossing.Location.longitudeX)
-	assert.Equal(t, 3.5, crossing.Location.latitudeY)
+	assert.Equal(t, 3.5, crossing.Location.LongitudeX)
+	assert.Equal(t, 3.5, crossing.Location.LatitudeY)
 }
 
 func testNotCrossed(t *testing.T) {
 	tol := Tollgate{
 		ID: "",
 		Point1: LocationXY{
-			longitudeX: 5,
-			latitudeY:  5,
+			LongitudeX: 5,
+			LatitudeY:  5,
 		},
 		Point2: LocationXY{
-			longitudeX: 5,
-			latitudeY:  5,
+			LongitudeX: 5,
+			LatitudeY:  5,
 		},
 	}
 
 	m := Movement{
 		From: LocationXY{
-			longitudeX: 5,
-			latitudeY:  5,
+			LongitudeX: 5,
+			LatitudeY:  5,
 		},
 		To: LocationXY{
-			longitudeX: 5,
-			latitudeY:  5,
+			LongitudeX: 5,
+			LatitudeY:  5,
 		},
 	}
 

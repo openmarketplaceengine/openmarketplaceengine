@@ -5,10 +5,22 @@ import (
 	"math"
 )
 
+type Detector struct {
+	Tollgates []Tollgate
+}
+
+func New() *Detector {
+	//TODO fetch tollgates
+	var tollgates []Tollgate
+	return &Detector{
+		Tollgates: tollgates,
+	}
+}
+
 // LocationXY is longitude latitude corresponding to linear algebra X Y axis.
 type LocationXY struct {
-	longitudeX float64
-	latitudeY  float64
+	LongitudeX float64
+	LatitudeY  float64
 }
 
 // Tollgate represents a two points line that Subject crosses.
@@ -30,10 +42,23 @@ type Crossing struct {
 	SubjectID  string
 	TollgateID string
 	Location   LocationXY
+	Direction  Direction
 }
 
 //Direction to North, South, East or West in form of N, S, E, W, NE, NW, SE, SW.
 type Direction string
+
+// Detect detects tollgate crossing
+// returns nil if no Crossing, otherwise the LocationXY and Direction at which Crossing detected.
+func (d *Detector) Detect(movement *Movement) *Crossing {
+	for _, d := range d.Tollgates {
+		crossing := detectCrossing(&d, movement, 0.001)
+		if crossing != nil {
+			return crossing
+		}
+	}
+	return nil
+}
 
 // A little of linear algebra math on lines Crossing.
 // Line equation is ax + by + c = 0.
@@ -55,20 +80,20 @@ type Direction string
 // returns nil if no Crossing, otherwise the location at which Crossing detected.
 func detectCrossing(tollgate *Tollgate, movement *Movement, precision float64) *Crossing {
 	//Tollgate-representing line
-	tx1 := tollgate.Point1.longitudeX
-	ty1 := tollgate.Point1.latitudeY
-	tx2 := tollgate.Point2.longitudeX
-	ty2 := tollgate.Point2.latitudeY
+	tx1 := tollgate.Point1.LongitudeX
+	ty1 := tollgate.Point1.LatitudeY
+	tx2 := tollgate.Point2.LongitudeX
+	ty2 := tollgate.Point2.LatitudeY
 
 	A1 := ty2 - ty1
 	B1 := tx1 - tx2
 	C1 := ty1*tx2 - tx1*ty2
 
 	//Movement-representing line
-	mx1 := movement.From.longitudeX
-	my1 := movement.From.latitudeY
-	mx2 := movement.To.longitudeX
-	my2 := movement.To.latitudeY
+	mx1 := movement.From.LongitudeX
+	my1 := movement.From.LatitudeY
+	mx2 := movement.To.LongitudeX
+	my2 := movement.To.LatitudeY
 
 	A2 := my2 - my1
 	B2 := mx1 - mx2
@@ -82,8 +107,8 @@ func detectCrossing(tollgate *Tollgate, movement *Movement, precision float64) *
 			SubjectID:  movement.SubjectID,
 			TollgateID: tollgate.ID,
 			Location: LocationXY{
-				longitudeX: x,
-				latitudeY:  y,
+				LongitudeX: x,
+				LatitudeY:  y,
 			},
 		}
 	}
@@ -98,10 +123,10 @@ func detectCrossing(tollgate *Tollgate, movement *Movement, precision float64) *
 // Movement represents a moving subject
 // returns Direction in form of N, S, E, W, NE, NW, SE, SW.
 func detectDirection(movement *Movement) Direction {
-	fromX := movement.From.longitudeX
-	fromY := movement.From.latitudeY
-	toX := movement.To.longitudeX
-	toY := movement.To.latitudeY
+	fromX := movement.From.LongitudeX
+	fromY := movement.From.LatitudeY
+	toX := movement.To.LongitudeX
+	toY := movement.To.LatitudeY
 
 	var pole string
 	var side string
