@@ -4,7 +4,11 @@
 
 package dom
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
+)
 
 type WorkerStatus int32
 
@@ -16,17 +20,19 @@ const (
 	WorkerDisabled        // worker is disabled
 )
 
+const workerTable = "worker"
+
 // Worker represents information about a driver.
 type Worker struct {
-	ID        SUID
-	Status    WorkerStatus // worker's status
-	Rating    int32        // worker's rating by customers
-	Jobs      int          // total number of jobs completed
-	FirstName string       // first name
-	LastName  string       // last name
-	Vehicle   SUID         // vehicle id foreign key
-	Created   Time         // worker creation time
-	Updated   Time         // worker last modified time
+	ID        SUID         `db:"id"`
+	Status    WorkerStatus `db:"status"`     // worker's status
+	Rating    int32        `db:"rating"`     // worker's rating by customers
+	Jobs      int          `db:"jobs"`       // total number of jobs completed
+	FirstName string       `db:"first_name"` // first name
+	LastName  string       `db:"last_name"`  // last name
+	Vehicle   SUID         `db:"vehicle"`    // vehicle id foreign key
+	Created   Time         `db:"created"`    // worker creation time
+	Updated   Time         `db:"updated"`    // worker last modified time
 }
 
 // WorkerVehicle represents relationships among workers and vehicles.
@@ -34,8 +40,31 @@ type Worker struct {
 // One worker can operate one or more vehicles and one vehicle can be shared among
 // several workers.
 type WorkerVehicle struct {
-	Worker  SUID
-	Vehicle SUID
+	Worker  SUID `db:"worker"`
+	Vehicle SUID `db:"vehicle"`
+}
+
+//-----------------------------------------------------------------------------
+
+// Persist saves Worker to the database.
+func (w *Worker) Persist(ctx Context) error {
+	return dao.ExecTX(ctx, w.Insert())
+}
+
+//-----------------------------------------------------------------------------
+
+func (w *Worker) Insert() dao.Executable {
+	sql := dao.Insert(workerTable)
+	sql.Set("id", w.ID)
+	sql.Set("status", w.Status)
+	sql.Set("rating", w.Rating)
+	sql.Set("jobs", w.Jobs)
+	sql.Set("first_name", w.FirstName)
+	sql.Set("last_name", w.LastName)
+	sql.Set("vehicle", w.Vehicle)
+	sql.Set("created", w.Created)
+	sql.Set("updated", w.Updated)
+	return sql
 }
 
 // String representation of WorkerStatus.
