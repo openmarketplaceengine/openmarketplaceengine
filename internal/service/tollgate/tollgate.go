@@ -32,6 +32,7 @@ type Crossing struct {
 	Location   LocationXY
 }
 
+//Direction to North, South, East or West in form of N, S, E, W, NE, NW, SE, SW.
 type Direction string
 
 // A little of linear algebra math on lines Crossing.
