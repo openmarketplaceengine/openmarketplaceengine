@@ -3,13 +3,18 @@ package dom
 import (
 	"fmt"
 	"math/rand"
+	"strings"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 )
 
 var _rnd = rand.New(rand.NewSource(0))
 
-func mockUUID() string {
+func mockUUID(prefix ...string) string {
+	if len(prefix) > 0 {
+		prefix = append(prefix, dao.MockUUID())
+		return strings.Join(prefix, "-")
+	}
 	return dao.MockUUID()
 }
 
