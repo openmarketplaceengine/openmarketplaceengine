@@ -2,6 +2,8 @@ package worker
 
 import (
 	"context"
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
+	"strings"
 
 	workerV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/worker/v1beta1"
 	"google.golang.org/grpc/codes"
@@ -20,6 +22,22 @@ func New() *Controller {
 }
 
 func (c *Controller) GetWorker(ctx context.Context, request *workerV1beta1.GetWorkerRequest) (*workerV1beta1.GetWorkerResponse, error) {
+	if strings.TrimSpace(request.GetWorkerId()) == "" {
+		st, err := status.New(codes.NotFound, "Worker not found").WithDetails(
+			request, &errdetails.BadRequest{
+				FieldViolations: []*errdetails.BadRequest_FieldViolation{
+					{
+						Field:       "worker_id",
+						Description: "cannot be empty",
+					},
+				},
+			},
+		)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, err.Error())
+		}
+		return nil, st.Err()
+	}
 	v, ok := c.states[request.WorkerId]
 	if !ok {
 		st, err := status.New(codes.NotFound, "Worker not found").WithDetails(request)
