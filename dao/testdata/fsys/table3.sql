@@ -1,0 +1,1 @@
+create table if not exists fsys_3(id text);

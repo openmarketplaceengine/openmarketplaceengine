@@ -9,14 +9,21 @@ import (
 	"fmt"
 )
 
+var txExecOpts = sql.TxOptions{
+	Isolation: sql.LevelReadCommitted,
+	ReadOnly:  false,
+}
+
 //-----------------------------------------------------------------------------
 // Executable Interfaces
 //-----------------------------------------------------------------------------
 
-// Executor interface depicts ExecContext from
-// sql.DB, sql.Conn, sql.Tx, sql.Stmt.
+// Executor interface depicts ExecContext, QueryContext, and QueryRowContext
+// from sql.DB, sql.Conn, sql.Tx, sql.Stmt.
 type Executor interface {
 	ExecContext(ctx Context, query string, args ...interface{}) (Result, error)
+	QueryContext(ctx Context, query string, args ...interface{}) (*Rows, error)
+	QueryRowContext(ctx Context, query string, args ...interface{}) *Row
 }
 
 // Executable implementers perform actual Executor.ExecContext calls.
@@ -40,7 +47,7 @@ func ExecDB(ctx Context, execs ...Executable) error {
 
 // ExecTX runs executables with sql.Tx.
 func ExecTX(ctx Context, execs ...Executable) error {
-	return WithTran(ctx, func(ctx Context, tx *sql.Tx) (err error) {
+	return WithTran(ctx, &txExecOpts, func(ctx Context, tx *sql.Tx) (err error) {
 		for i := 0; i < len(execs) && err == nil; i++ {
 			err = execs[i].Execute(ctx, tx)
 		}

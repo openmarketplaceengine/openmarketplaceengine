@@ -25,3 +25,12 @@ func TestNewXid(t *testing.T) {
 	require.Equal(t, tail, xids[count-1])
 	require.Equal(t, half, xids[count/2])
 }
+
+//-----------------------------------------------------------------------------
+
+func TestMockUUID(t *testing.T) {
+	expect := []string{"00000001", "00000002", "00000003"}
+	for i := range expect {
+		require.Equal(t, expect[i], MockUUID())
+	}
+}

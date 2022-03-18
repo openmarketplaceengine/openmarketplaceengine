@@ -5,6 +5,8 @@
 package dao
 
 import (
+	"fmt"
+	"sync/atomic"
 	"unsafe"
 
 	"github.com/rs/xid"
@@ -18,4 +20,13 @@ type (
 func NewXid() XUID {
 	buf, _ := xid.New().MarshalText()
 	return *(*string)(unsafe.Pointer(&buf))
+}
+
+//-----------------------------------------------------------------------------
+
+var mockUUID uint32
+
+// MockUUID returns continuous pseudo UUID's for testing.
+func MockUUID() string {
+	return fmt.Sprintf("%08x", atomic.AddUint32(&mockUUID, 1))
 }

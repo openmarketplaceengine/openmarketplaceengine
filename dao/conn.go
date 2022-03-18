@@ -34,7 +34,7 @@ func WithConn(ctx Context, run func(ctx Context, con *sql.Conn) error) (err erro
 
 //-----------------------------------------------------------------------------
 
-func WithTran(ctx Context, run func(ctx Context, tx *sql.Tx) error) (err error) {
+func WithTran(ctx Context, opt *sql.TxOptions, run func(ctx Context, tx *sql.Tx) error) (err error) {
 	var con *sql.Conn
 	con, err = Conn(ctx)
 	if err != nil {
@@ -42,7 +42,7 @@ func WithTran(ctx Context, run func(ctx Context, tx *sql.Tx) error) (err error) 
 	}
 	defer FreeConn(con)
 	var tx *sql.Tx
-	tx, err = con.BeginTx(ctx, nil)
+	tx, err = con.BeginTx(ctx, opt)
 	if err != nil {
 		return
 	}

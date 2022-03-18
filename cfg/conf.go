@@ -260,7 +260,19 @@ func (c *ServerConfig) PrintYAML() {
 // Returns ok if variable found and has non-zero length.
 func GetEnv(key string) (val string, ok bool) {
 	const pfx = EnvPrefix + "_"
-	val, ok = os.LookupEnv(pfx + key)
+	if !strings.HasPrefix(key, pfx) {
+		key = pfx + key
+	}
+	val, ok = os.LookupEnv(key)
 	ok = ok && len(val) > 0
 	return
+}
+
+// SetEnv sets environment variable prefixed with EnvPrefix.
+func SetEnv(key string, val string) error {
+	const pfx = EnvPrefix + "_"
+	if !strings.HasPrefix(key, pfx) {
+		key = pfx + key
+	}
+	return os.Setenv(key, val)
 }

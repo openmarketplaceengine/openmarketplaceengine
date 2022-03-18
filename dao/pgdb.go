@@ -17,6 +17,8 @@ import (
 
 type (
 	Result  = sql.Result
+	Rows    = sql.Rows
+	Row     = sql.Row
 	Context = context.Context
 )
 
@@ -110,6 +112,29 @@ func (p *PgdbConn) Boot() (err error) {
 		infof("using schema %q", schema)
 	}
 
+	err = p.autoExec(ctx)
+
+	if err != nil {
+		p.abort()
+		return
+	}
+
+	return nil
+}
+
+//-----------------------------------------------------------------------------
+
+func (p *PgdbConn) autoExec(ctx Context) error {
+	auto := make([]Executable, 0, len(autoDrop)+len(autoExec))
+	if len(autoDrop) > 0 {
+		auto = append(auto, autoDrop...)
+	}
+	if len(autoExec) > 0 {
+		auto = append(auto, autoExec...)
+	}
+	if len(auto) > 0 {
+		return ExecTX(ctx, auto...)
+	}
 	return nil
 }
 
@@ -190,14 +215,16 @@ func (p PgdbConn) abort() {
 
 //-----------------------------------------------------------------------------
 
-func failInit(err *error) bool {
-	if Pgdb.state.Invalid() {
-		if err != nil {
-			*err = Pgdb.stateError()
-		}
-		return true
+func isdebug() bool {
+	return Pgdb.log != nil && Pgdb.log.IsDebug()
+}
+
+//-----------------------------------------------------------------------------
+
+func debugf(format string, args ...interface{}) { //nolint:deadcode
+	if isdebug() {
+		Pgdb.log.Debugf(format, args...)
 	}
-	return false
 }
 
 //-----------------------------------------------------------------------------
@@ -226,4 +253,57 @@ func logerr(err error, prefix ...string) {
 		}
 		errorf("%s", err)
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Testing
+//-----------------------------------------------------------------------------
+
+type Tester interface {
+	Fatalf(format string, args ...interface{})
+	Cleanup(f func())
+	SkipNow()
+}
+
+//-----------------------------------------------------------------------------
+
+func SkipTest() bool {
+	_, ok := cfg.GetEnv(cfg.EnvPgdbAddr)
+	return !ok
+}
+
+//-----------------------------------------------------------------------------
+
+func WillTest(t Tester, schema string) {
+	if SkipTest() {
+		t.SkipNow()
+		return
+	}
+	if len(schema) > 0 {
+		err := cfg.SetEnv(cfg.EnvPgdbSchema, schema)
+		if err != nil {
+			t.Fatalf("setenv %q=%q failed: %s", cfg.EnvPgdbSchema, schema, err)
+		}
+	}
+	err := cfg.Load()
+	if err != nil {
+		t.Fatalf("config load failed: %s", err)
+	}
+	err = log.Init(log.DevelConfig().WithTrace(false).WithCaller(false))
+	if err != nil {
+		t.Fatalf("log init failed: %s", err)
+	}
+	err = Pgdb.Boot()
+	if err != nil {
+		log.Fatalf("%s", err)
+	}
+	t.Cleanup(func() {
+		if Running() {
+			infof("stopping...")
+			err = Pgdb.Stop()
+			if err != nil {
+				t.Fatalf("%s", err)
+			}
+		}
+	})
 }

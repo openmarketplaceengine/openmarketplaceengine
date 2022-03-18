@@ -5,13 +5,14 @@
 package dao
 
 import (
+	"time"
+
 	"github.com/leporo/sqlf"
-	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 )
 
-type (
-	SQL = sqlf.Stmt
-)
+type SQL struct {
+	*sqlf.Stmt
+}
 
 func init() {
 	sqlf.SetDialect(sqlf.PostgreSQL)
@@ -20,18 +21,76 @@ func init() {
 //-----------------------------------------------------------------------------
 
 func NewSQL(verb string, args ...interface{}) *SQL {
-	return sqlf.New(verb, args...)
+	return &SQL{sqlf.New(verb, args...)}
 }
 
 //-----------------------------------------------------------------------------
 
-func Exec(sql ...*SQL) (err error) {
-	if failInit(&err) {
+func (s *SQL) Execute(ctx Context, exe Executor) error {
+	_, err := s.ExecAndClose(ctx, exe)
+	return err
+}
+
+//-----------------------------------------------------------------------------
+
+func Insert(table string) *SQL {
+	return &SQL{sqlf.InsertInto(table)}
+}
+
+//-----------------------------------------------------------------------------
+
+func Update(table string) *SQL {
+	return &SQL{sqlf.Update(table)}
+}
+
+//-----------------------------------------------------------------------------
+
+func Delete(table string) *SQL {
+	return &SQL{sqlf.DeleteFrom(table)}
+}
+
+//-----------------------------------------------------------------------------
+
+func Select(expr string, args ...interface{}) *SQL {
+	return &SQL{sqlf.Select(expr, args...)}
+}
+
+//-----------------------------------------------------------------------------
+
+func From(expr string, args ...interface{}) *SQL {
+	return &SQL{sqlf.From(expr, args...)}
+}
+
+//-----------------------------------------------------------------------------
+
+// SetNonZero binds an INSERT field if value is not zero.
+func (s *SQL) SetNonZero(field string, value interface{}) (self *SQL) {
+	self = s
+	if value == nil {
 		return
 	}
-	ctx := cfg.Context()
-	for i := 0; i < len(sql) && err == nil; i++ {
-		_, err = sql[i].ExecAndClose(ctx, DB())
+	switch v := value.(type) {
+	case string:
+		if len(v) == 0 {
+			return
+		}
+	case []byte:
+		if len(v) == 0 {
+			return
+		}
+	case int, int8, int16, int32, int64:
+		if v == 0 {
+			return
+		}
+	case uint, uint8, uint16, uint32, uint64, uintptr:
+		if v == 0 {
+			return
+		}
+	case time.Time:
+		if v.IsZero() {
+			return
+		}
 	}
+	s.Set(field, value)
 	return
 }
