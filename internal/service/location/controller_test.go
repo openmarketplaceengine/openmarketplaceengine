@@ -8,10 +8,10 @@ import (
 	"testing"
 	"time"
 
-	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/location/v1beta1"
-
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
+	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/location/v1beta1"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
 	redisClient "github.com/openmarketplaceengine/openmarketplaceengine/redis/client"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -20,6 +20,7 @@ import (
 )
 
 const areaKey = "san_fran"
+const tollgateID = "tollgate-123"
 
 func TestController(t *testing.T) {
 	err := cfg.Load()
@@ -43,13 +44,27 @@ func TestController(t *testing.T) {
 	t.Run("testQueryLocation", func(t *testing.T) {
 		testQueryLocation(t, client)
 	})
+	t.Run("testTollgateCrossing", func(t *testing.T) {
+		testTollgateCrossing(t, client)
+	})
 }
 
 func dialer() func(context.Context, string) (net.Conn, error) {
 	listener := bufconn.Listen(1024 * 1024)
 
 	server := grpc.NewServer()
-	controller := New(redisClient.NewStoreClient(), redisClient.NewPubSubClient(), areaKey)
+	tollgates := []*tollgate.Tollgate{{
+		ID: tollgateID,
+		Point1: tollgate.LocationXY{
+			LongitudeX: -79.870262,
+			LatitudeY:  41.198497,
+		},
+		Point2: tollgate.LocationXY{
+			LongitudeX: -79.870218,
+			LatitudeY:  41.200268,
+		},
+	}}
+	controller := New(redisClient.NewStoreClient(), redisClient.NewPubSubClient(), areaKey, tollgate.New(tollgates))
 	locationV1beta1.RegisterLocationServiceServer(server, controller)
 
 	go func() {
@@ -107,4 +122,48 @@ func testQueryLocation(t *testing.T, client locationV1beta1.LocationServiceClien
 	location, err := client.QueryLocation(ctx, request)
 	require.NoError(t, err)
 	require.Less(t, location.LastSeenTime.AsTime().UnixMilli(), time.Now().UnixMilli())
+}
+
+func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceClient) {
+	ctx := context.Background()
+	id := uuid.NewString()
+	from := &locationV1beta1.UpdateLocationRequest{
+		WorkerId:  id,
+		Longitude: -79.871248,
+		Latitude:  41.199493,
+	}
+	to := &locationV1beta1.UpdateLocationRequest{
+		WorkerId:  id,
+		Longitude: -79.867927,
+		Latitude:  41.199329,
+	}
+
+	sync := make(chan string)
+	var crossings <-chan tollgate.Crossing
+	go func() {
+		crossings = subscribe(crossingChannel(tollgateID))
+		sync <- "done"
+	}()
+
+	select {
+	case <-sync:
+		break
+	case <-time.After(5 * time.Second):
+		require.Fail(t, "sync timeout")
+	}
+
+	response1, err := client.UpdateLocation(ctx, from)
+	require.NoError(t, err)
+	require.Equal(t, from.WorkerId, response1.WorkerId)
+
+	response2, err := client.UpdateLocation(ctx, to)
+	require.NoError(t, err)
+	require.Equal(t, from.WorkerId, response2.WorkerId)
+
+	c := <-crossings
+	require.Equal(t, tollgateID, c.TollgateID)
+	require.Equal(t, tollgate.Direction("SE"), c.Direction)
+	require.Equal(t, id, c.SubjectID)
+	require.InDelta(t, to.Latitude, c.Location.LatitudeY, 0.003)
+	require.InDelta(t, to.Longitude, c.Location.LongitudeX, 0.003)
 }

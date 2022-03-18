@@ -6,12 +6,17 @@ import (
 )
 
 type Detector struct {
-	Tollgates []Tollgate
+	Tollgates []*Tollgate
 }
 
-func New() *Detector {
-	//TODO fetch tollgates
-	var tollgates []Tollgate
+func New(tollgates []*Tollgate) *Detector {
+	return &Detector{
+		Tollgates: tollgates,
+	}
+}
+
+func NewNoOp() *Detector {
+	var tollgates []*Tollgate
 	return &Detector{
 		Tollgates: tollgates,
 	}
@@ -52,9 +57,11 @@ type Direction string
 // returns nil if no Crossing, otherwise the LocationXY and Direction at which Crossing detected.
 func (d *Detector) Detect(movement *Movement) *Crossing {
 	for _, d := range d.Tollgates {
-		crossing := detectCrossing(&d, movement, 0.001)
-		if crossing != nil {
-			return crossing
+		c := detectCrossing(d, movement, 0.0000001)
+		if c != nil {
+			d := detectDirection(movement)
+			c.Direction = d
+			return c
 		}
 	}
 	return nil
@@ -76,7 +83,7 @@ func (d *Detector) Detect(movement *Movement) *Crossing {
 //
 // Tollgate - two points representing Tollgate line
 // Movement - two points representing Movement line, from previous to current LocationXY
-// precision - float greater than 0, i.e. 0.001.
+// precision - float greater than 0, i.e. 0.001. for Lat/Long should be 0.0000001
 // returns nil if no Crossing, otherwise the location at which Crossing detected.
 func detectCrossing(tollgate *Tollgate, movement *Movement, precision float64) *Crossing {
 	//Tollgate-representing line

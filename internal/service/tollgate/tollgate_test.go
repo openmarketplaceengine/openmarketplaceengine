@@ -11,6 +11,10 @@ func TestTollgate(t *testing.T) {
 		testCrossed(t)
 	})
 
+	t.Run("testCrossedLatLong", func(t *testing.T) {
+		testCrossedLatLong(t)
+	})
+
 	t.Run("testNotCrossed", func(t *testing.T) {
 		testNotCrossed(t)
 	})
@@ -47,6 +51,35 @@ func testCrossed(t *testing.T) {
 	crossing := detectCrossing(&tol, &m, 0.001)
 	assert.Equal(t, 3.5, crossing.Location.LongitudeX)
 	assert.Equal(t, 3.5, crossing.Location.LatitudeY)
+}
+
+func testCrossedLatLong(t *testing.T) {
+	tol := Tollgate{
+		ID: "",
+		Point1: LocationXY{
+			LongitudeX: -79.870262,
+			LatitudeY:  41.198497,
+		},
+		Point2: LocationXY{
+			LongitudeX: -79.870218,
+			LatitudeY:  41.200268,
+		},
+	}
+
+	m := Movement{
+		From: LocationXY{
+			LongitudeX: -79.87124651670456,
+			LatitudeY:  41.199493331477335,
+		},
+		To: LocationXY{
+			LongitudeX: -79.867927,
+			LatitudeY:  41.199329,
+		},
+	}
+
+	crossing := detectCrossing(&tol, &m, 0.0000001)
+	assert.InDelta(t, -79.8702, crossing.Location.LongitudeX, 0.001)
+	assert.InDelta(t, 41.1994, crossing.Location.LatitudeY, 0.001)
 }
 
 func testNotCrossed(t *testing.T) {
