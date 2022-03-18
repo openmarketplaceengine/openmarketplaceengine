@@ -20,6 +20,17 @@ func TestWorker_Persist(t *testing.T) {
 
 //-----------------------------------------------------------------------------
 
+func TestWorkerVehicle_Persist(t *testing.T) {
+	WillTest(t, "test", true)
+	ctx := cfg.Context()
+	for i := 0; i < 100; i++ {
+		wv := genWorkerVehicle()
+		require.NoError(t, wv.Persist(ctx))
+	}
+}
+
+//-----------------------------------------------------------------------------
+
 func genWorker() *Worker {
 	stamp := mockStamp()
 	return &Worker{
@@ -32,5 +43,14 @@ func genWorker() *Worker {
 		Vehicle:   mockUUID("car"),
 		Created:   stamp,
 		Updated:   stamp,
+	}
+}
+
+//-----------------------------------------------------------------------------
+
+func genWorkerVehicle() *WorkerVehicle {
+	return &WorkerVehicle{
+		Worker:  mockUUID("drv"),
+		Vehicle: mockUUID("car"),
 	}
 }

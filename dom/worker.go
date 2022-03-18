@@ -20,7 +20,10 @@ const (
 	WorkerDisabled        // worker is disabled
 )
 
-const workerTable = "worker"
+const (
+	workerTable        = "worker"
+	workerVehicleTable = "worker_vehicle"
+)
 
 // Worker represents information about a driver.
 type Worker struct {
@@ -66,6 +69,24 @@ func (w *Worker) Insert() dao.Executable {
 	sql.Set("updated", w.Updated)
 	return sql
 }
+
+//-----------------------------------------------------------------------------
+// Worker <-> Vehicle
+//-----------------------------------------------------------------------------
+
+// Persist saves WorkerVehicle to the database.
+func (w *WorkerVehicle) Persist(ctx Context) error {
+	return dao.ExecTX(ctx, w.Insert())
+}
+
+func (w *WorkerVehicle) Insert() dao.Executable {
+	sql := dao.Insert(workerVehicleTable)
+	sql.Set("worker", w.Worker)
+	sql.Set("vehicle", w.Vehicle)
+	return sql
+}
+
+//-----------------------------------------------------------------------------
 
 // String representation of WorkerStatus.
 func (s WorkerStatus) String() string {
