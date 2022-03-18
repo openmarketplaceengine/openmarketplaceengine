@@ -60,6 +60,10 @@ func mockString(list ...string) string {
 	return list[_rnd.Intn(len(list))]
 }
 
+func mockRange(min, max int) int {
+	return _rnd.Intn(max-min+1) + min
+}
+
 //-----------------------------------------------------------------------------
 
 func mockFirstName() string {
