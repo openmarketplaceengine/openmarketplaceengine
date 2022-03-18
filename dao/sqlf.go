@@ -5,6 +5,8 @@
 package dao
 
 import (
+	"time"
+
 	"github.com/leporo/sqlf"
 )
 
@@ -57,4 +59,38 @@ func Select(expr string, args ...interface{}) *SQL {
 
 func From(expr string, args ...interface{}) *SQL {
 	return &SQL{sqlf.From(expr, args...)}
+}
+
+//-----------------------------------------------------------------------------
+
+// SetNonZero binds an INSERT field if value is not zero.
+func (s *SQL) SetNonZero(field string, value interface{}) (self *SQL) {
+	self = s
+	if value == nil {
+		return
+	}
+	switch v := value.(type) {
+	case string:
+		if len(v) == 0 {
+			return
+		}
+	case []byte:
+		if len(v) == 0 {
+			return
+		}
+	case int, int8, int16, int32, int64:
+		if v == 0 {
+			return
+		}
+	case uint, uint8, uint16, uint32, uint64, uintptr:
+		if v == 0 {
+			return
+		}
+	case time.Time:
+		if v.IsZero() {
+			return
+		}
+	}
+	s.Set(field, value)
+	return
 }
