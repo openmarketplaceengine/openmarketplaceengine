@@ -9,28 +9,31 @@ import (
 	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/location/v1beta1"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/location/storage"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
+	"github.com/openmarketplaceengine/openmarketplaceengine/log"
 	"github.com/openmarketplaceengine/openmarketplaceengine/redis/publisher"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type Controller struct {
 	locationV1beta1.UnimplementedLocationServiceServer
-	store            *storage.Storage
-	pub              publisher.Publisher
-	areaKey          string
-	tollgateDetector *tollgate.Detector
+	store    *storage.Storage
+	pub      publisher.Publisher
+	areaKey  string
+	detector *tollgate.Detector
 }
 
-func New(storeClient *redis.Client, pubClient *redis.Client, areaKey string) *Controller {
+func New(storeClient *redis.Client, pubClient *redis.Client, areaKey string, detector *tollgate.Detector) *Controller {
 	return &Controller{
-		store:            storage.New(storeClient),
-		pub:              publisher.New(pubClient),
-		areaKey:          areaKey,
-		tollgateDetector: tollgate.New(),
+		store:    storage.New(storeClient),
+		pub:      publisher.New(pubClient),
+		areaKey:  areaKey,
+		detector: detector,
 	}
 }
 
 func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta1.UpdateLocationRequest) (*locationV1beta1.UpdateLocationResponse, error) {
+	lastLocation := c.store.LastLocation(ctx, c.areaKey, request.WorkerId)
+
 	err := c.store.Update(ctx, c.areaKey, &storage.Location{
 		WorkerID:  request.WorkerId,
 		Longitude: request.Longitude,
@@ -40,25 +43,24 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 		return nil, err
 	}
 
-	err = c.publishLocation(ctx, request.WorkerId, request.Longitude, request.Latitude)
-	if err != nil {
-		return nil, err
-	}
+	c.publishLocation(ctx, request.WorkerId, request.Longitude, request.Latitude)
 
-	//TODO need to keep previous location
-	from := tollgate.LocationXY{
-		LongitudeX: request.Longitude,
-		LatitudeY:  request.Latitude,
-	}
-	movement := &tollgate.Movement{SubjectID: request.WorkerId,
-		From: from, To: tollgate.LocationXY{
+	if lastLocation != nil {
+		from := tollgate.LocationXY{
+			LongitudeX: lastLocation.Longitude,
+			LatitudeY:  lastLocation.Latitude,
+		}
+		to := tollgate.LocationXY{
 			LongitudeX: request.Longitude,
-			LatitudeY:  request.Latitude}}
-	crossing := c.tollgateDetector.Detect(movement)
-	if crossing != nil {
-		err = c.publishTollgateCrossing(ctx, crossing)
-		if err != nil {
-			return nil, err
+			LatitudeY:  request.Latitude}
+		movement := &tollgate.Movement{
+			SubjectID: request.WorkerId,
+			From:      from,
+			To:        to,
+		}
+		crossing := c.detector.Detect(movement)
+		if crossing != nil {
+			c.publishTollgateCrossing(ctx, crossing)
 		}
 	}
 
@@ -67,8 +69,8 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 	}, nil
 }
 
-func (c *Controller) publishLocation(ctx context.Context, workerID string, longitude float64, latitude float64) error {
-	channel := fmt.Sprintf("location-%s", workerID)
+func (c *Controller) publishLocation(ctx context.Context, workerID string, longitude float64, latitude float64) {
+	channel := locationChannel(workerID)
 
 	bytes, err := json.Marshal(storage.Location{
 		WorkerID:  workerID,
@@ -76,31 +78,41 @@ func (c *Controller) publishLocation(ctx context.Context, workerID string, longi
 		Latitude:  latitude,
 	})
 	if err != nil {
-		return err
+		log.Errorf("location marshal error: %q", err)
+		return
 	}
 	payload := string(bytes)
 	err = c.pub.Publish(ctx, channel, payload)
 
 	if err != nil {
-		return err
+		log.Errorf("location publish error: %q", err)
+		return
 	}
-	return nil
 }
 
-func (c *Controller) publishTollgateCrossing(ctx context.Context, crossing *tollgate.Crossing) error {
-	channel := fmt.Sprintf("tollgate-x-%s", crossing.TollgateID)
+func locationChannel(workerID string) string {
+	return fmt.Sprintf("channel-location-%s", workerID)
+}
+
+func (c *Controller) publishTollgateCrossing(ctx context.Context, crossing *tollgate.Crossing) {
+	channel := crossingChannel(crossing.TollgateID)
 
 	bytes, err := json.Marshal(crossing)
 	if err != nil {
-		return err
+		log.Errorf("crossing marshal error: %q", err)
+		return
 	}
 	payload := string(bytes)
 	err = c.pub.Publish(ctx, channel, payload)
 
 	if err != nil {
-		return err
+		log.Errorf("crossing publish error: %q", err)
+		return
 	}
-	return nil
+}
+
+func crossingChannel(tollgateID string) string {
+	return fmt.Sprintf("channel-crossing-%s", tollgateID)
 }
 
 func (c *Controller) QueryLocation(ctx context.Context, request *locationV1beta1.QueryLocationRequest) (*locationV1beta1.QueryLocationResponse, error) {
