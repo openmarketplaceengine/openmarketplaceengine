@@ -1,6 +1,7 @@
 package dom
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/rand"
 	"strings"
@@ -99,4 +100,15 @@ var names = [][2]string{
 	{"Jane", "James"},
 	{"Warren", "Piper"},
 	{"Oliver", "Avery"},
+}
+
+//-----------------------------------------------------------------------------
+
+func dumpJSON(v interface{}) { //nolint:deadcode
+	buf, err := json.MarshalIndent(v, "", "  ")
+	if err != nil {
+		println("dumpJSON failed:", err.Error())
+		return
+	}
+	fmt.Printf("%s\n", buf)
 }

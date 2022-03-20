@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 	"github.com/stretchr/testify/require"
 )
 
@@ -27,6 +28,16 @@ func TestWorkerVehicle_Persist(t *testing.T) {
 		wv := genWorkerVehicle()
 		require.NoError(t, wv.Persist(ctx))
 	}
+}
+
+//-----------------------------------------------------------------------------
+
+func TestWorker_InsertConstraint(t *testing.T) {
+	WillTest(t, "test", true)
+	wrk := genWorker()
+	require.NoError(t, wrk.Persist(cfg.Context()))
+	err := wrk.Persist(cfg.Context())
+	require.True(t, dao.ErrUniqueViolation(err))
 }
 
 //-----------------------------------------------------------------------------
