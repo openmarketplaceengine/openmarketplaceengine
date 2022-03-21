@@ -11,7 +11,7 @@ import (
 )
 
 type SQL struct {
-	*sqlf.Stmt
+	stmt *sqlf.Stmt
 }
 
 func init() {
@@ -20,51 +20,58 @@ func init() {
 
 //-----------------------------------------------------------------------------
 
-func NewSQL(verb string, args ...interface{}) *SQL {
-	return &SQL{sqlf.New(verb, args...)}
+func NewSQL(verb string, args ...interface{}) SQL {
+	return SQL{sqlf.New(verb, args...)}
 }
 
 //-----------------------------------------------------------------------------
 
-func (s *SQL) Execute(ctx Context, exe Executor) error {
-	_, err := s.ExecAndClose(ctx, exe)
+func (s SQL) Execute(ctx Context, exe Executor) error {
+	_, err := s.stmt.ExecAndClose(ctx, exe)
 	return err
 }
 
 //-----------------------------------------------------------------------------
 
-func Insert(table string) *SQL {
-	return &SQL{sqlf.InsertInto(table)}
+func Insert(table string) SQL {
+	return SQL{sqlf.InsertInto(table)}
 }
 
 //-----------------------------------------------------------------------------
 
-func Update(table string) *SQL {
-	return &SQL{sqlf.Update(table)}
+func Update(table string) SQL {
+	return SQL{sqlf.Update(table)}
 }
 
 //-----------------------------------------------------------------------------
 
-func Delete(table string) *SQL {
-	return &SQL{sqlf.DeleteFrom(table)}
+func Delete(table string) SQL {
+	return SQL{sqlf.DeleteFrom(table)}
 }
 
 //-----------------------------------------------------------------------------
 
-func Select(expr string, args ...interface{}) *SQL {
-	return &SQL{sqlf.Select(expr, args...)}
+func Select(expr string, args ...interface{}) SQL {
+	return SQL{sqlf.Select(expr, args...)}
 }
 
 //-----------------------------------------------------------------------------
 
-func From(expr string, args ...interface{}) *SQL {
-	return &SQL{sqlf.From(expr, args...)}
+func From(expr string, args ...interface{}) SQL {
+	return SQL{sqlf.From(expr, args...)}
+}
+
+//-----------------------------------------------------------------------------
+
+func (s SQL) Set(field string, value interface{}) SQL {
+	s.stmt.Set(field, value)
+	return s
 }
 
 //-----------------------------------------------------------------------------
 
 // SetNonZero binds an INSERT field if value is not zero.
-func (s *SQL) SetNonZero(field string, value interface{}) (self *SQL) {
+func (s SQL) SetNonZero(field string, value interface{}) (self SQL) {
 	self = s
 	if value == nil {
 		return
@@ -91,6 +98,6 @@ func (s *SQL) SetNonZero(field string, value interface{}) (self *SQL) {
 			return
 		}
 	}
-	s.Set(field, value)
+	s.stmt.Set(field, value)
 	return
 }
