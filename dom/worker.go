@@ -57,17 +57,16 @@ func (w *Worker) Persist(ctx Context) error {
 //-----------------------------------------------------------------------------
 
 func (w *Worker) Insert() dao.Executable {
-	sql := dao.Insert(workerTable)
-	sql.Set("id", w.ID)
-	sql.Set("status", w.Status)
-	sql.Set("rating", w.Rating)
-	sql.Set("jobs", w.Jobs)
-	sql.Set("first_name", w.FirstName)
-	sql.Set("last_name", w.LastName)
-	sql.Set("vehicle", w.Vehicle)
-	sql.Set("created", w.Created)
-	sql.Set("updated", w.Updated)
-	return sql
+	return dao.Insert(workerTable).
+		Set("id", w.ID).
+		Set("status", w.Status).
+		Set("rating", w.Rating).
+		Set("jobs", w.Jobs).
+		Set("first_name", w.FirstName).
+		Set("last_name", w.LastName).
+		Set("vehicle", w.Vehicle).
+		Set("created", w.Created).
+		Set("updated", w.Updated)
 }
 
 //-----------------------------------------------------------------------------
@@ -80,10 +79,9 @@ func (w *WorkerVehicle) Persist(ctx Context) error {
 }
 
 func (w *WorkerVehicle) Insert() dao.Executable {
-	sql := dao.Insert(workerVehicleTable)
-	sql.Set("worker", w.Worker)
-	sql.Set("vehicle", w.Vehicle)
-	return sql
+	return dao.Insert(workerVehicleTable).
+		Set("worker", w.Worker).
+		Set("vehicle", w.Vehicle)
 }
 
 //-----------------------------------------------------------------------------

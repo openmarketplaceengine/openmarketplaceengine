@@ -28,13 +28,12 @@ func (w *WorkerLocation) Persist(ctx dao.Context) error {
 //-----------------------------------------------------------------------------
 
 func (w *WorkerLocation) Insert() dao.Executable {
-	sql := dao.Insert(workerLocationTable)
-	sql.Set("worker", w.Worker)
-	sql.Set("stamp", w.Stamp)
-	sql.Set("longitude", w.Longitude)
-	sql.Set("latitude", w.Latitude)
-	sql.Set("speed", w.Speed)
-	return sql
+	return dao.Insert(workerLocationTable).
+		Set("worker", w.Worker).
+		Set("stamp", w.Stamp).
+		Set("longitude", w.Longitude).
+		Set("latitude", w.Latitude).
+		Set("speed", w.Speed)
 }
 
 //-----------------------------------------------------------------------------

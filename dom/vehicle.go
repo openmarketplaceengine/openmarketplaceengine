@@ -59,20 +59,19 @@ func (v *Vehicle) Persist(ctx Context) error {
 //-----------------------------------------------------------------------------
 
 func (v *Vehicle) Insert() dao.Executable {
-	sql := dao.Insert(vehicleTable)
-	sql.Set("id", v.ID)
-	sql.SetNonZero("driver", v.Driver) // can be null
-	sql.Set("model", v.Model)
-	sql.Set("make", v.Make)
-	sql.Set("color", v.Color)
-	sql.Set("plate", v.Plate)
-	sql.Set("class", v.Class)
-	sql.Set("type", v.Type)
-	sql.Set("year", v.Year)
-	sql.Set("capacity", v.Capacity)
-	sql.SetNonZero("cargovol", v.CargoVol)
-	sql.Set("wheelchair", v.WheelChair)
-	sql.Set("childseats", v.ChildSeats)
-	sql.SetNonZero("comment", v.Comment)
-	return sql
+	return dao.Insert(vehicleTable).
+		Set("id", v.ID).
+		SetNonZero("driver", v.Driver).
+		Set("model", v.Model).
+		Set("make", v.Make).
+		Set("color", v.Color).
+		Set("plate", v.Plate).
+		Set("class", v.Class).
+		Set("type", v.Type).
+		Set("year", v.Year).
+		Set("capacity", v.Capacity).
+		SetNonZero("cargovol", v.CargoVol).
+		Set("wheelchair", v.WheelChair).
+		Set("childseats", v.ChildSeats).
+		SetNonZero("comment", v.Comment)
 }
