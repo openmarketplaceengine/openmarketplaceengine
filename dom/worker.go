@@ -6,6 +6,7 @@ package dom
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 )
@@ -57,17 +58,58 @@ func (w *Worker) Persist(ctx Context) error {
 //-----------------------------------------------------------------------------
 
 func (w *Worker) Insert() dao.Executable {
-	sql := dao.Insert(workerTable)
-	sql.Set("id", w.ID)
-	sql.Set("status", w.Status)
-	sql.Set("rating", w.Rating)
-	sql.Set("jobs", w.Jobs)
-	sql.Set("first_name", w.FirstName)
-	sql.Set("last_name", w.LastName)
-	sql.Set("vehicle", w.Vehicle)
-	sql.Set("created", w.Created)
-	sql.Set("updated", w.Updated)
-	return sql
+	return dao.Insert(workerTable).
+		Set("id", w.ID).
+		Set("status", w.Status).
+		Set("rating", w.Rating).
+		Set("jobs", w.Jobs).
+		Set("first_name", w.FirstName).
+		Set("last_name", w.LastName).
+		Set("vehicle", w.Vehicle).
+		Set("created", w.Created).
+		Set("updated", w.Updated)
+}
+
+//-----------------------------------------------------------------------------
+// Getters
+//-----------------------------------------------------------------------------
+
+func GetWorker(ctx Context, workerID SUID) (*Worker, error) {
+	var wrk Worker
+	err := dao.From(workerTable).
+		Bind(&wrk).
+		Where("id = ?", workerID).
+		QueryOne(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &wrk, nil
+}
+
+//-----------------------------------------------------------------------------
+
+func GetWorkerStatus(ctx Context, workerID SUID) (WorkerStatus, error) {
+	var status int32
+	err := dao.From(workerTable).
+		Select("status").To(&status).
+		Where("id = ?", workerID).
+		QueryOne(ctx)
+	if err != nil {
+		return 0, err
+	}
+	return WorkerStatus(status), nil
+}
+
+//-----------------------------------------------------------------------------
+// Setters
+//-----------------------------------------------------------------------------
+
+func SetWorkerStatus(ctx Context, workerID SUID, status WorkerStatus) error {
+	sql := dao.Update(workerTable).
+		Set("status", int32(status)).
+		Set("updated", time.Now()).
+		Where("id = ?", workerID)
+	return dao.ExecTX(ctx, sql)
 }
 
 //-----------------------------------------------------------------------------
@@ -80,10 +122,9 @@ func (w *WorkerVehicle) Persist(ctx Context) error {
 }
 
 func (w *WorkerVehicle) Insert() dao.Executable {
-	sql := dao.Insert(workerVehicleTable)
-	sql.Set("worker", w.Worker)
-	sql.Set("vehicle", w.Vehicle)
-	return sql
+	return dao.Insert(workerVehicleTable).
+		Set("worker", w.Worker).
+		Set("vehicle", w.Vehicle)
 }
 
 //-----------------------------------------------------------------------------
