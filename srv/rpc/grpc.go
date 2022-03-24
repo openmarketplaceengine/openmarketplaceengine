@@ -41,7 +41,8 @@ func (s *GrpcServer) Boot() (err error) {
 	log.Infof("GRPC listening on %s", addr)
 	s.srv = grpc.NewServer(s.configOptions()...)
 
-	controller := location.New(redisClient.NewStoreClient(), redisClient.NewPubSubClient(), "global", tollgate.NewNoOp())
+	detector := tollgate.NewDetector([]tollgate.Detectable{})
+	controller := location.New(redisClient.NewStoreClient(), redisClient.NewPubSubClient(), "global", detector)
 	locationV1beta1.RegisterLocationServiceServer(s.srv, controller)
 
 	go s.serve()
