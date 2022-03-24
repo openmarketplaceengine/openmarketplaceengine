@@ -5,6 +5,7 @@
 package dao
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/leporo/sqlf"
@@ -100,4 +101,86 @@ func (s SQL) SetNonZero(field string, value interface{}) (self SQL) {
 	}
 	s.stmt.Set(field, value)
 	return
+}
+
+//-----------------------------------------------------------------------------
+
+func (s SQL) Bind(v interface{}) SQL {
+	s.stmt.Bind(v)
+	return s
+}
+
+//-----------------------------------------------------------------------------
+
+func (s SQL) Select(expr string, args ...interface{}) SQL {
+	s.stmt.Select(expr, args...)
+	return s
+}
+
+//-----------------------------------------------------------------------------
+
+func (s SQL) To(dest ...interface{}) SQL {
+	s.stmt.To(dest...)
+	return s
+}
+
+//-----------------------------------------------------------------------------
+
+func (s SQL) Where(expr string, args ...interface{}) SQL {
+	s.stmt.Where(expr, args...)
+	return s
+}
+
+//-----------------------------------------------------------------------------
+
+func (s SQL) OrderBy(expr ...string) SQL {
+	s.stmt.OrderBy(expr...)
+	return s
+}
+
+//-----------------------------------------------------------------------------
+
+func (s SQL) Limit(limit interface{}) SQL {
+	s.stmt.Limit(limit)
+	return s
+}
+
+//-----------------------------------------------------------------------------
+// Query
+//-----------------------------------------------------------------------------
+
+func (s SQL) QueryOne(ctx Context) error {
+	return WithConn(ctx, func(ctx Context, con *sql.Conn) error {
+		return s.stmt.QueryRowAndClose(ctx, con)
+	})
+}
+
+//-----------------------------------------------------------------------------
+
+func (s SQL) QueryEach(ctx Context, eachFunc func(rows *Rows)) error {
+	return WithConn(ctx, func(ctx Context, con *sql.Conn) error {
+		return s.stmt.QueryAndClose(ctx, con, eachFunc)
+	})
+}
+
+//-----------------------------------------------------------------------------
+
+func (s SQL) QueryRows(ctx Context, rowsFunc func(rows *Rows) error) error {
+	return WithConn(ctx, func(ctx Context, con *sql.Conn) error {
+		rows, err := con.QueryContext(ctx, s.stmt.String(), s.stmt.Args()...)
+		s.stmt.Close()
+		if err != nil {
+			return err
+		}
+		err = rowsFunc(rows)
+		if err != nil {
+			_ = rows.Close()
+			return err
+		}
+		err = rows.Close()
+		if err != nil {
+			return err
+		}
+		return rows.Err()
+	})
 }
