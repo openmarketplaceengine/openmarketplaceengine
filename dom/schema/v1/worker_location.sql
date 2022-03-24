@@ -5,5 +5,6 @@ create table if not exists worker_location
     stamp     timestamptz not null,
     longitude float8      not null,
     latitude  float8      not null,
-    speed     int4
+    speed     int4,
+    UNIQUE (worker, stamp)
 );
