@@ -6,6 +6,7 @@ package dom
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 )
@@ -67,6 +68,48 @@ func (w *Worker) Insert() dao.Executable {
 		Set("vehicle", w.Vehicle).
 		Set("created", w.Created).
 		Set("updated", w.Updated)
+}
+
+//-----------------------------------------------------------------------------
+// Getters
+//-----------------------------------------------------------------------------
+
+func GetWorker(ctx Context, workerID SUID) (*Worker, error) {
+	var wrk Worker
+	err := dao.From(workerTable).
+		Bind(&wrk).
+		Where("id = ?", workerID).
+		QueryOne(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &wrk, nil
+}
+
+//-----------------------------------------------------------------------------
+
+func GetWorkerStatus(ctx Context, workerID SUID) (WorkerStatus, error) {
+	var status int32
+	err := dao.From(workerTable).
+		Select("status").To(&status).
+		Where("id = ?", workerID).
+		QueryOne(ctx)
+	if err != nil {
+		return 0, err
+	}
+	return WorkerStatus(status), nil
+}
+
+//-----------------------------------------------------------------------------
+// Setters
+//-----------------------------------------------------------------------------
+
+func SetWorkerStatus(ctx Context, workerID SUID, status WorkerStatus) error {
+	sql := dao.Update(workerTable).
+		Set("status", int32(status)).
+		Set("updated", time.Now()).
+		Where("id = ?", workerID)
+	return dao.ExecTX(ctx, sql)
 }
 
 //-----------------------------------------------------------------------------
