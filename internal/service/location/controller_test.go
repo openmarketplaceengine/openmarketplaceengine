@@ -66,7 +66,7 @@ func dialer() func(context.Context, string) (net.Conn, error) {
 			LatitudeY:  41.200268,
 		},
 	)
-	detectables := []tollgate.Detectable{tg}
+	detectables := []tollgate.Tollgate{tg}
 	controller := New(redisClient.NewStoreClient(), redisClient.NewPubSubClient(), areaKey, tollgate.NewDetector(detectables))
 	locationV1beta1.RegisterLocationServiceServer(server, controller)
 

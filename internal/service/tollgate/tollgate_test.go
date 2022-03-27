@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestTollgate(t *testing.T) {
+func TestMovement(t *testing.T) {
 	t.Run("testDirection", func(t *testing.T) {
 		testDirection(t)
 	})

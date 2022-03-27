@@ -59,15 +59,9 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 			To:        to,
 		}
 
-		for _, d := range c.detector.Detectables {
-			crossing, err := d.Detect(ctx, movement)
-			if err != nil {
-				log.Errorf("detect error: %q", err)
-				continue
-			}
-			if crossing != nil {
-				c.publishTollgateCrossing(ctx, crossing)
-			}
+		crossing := c.detector.DetectTollgateCrossing(ctx, movement)
+		if crossing != nil {
+			c.publishTollgateCrossing(ctx, crossing)
 		}
 	}
 

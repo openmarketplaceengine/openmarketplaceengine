@@ -12,9 +12,7 @@ import (
 // Examples:
 // 1 - [1,0,0,0,0] - for bbox 5 elements array the first one was visited.
 // 2 - [1,0,1,0,0]
-// 3 - [1,0,1,1,0]
-//
-// Remember: N is visits count required for successful pass through, N <= []BBox size.
+// 3 - [1,0,1,1,0].
 type Storage interface {
 	Visit(ctx context.Context, tollgateID, subjectID string, bBoxIdx int) error
 	Visits(ctx context.Context, tollgateID, subjectID string, size int) ([]int64, error)
