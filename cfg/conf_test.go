@@ -21,6 +21,22 @@ func TestServerConfig_Load(t *testing.T) {
 
 //-----------------------------------------------------------------------------
 
+func TestServerConfig_Reset(t *testing.T) {
+	var c ServerConfig
+	require.NoError(t, c.Load())
+	require.Equal(t, "v1", c.Apiver)
+	c.Reset()
+	require.Equal(t, "", c.Apiver)
+	require.NoError(t, SetEnv("API_VER", "v2"))
+	require.NoError(t, c.Load())
+	require.Equal(t, "v2", c.Apiver)
+	c.Reset()
+	var empty ServerConfig
+	require.Equal(t, &empty, &c)
+}
+
+//-----------------------------------------------------------------------------
+
 func TestServerConfig_LoadEnv(t *testing.T) {
 	t.Setenv("OME_HTTP_PORT", "80")
 	t.Setenv("OME_GRPC_PORT", "90")
