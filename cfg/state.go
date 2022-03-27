@@ -77,6 +77,10 @@ func (s *State64) StopOrFail(f func() error) error {
 	return nil
 }
 
+func (s *State64) ResetIfStopped() bool {
+	return s.TrySet(StateStopped, StateUnused)
+}
+
 //-----------------------------------------------------------------------------
 
 func (s *State64) StateError(prefix string) error {
