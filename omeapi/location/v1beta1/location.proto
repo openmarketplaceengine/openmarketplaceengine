@@ -17,8 +17,16 @@ message UpdateLocationRequest {
   double latitude = 3;
 }
 
+message TollgateCrossing {
+  string tollgate_id = 1;
+  double longitude = 2;
+  double latitude = 3;
+  string direction = 4;
+}
+
 message UpdateLocationResponse {
   string worker_id = 1;
+  TollgateCrossing tollgate_crossing = 2;
 }
 
 message QueryLocationRequest {

@@ -161,10 +161,12 @@ func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceCl
 	response1, err := client.UpdateLocation(ctx, from)
 	require.NoError(t, err)
 	require.Equal(t, from.WorkerId, response1.WorkerId)
+	require.Nil(t, response1.TollgateCrossing)
 
 	response2, err := client.UpdateLocation(ctx, to)
 	require.NoError(t, err)
 	require.Equal(t, from.WorkerId, response2.WorkerId)
+	require.NotNil(t, response2.TollgateCrossing)
 
 	c := <-crossings
 	require.Equal(t, tollgateID, c.TollgateID)
