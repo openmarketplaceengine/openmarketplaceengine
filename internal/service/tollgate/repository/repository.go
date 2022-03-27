@@ -2,6 +2,7 @@ package repository
 
 import (
 	"embed"
+
 	"gopkg.in/yaml.v2"
 )
 

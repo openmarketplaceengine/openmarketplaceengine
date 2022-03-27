@@ -8,10 +8,11 @@ import (
 	"fmt"
 	"net"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/detector"
+
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/location/v1beta1"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/location"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
 	"github.com/openmarketplaceengine/openmarketplaceengine/log"
 	redisClient "github.com/openmarketplaceengine/openmarketplaceengine/redis/client"
 	"google.golang.org/grpc"
@@ -41,8 +42,12 @@ func (s *GrpcServer) Boot() (err error) {
 	log.Infof("GRPC listening on %s", addr)
 	s.srv = grpc.NewServer(s.configOptions()...)
 
-	detector := tollgate.NewDetector([]tollgate.Tollgate{})
-	controller := location.New(redisClient.NewStoreClient(), redisClient.NewPubSubClient(), "global", detector)
+	tollgateDetector := detector.NewDetector()
+	err = tollgateDetector.LoadTollgates()
+	if err != nil {
+		return
+	}
+	controller := location.New(redisClient.NewStoreClient(), redisClient.NewPubSubClient(), "global", tollgateDetector)
 	locationV1beta1.RegisterLocationServiceServer(s.srv, controller)
 
 	go s.serve()

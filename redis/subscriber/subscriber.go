@@ -30,7 +30,7 @@ func New(client *redis.Client) (sub Subscriber) {
 }
 
 func (s *subscriber) Subscribe(ctx context.Context, channel string, messages chan<- string) {
-	pubSub := s.pubSubClient.Subscribe(ctx, channel)
+	pubSub := s.pubSubClient.PSubscribe(ctx, channel)
 	log.Infof("[Subscriber] subscribed to %s", channel)
 	go func() {
 		for {

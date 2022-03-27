@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/detector"
+
 	"github.com/go-redis/redis/v8"
 	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/location/v1beta1"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/location/storage"
@@ -19,10 +21,10 @@ type Controller struct {
 	store    *storage.Storage
 	pub      publisher.Publisher
 	areaKey  string
-	detector *tollgate.Detector
+	detector *detector.Detector
 }
 
-func New(storeClient *redis.Client, pubClient *redis.Client, areaKey string, detector *tollgate.Detector) *Controller {
+func New(storeClient *redis.Client, pubClient *redis.Client, areaKey string, detector *detector.Detector) *Controller {
 	return &Controller{
 		store:    storage.New(storeClient),
 		pub:      publisher.New(pubClient),
@@ -113,7 +115,7 @@ func (c *Controller) publishTollgateCrossing(ctx context.Context, crossing *toll
 }
 
 func crossingChannel(tollgateID string) string {
-	return fmt.Sprintf("channel-crossing-%s", tollgateID)
+	return fmt.Sprintf("channel:crossing:%s", tollgateID)
 }
 
 func (c *Controller) QueryLocation(ctx context.Context, request *locationV1beta1.QueryLocationRequest) (*locationV1beta1.QueryLocationResponse, error) {

@@ -8,6 +8,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/detector"
+
 	lineTollgate "github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/line"
 
 	"github.com/google/uuid"
@@ -66,8 +68,9 @@ func dialer() func(context.Context, string) (net.Conn, error) {
 			LatitudeY:  41.200268,
 		},
 	)
-	detectables := []tollgate.Tollgate{tg}
-	controller := New(redisClient.NewStoreClient(), redisClient.NewPubSubClient(), areaKey, tollgate.NewDetector(detectables))
+	tollgateDetector := detector.NewDetector()
+	tollgateDetector.AddTollgate(tg)
+	controller := New(redisClient.NewStoreClient(), redisClient.NewPubSubClient(), areaKey, tollgateDetector)
 	locationV1beta1.RegisterLocationServiceServer(server, controller)
 
 	go func() {

@@ -1,9 +1,10 @@
 package repository
 
 import (
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestRepository(t *testing.T) {
@@ -13,7 +14,6 @@ func TestRepository(t *testing.T) {
 }
 
 func testFindAll(t *testing.T) {
-
 	tg, err := FindAll()
 	require.NoError(t, err)
 
