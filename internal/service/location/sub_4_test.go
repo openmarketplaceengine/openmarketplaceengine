@@ -3,9 +3,10 @@ package location
 import (
 	"encoding/json"
 
+	"context"
+
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
 	"github.com/openmarketplaceengine/openmarketplaceengine/redis/subscriber"
-	"golang.org/x/net/context"
 )
 
 func subscribe(channel string) <-chan tollgate.Crossing {

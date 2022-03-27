@@ -8,6 +8,8 @@ import (
 	"testing"
 	"time"
 
+	lineTollgate "github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/line"
+
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/location/v1beta1"
@@ -53,18 +55,19 @@ func dialer() func(context.Context, string) (net.Conn, error) {
 	listener := bufconn.Listen(1024 * 1024)
 
 	server := grpc.NewServer()
-	tollgates := []*tollgate.Tollgate{{
-		ID: tollgateID,
-		Point1: tollgate.LocationXY{
+	tg := lineTollgate.NewTollgate(
+		tollgateID,
+		&tollgate.LocationXY{
 			LongitudeX: -79.870262,
 			LatitudeY:  41.198497,
 		},
-		Point2: tollgate.LocationXY{
+		&tollgate.LocationXY{
 			LongitudeX: -79.870218,
 			LatitudeY:  41.200268,
 		},
-	}}
-	controller := New(redisClient.NewStoreClient(), redisClient.NewPubSubClient(), areaKey, tollgate.New(tollgates))
+	)
+	detectables := []tollgate.Detectable{tg}
+	controller := New(redisClient.NewStoreClient(), redisClient.NewPubSubClient(), areaKey, tollgate.NewDetector(detectables))
 	locationV1beta1.RegisterLocationServiceServer(server, controller)
 
 	go func() {

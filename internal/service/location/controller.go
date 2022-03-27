@@ -46,11 +46,11 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 	c.publishLocation(ctx, request.WorkerId, request.Longitude, request.Latitude)
 
 	if lastLocation != nil {
-		from := tollgate.LocationXY{
+		from := &tollgate.LocationXY{
 			LongitudeX: lastLocation.Longitude,
 			LatitudeY:  lastLocation.Latitude,
 		}
-		to := tollgate.LocationXY{
+		to := &tollgate.LocationXY{
 			LongitudeX: request.Longitude,
 			LatitudeY:  request.Latitude}
 		movement := &tollgate.Movement{
@@ -58,9 +58,16 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 			From:      from,
 			To:        to,
 		}
-		crossing := c.detector.Detect(movement)
-		if crossing != nil {
-			c.publishTollgateCrossing(ctx, crossing)
+
+		for _, d := range c.detector.Detectables {
+			crossing, err := d.Detect(ctx, movement)
+			if err != nil {
+				log.Errorf("detect error: %q", err)
+				continue
+			}
+			if crossing != nil {
+				c.publishTollgateCrossing(ctx, crossing)
+			}
 		}
 	}
 
