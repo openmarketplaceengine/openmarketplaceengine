@@ -78,6 +78,7 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 	return &locationV1beta1.UpdateLocationResponse{
 		WorkerId:         request.WorkerId,
 		TollgateCrossing: tollgateCrossing,
+		UpdateTime:       request.UpdateTime,
 	}, nil
 }
 
