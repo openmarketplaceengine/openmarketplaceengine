@@ -85,16 +85,16 @@ func testCrossing(ctx context.Context, t *testing.T, s Storage) {
 		LatitudeY:  33,
 	}
 	subjectID := uuid.NewString()
-	c1, _ := bBox.Detect(ctx, &tollgate.Movement{SubjectID: subjectID, From: &loc0, To: &loc1})
+	c1, _ := bBox.DetectCrossing(ctx, &tollgate.Movement{SubjectID: subjectID, From: &loc0, To: &loc1})
 	require.Nil(t, c1)
 
-	c2, _ := bBox.Detect(ctx, &tollgate.Movement{SubjectID: subjectID, From: &loc0, To: &loc2})
+	c2, _ := bBox.DetectCrossing(ctx, &tollgate.Movement{SubjectID: subjectID, From: &loc0, To: &loc2})
 	require.Nil(t, c2)
 
-	c3, _ := bBox.Detect(ctx, &tollgate.Movement{SubjectID: subjectID, From: &loc0, To: &loc3})
+	c3, _ := bBox.DetectCrossing(ctx, &tollgate.Movement{SubjectID: subjectID, From: &loc0, To: &loc3})
 	require.Nil(t, c3)
 
-	c4, _ := bBox.Detect(ctx, &tollgate.Movement{SubjectID: subjectID, From: &loc0, To: &loc0})
+	c4, _ := bBox.DetectCrossing(ctx, &tollgate.Movement{SubjectID: subjectID, From: &loc0, To: &loc0})
 	require.Nil(t, c4)
 
 	visits, err := s.Visits(ctx, bBox.TollgateID, subjectID, 5)
@@ -102,7 +102,7 @@ func testCrossing(ctx context.Context, t *testing.T, s Storage) {
 
 	assert.Equal(t, []int64{1, 1, 1, 0, 0}, visits)
 
-	c5, _ := bBox.Detect(ctx, &tollgate.Movement{SubjectID: subjectID, From: &loc0, To: &loc5})
+	c5, _ := bBox.DetectCrossing(ctx, &tollgate.Movement{SubjectID: subjectID, From: &loc0, To: &loc5})
 	require.NotNil(t, c5)
 
 	visits, err = s.Visits(ctx, bBox.TollgateID, subjectID, 5)

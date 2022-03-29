@@ -1,27 +1,15 @@
 package tollgate
 
 import (
-	"context"
 	"fmt"
+
+	"context"
 )
 
-// Detectable represents a tollgate the Subject passes through.
-// Detect detects if subject Movement has travelled through the tollgate.
-type Detectable interface {
-	Detect(ctx context.Context, movement *Movement) (*Crossing, error)
-}
-
-// LocationXY is longitude latitude corresponding to linear algebra X Y axis.
-type LocationXY struct {
-	LongitudeX float64
-	LatitudeY  float64
-}
-
-// Movement represents a moving SubjectID from one LocationXY to another.
-type Movement struct {
-	SubjectID string
-	From      *LocationXY
-	To        *LocationXY
+// Tollgate represents a tollgate the Subject passes through.
+// Crossed detects if subject Movement has travelled through the tollgate.
+type Tollgate interface {
+	DetectCrossing(ctx context.Context, movement *Movement) (*Crossing, error)
 }
 
 // Crossing represents detected fact of passing through the tollgate by SubjectID.
@@ -32,18 +20,21 @@ type Crossing struct {
 	Direction  Direction
 }
 
+// Movement represents a moving SubjectID from one LocationXY to another.
+type Movement struct {
+	SubjectID string
+	From      *LocationXY
+	To        *LocationXY
+}
+
+// LocationXY is longitude latitude corresponding to linear algebra X Y axis.
+type LocationXY struct {
+	LongitudeX float64
+	LatitudeY  float64
+}
+
 //Direction to North, South, East or West in form of N, S, E, W, NE, NW, SE, SW.
 type Direction string
-
-type Detector struct {
-	Detectables []Detectable
-}
-
-func NewDetector(detectables []Detectable) *Detector {
-	return &Detector{
-		Detectables: detectables,
-	}
-}
 
 // Direction of movement
 // When moving to North - latitude increases until 90.

@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/detector"
+
 	"github.com/go-redis/redis/v8"
 	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/location/v1beta1"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/location/storage"
@@ -19,10 +21,10 @@ type Controller struct {
 	store    *storage.Storage
 	pub      publisher.Publisher
 	areaKey  string
-	detector *tollgate.Detector
+	detector *detector.Detector
 }
 
-func New(storeClient *redis.Client, pubClient *redis.Client, areaKey string, detector *tollgate.Detector) *Controller {
+func New(storeClient *redis.Client, pubClient *redis.Client, areaKey string, detector *detector.Detector) *Controller {
 	return &Controller{
 		store:    storage.New(storeClient),
 		pub:      publisher.New(pubClient),
@@ -45,6 +47,8 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 
 	c.publishLocation(ctx, request.WorkerId, request.Longitude, request.Latitude)
 
+	var tollgateCrossing *locationV1beta1.TollgateCrossing
+
 	if lastLocation != nil {
 		from := &tollgate.LocationXY{
 			LongitudeX: lastLocation.Longitude,
@@ -59,20 +63,22 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 			To:        to,
 		}
 
-		for _, d := range c.detector.Detectables {
-			crossing, err := d.Detect(ctx, movement)
-			if err != nil {
-				log.Errorf("detect error: %q", err)
-				continue
-			}
-			if crossing != nil {
-				c.publishTollgateCrossing(ctx, crossing)
+		crossing := c.detector.DetectTollgateCrossing(ctx, movement)
+		if crossing != nil {
+			c.publishTollgateCrossing(ctx, crossing)
+			tollgateCrossing = &locationV1beta1.TollgateCrossing{
+				TollgateId: crossing.TollgateID,
+				Longitude:  crossing.Location.LongitudeX,
+				Latitude:   crossing.Location.LatitudeY,
+				Direction:  string(crossing.Direction),
 			}
 		}
 	}
 
 	return &locationV1beta1.UpdateLocationResponse{
-		WorkerId: request.WorkerId,
+		WorkerId:         request.WorkerId,
+		TollgateCrossing: tollgateCrossing,
+		UpdateTime:       request.UpdateTime,
 	}, nil
 }
 
@@ -119,7 +125,7 @@ func (c *Controller) publishTollgateCrossing(ctx context.Context, crossing *toll
 }
 
 func crossingChannel(tollgateID string) string {
-	return fmt.Sprintf("channel-crossing-%s", tollgateID)
+	return fmt.Sprintf("channel:crossing:%s", tollgateID)
 }
 
 func (c *Controller) QueryLocation(ctx context.Context, request *locationV1beta1.QueryLocationRequest) (*locationV1beta1.QueryLocationResponse, error) {

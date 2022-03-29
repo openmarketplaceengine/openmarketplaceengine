@@ -9,6 +9,7 @@ import (
 
 // Tollgate detects if subject LocationXY has travelled through Required number of BBoxes.
 // Algorithm requires storing 'moving' state in Storage.
+// Required is count of visits required for successful pass through, Required <= []BBox size.
 type Tollgate struct {
 	TollgateID string
 	BBoxes     []*BBox // Overlapping bounded boxes to form a route
@@ -38,10 +39,10 @@ func NewTollgate(tollgateID string, boxes []*BBox, required int, storage Storage
 	}, nil
 }
 
-// Detect checks if LocationXY hits a required number of BBoxes.
-// If the criteria is met - a successful PassedThrough will be returned.
-// Consumer of Trace should check returned value for not null, meaning detected fact of passing through the tollgate.
-func (d *Tollgate) Detect(ctx context.Context, movement *tollgate.Movement) (*tollgate.Crossing, error) {
+// DetectCrossing checks if LocationXY hits a required number of BBoxes.
+// If the criteria is met - a successful tollgate.Crossing will be returned.
+// Consumer of DetectCrossing should check returned value for not null, meaning detected fact of crossing the tollgate.
+func (d *Tollgate) DetectCrossing(ctx context.Context, movement *tollgate.Movement) (*tollgate.Crossing, error) {
 	for i, box := range d.BBoxes {
 		inb := inBoundary(box, movement.To)
 		if inb {

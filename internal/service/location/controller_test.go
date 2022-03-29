@@ -8,6 +8,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/detector"
+
 	lineTollgate "github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/line"
 
 	"github.com/google/uuid"
@@ -66,8 +68,9 @@ func dialer() func(context.Context, string) (net.Conn, error) {
 			LatitudeY:  41.200268,
 		},
 	)
-	detectables := []tollgate.Detectable{tg}
-	controller := New(redisClient.NewStoreClient(), redisClient.NewPubSubClient(), areaKey, tollgate.NewDetector(detectables))
+	tollgateDetector := detector.NewDetector()
+	tollgateDetector.AddTollgate(tg)
+	controller := New(redisClient.NewStoreClient(), redisClient.NewPubSubClient(), areaKey, tollgateDetector)
 	locationV1beta1.RegisterLocationServiceServer(server, controller)
 
 	go func() {
@@ -158,10 +161,12 @@ func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceCl
 	response1, err := client.UpdateLocation(ctx, from)
 	require.NoError(t, err)
 	require.Equal(t, from.WorkerId, response1.WorkerId)
+	require.Nil(t, response1.TollgateCrossing)
 
 	response2, err := client.UpdateLocation(ctx, to)
 	require.NoError(t, err)
 	require.Equal(t, from.WorkerId, response2.WorkerId)
+	require.NotNil(t, response2.TollgateCrossing)
 
 	c := <-crossings
 	require.Equal(t, tollgateID, c.TollgateID)

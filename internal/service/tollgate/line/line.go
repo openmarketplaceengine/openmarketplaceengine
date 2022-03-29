@@ -22,9 +22,9 @@ type Tollgate struct {
 	Point2 *tollgate.LocationXY
 }
 
-// Detect detects tollgate crossing
+// DetectCrossing detects tollgate crossing
 // returns nil if no Crossing, otherwise the LocationXY and Direction at which Crossing detected.
-func (t *Tollgate) Detect(ctx context.Context, movement *tollgate.Movement) (*tollgate.Crossing, error) {
+func (t *Tollgate) DetectCrossing(ctx context.Context, movement *tollgate.Movement) (*tollgate.Crossing, error) {
 	_ = ctx
 	return detectCrossing(t, movement, 0.0000001), nil
 }
