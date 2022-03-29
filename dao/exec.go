@@ -99,3 +99,48 @@ func (e SQLExec) Execute(ctx Context, exe Executor) error {
 func (e SQLExec) String() string {
 	return string(e)
 }
+
+//-----------------------------------------------------------------------------
+
+type ListExec struct {
+	list []Executable
+}
+
+func (l *ListExec) Append(execs ...Executable) {
+	l.list = append(l.list, execs...)
+}
+
+func (l *ListExec) Execute(ctx Context, exe Executor) (err error) {
+	for i := 0; i < len(l.list) && err == nil; i++ {
+		err = l.list[i].Execute(ctx, exe)
+	}
+	return
+}
+
+func (l *ListExec) Slice() []Executable {
+	return l.list
+}
+
+func (l *ListExec) Clear() {
+	if n := len(l.list); n > 0 {
+		for i := 0; i < n; i++ {
+			l.list[i] = nil
+		}
+		l.list = l.list[:0]
+	}
+}
+
+func (l *ListExec) Join(execs []Executable) []Executable {
+	n1 := len(l.list)
+	n2 := len(execs)
+	if n1 == 0 {
+		return execs
+	}
+	if n2 == 0 {
+		return l.list
+	}
+	join := make([]Executable, 0, n1+n2)
+	join = append(join, l.list...)
+	join = append(join, execs...)
+	return join
+}
