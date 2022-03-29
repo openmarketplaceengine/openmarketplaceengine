@@ -1,0 +1,9 @@
+version: v1
+plugins:
+  - name: js
+    out: typescript-protos
+    opt: import_style=commonjs,binary
+  - name: grpc
+    out: typescript-protos
+    opt: grpc_js
+    path: grpc_tools_node_protoc_plugin

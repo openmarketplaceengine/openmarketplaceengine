@@ -1,0 +1,5 @@
+version: v1
+plugins:
+  - name: ts
+    out: typescript-protos
+    opt: grpc_js

@@ -1,0 +1,17 @@
+FROM bufbuild/buf
+
+WORKDIR /workspace
+
+COPY package.json /workspace/
+
+RUN pwd && \
+    ls -la && \
+    apk add --update --no-cache nodejs=16.14.2-r0 && \
+    apk add --update --no-cache npm && \
+    apk add --update --no-cache protoc && \
+    rm -rf /var/cache/apk/* && \
+    cd /workspace && \
+    npm install
+
+ENTRYPOINT ["/bin/sh"]
+#ENTRYPOINT ["/usr/local/bin/buf"]
