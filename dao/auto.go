@@ -1,12 +1,9 @@
 package dao
 
-var autoExec = make([]Executable, 0, 16)
-var autoDrop = make([]Executable, 0, 16)
-
 func AutoExec(exec ...Executable) {
-	autoExec = append(autoExec, exec...)
+	Pgdb.auto.Append(exec...)
 }
 
 func AutoDrop(exec ...Executable) {
-	autoDrop = append(autoDrop, exec...)
+	Pgdb.drop.Append(exec...)
 }
