@@ -21,22 +21,28 @@ func TestWorkerLocation_Persist(t *testing.T) {
 
 func TestAddWorkerLocation(t *testing.T) {
 	WillTest(t, "test", true)
-	loc := genCoord(100)
-	wid := mockUUID("drv")
+	insWorkerLocations(t, 100)
+}
+
+//-----------------------------------------------------------------------------
+
+func insWorkerLocations(t *testing.T, max int) (wid SUID, loc []Coord) {
+	wid = numUUID(1, "drv")
+	loc = genCoord(max)
 	ctx := cfg.Context()
 	for i := 0; i < len(loc); i++ {
 		c := loc[i]
 		err := AddWorkerLocation(ctx, wid, c.Longitude, c.Latitude, time.Now(), mockRange(10, 100))
 		require.NoError(t, err)
 	}
+	return
 }
 
 //-----------------------------------------------------------------------------
 
 func TestLastWorkerLocation(t *testing.T) {
-	WillTest(t, "test", false)
-	loc := genCoord(100)
-	wid := mockUUID("drv")
+	WillTest(t, "test", true)
+	wid, loc := insWorkerLocations(t, 100)
 	ctx := cfg.Context()
 	cor, err := LastWorkerLocation(ctx, wid)
 	require.NoError(t, err)
@@ -47,13 +53,12 @@ func TestLastWorkerLocation(t *testing.T) {
 //-----------------------------------------------------------------------------
 
 func TestListWorkerLocation(t *testing.T) {
-	WillTest(t, "test", false)
+	WillTest(t, "test", true)
 	max := 100
-	loc := genCoord(max)
-	wid := mockUUID("drv")
-	ctx := cfg.Context()
-	cor, err := ListWorkerLocation(ctx, wid, max)
+	wid, loc := insWorkerLocations(t, max)
+	cor, err := ListWorkerLocation(cfg.Context(), wid, max)
 	require.NoError(t, err)
+	max = len(cor)
 	for i := 0; i < max; i++ {
 		require.Equal(t, loc[max-i-1], cor[i])
 	}
