@@ -27,6 +27,8 @@ type PgdbConn struct {
 	cfg   *pgx.ConnConfig
 	sdb   *sql.DB
 	log   log.Logger
+	drop  ListExec
+	auto  ListExec
 }
 
 const (
@@ -49,6 +51,8 @@ func (p *PgdbConn) Boot() (err error) {
 	if !p.state.TryBoot() {
 		return p.stateError()
 	}
+
+	defer p.clearAutos()
 
 	defer p.state.BootOrFail(&err)
 
@@ -125,17 +129,18 @@ func (p *PgdbConn) Boot() (err error) {
 //-----------------------------------------------------------------------------
 
 func (p *PgdbConn) autoExec(ctx Context) error {
-	auto := make([]Executable, 0, len(autoDrop)+len(autoExec))
-	if len(autoDrop) > 0 {
-		auto = append(auto, autoDrop...)
-	}
-	if len(autoExec) > 0 {
-		auto = append(auto, autoExec...)
-	}
-	if len(auto) > 0 {
-		return ExecTX(ctx, auto...)
+	exec := p.drop.Join(p.auto.Slice())
+	if len(exec) > 0 {
+		return ExecTX(ctx, exec...)
 	}
 	return nil
+}
+
+//-----------------------------------------------------------------------------
+
+func (p *PgdbConn) clearAutos() {
+	p.drop.Clear()
+	p.auto.Clear()
 }
 
 //-----------------------------------------------------------------------------
@@ -261,8 +266,25 @@ func logerr(err error, prefix ...string) {
 
 type Tester interface {
 	Fatalf(format string, args ...interface{})
+	Errorf(format string, args ...interface{})
 	Cleanup(f func())
 	SkipNow()
+}
+
+//-----------------------------------------------------------------------------
+
+func (p *PgdbConn) resetForTests(t Tester) {
+	if Running() {
+		infof("stopping...")
+		err := Pgdb.Stop()
+		if err != nil {
+			t.Errorf("%s", err)
+		}
+	}
+	p.state.SetUnused()
+	p.cfg = nil
+	p.sdb = nil
+	p.log = nil
 }
 
 //-----------------------------------------------------------------------------
@@ -275,10 +297,12 @@ func SkipTest() bool {
 //-----------------------------------------------------------------------------
 
 func WillTest(t Tester, schema string) {
+	defer Pgdb.clearAutos()
 	if SkipTest() {
 		t.SkipNow()
 		return
 	}
+	Pgdb.resetForTests(t)
 	if len(schema) > 0 {
 		err := cfg.SetEnv(cfg.EnvPgdbSchema, schema)
 		if err != nil {
@@ -298,12 +322,6 @@ func WillTest(t Tester, schema string) {
 		log.Fatalf("%s", err)
 	}
 	t.Cleanup(func() {
-		if Running() {
-			infof("stopping...")
-			err = Pgdb.Stop()
-			if err != nil {
-				t.Fatalf("%s", err)
-			}
-		}
+		Pgdb.resetForTests(t)
 	})
 }

@@ -40,6 +40,7 @@ type ServerConfig struct {
 	dump   func()
 	exit   bool // must exit
 	penv   bool // print environment flag
+	load   bool // config loaded flag
 }
 
 var _cfg ServerConfig
@@ -89,6 +90,10 @@ func Load() error {
 // Load performs loading of ServerConfig from a file,
 // environment, and command line arguments.
 func (c *ServerConfig) Load() error {
+	if c.load {
+		c.Reset()
+	}
+	c.load = true
 	loader, err := c.createConfigLoader()
 	if err != nil {
 		return err
@@ -128,6 +133,11 @@ func (c *ServerConfig) Check() (err error) {
 	check.add("redis", &c.Redis)
 	check.add("log", &c.Log)
 	return check.run()
+}
+
+// Reset clears configuration.
+func (c *ServerConfig) Reset() {
+	*c = ServerConfig{}
 }
 
 // AddConfigFile adds custom file path to the configuration search

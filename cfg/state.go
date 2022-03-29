@@ -44,6 +44,10 @@ func (s *State64) TryStop() bool {
 	return s.TrySet(StateRunning, StateClosing)
 }
 
+func (s *State64) SetUnused() {
+	atomic.StoreInt64(&s.state, StateUnused)
+}
+
 func (s *State64) SetRunning() {
 	atomic.StoreInt64(&s.state, StateRunning)
 }
@@ -75,6 +79,10 @@ func (s *State64) StopOrFail(f func() error) error {
 	}
 	s.SetStopped()
 	return nil
+}
+
+func (s *State64) ResetIfStopped() bool {
+	return s.TrySet(StateStopped, StateUnused)
 }
 
 //-----------------------------------------------------------------------------

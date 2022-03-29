@@ -5,6 +5,7 @@
 package log
 
 import (
+	stdlog "log"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -43,6 +44,13 @@ func TestLevelSetter(t *testing.T) {
 	if _, ok := zlog.c.(*levelCore); ok {
 		t.Logf("zlog.Core is a levelCore")
 	}
+}
+
+func TestStdlogReset(t *testing.T) {
+	callInit(t, DevelConfig().WithTrace(false))
+	stdlog.Println("stdlog println")
+	reset()
+	stdlog.Println("stdlog println after reset")
 }
 
 //-----------------------------------------------------------------------------

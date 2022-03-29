@@ -32,6 +32,7 @@ var (
 )
 
 var sink []string
+var stdlogReset func()
 
 //-----------------------------------------------------------------------------
 
@@ -65,13 +66,27 @@ func NewStdLog(level Level) *stdlog.Logger {
 //-----------------------------------------------------------------------------
 
 func Init(c ConfigHolder) error {
+	reset()
 	log, err := newZap(c)
 	if err != nil {
 		return err
 	}
 	zlog.set(log)
-	zap.RedirectStdLog(log)
+	stdlogReset = zap.RedirectStdLog(log)
 	return nil
+}
+
+//-----------------------------------------------------------------------------
+
+func reset() {
+	if len(sink) > 0 {
+		_ = zlog.Sync()
+		sink = nil
+	}
+	if stdlogReset != nil {
+		stdlogReset()
+		stdlogReset = nil
+	}
 }
 
 //-----------------------------------------------------------------------------
