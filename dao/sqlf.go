@@ -12,7 +12,8 @@ import (
 )
 
 type SQL struct {
-	stmt *sqlf.Stmt
+	stmt   *sqlf.Stmt
+	result Result
 }
 
 func init() {
@@ -22,44 +23,50 @@ func init() {
 //-----------------------------------------------------------------------------
 
 func NewSQL(verb string, args ...interface{}) *SQL {
-	return &SQL{sqlf.New(verb, args...)}
+	return &SQL{sqlf.New(verb, args...), nil}
 }
 
 //-----------------------------------------------------------------------------
 
-func (s *SQL) Execute(ctx Context, exe Executor) error {
-	_, err := s.stmt.ExecAndClose(ctx, exe)
-	return err
+func (s *SQL) Execute(ctx Context, exe Executor) (err error) {
+	s.result, err = s.stmt.ExecAndClose(ctx, exe)
+	return
+}
+
+//-----------------------------------------------------------------------------
+
+func (s *SQL) Result() Result {
+	return s.result
 }
 
 //-----------------------------------------------------------------------------
 
 func Insert(table string) *SQL {
-	return &SQL{sqlf.InsertInto(table)}
+	return &SQL{sqlf.InsertInto(table), nil}
 }
 
 //-----------------------------------------------------------------------------
 
 func Update(table string) *SQL {
-	return &SQL{sqlf.Update(table)}
+	return &SQL{sqlf.Update(table), nil}
 }
 
 //-----------------------------------------------------------------------------
 
 func Delete(table string) *SQL {
-	return &SQL{sqlf.DeleteFrom(table)}
+	return &SQL{sqlf.DeleteFrom(table), nil}
 }
 
 //-----------------------------------------------------------------------------
 
 func Select(expr string, args ...interface{}) *SQL {
-	return &SQL{sqlf.Select(expr, args...)}
+	return &SQL{sqlf.Select(expr, args...), nil}
 }
 
 //-----------------------------------------------------------------------------
 
 func From(expr string, args ...interface{}) *SQL {
-	return &SQL{sqlf.From(expr, args...)}
+	return &SQL{sqlf.From(expr, args...), nil}
 }
 
 //-----------------------------------------------------------------------------

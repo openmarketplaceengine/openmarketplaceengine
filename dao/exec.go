@@ -29,6 +29,7 @@ type Executor interface {
 // Executable implementers perform actual Executor.ExecContext calls.
 type Executable interface {
 	Execute(ctx Context, exe Executor) error
+	Result() Result
 }
 
 //-----------------------------------------------------------------------------
@@ -61,21 +62,26 @@ func ExecTX(ctx Context, execs ...Executable) error {
 
 // ArgsExec executes SQL CRUD statements with parameters binding.
 type ArgsExec struct {
-	Stmt string
-	Args []interface{}
+	Stmt   string
+	Args   []interface{}
+	result Result
 }
 
 func NewArgsExec(stmt string, args ...interface{}) *ArgsExec {
-	return &ArgsExec{stmt, args}
+	return &ArgsExec{stmt, args, nil}
 }
 
 func (a *ArgsExec) Execute(ctx Context, exe Executor) (err error) {
 	if len(a.Args) > 0 {
-		_, err = exe.ExecContext(ctx, a.Stmt, a.Args...)
+		a.result, err = exe.ExecContext(ctx, a.Stmt, a.Args...)
 	} else {
-		_, err = exe.ExecContext(ctx, a.Stmt)
+		a.result, err = exe.ExecContext(ctx, a.Stmt)
 	}
 	return
+}
+
+func (a *ArgsExec) Result() Result {
+	return a.result
 }
 
 //-----------------------------------------------------------------------------
@@ -94,6 +100,10 @@ func SQLExecf(format string, args ...interface{}) SQLExec {
 func (e SQLExec) Execute(ctx Context, exe Executor) error {
 	_, err := exe.ExecContext(ctx, string(e))
 	return err
+}
+
+func (e SQLExec) Result() Result {
+	return nil
 }
 
 func (e SQLExec) String() string {
@@ -115,6 +125,10 @@ func (l *ListExec) Execute(ctx Context, exe Executor) (err error) {
 		err = l.list[i].Execute(ctx, exe)
 	}
 	return
+}
+
+func (l *ListExec) Result() Result {
+	return nil
 }
 
 func (l *ListExec) Slice() []Executable {
