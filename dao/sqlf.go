@@ -21,50 +21,50 @@ func init() {
 
 //-----------------------------------------------------------------------------
 
-func NewSQL(verb string, args ...interface{}) SQL {
-	return SQL{sqlf.New(verb, args...)}
+func NewSQL(verb string, args ...interface{}) *SQL {
+	return &SQL{sqlf.New(verb, args...)}
 }
 
 //-----------------------------------------------------------------------------
 
-func (s SQL) Execute(ctx Context, exe Executor) error {
+func (s *SQL) Execute(ctx Context, exe Executor) error {
 	_, err := s.stmt.ExecAndClose(ctx, exe)
 	return err
 }
 
 //-----------------------------------------------------------------------------
 
-func Insert(table string) SQL {
-	return SQL{sqlf.InsertInto(table)}
+func Insert(table string) *SQL {
+	return &SQL{sqlf.InsertInto(table)}
 }
 
 //-----------------------------------------------------------------------------
 
-func Update(table string) SQL {
-	return SQL{sqlf.Update(table)}
+func Update(table string) *SQL {
+	return &SQL{sqlf.Update(table)}
 }
 
 //-----------------------------------------------------------------------------
 
-func Delete(table string) SQL {
-	return SQL{sqlf.DeleteFrom(table)}
+func Delete(table string) *SQL {
+	return &SQL{sqlf.DeleteFrom(table)}
 }
 
 //-----------------------------------------------------------------------------
 
-func Select(expr string, args ...interface{}) SQL {
-	return SQL{sqlf.Select(expr, args...)}
+func Select(expr string, args ...interface{}) *SQL {
+	return &SQL{sqlf.Select(expr, args...)}
 }
 
 //-----------------------------------------------------------------------------
 
-func From(expr string, args ...interface{}) SQL {
-	return SQL{sqlf.From(expr, args...)}
+func From(expr string, args ...interface{}) *SQL {
+	return &SQL{sqlf.From(expr, args...)}
 }
 
 //-----------------------------------------------------------------------------
 
-func (s SQL) Set(field string, value interface{}) SQL {
+func (s *SQL) Set(field string, value interface{}) *SQL {
 	s.stmt.Set(field, value)
 	return s
 }
@@ -72,7 +72,7 @@ func (s SQL) Set(field string, value interface{}) SQL {
 //-----------------------------------------------------------------------------
 
 // SetNonZero binds an INSERT field if value is not zero.
-func (s SQL) SetNonZero(field string, value interface{}) (self SQL) {
+func (s *SQL) SetNonZero(field string, value interface{}) (self *SQL) {
 	self = s
 	if value == nil {
 		return
@@ -105,42 +105,42 @@ func (s SQL) SetNonZero(field string, value interface{}) (self SQL) {
 
 //-----------------------------------------------------------------------------
 
-func (s SQL) Bind(v interface{}) SQL {
+func (s *SQL) Bind(v interface{}) *SQL {
 	s.stmt.Bind(v)
 	return s
 }
 
 //-----------------------------------------------------------------------------
 
-func (s SQL) Select(expr string, args ...interface{}) SQL {
+func (s *SQL) Select(expr string, args ...interface{}) *SQL {
 	s.stmt.Select(expr, args...)
 	return s
 }
 
 //-----------------------------------------------------------------------------
 
-func (s SQL) To(dest ...interface{}) SQL {
+func (s *SQL) To(dest ...interface{}) *SQL {
 	s.stmt.To(dest...)
 	return s
 }
 
 //-----------------------------------------------------------------------------
 
-func (s SQL) Where(expr string, args ...interface{}) SQL {
+func (s *SQL) Where(expr string, args ...interface{}) *SQL {
 	s.stmt.Where(expr, args...)
 	return s
 }
 
 //-----------------------------------------------------------------------------
 
-func (s SQL) OrderBy(expr ...string) SQL {
+func (s *SQL) OrderBy(expr ...string) *SQL {
 	s.stmt.OrderBy(expr...)
 	return s
 }
 
 //-----------------------------------------------------------------------------
 
-func (s SQL) Limit(limit interface{}) SQL {
+func (s *SQL) Limit(limit interface{}) *SQL {
 	s.stmt.Limit(limit)
 	return s
 }
@@ -149,7 +149,7 @@ func (s SQL) Limit(limit interface{}) SQL {
 // Query
 //-----------------------------------------------------------------------------
 
-func (s SQL) QueryOne(ctx Context) error {
+func (s *SQL) QueryOne(ctx Context) error {
 	return WithConn(ctx, func(ctx Context, con *sql.Conn) error {
 		return s.stmt.QueryRowAndClose(ctx, con)
 	})
@@ -157,7 +157,7 @@ func (s SQL) QueryOne(ctx Context) error {
 
 //-----------------------------------------------------------------------------
 
-func (s SQL) QueryEach(ctx Context, eachFunc func(rows *Rows)) error {
+func (s *SQL) QueryEach(ctx Context, eachFunc func(rows *Rows)) error {
 	return WithConn(ctx, func(ctx Context, con *sql.Conn) error {
 		return s.stmt.QueryAndClose(ctx, con, eachFunc)
 	})
@@ -165,7 +165,7 @@ func (s SQL) QueryEach(ctx Context, eachFunc func(rows *Rows)) error {
 
 //-----------------------------------------------------------------------------
 
-func (s SQL) QueryRows(ctx Context, rowsFunc func(rows *Rows) error) error {
+func (s *SQL) QueryRows(ctx Context, rowsFunc func(rows *Rows) error) error {
 	return WithConn(ctx, func(ctx Context, con *sql.Conn) error {
 		rows, err := con.QueryContext(ctx, s.stmt.String(), s.stmt.Args()...)
 		s.stmt.Close()
