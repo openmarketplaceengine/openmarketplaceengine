@@ -2,6 +2,7 @@ package dom
 
 import (
 	"testing"
+	"time"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
@@ -71,6 +72,21 @@ func TestSetWorkerStatus(t *testing.T) {
 	wrk.Status = WorkerStatus(mockEnum(WorkerDisabled))
 	require.NoError(t, SetWorkerStatus(ctx, wrk.ID, wrk.Status))
 	testGetWorkerStatus(t, ctx, wrk)
+}
+
+//-----------------------------------------------------------------------------
+
+func TestWorker_RowsAffected(t *testing.T) {
+	WillTest(t, "test", true)
+	max := 100
+	ctx := cfg.Context()
+	for i := 0; i < max; i++ {
+		wrk := genWorker()
+		require.NoError(t, wrk.Persist(ctx))
+	}
+	sql := dao.Update(workerTable).Set("updated", time.Now())
+	require.NoError(t, dao.ExecTX(ctx, sql))
+	require.Equal(t, max, int(sql.RowsAffected()))
 }
 
 //-----------------------------------------------------------------------------
