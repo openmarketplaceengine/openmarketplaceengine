@@ -158,3 +158,16 @@ func (l *ListExec) Join(execs []Executable) []Executable {
 	join = append(join, execs...)
 	return join
 }
+
+//-----------------------------------------------------------------------------
+// Result Helpers
+//-----------------------------------------------------------------------------
+
+func RowsAffected(result Result) int64 {
+	if result != nil {
+		if rows, err := result.RowsAffected(); err == nil {
+			return rows
+		}
+	}
+	return -1
+}

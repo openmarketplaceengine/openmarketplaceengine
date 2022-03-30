@@ -41,6 +41,12 @@ func (s *SQL) Result() Result {
 
 //-----------------------------------------------------------------------------
 
+func (s *SQL) RowsAffected() int64 {
+	return RowsAffected(s.result)
+}
+
+//-----------------------------------------------------------------------------
+
 func Insert(table string) *SQL {
 	return &SQL{sqlf.InsertInto(table), nil}
 }
