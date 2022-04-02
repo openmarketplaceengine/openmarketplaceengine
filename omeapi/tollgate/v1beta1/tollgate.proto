@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package omeapi.tollgate.v1beta1;
+
+option go_package = "omeapi/tollgate/v1beta1";
+
+import "google/protobuf/timestamp.proto";
+
+service TollgateService {
+  rpc GetTollgate(GetTollgateRequest) returns (GetTollgateResponse) {}
+  rpc GetTollgates(GetTollgatesRequest) returns (GetTollgatesResponse) {}
+}
+
+message GetTollgateRequest {
+  string tollgate_id = 1;
+}
+
+message GetTollgateResponse {
+  Tollgate tollgate = 1;
+}
+
+message GetTollgatesRequest {
+  string limit = 1;
+}
+
+message GetTollgatesResponse {
+  repeated Tollgate tollgates = 1;
+}
+
+message Tollgate {
+  string id = 1;
+  string name = 2;
+  BBox b_box = 3;
+  LineGate line_gate = 4;
+  google.protobuf.Timestamp created_time = 5;
+  google.protobuf.Timestamp updated_time = 6;
+}
+
+message BBoxes {
+  BBox b_boxes = 1;
+  int32 required = 2;
+}
+
+message BBox {
+  double lon_min = 1;
+  double lat_min = 2;
+  double lon_max = 3;
+  double lat_max = 4;
+}
+
+message LineGate {
+  double lon1 = 1;
+  double lat1 = 2;
+  double lon2 = 3;
+  double lat2 = 4;
+}

@@ -5,8 +5,8 @@ import (
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/bbox"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/conf"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/line"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/repository"
 	redisClient "github.com/openmarketplaceengine/openmarketplaceengine/redis/client"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/log"
@@ -29,7 +29,7 @@ func (d *Detector) AddTollgate(tollgate tollgate.Tollgate) {
 // LoadTollgates - loads tolls information from database.
 // Consider encapsulating it in NewDetector.
 func (d *Detector) LoadTollgates() error {
-	tolls, err := repository.FindAll()
+	tolls, err := conf.FindAll()
 	if err != nil {
 		return err
 	}
@@ -62,7 +62,7 @@ func (d *Detector) LoadTollgates() error {
 	return nil
 }
 
-func transform(boxes []repository.Box) (bBoxes []*bbox.BBox) {
+func transform(boxes []conf.bbox) (bBoxes []*bbox.BBox) {
 	for _, b := range boxes {
 		bBoxes = append(bBoxes, &bbox.BBox{
 			Left:   b.LonMin,
