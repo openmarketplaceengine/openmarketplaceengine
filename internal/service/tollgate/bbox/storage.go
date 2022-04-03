@@ -7,7 +7,7 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-// Storage keeps passing through information for SubjectID
+// Storage keeps passing through information for DriverID
 // visits is a flag bitmap array for corresponding BBox array, 1 - means visited, 0 - not visited
 // Examples:
 // 1 - [1,0,0,0,0] - for bbox 5 elements array the first one was visited.

@@ -3,3 +3,4 @@
 - worker_vehicle.sql
 - worker_location.sql
 - tollgate.sql
+- tollgate_crossing.sql

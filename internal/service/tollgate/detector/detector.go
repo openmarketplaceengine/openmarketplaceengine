@@ -34,7 +34,7 @@ func NewDetector(ctx context.Context, storage bbox.Storage) (*Detector, error) {
 func (d *Detector) DetectCrossing(ctx context.Context, movement *tollgate.Movement) (*tollgate.Crossing, error) {
 	for _, t := range d.tollgates {
 		if t.GateLine != nil {
-			crossing := line.DetectCrossing(t.ID, &t.GateLine.Line, movement, 0.0000001)
+			crossing := line.DetectCrossing(t.ID, &t.GateLine.Line, movement)
 			if crossing != nil {
 				return crossing, nil
 			}

@@ -37,13 +37,14 @@ type Alg uint8
 const (
 	LineAlg Alg = iota
 	BBoxAlg
+	VectorAlg
 )
 
-// Crossing represents detected fact of passing through the tollgate by SubjectID.
+// Crossing represents detected fact of passing through the tollgate by DriverID.
 type Crossing struct {
 	TollgateID string
-	SubjectID  string
-	Location   *Location
+	DriverID   string
+	Movement   *Movement
 	Direction  Direction
 	Alg        Alg
 }
