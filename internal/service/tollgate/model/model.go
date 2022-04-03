@@ -7,12 +7,13 @@ import (
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
 )
 
 const table = "tollgate"
 
 type BBoxes struct {
-	BBoxes   []BBox
+	BBoxes   []*tollgate.BBox
 	Required int
 }
 
@@ -20,18 +21,8 @@ func (b *BBoxes) Scan(data interface{}) (err error) {
 	return json.Unmarshal(data.([]byte), &b)
 }
 
-type BBox struct {
-	LonMin float64
-	LatMin float64
-	LonMax float64
-	LatMax float64
-}
-
 type GateLine struct {
-	Lon1 float64
-	Lat1 float64
-	Lon2 float64
-	Lat2 float64
+	Line tollgate.Line
 }
 
 func (g *GateLine) Scan(data interface{}) (err error) {
@@ -39,12 +30,12 @@ func (g *GateLine) Scan(data interface{}) (err error) {
 }
 
 type Tollgate struct {
-	ID        dom.SUID `db:"id"`
-	Name      string   `db:"name"`
-	BBoxes    BBoxes   `db:"b_boxes"`
-	GateLine  GateLine `db:"gate_line"`
-	CreatedAt dao.Time `db:"created_at"`
-	UpdatedAt dao.Time `db:"updated_at"`
+	ID        dom.SUID  `db:"id"`
+	Name      string    `db:"name"`
+	BBoxes    *BBoxes   `db:"b_boxes"`
+	GateLine  *GateLine `db:"gate_line"`
+	CreatedAt dao.Time  `db:"created_at"`
+	UpdatedAt dao.Time  `db:"updated_at"`
 }
 
 func (t *Tollgate) Insert(ctx dom.Context) error {
@@ -87,15 +78,15 @@ func CreateIfNotExists(ctx dom.Context, tollgate *Tollgate) error {
 }
 
 func QueryOne(ctx dom.Context, id dom.SUID) (*Tollgate, error) {
-	var tollgate Tollgate
+	var t Tollgate
 	err := dao.From(table).
-		Bind(&tollgate).
+		Bind(&t).
 		Where("id = ?", id).
 		QueryOne(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &tollgate, nil
+	return &t, nil
 }
 
 func QueryAll(ctx dom.Context, limit int) ([]*Tollgate, error) {

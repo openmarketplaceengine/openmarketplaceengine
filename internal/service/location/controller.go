@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/detector"
-
 	"github.com/go-redis/redis/v8"
 	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/location/v1beta1"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/location/storage"
@@ -21,10 +19,10 @@ type Controller struct {
 	store    *storage.Storage
 	pub      publisher.Publisher
 	areaKey  string
-	detector *detector.Detector
+	detector tollgate.Detector
 }
 
-func New(storeClient *redis.Client, pubClient *redis.Client, areaKey string, detector *detector.Detector) *Controller {
+func New(storeClient *redis.Client, pubClient *redis.Client, areaKey string, detector tollgate.Detector) *Controller {
 	return &Controller{
 		store:    storage.New(storeClient),
 		pub:      publisher.New(pubClient),
@@ -50,26 +48,29 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 	var tollgateCrossing *locationV1beta1.TollgateCrossing
 
 	if lastLocation != nil {
-		from := &tollgate.LocationXY{
-			LongitudeX: lastLocation.Longitude,
-			LatitudeY:  lastLocation.Latitude,
+		from := &tollgate.Location{
+			Lon: lastLocation.Longitude,
+			Lat: lastLocation.Latitude,
 		}
-		to := &tollgate.LocationXY{
-			LongitudeX: request.Longitude,
-			LatitudeY:  request.Latitude}
+		to := &tollgate.Location{
+			Lon: request.Longitude,
+			Lat: request.Latitude}
 		movement := &tollgate.Movement{
 			SubjectID: request.WorkerId,
 			From:      from,
 			To:        to,
 		}
 
-		crossing := c.detector.DetectTollgateCrossing(ctx, movement)
+		crossing, err := c.detector.DetectCrossing(ctx, movement)
+		if err != nil {
+			return nil, err
+		}
 		if crossing != nil {
 			c.publishTollgateCrossing(ctx, crossing)
 			tollgateCrossing = &locationV1beta1.TollgateCrossing{
 				TollgateId: crossing.TollgateID,
-				Longitude:  crossing.Location.LongitudeX,
-				Latitude:   crossing.Location.LatitudeY,
+				Longitude:  crossing.Location.Lon,
+				Latitude:   crossing.Location.Lat,
 				Direction:  string(crossing.Direction),
 			}
 		}

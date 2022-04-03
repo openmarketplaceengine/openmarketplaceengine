@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
+
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
@@ -91,8 +93,8 @@ func newRandomTollgate(r *rand.Rand, name string) *Tollgate {
 	return &Tollgate{
 		ID:   id,
 		Name: name,
-		BBoxes: BBoxes{
-			BBoxes: []BBox{{
+		BBoxes: &BBoxes{
+			BBoxes: []*tollgate.BBox{{
 				LonMin: util.LongitudeInRange(r, -122.47304848490842, -122.43073395709482),
 				LatMin: util.LatitudeInRange(r, 37.65046887713942, 37.65617701286946),
 				LonMax: util.LongitudeInRange(r, -122.47304848490842, -122.43073395709482),
@@ -100,11 +102,13 @@ func newRandomTollgate(r *rand.Rand, name string) *Tollgate {
 			}},
 			Required: 2,
 		},
-		GateLine: GateLine{
-			Lon1: util.LongitudeInRange(r, -122.47304848490842, -122.43073395709482),
-			Lat1: util.LatitudeInRange(r, 37.65046887713942, 37.65617701286946),
-			Lon2: util.LongitudeInRange(r, -122.47304848490842, -122.43073395709482),
-			Lat2: util.LatitudeInRange(r, 37.65046887713942, 37.65617701286946),
+		GateLine: &GateLine{
+			Line: tollgate.Line{
+				Lon1: util.LongitudeInRange(r, -122.47304848490842, -122.43073395709482),
+				Lat1: util.LatitudeInRange(r, 37.65046887713942, 37.65617701286946),
+				Lon2: util.LongitudeInRange(r, -122.47304848490842, -122.43073395709482),
+				Lat2: util.LatitudeInRange(r, 37.65046887713942, 37.65617701286946),
+			},
 		},
 	}
 }

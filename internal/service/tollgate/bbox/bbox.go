@@ -7,64 +7,36 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
 )
 
-// Tollgate detects if subject LocationXY has travelled through Required number of BBoxes.
-// Algorithm requires storing 'moving' state in Storage.
-// Required is count of visits required for successful pass through, Required <= []BBox size.
-type Tollgate struct {
-	TollgateID string
-	BBoxes     []*BBox // Overlapping bounded boxes to form a route
-	Required   int     // Number of visited boxes required to pass
-	storage    Storage
-}
-
-// BBox is a bounded box, represents area defined by two longitudes and two latitudes (left,bottom,right,top).
-// Longitude and Latitude correspond to linear algebra X and Y axis.
-type BBox struct {
-	Left   float64
-	Bottom float64
-	Right  float64
-	Top    float64
-}
-
-func NewTollgate(tollgateID string, boxes []*BBox, required int, storage Storage) (*Tollgate, error) {
-	if required > len(boxes) {
-		return nil, fmt.Errorf("required visits must be less than number of boxes")
-	}
-
-	return &Tollgate{
-		TollgateID: tollgateID,
-		BBoxes:     boxes,
-		Required:   required,
-		storage:    storage,
-	}, nil
-}
-
-// DetectCrossing checks if LocationXY hits a required number of BBoxes.
+// DetectCrossing checks if Location hits a required number of BBoxes,
+// meaning subject has travelled through Required number of BBoxes.
 // If the criteria is met - a successful tollgate.Crossing will be returned.
 // Consumer of DetectCrossing should check returned value for not null, meaning detected fact of crossing the tollgate.
-func (d *Tollgate) DetectCrossing(ctx context.Context, movement *tollgate.Movement) (*tollgate.Crossing, error) {
-	for i, box := range d.BBoxes {
+// Algorithm requires storing 'moving' state in Storage.
+// required is count of visits for successful pass through, required <= []BBox size.
+func DetectCrossing(ctx context.Context, storage Storage, tollgateID string, bBoxes []*tollgate.BBox, required int, movement *tollgate.Movement) (*tollgate.Crossing, error) {
+	for i, box := range bBoxes {
 		inb := inBoundary(box, movement.To)
 		if inb {
-			err := d.storage.Visit(ctx, d.TollgateID, movement.SubjectID, i)
+			err := storage.Visit(ctx, tollgateID, movement.SubjectID, i)
 			if err != nil {
 				return nil, fmt.Errorf("set visited err=%v", err)
 			}
-			visits, err := d.storage.Visits(ctx, d.TollgateID, movement.SubjectID, len(d.BBoxes))
+			visits, err := storage.Visits(ctx, tollgateID, movement.SubjectID, len(bBoxes))
 			if err != nil {
 				return nil, fmt.Errorf("get visits err=%v", err)
 			}
-			done := checkVisits(visits, d.Required)
+			done := checkVisits(visits, required)
 			if done {
-				err := d.storage.Del(ctx, d.TollgateID, movement.SubjectID)
+				err := storage.Del(ctx, tollgateID, movement.SubjectID)
 				if err != nil {
 					return nil, fmt.Errorf("delete visits err=%v", err)
 				}
 				return &tollgate.Crossing{
-					TollgateID: d.TollgateID,
+					TollgateID: tollgateID,
 					SubjectID:  movement.SubjectID,
 					Location:   movement.To,
 					Direction:  movement.Direction(),
+					Alg:        tollgate.BBoxAlg,
 				}, nil
 			}
 		}
@@ -83,8 +55,8 @@ func checkVisits(visits []int64, required int) bool {
 	return false
 }
 
-func inBoundary(box *BBox, location *tollgate.LocationXY) bool {
-	x := location.LongitudeX
-	y := location.LatitudeY
-	return box.Left < x && x < box.Right && box.Bottom < y && y < box.Top
+func inBoundary(box *tollgate.BBox, location *tollgate.Location) bool {
+	x := location.Lon
+	y := location.Lat
+	return box.LonMin < x && x < box.LonMax && box.LatMin < y && y < box.LatMax
 }

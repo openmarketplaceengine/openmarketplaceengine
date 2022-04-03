@@ -4,6 +4,8 @@ import (
 	"context"
 	"embed"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
+
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/model"
 	"github.com/openmarketplaceengine/openmarketplaceengine/log"
 
@@ -65,27 +67,29 @@ func LoadTollgates(ctx context.Context) error {
 	return nil
 }
 
-func transformBoxes(bBoxes BBoxes) model.BBoxes {
-	boxes := make([]model.BBox, len(bBoxes.Boxes))
+func transformBoxes(bBoxes BBoxes) *model.BBoxes {
+	boxes := make([]*tollgate.BBox, 0)
 	for _, b := range bBoxes.Boxes {
-		boxes = append(boxes, model.BBox{
+		boxes = append(boxes, &tollgate.BBox{
 			LonMin: b.LonMin,
 			LatMin: b.LatMin,
 			LonMax: b.LonMax,
 			LatMax: b.LatMax,
 		})
 	}
-	return model.BBoxes{
+	return &model.BBoxes{
 		BBoxes:   boxes,
 		Required: bBoxes.BoxesRequired,
 	}
 }
 
-func transformLine(l Line) model.GateLine {
-	return model.GateLine{
-		Lon1: l.Lon1,
-		Lat1: l.Lat1,
-		Lon2: l.Lon2,
-		Lat2: l.Lat2,
+func transformLine(l Line) *model.GateLine {
+	return &model.GateLine{
+		Line: tollgate.Line{
+			Lon1: l.Lon1,
+			Lat1: l.Lat1,
+			Lon2: l.Lon2,
+			Lat2: l.Lat2,
+		},
 	}
 }

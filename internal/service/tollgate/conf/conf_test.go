@@ -29,8 +29,6 @@ func testLoadTollgates(ctx cfg.SignalContext, t *testing.T) {
 	require.GreaterOrEqual(t, len(tg), 17)
 
 	for _, toll := range tg {
-		assert.NotNil(t, toll.GateLine)
-		assert.NotNil(t, toll.BBoxes)
 		assert.Less(t, toll.CreatedAt.UnixMilli(), time.Now().UnixMilli())
 	}
 }

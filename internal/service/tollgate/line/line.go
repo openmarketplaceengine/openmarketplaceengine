@@ -1,34 +1,12 @@
 package line
 
 import (
-	"context"
 	"math"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
 )
 
-func NewTollgate(id string, point1 *tollgate.LocationXY, point2 *tollgate.LocationXY) *Tollgate {
-	return &Tollgate{
-		ID:     id,
-		Point1: point1,
-		Point2: point2,
-	}
-}
-
-// Tollgate represents a two points line that Subject crosses.
-type Tollgate struct {
-	ID     string
-	Point1 *tollgate.LocationXY
-	Point2 *tollgate.LocationXY
-}
-
-// DetectCrossing detects tollgate crossing
-// returns nil if no Crossing, otherwise the LocationXY and Direction at which Crossing detected.
-func (t *Tollgate) DetectCrossing(ctx context.Context, movement *tollgate.Movement) (*tollgate.Crossing, error) {
-	_ = ctx
-	return detectCrossing(t, movement, 0.0000001), nil
-}
-
+// DetectCrossing function detects if Line was crossed by tollgate.Movement,
 // A little of linear algebra math on lines Crossing.
 // Line equation is ax + by + c = 0.
 // Line equation can be derived from equation by two points: (y - y1)/(y2 - y1) = (x - x1)/(x2 - x1).
@@ -44,25 +22,25 @@ func (t *Tollgate) DetectCrossing(ctx context.Context, movement *tollgate.Moveme
 // y = -(A1C2 - C1A2)/(A1B2 - B1A2)
 //
 // Tollgate - two points representing Tollgate line
-// Movement - two points representing Movement line, from previous to current LocationXY
+// Movement - two points representing Movement line, from previous to current Location
 // precision - float greater than 0, i.e. 0.001. for Lat/Long should be 0.0000001
 // returns nil if no Crossing, otherwise the location at which Crossing detected.
-func detectCrossing(lineTollgate *Tollgate, movement *tollgate.Movement, precision float64) *tollgate.Crossing {
+func DetectCrossing(tollgateID string, line *tollgate.Line, movement *tollgate.Movement, precision float64) *tollgate.Crossing {
 	//Tollgate-representing line
-	tx1 := lineTollgate.Point1.LongitudeX
-	ty1 := lineTollgate.Point1.LatitudeY
-	tx2 := lineTollgate.Point2.LongitudeX
-	ty2 := lineTollgate.Point2.LatitudeY
+	tx1 := line.Lon1
+	ty1 := line.Lat1
+	tx2 := line.Lon2
+	ty2 := line.Lat2
 
 	A1 := ty2 - ty1
 	B1 := tx1 - tx2
 	C1 := ty1*tx2 - tx1*ty2
 
 	//Movement-representing line
-	mx1 := movement.From.LongitudeX
-	my1 := movement.From.LatitudeY
-	mx2 := movement.To.LongitudeX
-	my2 := movement.To.LatitudeY
+	mx1 := movement.From.Lon
+	my1 := movement.From.Lat
+	mx2 := movement.To.Lon
+	my2 := movement.To.Lat
 
 	A2 := my2 - my1
 	B2 := mx1 - mx2
@@ -74,12 +52,13 @@ func detectCrossing(lineTollgate *Tollgate, movement *tollgate.Movement, precisi
 		y := -(A1*C2 - C1*A2) / v
 		return &tollgate.Crossing{
 			SubjectID:  movement.SubjectID,
-			TollgateID: lineTollgate.ID,
-			Location: &tollgate.LocationXY{
-				LongitudeX: x,
-				LatitudeY:  y,
+			TollgateID: tollgateID,
+			Location: &tollgate.Location{
+				Lon: x,
+				Lat: y,
 			},
 			Direction: movement.Direction(),
+			Alg:       tollgate.LineAlg,
 		}
 	}
 	return nil
