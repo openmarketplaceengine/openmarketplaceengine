@@ -58,19 +58,19 @@ func newRandomTollgate(r *rand.Rand, name string) *model.Tollgate {
 		Name: name,
 		BBoxes: &model.BBoxes{
 			BBoxes: []*tollgate.BBox{{
-				LonMin: util.LongitudeInRange(r, -122.47304848490842, -122.43073395709482),
-				LatMin: util.LatitudeInRange(r, 37.65046887713942, 37.65617701286946),
-				LonMax: util.LongitudeInRange(r, -122.47304848490842, -122.43073395709482),
-				LatMax: util.LatitudeInRange(r, 37.65046887713942, 37.65617701286946),
+				LonMin: util.LongitudeInRange(r, -122.473048, -122.430733),
+				LatMin: util.LatitudeInRange(r, 37.656177, 37.656177),
+				LonMax: util.LongitudeInRange(r, -122.473048, -122.430733),
+				LatMax: util.LatitudeInRange(r, 37.656177, 37.656177),
 			}},
 			Required: 2,
 		},
 		GateLine: &model.GateLine{
 			Line: tollgate.Line{
-				Lon1: util.LongitudeInRange(r, -122.47304848490842, -122.43073395709482),
-				Lat1: util.LatitudeInRange(r, 37.65046887713942, 37.65617701286946),
-				Lon2: util.LongitudeInRange(r, -122.47304848490842, -122.43073395709482),
-				Lat2: util.LatitudeInRange(r, 37.65046887713942, 37.65617701286946),
+				Lon1: util.LongitudeInRange(r, -122.473048, -122.430733),
+				Lat1: util.LatitudeInRange(r, 37.656177, 37.656177),
+				Lon2: util.LongitudeInRange(r, -122.473048, -122.430733),
+				Lat2: util.LatitudeInRange(r, 37.656177, 37.656177),
 			},
 		},
 	}
@@ -85,9 +85,16 @@ func newRandomCrossing(r *rand.Rand, tollgateID dom.SUID, driverID dom.SUID) *To
 			Crossing: tollgate.Crossing{
 				TollgateID: tollgateID,
 				DriverID:   driverID,
-				Location: &tollgate.Location{
-					Lon: util.LongitudeInRange(r, -122.47304848490842, -122.43073395709482),
-					Lat: util.LatitudeInRange(r, 37.65046887713942, 37.65617701286946),
+				Movement: &tollgate.Movement{
+					SubjectID: "",
+					From: &tollgate.Location{
+						Lon: util.LongitudeInRange(r, -122.473048, -122.430733),
+						Lat: util.LatitudeInRange(r, 37.656177, 37.656177),
+					},
+					To: &tollgate.Location{
+						Lon: util.LongitudeInRange(r, -122.473048, -122.430733),
+						Lat: util.LatitudeInRange(r, 37.656177, 37.656177),
+					},
 				},
 				Direction: "N",
 				Alg:       0,

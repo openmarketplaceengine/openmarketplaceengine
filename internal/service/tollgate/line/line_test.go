@@ -20,6 +20,10 @@ func TestTollgate(t *testing.T) {
 	t.Run("testNotCrossed", func(t *testing.T) {
 		testNotCrossed(t)
 	})
+
+	t.Run("testNotCrossedPrecision", func(t *testing.T) {
+		testNotCrossedPrecision(t)
+	})
 }
 
 func testCrossed(t *testing.T) {
@@ -41,9 +45,8 @@ func testCrossed(t *testing.T) {
 		},
 	}
 
-	crossing := DetectCrossing("", &line, &m, 0.001)
-	assert.Equal(t, 3.5, crossing.Location.Lon)
-	assert.Equal(t, 3.5, crossing.Location.Lat)
+	crossing := detectCrossingLine("", &line, &m, 0.001)
+	assert.NotNil(t, crossing)
 }
 
 func testCrossedLatLong(t *testing.T) {
@@ -65,9 +68,8 @@ func testCrossedLatLong(t *testing.T) {
 		},
 	}
 
-	crossing := DetectCrossing("", &line, &m, 0.0000001)
-	assert.InDelta(t, -79.8702, crossing.Location.Lon, 0.001)
-	assert.InDelta(t, 41.1994, crossing.Location.Lat, 0.001)
+	crossing := detectCrossingLine("", &line, &m, 0.0000001)
+	assert.NotNil(t, crossing)
 }
 
 func testNotCrossed(t *testing.T) {
@@ -88,6 +90,37 @@ func testNotCrossed(t *testing.T) {
 		},
 	}
 
-	crossing := DetectCrossing("", &line, &m, 0.001)
-	assert.Nil(t, crossing)
+	crossing := DetectCrossing("", &line, &m)
+	assert.NotNil(t, crossing)
+}
+
+func testNotCrossedPrecision(t *testing.T) {
+	line1 := tollgate.Line{
+		Lon1: -74.195995,
+		Lat1: 40.636916,
+		Lon2: -74.198356,
+		Lat2: 40.634408,
+	}
+	line2 := tollgate.Line{
+		Lon1: -73.951378,
+		Lat1: 40.855176,
+		Lon2: -73.953223,
+		Lat2: 40.848359,
+	}
+	m := tollgate.Movement{
+		From: &tollgate.Location{
+			Lon: -74.172478,
+			Lat: 40.663041,
+		},
+		To: &tollgate.Location{
+			Lon: -74.154282,
+			Lat: 40.669812,
+		},
+	}
+
+	crossing1 := DetectCrossing("", &line1, &m)
+	assert.Nil(t, crossing1)
+
+	crossing2 := DetectCrossing("", &line2, &m)
+	assert.Nil(t, crossing2)
 }

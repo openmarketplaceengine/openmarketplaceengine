@@ -96,9 +96,9 @@ func dialer(detector tollgate.Detector) func(context.Context, string) (net.Conn,
 func testUpdateLocation(t *testing.T, client locationV1beta1.LocationServiceClient) {
 	id := uuid.NewString()
 	request := &locationV1beta1.UpdateLocationRequest{
-		WorkerId:  id,
-		Longitude: 12.000001966953278,
-		Latitude:  13.000001966953278,
+		WorkerId: id,
+		Lon:      12.000001966953278,
+		Lat:      13.000001966953278,
 	}
 	response, err := client.UpdateLocation(context.Background(), request)
 	require.NoError(t, err)
@@ -109,8 +109,8 @@ func testUpdateLocation(t *testing.T, client locationV1beta1.LocationServiceClie
 	})
 	require.NoError(t, err)
 	require.Equal(t, request.WorkerId, location.WorkerId)
-	require.InDelta(t, request.Longitude, location.Longitude, 0.001)
-	require.InDelta(t, request.Latitude, location.Latitude, 0.001)
+	require.InDelta(t, request.Lon, location.Lon, 0.001)
+	require.InDelta(t, request.Lat, location.Lat, 0.001)
 }
 
 func testQueryLocation(t *testing.T, client locationV1beta1.LocationServiceClient) {
@@ -126,9 +126,9 @@ func testQueryLocation(t *testing.T, client locationV1beta1.LocationServiceClien
 	require.Contains(t, err.Error(), fmt.Sprintf("location not found for WorkerId=%s", request.WorkerId))
 
 	response, err := client.UpdateLocation(ctx, &locationV1beta1.UpdateLocationRequest{
-		WorkerId:  id,
-		Longitude: 12,
-		Latitude:  13,
+		WorkerId: id,
+		Lon:      12,
+		Lat:      13,
 	},
 	)
 	require.NoError(t, err)
@@ -143,14 +143,14 @@ func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceCl
 	ctx := context.Background()
 	id := uuid.NewString()
 	from := &locationV1beta1.UpdateLocationRequest{
-		WorkerId:  id,
-		Longitude: -79.871248,
-		Latitude:  41.199493,
+		WorkerId: id,
+		Lon:      -79.871248,
+		Lat:      41.199493,
 	}
 	to := &locationV1beta1.UpdateLocationRequest{
-		WorkerId:  id,
-		Longitude: -79.867927,
-		Latitude:  41.199329,
+		WorkerId: id,
+		Lon:      -79.867927,
+		Lat:      41.199329,
 	}
 
 	sync := make(chan string)
@@ -181,6 +181,6 @@ func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceCl
 	require.Equal(t, tollgateID, c.TollgateID)
 	require.Equal(t, tollgate.Direction("SE"), c.Direction)
 	require.Equal(t, id, c.DriverID)
-	require.InDelta(t, to.Latitude, c.Location.Lat, 0.003)
-	require.InDelta(t, to.Longitude, c.Location.Lon, 0.003)
+	require.InDelta(t, to.Lat, c.Movement.To.Lat, 0.003)
+	require.InDelta(t, to.Lon, c.Movement.To.Lon, 0.003)
 }

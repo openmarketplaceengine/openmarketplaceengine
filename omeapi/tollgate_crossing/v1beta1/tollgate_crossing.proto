@@ -19,13 +19,19 @@ message QueryTollgateCrossingsResponse {
   repeated TollgateCrossing tollgate = 1;
 }
 
+message Movement {
+  double from_lon = 1;
+  double from_lat = 2;
+  double to_lon = 3;
+  double to_lat = 4;
+}
+
 message TollgateCrossing {
   string id = 1;
   string tollgate_id = 2;
   string driver_id = 3;
   string direction = 4;
   string alg = 5;
-  double lon = 6;
-  double lat = 7;
-  google.protobuf.Timestamp created_time = 8;
+  Movement movement = 6;
+  google.protobuf.Timestamp created_time = 7;
 }

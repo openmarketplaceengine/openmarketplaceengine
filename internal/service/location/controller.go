@@ -36,14 +36,14 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 
 	err := c.store.Update(ctx, c.areaKey, &storage.Location{
 		WorkerID:  request.WorkerId,
-		Longitude: request.Longitude,
-		Latitude:  request.Latitude,
+		Longitude: request.Lon,
+		Latitude:  request.Lat,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	c.publishLocation(ctx, request.WorkerId, request.Longitude, request.Latitude)
+	c.publishLocation(ctx, request.WorkerId, request.Lon, request.Lat)
 
 	var tollgateCrossing *locationV1beta1.TollgateCrossing
 
@@ -53,8 +53,8 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 			Lat: lastLocation.Latitude,
 		}
 		to := &tollgate.Location{
-			Lon: request.Longitude,
-			Lat: request.Latitude}
+			Lon: request.Lon,
+			Lat: request.Lat}
 		movement := &tollgate.Movement{
 			SubjectID: request.WorkerId,
 			From:      from,
@@ -69,9 +69,13 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 			c.publishTollgateCrossing(ctx, crossing)
 			tollgateCrossing = &locationV1beta1.TollgateCrossing{
 				TollgateId: crossing.TollgateID,
-				Longitude:  crossing.Location.Lon,
-				Latitude:   crossing.Location.Lat,
-				Direction:  string(crossing.Direction),
+				Movement: &locationV1beta1.Movement{
+					FromLon: crossing.Movement.From.Lon,
+					FromLat: crossing.Movement.From.Lat,
+					ToLon:   crossing.Movement.To.Lon,
+					ToLat:   crossing.Movement.To.Lat,
+				},
+				Direction: string(crossing.Direction),
 			}
 		}
 	}
@@ -133,9 +137,9 @@ func (c *Controller) QueryLocation(ctx context.Context, request *locationV1beta1
 	l := c.store.LastLocation(ctx, c.areaKey, request.WorkerId)
 	if l != nil {
 		return &locationV1beta1.QueryLocationResponse{
-			WorkerId:  l.WorkerID,
-			Longitude: l.Longitude,
-			Latitude:  l.Latitude,
+			WorkerId: l.WorkerID,
+			Lon:      l.Longitude,
+			Lat:      l.Latitude,
 			LastSeenTime: &timestamppb.Timestamp{
 				Seconds: l.LastSeenTime.Unix(),
 				Nanos:   0,

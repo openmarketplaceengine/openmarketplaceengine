@@ -92,8 +92,8 @@ func testQuery(t *testing.T, client v1beta1.TollgateCrossingServiceClient) {
 	require.Len(t, res1.Tollgate, 5)
 	require.Equal(t, tollgateID, res1.Tollgate[0].TollgateId)
 	require.Equal(t, driverID1, res1.Tollgate[0].DriverId)
-	require.NotEqual(t, res1.Tollgate[0].Lat, float64(0))
-	require.NotEqual(t, res1.Tollgate[0].Lon, float64(0))
+	require.NotEqual(t, res1.Tollgate[0].Movement.ToLon, float64(0))
+	require.NotEqual(t, res1.Tollgate[0].Movement.ToLat, float64(0))
 
 	req2 := &v1beta1.QueryTollgateCrossingsRequest{
 		TollgateId: tollgateID,
