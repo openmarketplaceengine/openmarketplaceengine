@@ -33,7 +33,7 @@ func DetectCrossing(ctx context.Context, storage Storage, tollgateID string, bBo
 				}
 				return &tollgate.Crossing{
 					TollgateID: tollgateID,
-					SubjectID:  movement.SubjectID,
+					DriverID:   movement.SubjectID,
 					Location:   movement.To,
 					Direction:  movement.Direction(),
 					Alg:        tollgate.BBoxAlg,

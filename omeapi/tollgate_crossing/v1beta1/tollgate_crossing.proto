@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package omeapi.tollgate_crossing.v1beta1;
+
+option go_package = "omeapi/tollgate_crossing/v1beta1";
+
+import "google/protobuf/timestamp.proto";
+
+service TollgateCrossingService {
+  rpc QueryTollgateCrossings(QueryTollgateCrossingsRequest) returns (QueryTollgateCrossingsResponse) {}
+}
+
+message QueryTollgateCrossingsRequest {
+  string tollgate_id = 1;
+  string driver_id = 2;
+}
+
+message QueryTollgateCrossingsResponse {
+  repeated TollgateCrossing tollgate = 1;
+}
+
+message TollgateCrossing {
+  string id = 1;
+  string tollgate_id = 2;
+  string driver_id = 3;
+  string direction = 4;
+  string alg = 5;
+  double lon = 6;
+  double lat = 7;
+  google.protobuf.Timestamp created_time = 8;
+}

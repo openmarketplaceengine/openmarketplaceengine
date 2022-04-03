@@ -180,7 +180,7 @@ func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceCl
 	c := <-crossings
 	require.Equal(t, tollgateID, c.TollgateID)
 	require.Equal(t, tollgate.Direction("SE"), c.Direction)
-	require.Equal(t, id, c.SubjectID)
+	require.Equal(t, id, c.DriverID)
 	require.InDelta(t, to.Latitude, c.Location.Lat, 0.003)
 	require.InDelta(t, to.Longitude, c.Location.Lon, 0.003)
 }

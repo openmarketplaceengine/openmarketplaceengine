@@ -51,7 +51,7 @@ func DetectCrossing(tollgateID string, line *tollgate.Line, movement *tollgate.M
 		x := -(C1*B2 - B1*C2) / v
 		y := -(A1*C2 - C1*A2) / v
 		return &tollgate.Crossing{
-			SubjectID:  movement.SubjectID,
+			DriverID:   movement.SubjectID,
 			TollgateID: tollgateID,
 			Location: &tollgate.Location{
 				Lon: x,

@@ -39,10 +39,10 @@ const (
 	BBoxAlg
 )
 
-// Crossing represents detected fact of passing through the tollgate by SubjectID.
+// Crossing represents detected fact of passing through the tollgate by DriverID.
 type Crossing struct {
 	TollgateID string
-	SubjectID  string
+	DriverID   string
 	Location   *Location
 	Direction  Direction
 	Alg        Alg
