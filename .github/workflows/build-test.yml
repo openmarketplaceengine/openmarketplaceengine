@@ -30,6 +30,22 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+      # Label used to access the service container
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: secret
+          POSTGRES_DB: oem
+        ports:
+          - 5432:5432
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
 
     steps:
       - uses: actions/checkout@v2
@@ -42,3 +58,4 @@ jobs:
         env:
           OME_REDIS_STORE_ADDR: redis:6379
           OME_REDIS_PUBSUB_ADDR: redis:6379
+          OME_PGDB_ADDR: postgres://postgres:secret@postgres:5432/oem
