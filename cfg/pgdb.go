@@ -41,6 +41,11 @@ func (c *PgdbConfig) Check(name ...string) error {
 	return nil
 }
 
+func (c *PgdbConfig) ReadyForStart() bool {
+	_, ok := GetEnv(EnvPgdbAddr)
+	return ok
+}
+
 // FullAddr appends PgdbConfig.Addr with optional parameters.
 func (c *PgdbConfig) FullAddr() (string, error) {
 	a := c.Addr
