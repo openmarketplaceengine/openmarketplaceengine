@@ -4,5 +4,5 @@ create table if not exists tollgate_crossing
     tollgate_id text        not null,
     driver_id   text        not null,
     crossing    jsonb       not null,
-    created_at  timestamptz not null
+    created     timestamptz not null
 );

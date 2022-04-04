@@ -41,13 +41,13 @@ func testCreate(ctx dom.Context, t *testing.T, r *rand.Rand) {
 	require.NoError(t, err)
 
 	wheres := []Where{{Expr: "driver_id = ?", Args: []interface{}{driverID}}, {Expr: "tollgate_id = ?", Args: []interface{}{tollgateID}}}
-	orderBy := []string{"created_at desc"}
+	orderBy := []string{"created desc"}
 	crossings, err := QueryBy(ctx, wheres, orderBy, 100)
 	require.NoError(t, err)
 	require.Len(t, crossings, 1)
 	require.Equal(t, tollgateID, crossings[0].TollgateID)
 	require.Equal(t, driverID, crossings[0].DriverID)
-	require.Less(t, crossings[0].CreatedAt.UnixMilli(), time.Now().UnixMilli())
+	require.Less(t, crossings[0].Created.UnixMilli(), time.Now().UnixMilli())
 }
 
 func newRandomTollgate(r *rand.Rand, name string) *model.Tollgate {

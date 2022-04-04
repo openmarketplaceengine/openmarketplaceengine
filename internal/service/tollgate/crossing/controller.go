@@ -32,7 +32,7 @@ func (c *Controller) QueryTollgateCrossings(ctx context.Context, request *v1beta
 		})
 	}
 
-	orderBy := []string{"created_at desc"}
+	orderBy := []string{"created desc"}
 	crossings, err := QueryBy(ctx, wheres, orderBy, 100)
 	if err != nil {
 		return nil, err
@@ -59,7 +59,7 @@ func transform(crossings []*TollgateCrossing) []*v1beta1.TollgateCrossing {
 				ToLat:   crossing.Crossing.Crossing.Movement.To.Lat,
 			},
 			CreatedTime: &timestamppb.Timestamp{
-				Seconds: crossing.CreatedAt.Unix(),
+				Seconds: crossing.Created.Unix(),
 				Nanos:   0,
 			},
 		})

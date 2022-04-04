@@ -45,9 +45,9 @@ func testCreate(ctx dom.Context, t *testing.T, r *rand.Rand) {
 	require.Equal(t, toll.Name, one.Name)
 	require.Equal(t, toll.BBoxes, one.BBoxes)
 	require.Equal(t, toll.GateLine, one.GateLine)
-	require.Less(t, one.CreatedAt.UnixMilli(), time.Now().UnixMilli())
-	require.Greater(t, one.CreatedAt.UnixMilli(), int64(0))
-	require.Equal(t, dao.Time{}, one.UpdatedAt)
+	require.Less(t, one.Created.UnixMilli(), time.Now().UnixMilli())
+	require.Greater(t, one.Created.UnixMilli(), int64(0))
+	require.Equal(t, dao.Time{}, one.Updated)
 }
 
 func testUpdate(ctx dom.Context, t *testing.T, r *rand.Rand) {
@@ -63,8 +63,8 @@ func testUpdate(ctx dom.Context, t *testing.T, r *rand.Rand) {
 	one, err := QueryOne(ctx, toll.ID)
 	require.NoError(t, err)
 	require.Equal(t, newName, one.Name)
-	require.Less(t, one.UpdatedAt.UnixMilli(), time.Now().UnixMilli())
-	require.Greater(t, one.UpdatedAt.UnixMilli(), int64(0))
+	require.Less(t, one.Updated.UnixMilli(), time.Now().UnixMilli())
+	require.Greater(t, one.Updated.UnixMilli(), int64(0))
 }
 
 func testQuery(ctx dom.Context, t *testing.T, r *rand.Rand) {
