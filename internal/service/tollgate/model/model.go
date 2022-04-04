@@ -61,7 +61,7 @@ func (t *Tollgate) Update(ctx dom.Context) error {
 		Set("name", t.Name).
 		Set("b_boxes", t.BBoxes).
 		Set("gate_line", t.GateLine).
-		Set("updated_at", t.Updated).
+		Set("updated", t.Updated).
 		Where("id = ?", t.ID)
 	return dao.ExecTX(ctx, exec)
 }
