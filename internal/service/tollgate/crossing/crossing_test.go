@@ -34,19 +34,19 @@ func testCreate(ctx dom.Context, t *testing.T, r *rand.Rand) {
 	err := toll.Insert(ctx)
 	require.NoError(t, err)
 
-	driverID := uuid.NewString()
+	workerID := uuid.NewString()
 	tollgateID := toll.ID
-	x := newRandomCrossing(r, tollgateID, driverID)
+	x := newRandomCrossing(r, tollgateID, workerID)
 	err = x.Insert(ctx)
 	require.NoError(t, err)
 
-	wheres := []Where{{Expr: "driver_id = ?", Args: []interface{}{driverID}}, {Expr: "tollgate_id = ?", Args: []interface{}{tollgateID}}}
+	wheres := []Where{{Expr: "worker_id = ?", Args: []interface{}{workerID}}, {Expr: "tollgate_id = ?", Args: []interface{}{tollgateID}}}
 	orderBy := []string{"created desc"}
 	crossings, err := QueryBy(ctx, wheres, orderBy, 100)
 	require.NoError(t, err)
 	require.Len(t, crossings, 1)
 	require.Equal(t, tollgateID, crossings[0].TollgateID)
-	require.Equal(t, driverID, crossings[0].DriverID)
+	require.Equal(t, workerID, crossings[0].WorkerID)
 	require.Less(t, crossings[0].Created.UnixMilli(), time.Now().UnixMilli())
 }
 
@@ -76,15 +76,15 @@ func newRandomTollgate(r *rand.Rand, name string) *model.Tollgate {
 	}
 }
 
-func newRandomCrossing(r *rand.Rand, tollgateID dom.SUID, driverID dom.SUID) *TollgateCrossing {
+func newRandomCrossing(r *rand.Rand, tollgateID dom.SUID, workerID dom.SUID) *TollgateCrossing {
 	return &TollgateCrossing{
 		ID:         uuid.NewString(),
 		TollgateID: tollgateID,
-		DriverID:   driverID,
+		WorkerID:   workerID,
 		Crossing: Crossing{
 			Crossing: tollgate.Crossing{
 				TollgateID: tollgateID,
-				DriverID:   driverID,
+				WorkerID:   workerID,
 				Movement: &tollgate.Movement{
 					SubjectID: "",
 					From: &tollgate.Location{

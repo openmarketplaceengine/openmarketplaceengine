@@ -22,7 +22,7 @@ func (g *Crossing) Scan(data interface{}) (err error) {
 type TollgateCrossing struct {
 	ID         dom.SUID `db:"id"`
 	TollgateID dom.SUID `db:"tollgate_id"`
-	DriverID   dom.SUID `db:"driver_id"`
+	WorkerID   dom.SUID `db:"worker_id"`
 	Crossing   Crossing `db:"crossing"`
 	Created    dao.Time `db:"created"`
 }
@@ -35,7 +35,7 @@ func (t *TollgateCrossing) Insert(ctx dom.Context) error {
 	exec := dao.Insert(table).
 		Set("id", t.ID).
 		Set("tollgate_id", t.TollgateID).
-		Set("driver_id", t.DriverID).
+		Set("worker_id", t.WorkerID).
 		Set("crossing", t.Crossing).
 		Set("created", t.Created)
 	return dao.ExecTX(ctx, exec)
@@ -50,7 +50,7 @@ func QueryBy(ctx dom.Context, wheres []Where, orderBy []string, limit int) ([]*T
 	query := dao.From(table).
 		Select("id").
 		Select("tollgate_id").
-		Select("driver_id").
+		Select("worker_id").
 		Select("crossing").
 		Select("created")
 	for _, w := range wheres {
@@ -62,7 +62,7 @@ func QueryBy(ctx dom.Context, wheres []Where, orderBy []string, limit int) ([]*T
 	err := query.QueryRows(ctx, func(rows *dao.Rows) error {
 		for rows.Next() {
 			var c TollgateCrossing
-			if err := rows.Scan(&c.ID, &c.TollgateID, &c.DriverID, &c.Crossing, &c.Created); err != nil {
+			if err := rows.Scan(&c.ID, &c.TollgateID, &c.WorkerID, &c.Crossing, &c.Created); err != nil {
 				return err
 			}
 			ary = append(ary, &c)

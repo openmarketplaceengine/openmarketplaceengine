@@ -25,10 +25,10 @@ func (c *Controller) QueryTollgateCrossings(ctx context.Context, request *v1beta
 		})
 	}
 
-	if request.DriverId != "" {
+	if request.WorkerId != "" {
 		wheres = append(wheres, Where{
-			Expr: "driver_id = ?",
-			Args: []interface{}{request.DriverId},
+			Expr: "worker_id = ?",
+			Args: []interface{}{request.WorkerId},
 		})
 	}
 
@@ -49,7 +49,7 @@ func transform(crossings []*TollgateCrossing) []*v1beta1.TollgateCrossing {
 		result = append(result, &v1beta1.TollgateCrossing{
 			Id:         crossing.ID,
 			TollgateId: crossing.TollgateID,
-			DriverId:   crossing.DriverID,
+			WorkerId:   crossing.WorkerID,
 			Direction:  string(crossing.Crossing.Crossing.Direction),
 			Alg:        fmt.Sprintf("%v", crossing.Crossing.Crossing.Alg),
 			Movement: &v1beta1.Movement{

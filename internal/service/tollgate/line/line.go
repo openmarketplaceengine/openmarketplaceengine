@@ -61,7 +61,7 @@ func detectCrossingLine(tollgateID string, line *tollgate.Line, movement *tollga
 		//x := -(C1*B2 - B1*C2) / v
 		//y := -(A1*C2 - C1*A2) / v
 		return &tollgate.Crossing{
-			DriverID:   movement.SubjectID,
+			WorkerID:   movement.SubjectID,
 			TollgateID: tollgateID,
 			Movement:   movement,
 			Direction:  movement.Direction(),
@@ -108,7 +108,7 @@ func detectCrossingVector(tollgateID string, line *tollgate.Line, movement *toll
 	intersect := intersects(s1, s2)
 	if intersect {
 		return &tollgate.Crossing{
-			DriverID:   movement.SubjectID,
+			WorkerID:   movement.SubjectID,
 			TollgateID: tollgateID,
 			Movement:   movement,
 			Direction:  movement.Direction(),

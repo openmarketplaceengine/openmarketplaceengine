@@ -69,29 +69,29 @@ func testQuery(t *testing.T, client v1beta1.TollgateCrossingServiceClient) {
 	err := toll.Insert(ctx)
 	require.NoError(t, err)
 
-	driverID1 := uuid.NewString()
-	driverID2 := uuid.NewString()
+	workerID1 := uuid.NewString()
+	workerID2 := uuid.NewString()
 	tollgateID := toll.ID
 
 	for i := 0; i < 5; i++ {
-		x1 := newRandomCrossing(r, tollgateID, driverID1)
+		x1 := newRandomCrossing(r, tollgateID, workerID1)
 		err = x1.Insert(ctx)
 		require.NoError(t, err)
-		x2 := newRandomCrossing(r, tollgateID, driverID2)
+		x2 := newRandomCrossing(r, tollgateID, workerID2)
 		err = x2.Insert(ctx)
 		require.NoError(t, err)
 	}
 
 	req1 := &v1beta1.QueryTollgateCrossingsRequest{
 		TollgateId: tollgateID,
-		DriverId:   driverID1,
+		WorkerId:   workerID1,
 	}
 
 	res1, err := client.QueryTollgateCrossings(ctx, req1)
 	require.NoError(t, err)
 	require.Len(t, res1.Tollgate, 5)
 	require.Equal(t, tollgateID, res1.Tollgate[0].TollgateId)
-	require.Equal(t, driverID1, res1.Tollgate[0].DriverId)
+	require.Equal(t, workerID1, res1.Tollgate[0].WorkerId)
 	require.NotEqual(t, res1.Tollgate[0].Movement.ToLon, float64(0))
 	require.NotEqual(t, res1.Tollgate[0].Movement.ToLat, float64(0))
 

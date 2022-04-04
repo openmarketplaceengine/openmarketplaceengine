@@ -12,7 +12,7 @@ service TollgateCrossingService {
 
 message QueryTollgateCrossingsRequest {
   string tollgate_id = 1;
-  string driver_id = 2;
+  string worker_id = 2;
 }
 
 message QueryTollgateCrossingsResponse {
@@ -29,7 +29,7 @@ message Movement {
 message TollgateCrossing {
   string id = 1;
   string tollgate_id = 2;
-  string driver_id = 3;
+  string worker_id = 3;
   string direction = 4;
   string alg = 5;
   Movement movement = 6;

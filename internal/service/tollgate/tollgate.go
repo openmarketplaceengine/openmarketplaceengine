@@ -40,10 +40,10 @@ const (
 	VectorAlg
 )
 
-// Crossing represents detected fact of passing through the tollgate by DriverID.
+// Crossing represents detected fact of passing through the tollgate by WorkerID.
 type Crossing struct {
 	TollgateID string
-	DriverID   string
+	WorkerID   string
 	Movement   *Movement
 	Direction  Direction
 	Alg        Alg
