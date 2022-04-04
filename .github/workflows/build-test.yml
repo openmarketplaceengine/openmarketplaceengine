@@ -36,7 +36,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: secret
-          POSTGRES_DB: oem
+          POSTGRES_DB: ome
         ports:
           - 5432:5432
         # Set health checks to wait until postgres has started
@@ -58,4 +58,4 @@ jobs:
         env:
           OME_REDIS_STORE_ADDR: redis:6379
           OME_REDIS_PUBSUB_ADDR: redis:6379
-          OME_PGDB_ADDR: postgres://postgres:secret@postgres:5432/oem
+          OME_PGDB_ADDR: postgres://postgres:secret@postgres:5432/ome
