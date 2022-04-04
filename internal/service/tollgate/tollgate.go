@@ -6,31 +6,60 @@ import (
 	"context"
 )
 
-// Tollgate represents a tollgate the Subject passes through.
+// Detector represents a tollgate the Subject passes through.
 // Crossed detects if subject Movement has travelled through the tollgate.
-type Tollgate interface {
+type Detector interface {
 	DetectCrossing(ctx context.Context, movement *Movement) (*Crossing, error)
 }
 
-// Crossing represents detected fact of passing through the tollgate by SubjectID.
+// Line represents a two points line that Subject crosses.
+// longitude latitude corresponding to linear algebra X Y axis.
+type Line struct {
+	Lon1 float64
+	Lat1 float64
+	Lon2 float64
+	Lat2 float64
+}
+
+// BBox is a bounded box, represents area defined by two longitudes and two latitudes
+// left,bottom,right,top - lonMin, latMin, lonMax, latMax
+// Longitude and Latitude correspond to linear algebra X and Y axis.
+type BBox struct {
+	LonMin float64
+	LatMin float64
+	LonMax float64
+	LatMax float64
+}
+
+// Alg represents algorithm.
+type Alg uint8
+
+const (
+	LineAlg Alg = iota
+	BBoxAlg
+	VectorAlg
+)
+
+// Crossing represents detected fact of passing through the tollgate by WorkerID.
 type Crossing struct {
 	TollgateID string
-	SubjectID  string
-	Location   *LocationXY
+	WorkerID   string
+	Movement   *Movement
 	Direction  Direction
+	Alg        Alg
 }
 
-// Movement represents a moving SubjectID from one LocationXY to another.
+// Movement represents a moving SubjectID from one Location to another.
 type Movement struct {
 	SubjectID string
-	From      *LocationXY
-	To        *LocationXY
+	From      *Location
+	To        *Location
 }
 
-// LocationXY is longitude latitude corresponding to linear algebra X Y axis.
-type LocationXY struct {
-	LongitudeX float64
-	LatitudeY  float64
+// Location is longitude, latitude corresponding to linear algebra X, Y axis.
+type Location struct {
+	Lon float64
+	Lat float64
 }
 
 //Direction to North, South, East or West in form of N, S, E, W, NE, NW, SE, SW.
@@ -45,10 +74,10 @@ type Direction string
 // Movement represents a moving subject
 // returns Direction in form of N, S, E, W, NE, NW, SE, SW.
 func (m *Movement) Direction() Direction {
-	fromX := m.From.LongitudeX
-	fromY := m.From.LatitudeY
-	toX := m.To.LongitudeX
-	toY := m.To.LatitudeY
+	fromX := m.From.Lon
+	fromY := m.From.Lat
+	toX := m.To.Lon
+	toY := m.To.Lat
 
 	var pole string
 	var side string

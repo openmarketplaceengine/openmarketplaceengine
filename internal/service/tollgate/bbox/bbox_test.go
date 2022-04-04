@@ -31,81 +31,76 @@ func TestTollgate(t *testing.T) {
 }
 
 func testCrossing(ctx context.Context, t *testing.T, s Storage) {
-	bBox, err := NewTollgate(
-		"toll-123",
-		[]*BBox{{
-			Left:   1,
-			Bottom: 1,
-			Right:  5,
-			Top:    5,
-		}, {
-			Left:   5,
-			Bottom: 5,
-			Right:  10,
-			Top:    10,
-		}, {
-			Left:   10,
-			Bottom: 10,
-			Right:  15,
-			Top:    15,
-		}, {
-			Left:   15,
-			Bottom: 15,
-			Right:  20,
-			Top:    20,
-		}, {
-			Left:   20,
-			Bottom: 20,
-			Right:  35,
-			Top:    35,
-		}},
-		4,
-		s,
-	)
+	required := 4
+	bBoxes := []*tollgate.BBox{{
+		LonMin: 1,
+		LatMin: 1,
+		LonMax: 5,
+		LatMax: 5,
+	}, {
+		LonMin: 5,
+		LatMin: 5,
+		LonMax: 10,
+		LatMax: 10,
+	}, {
+		LonMin: 10,
+		LatMin: 10,
+		LonMax: 15,
+		LatMax: 15,
+	}, {
+		LonMin: 15,
+		LatMin: 15,
+		LonMax: 20,
+		LatMax: 20,
+	}, {
+		LonMin: 20,
+		LatMin: 20,
+		LonMax: 35,
+		LatMax: 35,
+	}}
 
-	require.NoError(t, err)
+	loc0 := tollgate.Location{}
 
-	loc0 := tollgate.LocationXY{}
-
-	loc1 := tollgate.LocationXY{
-		LongitudeX: 2,
-		LatitudeY:  2,
+	loc1 := tollgate.Location{
+		Lon: 2,
+		Lat: 2,
 	}
-	loc2 := tollgate.LocationXY{
-		LongitudeX: 7,
-		LatitudeY:  7,
+	loc2 := tollgate.Location{
+		Lon: 7,
+		Lat: 7,
 	}
-	loc3 := tollgate.LocationXY{
-		LongitudeX: 13,
-		LatitudeY:  13,
+	loc3 := tollgate.Location{
+		Lon: 13,
+		Lat: 13,
 	}
 	//noisy GPS at 4, skipping
-	loc5 := tollgate.LocationXY{
-		LongitudeX: 33,
-		LatitudeY:  33,
+	loc5 := tollgate.Location{
+		Lon: 33,
+		Lat: 33,
 	}
 	subjectID := uuid.NewString()
-	c1, _ := bBox.DetectCrossing(ctx, &tollgate.Movement{SubjectID: subjectID, From: &loc0, To: &loc1})
+	tollgateID := "toll-1"
+	c1, _ := DetectCrossing(ctx, s, tollgateID, bBoxes, required, &tollgate.Movement{SubjectID: subjectID, From: &loc0, To: &loc1})
 	require.Nil(t, c1)
 
-	c2, _ := bBox.DetectCrossing(ctx, &tollgate.Movement{SubjectID: subjectID, From: &loc0, To: &loc2})
+	c2, _ := DetectCrossing(ctx, s, tollgateID, bBoxes, required, &tollgate.Movement{SubjectID: subjectID, From: &loc0, To: &loc2})
 	require.Nil(t, c2)
 
-	c3, _ := bBox.DetectCrossing(ctx, &tollgate.Movement{SubjectID: subjectID, From: &loc0, To: &loc3})
+	c3, _ := DetectCrossing(ctx, s, tollgateID, bBoxes, required, &tollgate.Movement{SubjectID: subjectID, From: &loc0, To: &loc3})
 	require.Nil(t, c3)
 
-	c4, _ := bBox.DetectCrossing(ctx, &tollgate.Movement{SubjectID: subjectID, From: &loc0, To: &loc0})
+	c4, _ := DetectCrossing(ctx, s, tollgateID, bBoxes, required, &tollgate.Movement{SubjectID: subjectID, From: &loc0, To: &loc0})
 	require.Nil(t, c4)
 
-	visits, err := s.Visits(ctx, bBox.TollgateID, subjectID, 5)
+	visits, err := s.Visits(ctx, tollgateID, subjectID, 5)
 	require.NoError(t, err)
 
 	assert.Equal(t, []int64{1, 1, 1, 0, 0}, visits)
 
-	c5, _ := bBox.DetectCrossing(ctx, &tollgate.Movement{SubjectID: subjectID, From: &loc0, To: &loc5})
+	c5, _ := DetectCrossing(ctx, s, tollgateID, bBoxes, required, &tollgate.Movement{SubjectID: subjectID, From: &loc0, To: &loc5})
 	require.NotNil(t, c5)
 
-	visits, err = s.Visits(ctx, bBox.TollgateID, subjectID, 5)
+	visits, err = s.Visits(ctx, tollgateID, subjectID, 5)
 	require.NoError(t, err)
 
 	assert.Equal(t, []int64{0, 0, 0, 0, 0}, visits)

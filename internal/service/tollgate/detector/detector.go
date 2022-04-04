@@ -3,87 +3,54 @@ package detector
 import (
 	"context"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/bbox"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/line"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/repository"
-	redisClient "github.com/openmarketplaceengine/openmarketplaceengine/redis/client"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/model"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/log"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/conf"
 )
 
 type Detector struct {
-	tollgates []tollgate.Tollgate
+	tollgates []*model.Tollgate
+	storage   bbox.Storage
 }
 
-func NewDetector() *Detector {
-	return &Detector{
-		tollgates: make([]tollgate.Tollgate, 0),
-	}
-}
-
-func (d *Detector) AddTollgate(tollgate tollgate.Tollgate) {
-	d.tollgates = append(d.tollgates, tollgate)
-}
-
-// LoadTollgates - loads tolls information from database.
-// Consider encapsulating it in NewDetector.
-func (d *Detector) LoadTollgates() error {
-	tolls, err := repository.FindAll()
+func NewDetector(ctx context.Context, storage bbox.Storage) (*Detector, error) {
+	err := conf.LoadTollgates(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
-
-	client := redisClient.NewStoreClient()
-
-	storage := bbox.NewStorage(client)
-
-	for _, t := range tolls.BboxTollgates {
-		bboxT, innerErr := bbox.NewTollgate(t.ID, transform(t.Boxes), t.BoxesRequired, storage)
-		if innerErr != nil {
-			return nil
-		}
-		d.tollgates = append(d.tollgates, bboxT)
+	tollgates, err := model.QueryAll(ctx, 100)
+	if err != nil {
+		return nil, err
 	}
-
-	for _, t := range tolls.LineTollgates {
-		lineT := line.NewTollgate(
-			t.ID,
-			&tollgate.LocationXY{
-				LongitudeX: t.LonMin,
-				LatitudeY:  t.LatMin,
-			},
-			&tollgate.LocationXY{
-				LongitudeX: t.LonMax,
-				LatitudeY:  t.LatMax,
-			})
-		d.tollgates = append(d.tollgates, lineT)
-	}
-	return nil
+	return &Detector{
+		tollgates: tollgates,
+		storage:   storage,
+	}, nil
 }
 
-func transform(boxes []repository.Box) (bBoxes []*bbox.BBox) {
-	for _, b := range boxes {
-		bBoxes = append(bBoxes, &bbox.BBox{
-			Left:   b.LonMin,
-			Bottom: b.LatMin,
-			Right:  b.LonMax,
-			Top:    b.LatMax,
-		})
-	}
-	return
-}
-
-func (d *Detector) DetectTollgateCrossing(ctx context.Context, movement *tollgate.Movement) *tollgate.Crossing {
+func (d *Detector) DetectCrossing(ctx context.Context, movement *tollgate.Movement) (*tollgate.Crossing, error) {
 	for _, t := range d.tollgates {
-		crossing, err := t.DetectCrossing(ctx, movement)
-		if err != nil {
-			log.Errorf("detect tollgate crossing error: %q", err)
-			continue
+		if t.GateLine != nil {
+			crossing := line.DetectCrossing(t.ID, &t.GateLine.Line, movement)
+			if crossing != nil {
+				return crossing, nil
+			}
 		}
-		if crossing != nil {
-			return crossing
+
+		if t.BBoxes != nil {
+			required := t.BBoxes.Required
+			boxes := t.BBoxes.BBoxes
+			crossing, err := bbox.DetectCrossing(ctx, d.storage, t.ID, boxes, required, movement)
+			if err != nil {
+				return nil, err
+			}
+			if crossing != nil {
+				return crossing, nil
+			}
 		}
 	}
-	return nil
+	return nil, nil
 }

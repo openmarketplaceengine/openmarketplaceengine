@@ -8,9 +8,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/detector"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/bbox"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/model"
 
-	lineTollgate "github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/line"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/detector"
 
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
@@ -30,8 +32,28 @@ func TestController(t *testing.T) {
 	err := cfg.Load()
 	require.NoError(t, err)
 
+	dom.WillTest(t, "test", false)
 	ctx := context.Background()
-	conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(dialer()))
+
+	err = model.CreateIfNotExists(ctx, &model.Tollgate{
+		ID:     tollgateID,
+		Name:   "TestController",
+		BBoxes: nil,
+		GateLine: &model.GateLine{
+			Line: tollgate.Line{
+				Lon1: -79.870262,
+				Lat1: 41.198497,
+				Lon2: -79.870218,
+				Lat2: 41.200268,
+			},
+		},
+	})
+	require.NoError(t, err)
+
+	d, err := detector.NewDetector(ctx, bbox.NewStorage(redisClient.NewStoreClient()))
+	require.NoError(t, err)
+
+	conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(dialer(d)))
 	defer func(conn *grpc.ClientConn) {
 		innerErr := conn.Close()
 		if innerErr != nil {
@@ -53,24 +75,11 @@ func TestController(t *testing.T) {
 	})
 }
 
-func dialer() func(context.Context, string) (net.Conn, error) {
+func dialer(detector tollgate.Detector) func(context.Context, string) (net.Conn, error) {
 	listener := bufconn.Listen(1024 * 1024)
 
 	server := grpc.NewServer()
-	tg := lineTollgate.NewTollgate(
-		tollgateID,
-		&tollgate.LocationXY{
-			LongitudeX: -79.870262,
-			LatitudeY:  41.198497,
-		},
-		&tollgate.LocationXY{
-			LongitudeX: -79.870218,
-			LatitudeY:  41.200268,
-		},
-	)
-	tollgateDetector := detector.NewDetector()
-	tollgateDetector.AddTollgate(tg)
-	controller := New(redisClient.NewStoreClient(), redisClient.NewPubSubClient(), areaKey, tollgateDetector)
+	controller := New(redisClient.NewStoreClient(), redisClient.NewPubSubClient(), areaKey, detector)
 	locationV1beta1.RegisterLocationServiceServer(server, controller)
 
 	go func() {
@@ -87,9 +96,9 @@ func dialer() func(context.Context, string) (net.Conn, error) {
 func testUpdateLocation(t *testing.T, client locationV1beta1.LocationServiceClient) {
 	id := uuid.NewString()
 	request := &locationV1beta1.UpdateLocationRequest{
-		WorkerId:  id,
-		Longitude: 12.000001966953278,
-		Latitude:  13.000001966953278,
+		WorkerId: id,
+		Lon:      12.000001966953278,
+		Lat:      13.000001966953278,
 	}
 	response, err := client.UpdateLocation(context.Background(), request)
 	require.NoError(t, err)
@@ -100,8 +109,8 @@ func testUpdateLocation(t *testing.T, client locationV1beta1.LocationServiceClie
 	})
 	require.NoError(t, err)
 	require.Equal(t, request.WorkerId, location.WorkerId)
-	require.InDelta(t, request.Longitude, location.Longitude, 0.001)
-	require.InDelta(t, request.Latitude, location.Latitude, 0.001)
+	require.InDelta(t, request.Lon, location.Lon, 0.001)
+	require.InDelta(t, request.Lat, location.Lat, 0.001)
 }
 
 func testQueryLocation(t *testing.T, client locationV1beta1.LocationServiceClient) {
@@ -117,9 +126,9 @@ func testQueryLocation(t *testing.T, client locationV1beta1.LocationServiceClien
 	require.Contains(t, err.Error(), fmt.Sprintf("location not found for WorkerId=%s", request.WorkerId))
 
 	response, err := client.UpdateLocation(ctx, &locationV1beta1.UpdateLocationRequest{
-		WorkerId:  id,
-		Longitude: 12,
-		Latitude:  13,
+		WorkerId: id,
+		Lon:      12,
+		Lat:      13,
 	},
 	)
 	require.NoError(t, err)
@@ -134,20 +143,20 @@ func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceCl
 	ctx := context.Background()
 	id := uuid.NewString()
 	from := &locationV1beta1.UpdateLocationRequest{
-		WorkerId:  id,
-		Longitude: -79.871248,
-		Latitude:  41.199493,
+		WorkerId: id,
+		Lon:      -79.871248,
+		Lat:      41.199493,
 	}
 	to := &locationV1beta1.UpdateLocationRequest{
-		WorkerId:  id,
-		Longitude: -79.867927,
-		Latitude:  41.199329,
+		WorkerId: id,
+		Lon:      -79.867927,
+		Lat:      41.199329,
 	}
 
 	sync := make(chan string)
 	var crossings <-chan tollgate.Crossing
 	go func() {
-		crossings = subscribe(crossingChannel(tollgateID))
+		crossings = subscribe(crossingChannel("*"))
 		sync <- "done"
 	}()
 
@@ -171,7 +180,7 @@ func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceCl
 	c := <-crossings
 	require.Equal(t, tollgateID, c.TollgateID)
 	require.Equal(t, tollgate.Direction("SE"), c.Direction)
-	require.Equal(t, id, c.SubjectID)
-	require.InDelta(t, to.Latitude, c.Location.LatitudeY, 0.003)
-	require.InDelta(t, to.Longitude, c.Location.LongitudeX, 0.003)
+	require.Equal(t, id, c.WorkerID)
+	require.InDelta(t, to.Lat, c.Movement.To.Lat, 0.003)
+	require.InDelta(t, to.Lon, c.Movement.To.Lon, 0.003)
 }

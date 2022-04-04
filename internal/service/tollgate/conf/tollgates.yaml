@@ -1,0 +1,543 @@
+- ny_verrazzano_narrows_bridge:
+  id: "verrazzano_narrows_bridge"
+  name: "Verrazzano-Narrows Bridge"
+  amount: 6.55
+  bidirectional: true
+  bounding_boxes:
+    boxes:
+      - lat_max: 40.610746
+        lon_max: -74.033671
+        lat_min: 40.608652
+        lon_min: -74.036562
+      - lat_max: 40.610281
+        lon_max: -74.036562
+        lat_min: 40.606669
+        lon_min: -74.041304
+      - lat_max: 40.609076
+        lon_max: -74.041304
+        lat_min: 40.604250
+        lon_min: -74.047484
+      - lat_max: 40.607105
+        lon_max: -74.047484
+        lat_min: 40.602800
+        lon_min: -74.05138
+      - lat_max: 40.605863
+        lon_max: -74.05138
+        lat_min: 40.602507
+        lon_min: -74.054367
+    min_boxes_required: 3
+  gate_line:
+    lat1: 40.609025
+    lon1: -74.045438
+    lat2: 40.604252
+    lon2: -74.042755
+  window_length_meters: 3000
+  min_toll_dist_meters: 6000
+
+- ny_robert_f_kennedy_bridge_manhattan:
+  id: "robert_f_kennedy_bridge_1"
+  name: "Robert F. Kennedy Bridge"
+  amount: 6.55
+  bidirectional: false
+  bounding_boxes:
+    boxes:
+      - lat_max: 40.802375
+        lon_max: -73.928579
+        lat_min: 40.800264
+        lon_min: -73.931648
+      - lat_max: 40.801149
+        lon_max: -73.927453
+        lat_min: 40.799744
+        lon_min: -73.928579
+      - lat_max: 40.800759
+        lon_max: -73.923268
+        lat_min: 40.798282
+        lon_min: -73.927453
+    min_boxes_required: 2
+  gate_line:
+    lat1: 40.801271
+    lon1: -73.927485
+    lat2: 40.799622
+    lon2: -73.928096
+  window_length_meters: 1000
+  min_toll_dist_meters: 3000
+
+- ny_robert_f_kennedy_bridge_bronx:
+  id: "robert_f_kennedy_bridge_2"
+  name: "Robert F. Kennedy Bridge"
+  amount: 6.55
+  bidirectional: false
+  bounding_boxes:
+    boxes:
+      - lat_max: 40.805445
+        lon_max: -73.912969
+        lat_min: 40.799630
+        lon_min: -73.919599
+      - lat_max: 40.799728
+        lon_max: -73.921595
+        lat_min: 40.791654
+        lon_min: -73.926337
+    min_boxes_required: 2
+  gate_line:
+    lat1: 40.798298
+    lon1: -73.917389
+    lat2: 40.799419
+    lon2: -73.920264
+  window_length_meters: 2000
+  min_toll_dist_meters: 6000
+
+- ny_robert_f_kennedy_bridge_queens:
+  id: "robert_f_kennedy_bridge_3"
+  name: "Robert F. Kennedy Bridge"
+  amount: 6.55
+  bidirectional: false
+  bounding_boxes:
+    boxes:
+      - lat_max: 40.779112
+        lon_max: -73.915973
+        lat_min: 40.769752
+        lon_min: -73.926916
+      - lat_max: 40.788762
+        lon_max: -73.925457
+        lat_min: 40.781061
+        lon_min: -73.932109
+    min_boxes_required: 2
+  gate_line:
+    lat1: 40.781321
+    lon1: -73.923740
+    lat2: 40.778689
+    lon2: -73.929148
+  window_length_meters: 2750
+  min_toll_dist_meters: 10000
+
+- ny_bronx_whitestone_bridge:
+  id: "bronx_whitestone_bridge"
+  name: "Bronx-Whitestone Bridge"
+  amount: 6.55
+  bidirectional: true
+  bounding_boxes:
+    boxes:
+      - lat_max: 40.811227
+        lon_max: -73.829927
+        lat_min: 40.803788
+        lon_min: -73.836923
+      - lat_max: 40.803788
+        lon_max: -73.825679
+        lat_min: 40.799005
+        lon_min: -73.833597
+      - lat_max: 40.799005
+        lon_max: -73.822525
+        lat_min: 40.792475
+        lon_min: -73.829005
+    min_boxes_required: 2
+  gate_line:
+    lat1: 40.801165
+    lon1: -73.826194
+    lat2: 40.799573
+    lon2: -73.832331
+  window_length_meters: 2500
+  min_toll_dist_meters: 5500
+
+- ny_throgs_neck_bridge:
+  id: "throgs_neck_bridge"
+  name: "Throgs Neck Bridge"
+  amount: 6.55
+  bidirectional: true
+  bounding_boxes:
+    boxes:
+      - lat_max: 40.823017
+        lon_max: -73.786690
+        lat_min: 40.815579
+        lon_min: -73.807290
+      - lat_max: 40.815579
+        lon_max: -73.7850017
+        lat_min: 40.809960
+        lon_min: -73.798792
+      - lat_max: 40.809960
+        lon_max: -73.784072
+        lat_min: 40.802359
+        lon_min: -73.796561
+      - lat_max: 40.802359
+        lon_max: -73.782957
+        lat_min: 40.795309
+        lon_min: -73.799565
+      - lat_max: 40.795309
+        lon_max: -73.787377
+        lat_min: 40.788226
+        lon_min: -73.797505
+    min_boxes_required: 3
+  gate_line:
+    lat1: 40.800962
+    lon1: -73.786991
+    lat2: 40.800962
+    lon2: -73.798707
+  window_length_meters: 4500
+  min_toll_dist_meters: 7000
+
+- ny_hugh_l_carey_tunnel:
+  id: "hugh_l_carey_tunnel"
+  name: "Hugh L. Carey Tunnel"
+  amount: 6.55
+  bidirectional: true
+  bounding_boxes:
+    boxes:
+      - lat_max: 40.707889
+        lon_max: -74.010129
+        lat_min: 40.700341
+        lon_min: -74.019313
+      - lat_max: 40.700341
+        lon_max: -74.010258
+        lat_min: 40.695200
+        lon_min: -74.018111
+      - lat_max: 40.695200
+        lon_max: -74.008842
+        lat_min: 40.690905
+        lon_min: -74.015794
+      - lat_max: 40.690905
+        lon_max: -74.005923
+        lat_min: 40.686968
+        lon_min: -74.013433
+      - lat_max: 40.686935
+        lon_max: -74.002533
+        lat_min: 40.679092
+        lon_min: -74.011416
+    min_boxes_required: 3
+  gate_line:
+    lat1: 40.692825
+    lon1: -74.008756
+    lat2: 40.690840
+    lon2: -74.015579
+  window_length_meters: 3500
+  min_toll_dist_meters: 6500
+
+- ny_queens_midtown_tunnel:
+  id: "queens_midtown_tunnel"
+  name: "Queens Midtown Tunnel"
+  amount: 6.55
+  bidirectional: true
+  bounding_boxes:
+    boxes:
+      - lat_max: 40.743624
+        lon_max: -73.949200
+        lat_min: 40.740275
+        lon_min: -73.959628
+      - lat_max: 40.745623
+        lon_max: -73.959628
+        lat_min: 40.742047
+        lon_min: -73.963104
+      - lat_max: 40.747151
+        lon_max: -73.963104
+        lat_min: 40.743152
+        lon_min: -73.965057
+      - lat_max: 40.747883
+        lon_max: -73.965057
+        lat_min: 40.744473
+        lon_min: -73.967122
+      - lat_max: 40.748456
+        lon_max: -73.967122
+        lat_min: 40.745180
+        lon_min: -73.977143
+    min_boxes_required: 3
+  gate_line:
+    lat1: 40.746306
+    lon1: -73.963104
+    lat2: 40.743672
+    lon2: -73.965315
+  window_length_meters: 2500
+  min_toll_dist_meters: 5000
+
+- ny_henry_hudson_bridge:
+  id: "henry_hudson_bridge"
+  name: "Henry Hudson Bridge"
+  amount: 3.0
+  bidirectional: true
+  bounding_boxes:
+    boxes:
+      - lat_max: 40.880477
+        lon_max: -73.918274
+        lat_min: 40.879133
+        lon_min: -73.920042
+      - lat_max: 40.879506
+        lon_max: -73.920042
+        lat_min: 40.877900
+        lon_min: -73.921833
+      - lat_max: 40.878119
+        lon_max: -73.921833
+        lat_min: 40.877198
+        lon_min: -73.922767
+      - lat_max: 40.877624
+        lon_max: -73.922767
+        lat_min: 40.876119
+        lon_min: -73.924457
+      - lat_max: 40.876732
+        lon_max: -73.924457
+        lat_min: 40.874939
+        lon_min: -73.926801
+    min_boxes_required: 3
+  gate_line:
+    lat1: 40.878017
+    lon1: -73.922879
+    lat2: 40.877271
+    lon2: -73.921839
+  window_length_meters: 1250
+  min_toll_dist_meters: 2500
+
+- ny_marine_parkway_gil_hodges_memorial_bridge:
+  id: "marine_parkway_gil_hodges_memorial_bridge"
+  name: "Marine Parkway-Gil Hodges Memorial Bridge"
+  amount: 2.45
+  bidirectional: true
+  bounding_boxes:
+    boxes:
+      - lat_max: 40.586435
+        lon_max: -73.883035
+        lat_min: 40.576527
+        lon_min: -73.898656
+      - lat_max: 40.576527
+        lon_max: -73.877842
+        lat_min: 40.571278
+        lon_min: -73.892047
+      - lat_max: 40.571278
+        lon_max: -73.875482
+        lat_min: 40.566258
+        lon_min: -73.889086
+    min_boxes_required: 2
+  gate_line:
+    lat1: 40.574766
+    lon1: -73.880246
+    lat2: 40.572354
+    lon2: -73.890588
+  window_length_meters: 2250
+  min_toll_dist_meters: 4000
+
+- ny_cross_bay_veterans_memorial_bridge:
+  id: "cross_bay_veterans_memorial_bridge"
+  name: "Cross Bay Veterans Memorial Bridge"
+  amount: 2.45
+  bidirectional: true
+  bounding_boxes:
+    boxes:
+      - lat_max: 40.602040
+        lon_max: -73.818383
+        lat_min: 40.592908
+        lon_min: -73.822385
+      - lat_max: 40.592908
+        lon_max: -73.817621
+        lat_min: 40.591268
+        lon_min: -73.821865
+      - lat_max: 40.591268
+        lon_max: -73.816409
+        lat_min: 40.587123
+        lon_min: -73.821816
+    min_boxes_required: 2
+  gate_line:
+    lat1: 40.592554
+    lon1: -73.817654
+    lat2: 40.591625
+    lon2: -73.821838
+  window_length_meters: 2000
+  min_toll_dist_meters: 4000
+
+- ny_holland_tunnel:
+  id: "holland_tunnel"
+  name: "Holland Tunnel"
+  peak_hours:
+    - "weekdays 6:00-10:00"
+    - "weekdays 16:00-20:00"
+    - "weekends 11:00-21:00"
+  amount:
+    peak: 13.75
+    off_peak: 11.75
+  bidirectional: false
+  bounding_boxes:
+    boxes:
+      - lat_max: 40.733308
+        lon_max: -74.025364
+        lat_min: 40.727324
+        lon_min: -74.050941
+      - lat_max: 40.732430
+        lon_max: -74.016266
+        lat_min: 40.723551
+        lon_min: -74.025364
+      - lat_max: 40.728852
+        lon_max: -74.002147
+        lat_min: 40.719160
+        lon_min: -74.016266
+    min_boxes_required: 2
+  gate_line:
+    lat1: 40.731194
+    lon1: -74.019270
+    lat2: 40.723974
+    lon2: -74.022145
+  window_length_meters: 4000
+  min_toll_dist_meters: 6000
+
+- ny_lincoln_tunnel:
+  id: "lincoln_tunnel"
+  name: "Lincoln Tunnel"
+  peak_hours:
+    - "weekdays 6:00-10:00"
+    - "weekdays 16:00-20:00"
+    - "weekends 11:00-21:00"
+  amount:
+    peak: 13.75
+    off_peak: 11.75
+  bidirectional: false
+  bounding_boxes:
+    boxes:
+      - lat_max: 40.772482
+        lon_max: -74.015107
+        lat_min: 40.761528
+        lon_min: -74.029698
+      - lat_max: 40.766599
+        lon_max: -74.007769
+        lat_min: 40.758505
+        lon_min: -74.015107
+      - lat_max: 40.762211
+        lon_max: -73.993564
+        lat_min: 40.751126
+        lon_min: -74.007769
+    min_boxes_required: 2
+  gate_line:
+    lat1: 40.766794
+    lon1: -74.008112
+    lat2: 40.760066
+    lon2: -74.013047
+  window_length_meters: 6000
+  min_toll_dist_meters: 10000
+
+- ny_outerbridge_crossing:
+  id: "outerbridge_crossing"
+  name: "Outerbridge Crossing"
+  peak_hours:
+    - "weekdays 6:00-10:00"
+    - "weekdays 16:00-20:00"
+    - "weekends 11:00-21:00"
+  amount:
+    peak: 13.75
+    off_peak: 11.75
+  bidirectional: false
+  bounding_boxes:
+    boxes:
+      - lat_max: 40.527958
+        lon_max: -74.249210
+        lat_min: 40.522771
+        lon_min: -74.272470
+      - lat_max: 40.527109
+        lon_max: -74.244533
+        lat_min: 40.523064
+        lon_min: -74.249210
+      - lat_max: 40.527175
+        lon_max: -74.228439
+        lat_min: 40.523358
+        lon_min: -74.244533
+    min_boxes_required: 2
+  gate_line:
+    lat1: 40.527762
+    lon1: -74.247537
+    lat2: 40.522510
+    lon2: -74.246464
+  window_length_meters: 3500
+  min_toll_dist_meters: 10000
+
+- ny_bayonne_bridge:
+  id: "bayonne_bridge"
+  name: "Bayonne Bridge"
+  peak_hours:
+    - "weekdays 6:00-10:00"
+    - "weekdays 16:00-20:00"
+    - "weekends 11:00-21:00"
+  amount:
+    peak: 13.75
+    off_peak: 11.75
+  bidirectional: false
+  bounding_boxes:
+    boxes:
+      - lat_max: 40.654629
+        lon_max: -74.134583
+        lat_min: 40.643543
+        lon_min: -74.142458
+      - lat_max: 40.643543
+        lon_max: -74.138317
+        lat_min: 40.640905
+        lon_min: -74.146299
+      - lat_max: 40.640905
+        lon_max: -74.140313
+        lat_min: 40.630549
+        lon_min: -74.149196
+    min_boxes_required: 2
+  gate_line:
+    lat1: 40.642615
+    lon1: -74.145806
+    lat2: 40.641426
+    lon2: -74.139626
+  window_length_meters: 2750
+  min_toll_dist_meters: 10000
+
+- ny_george_washington_bridge:
+  id: "george_washington_bridge"
+  name: "George Washington Bridge"
+  peak_hours:
+    - "weekdays 6:00-10:00"
+    - "weekdays 16:00-20:00"
+    - "weekends 11:00-21:00"
+  amount:
+    peak: 13.75
+    off_peak: 11.75
+  bidirectional: false
+  bounding_boxes:
+    boxes:
+      - lat_max: 40.857383
+        lon_max: -73.956399
+        lat_min: 40.851378
+        lon_min: -73.972921
+      - lat_max: 40.854624
+        lon_max: -73.950133
+        lat_min: 40.848359
+        lon_min: -73.956399
+      - lat_max: 40.855371
+        lon_max: -73.939705
+        lat_min: 40.844463
+        lon_min: -73.950133
+    min_boxes_required: 2
+  gate_line:
+    lat1: 40.855176
+    lon1: -73.951378
+    lat2: 40.848359
+    lon2: -73.953223
+  window_length_meters: 4000
+  min_toll_dist_meters: 10000
+
+- ny_goethals_bridge:
+  id: "goethals_bridge"
+  name: "Goethals Bridge"
+  peak_hours:
+    - "weekdays 6:00-10:00"
+    - "weekdays 16:00-20:00"
+    - "weekends 11:00-21:00"
+  amount:
+    peak: 13.75
+    off_peak: 11.75
+  bidirectional: false
+  bounding_boxes:
+    boxes:
+      - lat_max: 40.641247
+        lon_max: -74.197927
+        lat_min: 40.635157
+        lon_min: -74.205136
+      - lat_max: 40.636362
+        lon_max: -74.196167
+        lat_min: 40.634506
+        lon_min: -74.197927
+      - lat_max: 40.635743
+        lon_max: -74.182305
+        lat_min: 40.627862
+        lon_min: -74.196167
+    min_boxes_required: 2
+  gate_line:
+    lat1: 40.636916
+    lon1: -74.195995
+    lat2: 40.634408
+    lon2: -74.198356
+  window_length_meters: 2750
+  min_toll_dist_meters: 6500
