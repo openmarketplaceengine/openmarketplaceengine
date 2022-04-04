@@ -3,6 +3,7 @@ package dom
 import (
 	"embed"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 )
 
@@ -16,7 +17,9 @@ var sqlFsys embed.FS
 var dropAll dao.SQLExec
 
 func Boot() error {
-	dao.AutoExec(dao.NewFsysExec(sqlFsys, sqlPath, "index.yaml"))
+	if cfg.Pgdb().ReadyForStart() {
+		dao.AutoExec(dao.NewFsysExec(sqlFsys, sqlPath, "index.yaml"))
+	}
 	return nil
 }
 
