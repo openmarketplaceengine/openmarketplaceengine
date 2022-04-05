@@ -7,10 +7,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/redis/publisher"
 	"github.com/openmarketplaceengine/openmarketplaceengine/redis/subscriber"
-	"github.com/openmarketplaceengine/openmarketplaceengine/uids/timestampuid"
 	"github.com/stretchr/testify/require"
 )
 
@@ -38,7 +39,7 @@ func (m *message) UnmarshalBinary(data []byte) error {
 }
 
 func testPublisherAndSubscriber(t *testing.T, publisher publisher.Publisher, subscriber subscriber.Subscriber) {
-	channel := fmt.Sprintf("chan-%s", timestampuid.NewTimestampUID())
+	channel := fmt.Sprintf("chan-%s", uuid.NewString())
 	rcv := make(chan string)
 	defer close(rcv)
 	ctx := context.Background()
