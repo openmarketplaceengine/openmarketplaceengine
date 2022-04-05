@@ -4,10 +4,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
+
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/model"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -23,7 +23,7 @@ func TestConfig(t *testing.T) {
 func testLoadTollgates(ctx cfg.SignalContext, t *testing.T) {
 	err := LoadTollgates(ctx)
 	require.NoError(t, err)
-	tg, err := model.QueryAll(ctx, 100)
+	tg, err := tollgate.QueryAll(ctx, 100)
 	require.NoError(t, err)
 
 	require.GreaterOrEqual(t, len(tg), 17)

@@ -4,9 +4,10 @@ import (
 	"context"
 	"embed"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/detector"
+
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/model"
 	"github.com/openmarketplaceengine/openmarketplaceengine/log"
 
 	"gopkg.in/yaml.v2"
@@ -52,7 +53,7 @@ func LoadTollgates(ctx context.Context) error {
 	}
 
 	for _, t := range tollgates {
-		err := model.CreateIfNotExists(ctx, &model.Tollgate{
+		err := tollgate.CreateIfNotExists(ctx, &tollgate.Tollgate{
 			ID:       t.ID,
 			Name:     t.Name,
 			BBoxes:   transformBoxes(t.BBoxes),
@@ -67,25 +68,25 @@ func LoadTollgates(ctx context.Context) error {
 	return nil
 }
 
-func transformBoxes(bBoxes BBoxes) *model.BBoxes {
-	boxes := make([]*tollgate.BBox, 0)
+func transformBoxes(bBoxes BBoxes) *tollgate.BBoxes {
+	boxes := make([]*detector.BBox, 0)
 	for _, b := range bBoxes.Boxes {
-		boxes = append(boxes, &tollgate.BBox{
+		boxes = append(boxes, &detector.BBox{
 			LonMin: b.LonMin,
 			LatMin: b.LatMin,
 			LonMax: b.LonMax,
 			LatMax: b.LatMax,
 		})
 	}
-	return &model.BBoxes{
+	return &tollgate.BBoxes{
 		BBoxes:   boxes,
 		Required: bBoxes.BoxesRequired,
 	}
 }
 
-func transformLine(l Line) *model.GateLine {
-	return &model.GateLine{
-		Line: tollgate.Line{
+func transformLine(l Line) *tollgate.GateLine {
+	return &tollgate.GateLine{
+		Line: &detector.Line{
 			Lon1: l.Lon1,
 			Lat1: l.Lat1,
 			Lon2: l.Lon2,

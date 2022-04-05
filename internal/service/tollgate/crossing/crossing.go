@@ -3,7 +3,7 @@ package crossing
 import (
 	"encoding/json"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/detector"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
@@ -12,7 +12,7 @@ import (
 const table = "tollgate_crossing"
 
 type Crossing struct {
-	Crossing tollgate.Crossing
+	Crossing detector.Crossing
 }
 
 func (g *Crossing) Scan(data interface{}) (err error) {

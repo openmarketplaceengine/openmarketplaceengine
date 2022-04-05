@@ -8,9 +8,6 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/bbox"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/detector"
-
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/location/v1beta1"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/location"
@@ -43,12 +40,10 @@ func (s *GrpcServer) Boot() (err error) {
 	log.Infof("GRPC listening on %s", addr)
 	s.srv = grpc.NewServer(s.configOptions()...)
 
-	storeClient := redisClient.NewStoreClient()
-	d, err := detector.NewDetector(cfg.Context(), bbox.NewStorage(storeClient))
+	controller, err := location.NewController(redisClient.NewStoreClient(), redisClient.NewPubSubClient())
 	if err != nil {
 		return
 	}
-	controller := location.New(storeClient, redisClient.NewPubSubClient(), "global", d)
 	locationV1beta1.RegisterLocationServiceServer(s.srv, controller)
 
 	go s.serve()

@@ -1,12 +1,10 @@
-package bbox
+package detector
 
 import (
 	"context"
 	"testing"
 
 	"github.com/google/uuid"
-
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	redisClient "github.com/openmarketplaceengine/openmarketplaceengine/redis/client"
@@ -15,14 +13,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestTollgate(t *testing.T) {
+func TestDetectCrossingBBox(t *testing.T) {
 	err := cfg.Load()
 	require.NoError(t, err)
 
 	client := redisClient.NewStoreClient()
 	require.NotNil(t, client)
 
-	storage := NewStorage(client)
+	storage := newStorage(client)
 	ctx := context.Background()
 
 	t.Run("testCrossing", func(t *testing.T) {
@@ -30,9 +28,9 @@ func TestTollgate(t *testing.T) {
 	})
 }
 
-func testCrossing(ctx context.Context, t *testing.T, s Storage) {
+func testCrossing(ctx context.Context, t *testing.T, s *storage) {
 	required := 4
-	bBoxes := []*tollgate.BBox{{
+	bBoxes := []*BBox{{
 		LonMin: 1,
 		LatMin: 1,
 		LonMax: 5,
@@ -59,48 +57,48 @@ func testCrossing(ctx context.Context, t *testing.T, s Storage) {
 		LatMax: 35,
 	}}
 
-	loc0 := tollgate.Location{}
+	loc0 := Location{}
 
-	loc1 := tollgate.Location{
+	loc1 := Location{
 		Lon: 2,
 		Lat: 2,
 	}
-	loc2 := tollgate.Location{
+	loc2 := Location{
 		Lon: 7,
 		Lat: 7,
 	}
-	loc3 := tollgate.Location{
+	loc3 := Location{
 		Lon: 13,
 		Lat: 13,
 	}
 	//noisy GPS at 4, skipping
-	loc5 := tollgate.Location{
+	loc5 := Location{
 		Lon: 33,
 		Lat: 33,
 	}
 	subjectID := uuid.NewString()
 	tollgateID := "toll-1"
-	c1, _ := DetectCrossing(ctx, s, tollgateID, bBoxes, required, &tollgate.Movement{SubjectID: subjectID, From: &loc0, To: &loc1})
+	c1, _ := detectCrossingBBox(ctx, s, tollgateID, bBoxes, required, &Movement{SubjectID: subjectID, From: &loc0, To: &loc1})
 	require.Nil(t, c1)
 
-	c2, _ := DetectCrossing(ctx, s, tollgateID, bBoxes, required, &tollgate.Movement{SubjectID: subjectID, From: &loc0, To: &loc2})
+	c2, _ := detectCrossingBBox(ctx, s, tollgateID, bBoxes, required, &Movement{SubjectID: subjectID, From: &loc0, To: &loc2})
 	require.Nil(t, c2)
 
-	c3, _ := DetectCrossing(ctx, s, tollgateID, bBoxes, required, &tollgate.Movement{SubjectID: subjectID, From: &loc0, To: &loc3})
+	c3, _ := detectCrossingBBox(ctx, s, tollgateID, bBoxes, required, &Movement{SubjectID: subjectID, From: &loc0, To: &loc3})
 	require.Nil(t, c3)
 
-	c4, _ := DetectCrossing(ctx, s, tollgateID, bBoxes, required, &tollgate.Movement{SubjectID: subjectID, From: &loc0, To: &loc0})
+	c4, _ := detectCrossingBBox(ctx, s, tollgateID, bBoxes, required, &Movement{SubjectID: subjectID, From: &loc0, To: &loc0})
 	require.Nil(t, c4)
 
-	visits, err := s.Visits(ctx, tollgateID, subjectID, 5)
+	visits, err := s.visits(ctx, tollgateID, subjectID, 5)
 	require.NoError(t, err)
 
 	assert.Equal(t, []int64{1, 1, 1, 0, 0}, visits)
 
-	c5, _ := DetectCrossing(ctx, s, tollgateID, bBoxes, required, &tollgate.Movement{SubjectID: subjectID, From: &loc0, To: &loc5})
+	c5, _ := detectCrossingBBox(ctx, s, tollgateID, bBoxes, required, &Movement{SubjectID: subjectID, From: &loc0, To: &loc5})
 	require.NotNil(t, c5)
 
-	visits, err = s.Visits(ctx, tollgateID, subjectID, 5)
+	visits, err = s.visits(ctx, tollgateID, subjectID, 5)
 	require.NoError(t, err)
 
 	assert.Equal(t, []int64{0, 0, 0, 0, 0}, visits)

@@ -1,4 +1,4 @@
-package bbox
+package detector
 
 import (
 	"context"
@@ -13,17 +13,11 @@ import (
 // 1 - [1,0,0,0,0] - for bbox 5 elements array the first one was visited.
 // 2 - [1,0,1,0,0]
 // 3 - [1,0,1,1,0].
-type Storage interface {
-	Visit(ctx context.Context, tollgateID, subjectID string, bBoxIdx int) error
-	Visits(ctx context.Context, tollgateID, subjectID string, size int) ([]int64, error)
-	Del(ctx context.Context, tollgateID, subjectID string) error
-}
-
 type storage struct {
 	client *redis.Client
 }
 
-func NewStorage(client *redis.Client) Storage {
+func newStorage(client *redis.Client) *storage {
 	s := storage{
 		client: client,
 	}
@@ -34,12 +28,12 @@ func storageKey(tollgateID, subjectID string) string {
 	return fmt.Sprintf("toll-bbox-%s-%s", tollgateID, subjectID)
 }
 
-func (s *storage) Visit(ctx context.Context, tollgateID, subjectID string, index int) error {
+func (s *storage) visit(ctx context.Context, tollgateID, subjectID string, index int) error {
 	key := storageKey(tollgateID, subjectID)
 	return s.client.BitField(ctx, key, "SET", "i2", fmt.Sprintf("#%v", index), 1).Err()
 }
 
-func (s *storage) Visits(ctx context.Context, tollgateID, subjectID string, size int) ([]int64, error) {
+func (s *storage) visits(ctx context.Context, tollgateID, subjectID string, size int) ([]int64, error) {
 	var args []interface{}
 	for i := 0; i < size; i++ {
 		args = append(args, "GET")
@@ -50,7 +44,7 @@ func (s *storage) Visits(ctx context.Context, tollgateID, subjectID string, size
 	return s.client.BitField(ctx, key, args...).Result()
 }
 
-func (s *storage) Del(ctx context.Context, tollgateID, subjectID string) error {
+func (s *storage) del(ctx context.Context, tollgateID, subjectID string) error {
 	key := storageKey(tollgateID, subjectID)
 	return s.client.Del(ctx, key).Err()
 }

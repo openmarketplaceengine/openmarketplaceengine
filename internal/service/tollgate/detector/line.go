@@ -1,15 +1,18 @@
-package line
+package detector
 
 import (
 	"math"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/util"
-
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
 )
 
-func DetectCrossing(tollgateID string, line *tollgate.Line, movement *tollgate.Movement) *tollgate.Crossing {
-	return detectCrossingVector(tollgateID, line, movement)
+// Line represents a two points line that Subject crosses.
+// longitude latitude corresponding to linear algebra X Y axis.
+type Line struct {
+	Lon1 float64
+	Lat1 float64
+	Lon2 float64
+	Lat2 float64
 }
 
 //NB THIS LINE CROSSING ALGORITHM CANNOT BE USED, BECAUSE IT DETECTS LINE CROSSING,
@@ -35,7 +38,7 @@ func DetectCrossing(tollgateID string, line *tollgate.Line, movement *tollgate.M
 // Movement - two points representing Movement line, from previous to current Location
 // precision - float greater than 0, i.e. 0.001. for Lat/Long should be 0.00001
 // returns nil if no Crossing, otherwise the location at which Crossing detected.
-func detectCrossingLine(tollgateID string, line *tollgate.Line, movement *tollgate.Movement, precision float64) *tollgate.Crossing {
+func detectCrossingLine(tollgateID string, line *Line, movement *Movement, precision float64) *Crossing {
 	//Tollgate-representing line
 	tx1 := util.Round6(line.Lon1)
 	ty1 := util.Round6(line.Lat1)
@@ -60,19 +63,19 @@ func detectCrossingLine(tollgateID string, line *tollgate.Line, movement *tollga
 	if math.Abs(v) > precision {
 		//x := -(C1*B2 - B1*C2) / v
 		//y := -(A1*C2 - C1*A2) / v
-		return &tollgate.Crossing{
+		return &Crossing{
 			WorkerID:   movement.SubjectID,
 			TollgateID: tollgateID,
 			Movement:   movement,
 			Direction:  movement.Direction(),
-			Alg:        tollgate.LineAlg,
+			Alg:        LineAlg,
 		}
 	}
 	return nil
 }
 
 // detectCrossingVector detects two line segment crossing using vector math.
-func detectCrossingVector(tollgateID string, line *tollgate.Line, movement *tollgate.Movement) *tollgate.Crossing {
+func detectCrossingVector(tollgateID string, line *Line, movement *Movement) *Crossing {
 	//Tollgate-representing line
 	tx1 := util.Round6(line.Lon1)
 	ty1 := util.Round6(line.Lat1)
@@ -107,12 +110,12 @@ func detectCrossingVector(tollgateID string, line *tollgate.Line, movement *toll
 	}
 	intersect := intersects(s1, s2)
 	if intersect {
-		return &tollgate.Crossing{
+		return &Crossing{
 			WorkerID:   movement.SubjectID,
 			TollgateID: tollgateID,
 			Movement:   movement,
 			Direction:  movement.Direction(),
-			Alg:        tollgate.VectorAlg,
+			Alg:        VectorAlg,
 		}
 	}
 	return nil
