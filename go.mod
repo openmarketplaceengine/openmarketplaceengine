@@ -12,7 +12,6 @@ require (
 	github.com/jackc/pgconn v1.11.0
 	github.com/jackc/pgx/v4 v4.15.0
 	github.com/leporo/sqlf v1.3.0
-	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.12.1
 	github.com/rs/xid v1.2.1
 	github.com/stretchr/testify v1.7.0
