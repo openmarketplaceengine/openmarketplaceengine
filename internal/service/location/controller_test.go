@@ -8,6 +8,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
+
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
@@ -16,7 +18,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/location/v1beta1"
-	redisClient "github.com/openmarketplaceengine/openmarketplaceengine/redis/client"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -30,6 +31,10 @@ func TestController(t *testing.T) {
 	require.NoError(t, err)
 
 	dom.WillTest(t, "test", false)
+	if !dao.Reds.State.Running() {
+		require.NoError(t, dao.Reds.Boot())
+	}
+
 	ctx := context.Background()
 
 	err = tollgate.CreateIfNotExists(ctx, &tollgate.Tollgate{
@@ -75,7 +80,7 @@ func dialer(t *testing.T) func(context.Context, string) (net.Conn, error) {
 	listener := bufconn.Listen(1024 * 1024)
 
 	server := grpc.NewServer()
-	controller, err := NewController(redisClient.NewStoreClient(), redisClient.NewPubSubClient())
+	controller, err := NewController(dao.Reds.StoreClient, dao.Reds.PubSubClient)
 	require.NoError(t, err)
 	locationV1beta1.RegisterLocationServiceServer(server, controller)
 

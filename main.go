@@ -21,6 +21,7 @@ var boot cfg.BootList
 func init() {
 	boot.Add("DATA", dom.Boot, nil)
 	boot.Use("PGDB", dao.Pgdb)
+	boot.Use("REDS", dao.Reds)
 	boot.Add("URLS", route, nil)
 	boot.Add("STAT", stat.Boot, nil)
 	boot.Use("HTTP", srv.Http)

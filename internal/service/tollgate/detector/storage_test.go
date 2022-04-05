@@ -4,9 +4,10 @@ import (
 	"context"
 	"testing"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
+
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
-	redisClient "github.com/openmarketplaceengine/openmarketplaceengine/redis/client"
 	"github.com/stretchr/testify/require"
 )
 
@@ -14,10 +15,11 @@ func TestStorage(t *testing.T) {
 	err := cfg.Load()
 	require.NoError(t, err)
 
-	client := redisClient.NewStoreClient()
-	require.NotNil(t, client)
+	if !dao.Reds.State.Running() {
+		require.NoError(t, dao.Reds.Boot())
+	}
 
-	storage := newStorage(client)
+	storage := newStorage(dao.Reds.StoreClient)
 
 	ctx := context.Background()
 

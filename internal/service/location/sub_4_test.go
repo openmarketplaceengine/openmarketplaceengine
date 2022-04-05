@@ -3,25 +3,24 @@ package location
 import (
 	"encoding/json"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
+
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/detector"
 
 	"context"
-
-	"github.com/openmarketplaceengine/openmarketplaceengine/redis/subscriber"
 )
 
 func subscribe(channel string) <-chan detector.Crossing {
-	s := subscriber.NewSubscriber()
+	s := dao.Reds.PubSubClient
 
-	messages := make(chan string)
-	s.Subscribe(context.Background(), channel, messages)
+	pubSub := s.PSubscribe(context.Background(), channel)
 
 	crossings := make(chan detector.Crossing, 1)
 
 	go func() {
-		for m := range messages {
+		for m := range pubSub.Channel() {
 			var crossing detector.Crossing
-			_ = json.Unmarshal([]byte(m), &crossing)
+			_ = json.Unmarshal([]byte(m.Payload), &crossing)
 			crossings <- crossing
 		}
 	}()
