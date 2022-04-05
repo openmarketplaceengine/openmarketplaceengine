@@ -8,16 +8,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/bbox"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/model"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/detector"
 
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/location/v1beta1"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
 	redisClient "github.com/openmarketplaceengine/openmarketplaceengine/redis/client"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -25,7 +23,6 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 )
 
-const areaKey = "san_fran"
 const tollgateID = "tollgate-123"
 
 func TestController(t *testing.T) {
@@ -35,12 +32,12 @@ func TestController(t *testing.T) {
 	dom.WillTest(t, "test", false)
 	ctx := context.Background()
 
-	err = model.CreateIfNotExists(ctx, &model.Tollgate{
+	err = tollgate.CreateIfNotExists(ctx, &tollgate.Tollgate{
 		ID:     tollgateID,
 		Name:   "TestController",
 		BBoxes: nil,
-		GateLine: &model.GateLine{
-			Line: tollgate.Line{
+		GateLine: &tollgate.GateLine{
+			Line: &detector.Line{
 				Lon1: -79.870262,
 				Lat1: 41.198497,
 				Lon2: -79.870218,
@@ -50,10 +47,9 @@ func TestController(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	d, err := detector.NewDetector(ctx, bbox.NewStorage(redisClient.NewStoreClient()))
 	require.NoError(t, err)
 
-	conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(dialer(d)))
+	conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(dialer(t)))
 	defer func(conn *grpc.ClientConn) {
 		innerErr := conn.Close()
 		if innerErr != nil {
@@ -75,11 +71,12 @@ func TestController(t *testing.T) {
 	})
 }
 
-func dialer(detector tollgate.Detector) func(context.Context, string) (net.Conn, error) {
+func dialer(t *testing.T) func(context.Context, string) (net.Conn, error) {
 	listener := bufconn.Listen(1024 * 1024)
 
 	server := grpc.NewServer()
-	controller := New(redisClient.NewStoreClient(), redisClient.NewPubSubClient(), areaKey, detector)
+	controller, err := NewController(redisClient.NewStoreClient(), redisClient.NewPubSubClient())
+	require.NoError(t, err)
 	locationV1beta1.RegisterLocationServiceServer(server, controller)
 
 	go func() {
@@ -154,7 +151,7 @@ func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceCl
 	}
 
 	sync := make(chan string)
-	var crossings <-chan tollgate.Crossing
+	var crossings <-chan detector.Crossing
 	go func() {
 		crossings = subscribe(crossingChannel("*"))
 		sync <- "done"
@@ -179,7 +176,7 @@ func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceCl
 
 	c := <-crossings
 	require.Equal(t, tollgateID, c.TollgateID)
-	require.Equal(t, tollgate.Direction("SE"), c.Direction)
+	require.Equal(t, detector.Direction("SE"), c.Direction)
 	require.Equal(t, id, c.WorkerID)
 	require.InDelta(t, to.Lat, c.Movement.To.Lat, 0.003)
 	require.InDelta(t, to.Lon, c.Movement.To.Lon, 0.003)

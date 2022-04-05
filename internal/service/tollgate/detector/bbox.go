@@ -1,42 +1,50 @@
-package bbox
+package detector
 
 import (
 	"context"
 	"fmt"
-
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
 )
 
-// DetectCrossing checks if Location hits a required number of BBoxes,
+// BBox is a bounded box, represents area defined by two longitudes and two latitudes
+// left,bottom,right,top - lonMin, latMin, lonMax, latMax
+// Longitude and Latitude correspond to linear algebra X and Y axis.
+type BBox struct {
+	LonMin float64
+	LatMin float64
+	LonMax float64
+	LatMax float64
+}
+
+// DetectCrossingBBox checks if Location hits a required number of BBoxes,
 // meaning subject has travelled through Required number of BBoxes.
 // If the criteria is met - a successful tollgate.Crossing will be returned.
-// Consumer of DetectCrossing should check returned value for not null, meaning detected fact of crossing the tollgate.
+// Consumer of DetectCrossingBBox should check returned value for not null, meaning detected fact of crossing the tollgate.
 // Algorithm requires storing 'moving' state in Storage.
 // required is count of visits for successful pass through, required <= []BBox size.
-func DetectCrossing(ctx context.Context, storage Storage, tollgateID string, bBoxes []*tollgate.BBox, required int, movement *tollgate.Movement) (*tollgate.Crossing, error) {
+func DetectCrossingBBox(ctx context.Context, storage *storage, tollgateID string, bBoxes []*BBox, required int, movement *Movement) (*Crossing, error) {
 	for i, box := range bBoxes {
 		inb := inBoundary(box, movement.To)
 		if inb {
-			err := storage.Visit(ctx, tollgateID, movement.SubjectID, i)
+			err := storage.visit(ctx, tollgateID, movement.SubjectID, i)
 			if err != nil {
 				return nil, fmt.Errorf("set visited err=%v", err)
 			}
-			visits, err := storage.Visits(ctx, tollgateID, movement.SubjectID, len(bBoxes))
+			visits, err := storage.visits(ctx, tollgateID, movement.SubjectID, len(bBoxes))
 			if err != nil {
 				return nil, fmt.Errorf("get visits err=%v", err)
 			}
 			done := checkVisits(visits, required)
 			if done {
-				err := storage.Del(ctx, tollgateID, movement.SubjectID)
+				err := storage.del(ctx, tollgateID, movement.SubjectID)
 				if err != nil {
 					return nil, fmt.Errorf("delete visits err=%v", err)
 				}
-				return &tollgate.Crossing{
+				return &Crossing{
 					TollgateID: tollgateID,
 					WorkerID:   movement.SubjectID,
 					Movement:   movement,
 					Direction:  movement.Direction(),
-					Alg:        tollgate.BBoxAlg,
+					Alg:        BBoxAlg,
 				}, nil
 			}
 		}
@@ -55,7 +63,7 @@ func checkVisits(visits []int64, required int) bool {
 	return false
 }
 
-func inBoundary(box *tollgate.BBox, location *tollgate.Location) bool {
+func inBoundary(box *BBox, location *Location) bool {
 	x := location.Lon
 	y := location.Lat
 	return box.LonMin < x && x < box.LonMax && box.LatMin < y && y < box.LatMax

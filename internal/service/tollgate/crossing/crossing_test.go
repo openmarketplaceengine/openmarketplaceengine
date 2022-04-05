@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/model"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/detector"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
 
@@ -50,14 +50,14 @@ func testCreate(ctx dom.Context, t *testing.T, r *rand.Rand) {
 	require.Less(t, crossings[0].Created.UnixMilli(), time.Now().UnixMilli())
 }
 
-func newRandomTollgate(r *rand.Rand, name string) *model.Tollgate {
+func newRandomTollgate(r *rand.Rand, name string) *tollgate.Tollgate {
 	id := uuid.NewString()
 
-	return &model.Tollgate{
+	return &tollgate.Tollgate{
 		ID:   id,
 		Name: name,
-		BBoxes: &model.BBoxes{
-			BBoxes: []*tollgate.BBox{{
+		BBoxes: &tollgate.BBoxes{
+			BBoxes: []*detector.BBox{{
 				LonMin: util.LongitudeInRange(r, -122.473048, -122.430733),
 				LatMin: util.LatitudeInRange(r, 37.656177, 37.656177),
 				LonMax: util.LongitudeInRange(r, -122.473048, -122.430733),
@@ -65,8 +65,8 @@ func newRandomTollgate(r *rand.Rand, name string) *model.Tollgate {
 			}},
 			Required: 2,
 		},
-		GateLine: &model.GateLine{
-			Line: tollgate.Line{
+		GateLine: &tollgate.GateLine{
+			Line: &detector.Line{
 				Lon1: util.LongitudeInRange(r, -122.473048, -122.430733),
 				Lat1: util.LatitudeInRange(r, 37.656177, 37.656177),
 				Lon2: util.LongitudeInRange(r, -122.473048, -122.430733),
@@ -82,16 +82,16 @@ func newRandomCrossing(r *rand.Rand, tollgateID dom.SUID, workerID dom.SUID) *To
 		TollgateID: tollgateID,
 		WorkerID:   workerID,
 		Crossing: Crossing{
-			Crossing: tollgate.Crossing{
+			Crossing: detector.Crossing{
 				TollgateID: tollgateID,
 				WorkerID:   workerID,
-				Movement: &tollgate.Movement{
+				Movement: &detector.Movement{
 					SubjectID: "",
-					From: &tollgate.Location{
+					From: &detector.Location{
 						Lon: util.LongitudeInRange(r, -122.473048, -122.430733),
 						Lat: util.LatitudeInRange(r, 37.656177, 37.656177),
 					},
-					To: &tollgate.Location{
+					To: &detector.Location{
 						Lon: util.LongitudeInRange(r, -122.473048, -122.430733),
 						Lat: util.LatitudeInRange(r, 37.656177, 37.656177),
 					},

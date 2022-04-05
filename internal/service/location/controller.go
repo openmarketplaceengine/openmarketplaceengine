@@ -6,9 +6,11 @@ import (
 	"fmt"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/location/v1beta1"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/location/storage"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/detector"
 	"github.com/openmarketplaceengine/openmarketplaceengine/log"
 	"github.com/openmarketplaceengine/openmarketplaceengine/redis/publisher"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -19,16 +21,48 @@ type Controller struct {
 	store    *storage.Storage
 	pub      publisher.Publisher
 	areaKey  string
-	detector tollgate.Detector
+	detector *detector.Detector
 }
 
-func New(storeClient *redis.Client, pubClient *redis.Client, areaKey string, detector tollgate.Detector) *Controller {
+func NewController(storeClient *redis.Client, pubClient *redis.Client) (*Controller, error) {
+	tollgates, err := tollgate.QueryAll(cfg.Context(), 100)
+	if err != nil {
+		return nil, err
+	}
+
+	d := detector.NewDetector(transformTollgates(tollgates), storeClient)
+
 	return &Controller{
 		store:    storage.New(storeClient),
 		pub:      publisher.New(pubClient),
-		areaKey:  areaKey,
-		detector: detector,
+		areaKey:  "global",
+		detector: d,
+	}, nil
+}
+
+func transformTollgates(tollgates []*tollgate.Tollgate) (result []*detector.Tollgate) {
+	for _, t := range tollgates {
+		var line *detector.Line
+		var bBoxes []*detector.BBox
+		var bBoxesRequired int
+
+		if t.GateLine != nil {
+			line = t.GateLine.Line
+		}
+
+		if t.BBoxes != nil {
+			bBoxes = t.BBoxes.BBoxes
+			bBoxesRequired = t.BBoxes.Required
+		}
+
+		result = append(result, &detector.Tollgate{
+			ID:             t.ID,
+			Line:           line,
+			BBoxes:         bBoxes,
+			BBoxesRequired: bBoxesRequired,
+		})
 	}
+	return
 }
 
 func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta1.UpdateLocationRequest) (*locationV1beta1.UpdateLocationResponse, error) {
@@ -48,14 +82,14 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 	var tollgateCrossing *locationV1beta1.TollgateCrossing
 
 	if lastLocation != nil {
-		from := &tollgate.Location{
+		from := &detector.Location{
 			Lon: lastLocation.Longitude,
 			Lat: lastLocation.Latitude,
 		}
-		to := &tollgate.Location{
+		to := &detector.Location{
 			Lon: request.Lon,
 			Lat: request.Lat}
-		movement := &tollgate.Movement{
+		movement := &detector.Movement{
 			SubjectID: request.WorkerId,
 			From:      from,
 			To:        to,
@@ -112,7 +146,7 @@ func locationChannel(workerID string) string {
 	return fmt.Sprintf("channel-location-%s", workerID)
 }
 
-func (c *Controller) publishTollgateCrossing(ctx context.Context, crossing *tollgate.Crossing) {
+func (c *Controller) publishTollgateCrossing(ctx context.Context, crossing *detector.Crossing) {
 	channel := crossingChannel(crossing.TollgateID)
 
 	bytes, err := json.Marshal(crossing)

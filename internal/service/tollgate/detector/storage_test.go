@@ -1,4 +1,4 @@
-package bbox
+package detector
 
 import (
 	"context"
@@ -17,7 +17,7 @@ func TestStorage(t *testing.T) {
 	client := redisClient.NewStoreClient()
 	require.NotNil(t, client)
 
-	storage := NewStorage(client)
+	storage := newStorage(client)
 
 	ctx := context.Background()
 
@@ -26,21 +26,21 @@ func TestStorage(t *testing.T) {
 	})
 }
 
-func testVisits(ctx context.Context, t *testing.T, storage Storage) {
+func testVisits(ctx context.Context, t *testing.T, storage *storage) {
 	tollgateID := "toll-123"
 	subjectID := uuid.NewString()
-	err := storage.Visit(ctx, tollgateID, subjectID, 0)
+	err := storage.visit(ctx, tollgateID, subjectID, 0)
 	require.NoError(t, err)
-	err = storage.Visit(ctx, tollgateID, subjectID, 1)
+	err = storage.visit(ctx, tollgateID, subjectID, 1)
 	require.NoError(t, err)
-	err = storage.Visit(ctx, tollgateID, subjectID, 5)
+	err = storage.visit(ctx, tollgateID, subjectID, 5)
 	require.NoError(t, err)
 
-	res, err := storage.Visits(ctx, tollgateID, subjectID, 5)
+	res, err := storage.visits(ctx, tollgateID, subjectID, 5)
 	require.NoError(t, err)
 	require.Equal(t, []int64{1, 1, 0, 0, 0}, res)
 
-	res, err = storage.Visits(ctx, tollgateID, subjectID, 6)
+	res, err = storage.visits(ctx, tollgateID, subjectID, 6)
 	require.NoError(t, err)
 	require.Equal(t, []int64{1, 1, 0, 0, 0, 1}, res)
 }
