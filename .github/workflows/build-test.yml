@@ -80,11 +80,18 @@ jobs:
         with:
           input: .
 
+      - name: Get GitHub App JWT
+        id: get_token
+        uses: machine-learning-apps/actions-app-token@master
+        with:
+          APP_PEM: ${{ secrets.APP_PEM }}
+          APP_ID: ${{ secrets.APP_ID }}
+
       - name: Dispatch event to trigger build of TypeScript protobufs
         env:
-          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          ACCESS_TOKEN: ${{ steps.get_token.outputs.app_token }}
         run: |
           curl -X POST https://api.github.com/repos/openmarketplaceengine/ome-proto-ts/dispatches \
             -H 'Accept: application/vnd.github.v3+json' \
-            -u openmarketplaceengine:${{ secrets.ACCESS_TOKEN }} \
+            -H "Authorization: Bearer ${ACCESS_TOKEN}" \
             --data '{"event_type": "build", "client_payload": { "repository": "'"$GITHUB_REPOSITORY"'" }}'
