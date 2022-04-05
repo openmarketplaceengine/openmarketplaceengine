@@ -67,13 +67,6 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # The environment we want to access.
-    # If no environment is specified, Github environment secrets will be 
-    # silently inaccessible.
-    # TODO I'm not sure we need to specify an environment if protobus are
-    #  env-agnostic.
-    environment: build
-
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -93,5 +86,5 @@ jobs:
         run: |
           curl -X POST https://api.github.com/repos/openmarketplaceengine/ome-proto-ts/dispatches \
             -H 'Accept: application/vnd.github.v3+json' \
-            -u openmarketplaceengine:${{ secrets.GITHUB_TOKEN }} \
+            -u openmarketplaceengine:${{ secrets.ACCESS_TOKEN }} \
             --data '{"event_type": "build", "client_payload": { "repository": "'"$GITHUB_REPOSITORY"'" }}'
