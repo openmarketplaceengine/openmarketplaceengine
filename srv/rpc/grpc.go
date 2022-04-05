@@ -8,11 +8,12 @@ import (
 	"fmt"
 	"net"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
+
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/location/v1beta1"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/location"
 	"github.com/openmarketplaceengine/openmarketplaceengine/log"
-	redisClient "github.com/openmarketplaceengine/openmarketplaceengine/redis/client"
 	"google.golang.org/grpc"
 )
 
@@ -40,7 +41,7 @@ func (s *GrpcServer) Boot() (err error) {
 	log.Infof("GRPC listening on %s", addr)
 	s.srv = grpc.NewServer(s.configOptions()...)
 
-	controller, err := location.NewController(redisClient.NewStoreClient(), redisClient.NewPubSubClient())
+	controller, err := location.NewController(dao.Reds.StoreClient, dao.Reds.PubSubClient)
 	if err != nil {
 		return
 	}

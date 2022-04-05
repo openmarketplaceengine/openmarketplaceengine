@@ -12,19 +12,18 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/detector"
 	"github.com/openmarketplaceengine/openmarketplaceengine/log"
-	"github.com/openmarketplaceengine/openmarketplaceengine/redis/publisher"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type Controller struct {
 	locationV1beta1.UnimplementedLocationServiceServer
-	store    *storage.Storage
-	pub      publisher.Publisher
-	areaKey  string
-	detector *detector.Detector
+	store        *storage.Storage
+	pubSubClient *redis.Client
+	areaKey      string
+	detector     *detector.Detector
 }
 
-func NewController(storeClient *redis.Client, pubClient *redis.Client) (*Controller, error) {
+func NewController(storeClient *redis.Client, pubSubClient *redis.Client) (*Controller, error) {
 	tollgates, err := tollgate.QueryAll(cfg.Context(), 100)
 	if err != nil {
 		return nil, err
@@ -33,10 +32,10 @@ func NewController(storeClient *redis.Client, pubClient *redis.Client) (*Control
 	d := detector.NewDetector(transformTollgates(tollgates), storeClient)
 
 	return &Controller{
-		store:    storage.New(storeClient),
-		pub:      publisher.New(pubClient),
-		areaKey:  "global",
-		detector: d,
+		store:        storage.New(storeClient),
+		pubSubClient: pubSubClient,
+		areaKey:      "global",
+		detector:     d,
 	}, nil
 }
 
@@ -134,7 +133,7 @@ func (c *Controller) publishLocation(ctx context.Context, workerID string, longi
 		return
 	}
 	payload := string(bytes)
-	err = c.pub.Publish(ctx, channel, payload)
+	err = c.pubSubClient.Publish(ctx, channel, payload).Err()
 
 	if err != nil {
 		log.Errorf("location publish error: %q", err)
@@ -155,7 +154,7 @@ func (c *Controller) publishTollgateCrossing(ctx context.Context, crossing *dete
 		return
 	}
 	payload := string(bytes)
-	err = c.pub.Publish(ctx, channel, payload)
+	err = c.pubSubClient.Publish(ctx, channel, payload).Err()
 
 	if err != nil {
 		log.Errorf("crossing publish error: %q", err)
