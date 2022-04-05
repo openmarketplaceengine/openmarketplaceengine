@@ -97,14 +97,14 @@ func NewDetector(tollgates []*Tollgate, client *redis.Client) *Detector {
 func (d *Detector) DetectCrossing(ctx context.Context, movement *Movement) (*Crossing, error) {
 	for _, t := range d.tollgates {
 		if t.Line != nil {
-			crossing := DetectCrossingLine(t.ID, t.Line, movement)
+			crossing := detectCrossingVector(t.ID, t.Line, movement)
 			if crossing != nil {
 				return crossing, nil
 			}
 		}
 
 		if len(t.BBoxes) > 0 {
-			crossing, err := DetectCrossingBBox(ctx, d.storage, t.ID, t.BBoxes, t.BBoxesRequired, movement)
+			crossing, err := detectCrossingBBox(ctx, d.storage, t.ID, t.BBoxes, t.BBoxesRequired, movement)
 			if err != nil {
 				return nil, err
 			}

@@ -15,13 +15,13 @@ type BBox struct {
 	LatMax float64
 }
 
-// DetectCrossingBBox checks if Location hits a required number of BBoxes,
+// detectCrossingBBox checks if Location hits a required number of BBoxes,
 // meaning subject has travelled through Required number of BBoxes.
 // If the criteria is met - a successful tollgate.Crossing will be returned.
-// Consumer of DetectCrossingBBox should check returned value for not null, meaning detected fact of crossing the tollgate.
+// Consumer of detectCrossingBBox should check returned value for not null, meaning detected fact of crossing the tollgate.
 // Algorithm requires storing 'moving' state in Storage.
 // required is count of visits for successful pass through, required <= []BBox size.
-func DetectCrossingBBox(ctx context.Context, storage *storage, tollgateID string, bBoxes []*BBox, required int, movement *Movement) (*Crossing, error) {
+func detectCrossingBBox(ctx context.Context, storage *storage, tollgateID string, bBoxes []*BBox, required int, movement *Movement) (*Crossing, error) {
 	for i, box := range bBoxes {
 		inb := inBoundary(box, movement.To)
 		if inb {

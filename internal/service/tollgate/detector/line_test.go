@@ -88,7 +88,7 @@ func testNotCrossed(t *testing.T) {
 		},
 	}
 
-	crossing := DetectCrossingLine("", &line, &m)
+	crossing := detectCrossingVector("", &line, &m)
 	assert.NotNil(t, crossing)
 }
 
@@ -116,9 +116,9 @@ func testNotCrossedPrecision(t *testing.T) {
 		},
 	}
 
-	crossing1 := DetectCrossingLine("", &line1, &m)
+	crossing1 := detectCrossingVector("", &line1, &m)
 	assert.Nil(t, crossing1)
 
-	crossing2 := DetectCrossingLine("", &line2, &m)
+	crossing2 := detectCrossingVector("", &line2, &m)
 	assert.Nil(t, crossing2)
 }

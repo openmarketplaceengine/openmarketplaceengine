@@ -15,10 +15,6 @@ type Line struct {
 	Lat2 float64
 }
 
-func DetectCrossingLine(tollgateID string, line *Line, movement *Movement) *Crossing {
-	return detectCrossingVector(tollgateID, line, movement)
-}
-
 //NB THIS LINE CROSSING ALGORITHM CANNOT BE USED, BECAUSE IT DETECTS LINE CROSSING,
 //BUT WE NEED TO DETECT IF INTERVALS/SEGMENTS BETWEEN TWO POINTS INTERSECT.
 // See detectCrossingVector for proper implementation.
