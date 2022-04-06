@@ -69,7 +69,7 @@ jobs:
         env:
           ACCESS_TOKEN: ${{ steps.get_token.outputs.app_token }}
         run: |
-          curl -X POST https://api.github.com/repos/openmarketplaceengine/ome-proto-ts/dispatches \
+          curl -X POST https://api.github.com/repos/openmarketplaceengine/openmarketplaceengine/dispatches \
             -H 'Accept: application/vnd.github.v3+json' \
             -H "Authorization: Bearer ${ACCESS_TOKEN}" \
             --data '{"event_type": "build_protobufs", "client_payload": { "repository": "'"$GITHUB_REPOSITORY"'" }}'
