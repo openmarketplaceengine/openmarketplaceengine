@@ -46,52 +46,12 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
-
     steps:
       - uses: actions/checkout@v2
-      - uses: bufbuild/buf-setup-action@v0.6.0
-      - uses: bufbuild/buf-lint-action@v1
       - uses: golangci/golangci-lint-action@v2
-
       - name: Test
         run: make test
         env:
           OME_REDIS_STORE_ADDR: redis:6379
           OME_REDIS_PUBSUB_ADDR: redis:6379
           OME_PGDB_ADDR: postgres://postgres:secret@postgres:5432/ome
-
-  publish-protos:
-    # Only publish protos on main branch
-    if: ${{ github.ref == 'refs/heads/main' }}
-    
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
-
-      # Install the `buf` CLI
-      - uses: bufbuild/buf-setup-action@v1
-
-      # Lint your Protobuf sources
-      - uses: bufbuild/buf-lint-action@v1
-        with:
-          input: .
-
-      - name: Get GitHub App JWT
-        id: get_token
-        uses: machine-learning-apps/actions-app-token@master
-        with:
-          APP_PEM: ${{ secrets.APP_PEM }}
-          APP_ID: ${{ secrets.APP_ID }}
-
-      - name: Dispatch event to trigger build of TypeScript protobufs
-        env:
-          ACCESS_TOKEN: ${{ steps.get_token.outputs.app_token }}
-        run: |
-          curl -X POST https://api.github.com/repos/openmarketplaceengine/ome-proto-ts/dispatches \
-            -H 'Accept: application/vnd.github.v3+json' \
-            -H "Authorization: Bearer ${ACCESS_TOKEN}" \
-            --data '{"event_type": "build", "client_payload": { "repository": "'"$GITHUB_REPOSITORY"'" }}'
