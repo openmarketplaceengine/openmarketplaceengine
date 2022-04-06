@@ -52,6 +52,11 @@ Dependencies can be launched using `docker-compose`:
 $ docker-compose up
 ```
 
+You can run the OME service itself with:
+```shell
+OME_PGDB_ADDR=postgres://postgres:$(whoami)@localhost:5432/$(whoami) go run main.go
+```
+
 ### Makefile
 
 Run `make` to list all make tasks.
