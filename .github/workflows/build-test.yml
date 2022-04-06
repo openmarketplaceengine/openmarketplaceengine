@@ -49,9 +49,27 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: golangci/golangci-lint-action@v2
+
       - name: Test
         run: make test
         env:
           OME_REDIS_STORE_ADDR: redis:6379
           OME_REDIS_PUBSUB_ADDR: redis:6379
           OME_PGDB_ADDR: postgres://postgres:secret@postgres:5432/ome
+
+      # Get JWT for our GitHub App.
+      - name: Get GitHub App JWT
+        id: get_token
+        uses: machine-learning-apps/actions-app-token@master
+        with:
+          APP_PEM: ${{ secrets.APP_PEM }}
+          APP_ID: ${{ secrets.APP_ID }}
+
+      - name: Dispatch event to self to trigger build of protobufs
+        env:
+          ACCESS_TOKEN: ${{ steps.get_token.outputs.app_token }}
+        run: |
+          curl -X POST https://api.github.com/repos/openmarketplaceengine/ome-proto-ts/dispatches \
+            -H 'Accept: application/vnd.github.v3+json' \
+            -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+            --data '{"event_type": "build_protobufs", "client_payload": { "repository": "'"$GITHUB_REPOSITORY"'" }}'

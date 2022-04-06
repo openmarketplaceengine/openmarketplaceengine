@@ -1,9 +1,9 @@
 name: Publish protobufs
 
 on:
-  push:
-    paths:
-      - 'omeapi/**'
+  # Only run this workflow after the code has been built and tested.
+  repository_dispatch:
+    types: [build_protobufs]
 
 jobs:
   publish-protos:
