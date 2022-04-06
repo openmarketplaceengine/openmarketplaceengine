@@ -57,15 +57,28 @@ jobs:
           OME_REDIS_PUBSUB_ADDR: redis:6379
           OME_PGDB_ADDR: postgres://postgres:secret@postgres:5432/ome
 
+      # Check to see if there were any protobuf changes
+      - uses: technote-space/get-diff-action@v6
+        id: git-diff
+        with:
+          PATTERNS: |
+            omeapi/**/*
+
       # Get JWT for our GitHub App.
+      # This will be used only for the repository_dispatch in the next step.
       - name: Get GitHub App JWT
+        # Only execute if there were any protobuf changes
+        if: steps.git-diff.outputs.diff
         id: get_token
         uses: machine-learning-apps/actions-app-token@master
         with:
           APP_PEM: ${{ secrets.APP_PEM }}
           APP_ID: ${{ secrets.APP_ID }}
 
+      # Trigger build in another GitHub repo using repository_dispatch
       - name: Dispatch event to self to trigger build of protobufs
+        # Only execute if there were any protobuf changes
+        if: steps.git-diff.outputs.diff
         env:
           ACCESS_TOKEN: ${{ steps.get_token.outputs.app_token }}
         run: |
