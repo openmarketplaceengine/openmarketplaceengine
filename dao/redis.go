@@ -68,7 +68,7 @@ func (r *r) Stop() error {
 			return err
 		}
 	}
-	return r.stateError()
+	return nil
 }
 
 func (r *r) stateError() error {
