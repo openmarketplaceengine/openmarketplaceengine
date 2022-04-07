@@ -135,8 +135,8 @@ func testRangeLocationsLastSeen(ctx context.Context, t *testing.T, storage *Stor
 
 	loc := result[0]
 
-	require.Greater(t, loc.LastSeenTime.UnixMilli(), start.UnixMilli())
-	require.Less(t, loc.LastSeenTime.UnixMilli(), time.Now().UnixMilli())
+	require.Greater(t, loc.LastSeenTime.UnixNano(), start.UnixNano())
+	require.Less(t, loc.LastSeenTime.UnixNano(), time.Now().UnixNano())
 }
 
 func testLastLocation(ctx context.Context, t *testing.T, storage *Storage) {
