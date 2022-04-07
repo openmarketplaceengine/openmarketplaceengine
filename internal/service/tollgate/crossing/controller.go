@@ -69,7 +69,7 @@ func transform(crossings []*TollgateCrossing) []*v1beta1.TollgateCrossing {
 				ToLon:   crossing.Crossing.Crossing.Movement.To.Lon,
 				ToLat:   crossing.Crossing.Crossing.Movement.To.Lat,
 			},
-			CreatedTime: &timestamppb.Timestamp{
+			Created: &timestamppb.Timestamp{
 				Seconds: crossing.Created.Unix(),
 				Nanos:   0,
 			},

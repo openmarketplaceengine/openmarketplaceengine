@@ -33,5 +33,5 @@ message TollgateCrossing {
   string direction = 4;
   string alg = 5;
   Movement movement = 6;
-  google.protobuf.Timestamp created_time = 7;
+  google.protobuf.Timestamp created = 7;
 }
