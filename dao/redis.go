@@ -60,15 +60,12 @@ func (r *r) Boot() (err error) {
 func (r *r) Stop() error {
 	if r.State.TryStop() {
 		err := r.State.StopOrFail(r.PubSubClient.Close)
-		if err != nil {
-			return err
+		if err == nil {
+			err = r.State.StopOrFail(r.StoreClient.Close)
 		}
-		err = r.State.StopOrFail(r.StoreClient.Close)
-		if err != nil {
-			return err
-		}
+		return err
 	}
-	return nil
+	return r.stateError()
 }
 
 func (r *r) stateError() error {
