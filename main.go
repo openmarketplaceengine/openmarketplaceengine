@@ -6,6 +6,11 @@ import (
 	"os"
 	"time"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/location"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/crossing"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/worker"
+
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
@@ -26,6 +31,11 @@ func init() {
 	boot.Add("STAT", stat.Boot, nil)
 	boot.Use("HTTP", srv.Http)
 	boot.Use("GRPC", srv.Grpc)
+
+	location.GrpcRegister()
+	tollgate.GrpcRegister()
+	crossing.GrpcRegister()
+	worker.GrpcRegister()
 }
 
 func main() {

@@ -20,7 +20,7 @@ var _ embed.FS
 
 type BBoxes struct {
 	Boxes         []BBox `yaml:"boxes"`
-	BoxesRequired int    `yaml:"min_boxes_required"`
+	BoxesRequired int32  `yaml:"min_boxes_required"`
 }
 
 type BBox struct {

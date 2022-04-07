@@ -31,7 +31,7 @@ func TestDetectCrossingBBox(t *testing.T) {
 }
 
 func testCrossing(ctx context.Context, t *testing.T, s *storage) {
-	required := 4
+	required := int32(4)
 	bBoxes := []*BBox{{
 		LonMin: 1,
 		LatMin: 1,
