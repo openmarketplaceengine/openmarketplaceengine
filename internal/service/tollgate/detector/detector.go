@@ -78,7 +78,7 @@ type Tollgate struct {
 	ID             string
 	Line           *Line
 	BBoxes         []*BBox
-	BBoxesRequired int
+	BBoxesRequired int32
 }
 
 type Detector struct {

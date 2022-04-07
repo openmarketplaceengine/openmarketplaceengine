@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/location"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/crossing"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/worker"
 
@@ -32,6 +33,7 @@ func init() {
 	boot.Use("GRPC", srv.Grpc)
 
 	location.GrpcRegister()
+	tollgate.GrpcRegister()
 	crossing.GrpcRegister()
 	worker.GrpcRegister()
 }

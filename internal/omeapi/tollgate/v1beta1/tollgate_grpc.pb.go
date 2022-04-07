@@ -22,8 +22,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TollgateServiceClient interface {
-	GetTollgate(ctx context.Context, in *GetTollgateRequest, opts ...grpc.CallOption) (*GetTollgateResponse, error)
-	GetTollgates(ctx context.Context, in *GetTollgatesRequest, opts ...grpc.CallOption) (*GetTollgatesResponse, error)
+	QueryOne(ctx context.Context, in *QueryOneRequest, opts ...grpc.CallOption) (*QueryOneResponse, error)
+	QueryAll(ctx context.Context, in *QueryAllRequest, opts ...grpc.CallOption) (*QueryAllResponse, error)
 }
 
 type tollgateServiceClient struct {
@@ -34,18 +34,18 @@ func NewTollgateServiceClient(cc grpc.ClientConnInterface) TollgateServiceClient
 	return &tollgateServiceClient{cc}
 }
 
-func (c *tollgateServiceClient) GetTollgate(ctx context.Context, in *GetTollgateRequest, opts ...grpc.CallOption) (*GetTollgateResponse, error) {
-	out := new(GetTollgateResponse)
-	err := c.cc.Invoke(ctx, "/omeapi.tollgate.v1beta1.TollgateService/GetTollgate", in, out, opts...)
+func (c *tollgateServiceClient) QueryOne(ctx context.Context, in *QueryOneRequest, opts ...grpc.CallOption) (*QueryOneResponse, error) {
+	out := new(QueryOneResponse)
+	err := c.cc.Invoke(ctx, "/omeapi.tollgate.v1beta1.TollgateService/QueryOne", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *tollgateServiceClient) GetTollgates(ctx context.Context, in *GetTollgatesRequest, opts ...grpc.CallOption) (*GetTollgatesResponse, error) {
-	out := new(GetTollgatesResponse)
-	err := c.cc.Invoke(ctx, "/omeapi.tollgate.v1beta1.TollgateService/GetTollgates", in, out, opts...)
+func (c *tollgateServiceClient) QueryAll(ctx context.Context, in *QueryAllRequest, opts ...grpc.CallOption) (*QueryAllResponse, error) {
+	out := new(QueryAllResponse)
+	err := c.cc.Invoke(ctx, "/omeapi.tollgate.v1beta1.TollgateService/QueryAll", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -56,19 +56,19 @@ func (c *tollgateServiceClient) GetTollgates(ctx context.Context, in *GetTollgat
 // All implementations should embed UnimplementedTollgateServiceServer
 // for forward compatibility
 type TollgateServiceServer interface {
-	GetTollgate(context.Context, *GetTollgateRequest) (*GetTollgateResponse, error)
-	GetTollgates(context.Context, *GetTollgatesRequest) (*GetTollgatesResponse, error)
+	QueryOne(context.Context, *QueryOneRequest) (*QueryOneResponse, error)
+	QueryAll(context.Context, *QueryAllRequest) (*QueryAllResponse, error)
 }
 
 // UnimplementedTollgateServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedTollgateServiceServer struct {
 }
 
-func (UnimplementedTollgateServiceServer) GetTollgate(context.Context, *GetTollgateRequest) (*GetTollgateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetTollgate not implemented")
+func (UnimplementedTollgateServiceServer) QueryOne(context.Context, *QueryOneRequest) (*QueryOneResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryOne not implemented")
 }
-func (UnimplementedTollgateServiceServer) GetTollgates(context.Context, *GetTollgatesRequest) (*GetTollgatesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetTollgates not implemented")
+func (UnimplementedTollgateServiceServer) QueryAll(context.Context, *QueryAllRequest) (*QueryAllResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryAll not implemented")
 }
 
 // UnsafeTollgateServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -82,38 +82,38 @@ func RegisterTollgateServiceServer(s grpc.ServiceRegistrar, srv TollgateServiceS
 	s.RegisterService(&TollgateService_ServiceDesc, srv)
 }
 
-func _TollgateService_GetTollgate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetTollgateRequest)
+func _TollgateService_QueryOne_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryOneRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TollgateServiceServer).GetTollgate(ctx, in)
+		return srv.(TollgateServiceServer).QueryOne(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/omeapi.tollgate.v1beta1.TollgateService/GetTollgate",
+		FullMethod: "/omeapi.tollgate.v1beta1.TollgateService/QueryOne",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TollgateServiceServer).GetTollgate(ctx, req.(*GetTollgateRequest))
+		return srv.(TollgateServiceServer).QueryOne(ctx, req.(*QueryOneRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TollgateService_GetTollgates_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetTollgatesRequest)
+func _TollgateService_QueryAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryAllRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TollgateServiceServer).GetTollgates(ctx, in)
+		return srv.(TollgateServiceServer).QueryAll(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/omeapi.tollgate.v1beta1.TollgateService/GetTollgates",
+		FullMethod: "/omeapi.tollgate.v1beta1.TollgateService/QueryAll",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TollgateServiceServer).GetTollgates(ctx, req.(*GetTollgatesRequest))
+		return srv.(TollgateServiceServer).QueryAll(ctx, req.(*QueryAllRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -126,12 +126,12 @@ var TollgateService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*TollgateServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetTollgate",
-			Handler:    _TollgateService_GetTollgate_Handler,
+			MethodName: "QueryOne",
+			Handler:    _TollgateService_QueryOne_Handler,
 		},
 		{
-			MethodName: "GetTollgates",
-			Handler:    _TollgateService_GetTollgates_Handler,
+			MethodName: "QueryAll",
+			Handler:    _TollgateService_QueryAll_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

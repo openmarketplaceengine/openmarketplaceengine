@@ -15,7 +15,7 @@ const table = "tollgate"
 
 type BBoxes struct {
 	BBoxes   []*detector.BBox
-	Required int
+	Required int32
 }
 
 func (b *BBoxes) Scan(data interface{}) (err error) {

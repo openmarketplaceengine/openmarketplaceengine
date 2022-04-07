@@ -7,37 +7,37 @@ option go_package = "omeapi/tollgate/v1beta1";
 import "google/protobuf/timestamp.proto";
 
 service TollgateService {
-  rpc GetTollgate(GetTollgateRequest) returns (GetTollgateResponse) {}
-  rpc GetTollgates(GetTollgatesRequest) returns (GetTollgatesResponse) {}
+  rpc QueryOne(QueryOneRequest) returns (QueryOneResponse) {}
+  rpc QueryAll(QueryAllRequest) returns (QueryAllResponse) {}
 }
 
-message GetTollgateRequest {
+message QueryOneRequest {
   string tollgate_id = 1;
 }
 
-message GetTollgateResponse {
+message QueryOneResponse {
   Tollgate tollgate = 1;
 }
 
-message GetTollgatesRequest {
-  string limit = 1;
+message QueryAllRequest {
+  int32 limit = 1;
 }
 
-message GetTollgatesResponse {
+message QueryAllResponse {
   repeated Tollgate tollgates = 1;
 }
 
 message Tollgate {
   string id = 1;
   string name = 2;
-  BBox b_box = 3;
-  LineGate line_gate = 4;
-  google.protobuf.Timestamp created_time = 5;
-  google.protobuf.Timestamp updated_time = 6;
+  BBoxes b_boxes = 3;
+  GateLine gate_line = 4;
+  google.protobuf.Timestamp created = 5;
+  google.protobuf.Timestamp updated = 6;
 }
 
 message BBoxes {
-  BBox b_boxes = 1;
+  repeated BBox b_boxes = 1;
   int32 required = 2;
 }
 
@@ -48,7 +48,7 @@ message BBox {
   double lat_max = 4;
 }
 
-message LineGate {
+message GateLine {
   double lon1 = 1;
   double lat1 = 2;
   double lon2 = 3;

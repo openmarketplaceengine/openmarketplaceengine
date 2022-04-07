@@ -58,7 +58,7 @@ func transformTollgates(tollgates []*tollgate.Tollgate) (result []*detector.Toll
 	for _, t := range tollgates {
 		var line *detector.Line
 		var bBoxes []*detector.BBox
-		var bBoxesRequired int
+		var bBoxesRequired int32
 
 		if t.GateLine != nil {
 			line = t.GateLine.Line
