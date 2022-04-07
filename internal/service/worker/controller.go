@@ -3,6 +3,9 @@ package worker
 import (
 	"context"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
+	"google.golang.org/grpc"
+
 	workerV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/worker/v1beta1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -13,10 +16,18 @@ type Controller struct {
 	states map[string]workerV1beta1.WorkerState
 }
 
-func New() *Controller {
+func newController() *Controller {
 	return &Controller{
 		states: make(map[string]workerV1beta1.WorkerState),
 	}
+}
+
+func GrpcRegister() {
+	srv.Grpc.Register(func(srv *grpc.Server) error {
+		controller := newController()
+		workerV1beta1.RegisterWorkerServiceServer(srv, controller)
+		return nil
+	})
 }
 
 func (c *Controller) GetWorker(ctx context.Context, request *workerV1beta1.GetWorkerRequest) (*workerV1beta1.GetWorkerResponse, error) {

@@ -80,7 +80,7 @@ func dialer(t *testing.T) func(context.Context, string) (net.Conn, error) {
 	listener := bufconn.Listen(1024 * 1024)
 
 	server := grpc.NewServer()
-	controller, err := NewController(dao.Reds.StoreClient, dao.Reds.PubSubClient)
+	controller, err := newController(dao.Reds.StoreClient, dao.Reds.PubSubClient)
 	require.NoError(t, err)
 	locationV1beta1.RegisterLocationServiceServer(server, controller)
 

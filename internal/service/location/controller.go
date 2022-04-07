@@ -5,6 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
+	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
+	"google.golang.org/grpc"
+
 	"github.com/go-redis/redis/v8"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/location/v1beta1"
@@ -23,7 +27,18 @@ type Controller struct {
 	detector     *detector.Detector
 }
 
-func NewController(storeClient *redis.Client, pubSubClient *redis.Client) (*Controller, error) {
+func GrpcRegister() {
+	srv.Grpc.Register(func(srv *grpc.Server) error {
+		controller, err := newController(dao.Reds.StoreClient, dao.Reds.PubSubClient)
+		if err != nil {
+			return err
+		}
+		locationV1beta1.RegisterLocationServiceServer(srv, controller)
+		return nil
+	})
+}
+
+func newController(storeClient *redis.Client, pubSubClient *redis.Client) (*Controller, error) {
 	tollgates, err := tollgate.QueryAll(cfg.Context(), 100)
 	if err != nil {
 		return nil, err

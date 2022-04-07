@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
+	"google.golang.org/grpc"
+
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/tollgate_crossing/v1beta1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -12,8 +15,16 @@ type Controller struct {
 	v1beta1.UnimplementedTollgateCrossingServiceServer
 }
 
-func New() *Controller {
+func newController() *Controller {
 	return &Controller{}
+}
+
+func GrpcRegister() {
+	srv.Grpc.Register(func(srv *grpc.Server) error {
+		controller := newController()
+		v1beta1.RegisterTollgateCrossingServiceServer(srv, controller)
+		return nil
+	})
 }
 
 func (c *Controller) QueryTollgateCrossings(ctx context.Context, request *v1beta1.QueryTollgateCrossingsRequest) (*v1beta1.QueryTollgateCrossingsResponse, error) {

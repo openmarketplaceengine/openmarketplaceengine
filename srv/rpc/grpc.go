@@ -8,11 +8,7 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
-
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
-	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/location/v1beta1"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/location"
 	"github.com/openmarketplaceengine/openmarketplaceengine/log"
 	"google.golang.org/grpc"
 )
@@ -35,7 +31,6 @@ func NewGrpcServer() *GrpcServer {
 //-----------------------------------------------------------------------------
 
 func (s *GrpcServer) Boot() (err error) {
-
 	c := cfg.Grpc
 
 	addr := c.Addr()
@@ -54,12 +49,6 @@ func (s *GrpcServer) Boot() (err error) {
 		_ = s.lsn.Close()
 		return
 	}
-
-	controller, err := location.NewController(dao.Reds.StoreClient, dao.Reds.PubSubClient)
-	if err != nil {
-		return
-	}
-	locationV1beta1.RegisterLocationServiceServer(s.srv, controller)
 
 	go s.serve()
 	return nil
