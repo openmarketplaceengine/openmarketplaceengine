@@ -74,30 +74,27 @@ func (w *Worker) Insert() dao.Executable {
 // Getters
 //-----------------------------------------------------------------------------
 
-func GetWorker(ctx Context, workerID SUID) (*Worker, error) {
-	var wrk Worker
-	err := dao.From(workerTable).
-		Bind(&wrk).
+func GetWorker(ctx Context, workerID SUID) (wrk *Worker, has bool, err error) {
+	wrk = new(Worker)
+	has, err = dao.From(workerTable).
+		Bind(wrk).
 		Where("id = ?", workerID).
 		QueryOne(ctx)
-	if err != nil {
-		return nil, err
+	if !has {
+		wrk = nil
 	}
-	return &wrk, nil
+	return
 }
 
 //-----------------------------------------------------------------------------
 
-func GetWorkerStatus(ctx Context, workerID SUID) (WorkerStatus, error) {
+func GetWorkerStatus(ctx Context, workerID SUID) (WorkerStatus, bool, error) {
 	var status int32
-	err := dao.From(workerTable).
+	has, err := dao.From(workerTable).
 		Select("status").To(&status).
 		Where("id = ?", workerID).
 		QueryOne(ctx)
-	if err != nil {
-		return 0, err
-	}
-	return WorkerStatus(status), nil
+	return WorkerStatus(status), has, err
 }
 
 //-----------------------------------------------------------------------------

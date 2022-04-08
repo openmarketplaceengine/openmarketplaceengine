@@ -44,7 +44,7 @@ func TestLastWorkerLocation(t *testing.T) {
 	WillTest(t, "test", true)
 	wid, loc := insWorkerLocations(t, 100)
 	ctx := cfg.Context()
-	cor, err := LastWorkerLocation(ctx, wid)
+	cor, _, err := LastWorkerLocation(ctx, wid)
 	require.NoError(t, err)
 	c := loc[len(loc)-1]
 	require.Equal(t, c, cor)

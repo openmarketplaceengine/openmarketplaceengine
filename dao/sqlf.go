@@ -162,10 +162,11 @@ func (s *SQL) Limit(limit interface{}) *SQL {
 // Query
 //-----------------------------------------------------------------------------
 
-func (s *SQL) QueryOne(ctx Context) error {
-	return WithConn(ctx, func(ctx Context, con *sql.Conn) error {
+func (s *SQL) QueryOne(ctx Context) (bool, error) {
+	err := WithConn(ctx, func(ctx Context, con *sql.Conn) error {
 		return s.stmt.QueryRowAndClose(ctx, con)
 	})
+	return err == nil, SkipNoRows(err)
 }
 
 //-----------------------------------------------------------------------------

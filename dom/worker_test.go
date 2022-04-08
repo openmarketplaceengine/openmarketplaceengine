@@ -49,7 +49,7 @@ func TestGetWorker(t *testing.T) {
 	for i := 0; i < 100; i++ {
 		wput := genWorker()
 		require.NoError(t, wput.Persist(ctx))
-		wget, err := GetWorker(ctx, wput.ID)
+		wget, _, err := GetWorker(ctx, wput.ID)
 		require.NoError(t, err)
 		require.NotNil(t, wget)
 		wput.Created.Reset()
@@ -94,7 +94,7 @@ func TestWorker_RowsAffected(t *testing.T) {
 //-----------------------------------------------------------------------------
 
 func testGetWorkerStatus(t *testing.T, ctx Context, wput *Worker) {
-	status, er := GetWorkerStatus(ctx, wput.ID)
+	status, _, er := GetWorkerStatus(ctx, wput.ID)
 	require.NoError(t, er)
 	require.Equal(t, wput.Status, status)
 }

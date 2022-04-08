@@ -23,14 +23,14 @@ type WorkerLocation struct {
 // Getters
 //-----------------------------------------------------------------------------
 
-func LastWorkerLocation(ctx Context, workerID SUID) (loc Coord, err error) {
+func LastWorkerLocation(ctx Context, workerID SUID) (loc Coord, has bool, err error) {
 	sql := dao.From(workerLocationTable).
 		Select("longitude").To(&loc.Longitude).
 		Select("latitude").To(&loc.Latitude).
 		Where("worker = ?", workerID).
 		OrderBy("stamp desc").
 		Limit(1)
-	err = sql.QueryOne(ctx)
+	has, err = sql.QueryOne(ctx)
 	return
 }
 
