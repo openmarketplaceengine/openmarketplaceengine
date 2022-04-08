@@ -80,14 +80,14 @@ func CreateIfNotExists(ctx dom.Context, tollgate *Tollgate) error {
 
 func QueryOne(ctx dom.Context, id dom.SUID) (*Tollgate, error) {
 	var t Tollgate
-	err := dao.From(table).
+	has, err := dao.From(table).
 		Bind(&t).
 		Where("id = ?", id).
 		QueryOne(ctx)
-	if err != nil {
-		return nil, err
+	if has {
+		return &t, nil
 	}
-	return &t, nil
+	return nil, dao.WrapNoRows(err)
 }
 
 func QueryAll(ctx dom.Context, limit int) ([]*Tollgate, error) {
