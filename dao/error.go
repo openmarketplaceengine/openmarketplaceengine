@@ -1,6 +1,10 @@
 package dao
 
-import "github.com/jackc/pgconn"
+import (
+	"database/sql"
+
+	"github.com/jackc/pgconn"
+)
 
 const (
 	_uniqueViolation = "23505"
@@ -8,6 +12,15 @@ const (
 
 func ErrUniqueViolation(err error) bool {
 	return matchError(err, _uniqueViolation)
+}
+
+//-----------------------------------------------------------------------------
+
+func SkipNoRows(err error) error {
+	if err == sql.ErrNoRows {
+		return nil
+	}
+	return err
 }
 
 //-----------------------------------------------------------------------------
