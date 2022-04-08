@@ -25,6 +25,15 @@ func SkipNoRows(err error) error {
 
 //-----------------------------------------------------------------------------
 
+func WrapNoRows(err error) error {
+	if err == nil {
+		return sql.ErrNoRows
+	}
+	return err
+}
+
+//-----------------------------------------------------------------------------
+
 func matchError(err error, code string, more ...string) bool {
 	if pge, ok := err.(*pgconn.PgError); ok {
 		if pge.Code == code {
