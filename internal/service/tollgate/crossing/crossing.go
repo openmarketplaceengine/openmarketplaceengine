@@ -3,6 +3,7 @@ package crossing
 import (
 	"encoding/json"
 
+	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/detector"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
@@ -25,6 +26,17 @@ type TollgateCrossing struct {
 	WorkerID   dom.SUID `db:"worker_id"`
 	Crossing   Crossing `db:"crossing"`
 	Created    dao.Time `db:"created"`
+}
+
+func NewTollgateCrossing(tollgateID dom.SUID, workerID dom.SUID, crossing *detector.Crossing) *TollgateCrossing {
+	return &TollgateCrossing{
+		ID:         uuid.NewString(),
+		TollgateID: tollgateID,
+		WorkerID:   workerID,
+		Crossing: Crossing{
+			Crossing: *crossing,
+		},
+	}
 }
 
 func (t *TollgateCrossing) Insert(ctx dom.Context) error {

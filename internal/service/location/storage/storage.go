@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"fmt"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/util"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -58,8 +59,8 @@ func (s *Storage) LastLocation(ctx context.Context, areaKey string, workerID str
 	if len(v) > 0 && v[0] != nil {
 		return &LastLocation{
 			WorkerID:     workerID,
-			Longitude:    v[0].Longitude,
-			Latitude:     v[0].Latitude,
+			Longitude:    util.Round6(v[0].Longitude),
+			Latitude:     util.Round6(v[0].Latitude),
 			LastSeenTime: lastSeen,
 		}
 	}
@@ -143,8 +144,8 @@ func (s *Storage) RangeLocations(ctx context.Context, areaKey string, fromLongit
 		}
 		locations = append(locations, &RangeLocation{
 			WorkerID:      geoLocation.Name,
-			Longitude:     geoLocation.Longitude,
-			Latitude:      geoLocation.Latitude,
+			Longitude:     util.Round6(geoLocation.Longitude),
+			Latitude:      util.Round6(geoLocation.Latitude),
 			Distance:      geoLocation.Dist,
 			FromLatitude:  fromLatitude,
 			FromLongitude: fromLongitude,

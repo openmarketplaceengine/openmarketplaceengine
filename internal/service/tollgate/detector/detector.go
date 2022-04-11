@@ -8,12 +8,12 @@ import (
 )
 
 // Alg represents algorithm.
-type Alg uint8
+type Alg string
 
 const (
-	LineAlg Alg = iota
-	BBoxAlg
-	VectorAlg
+	LineAlg   Alg = "line"
+	BBoxAlg   Alg = "bbox"
+	VectorAlg Alg = "vector"
 )
 
 // Crossing represents detected fact of passing through the tollgate by WorkerID.

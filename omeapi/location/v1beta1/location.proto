@@ -26,9 +26,13 @@ message Movement {
 }
 
 message TollgateCrossing {
-  string tollgate_id = 1;
-  Movement movement = 2;
-  string direction = 3;
+  string id = 1;
+  string tollgate_id = 2;
+  string worker_id = 3;
+  string direction = 4;
+  string alg = 5;
+  Movement movement = 6;
+  google.protobuf.Timestamp created = 7;
 }
 
 message UpdateLocationResponse {

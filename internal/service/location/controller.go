@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
+	crossing "github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/crossing"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -82,8 +84,6 @@ func transformTollgates(tollgates []*tollgate.Tollgate) (result []*detector.Toll
 }
 
 func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta1.UpdateLocationRequest) (*locationV1beta1.UpdateLocationResponse, error) {
-	lastLocation := c.store.LastLocation(ctx, c.areaKey, request.WorkerId)
-
 	err := c.store.Update(ctx, c.areaKey, &storage.Location{
 		WorkerID:  request.WorkerId,
 		Longitude: request.Lon,
@@ -95,7 +95,19 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 
 	c.publishLocation(ctx, request.WorkerId, request.Lon, request.Lat)
 
-	var tollgateCrossing *locationV1beta1.TollgateCrossing
+	tollgateCrossing, err := c.detectTollgateCrossing(ctx, request)
+	if err != nil {
+		return nil, status.Errorf(codes.Unknown, "Crossing insert error: %s", err)
+	}
+	return &locationV1beta1.UpdateLocationResponse{
+		WorkerId:         request.WorkerId,
+		TollgateCrossing: tollgateCrossing,
+		UpdateTime:       request.UpdateTime,
+	}, nil
+}
+
+func (c *Controller) detectTollgateCrossing(ctx context.Context, request *locationV1beta1.UpdateLocationRequest) (*locationV1beta1.TollgateCrossing, error) {
+	lastLocation := c.store.LastLocation(ctx, c.areaKey, request.WorkerId)
 
 	if lastLocation != nil {
 		from := &detector.Location{
@@ -111,30 +123,41 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 			To:        to,
 		}
 
-		crossing, err := c.detector.DetectCrossing(ctx, movement)
+		detected, err := c.detector.DetectCrossing(ctx, movement)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("DetectCrossing error: %s", err)
 		}
-		if crossing != nil {
-			c.publishTollgateCrossing(ctx, crossing)
-			tollgateCrossing = &locationV1beta1.TollgateCrossing{
-				TollgateId: crossing.TollgateID,
-				Movement: &locationV1beta1.Movement{
-					FromLon: crossing.Movement.From.Lon,
-					FromLat: crossing.Movement.From.Lat,
-					ToLon:   crossing.Movement.To.Lon,
-					ToLat:   crossing.Movement.To.Lat,
-				},
-				Direction: string(crossing.Direction),
+		if detected != nil {
+			tollgateCrossing := crossing.NewTollgateCrossing(detected.TollgateID, movement.SubjectID, detected)
+			err := tollgateCrossing.Insert(ctx)
+			if err != nil {
+				return nil, fmt.Errorf("Crossing insert error: %s", err)
 			}
+			c.publishTollgateCrossing(ctx, detected)
+			return transformCrossing(tollgateCrossing), nil
 		}
 	}
+	return nil, nil
+}
 
-	return &locationV1beta1.UpdateLocationResponse{
-		WorkerId:         request.WorkerId,
-		TollgateCrossing: tollgateCrossing,
-		UpdateTime:       request.UpdateTime,
-	}, nil
+func transformCrossing(c *crossing.TollgateCrossing) *locationV1beta1.TollgateCrossing {
+	return &locationV1beta1.TollgateCrossing{
+		Id:         c.ID,
+		TollgateId: c.TollgateID,
+		WorkerId:   c.WorkerID,
+		Direction:  string(c.Crossing.Crossing.Direction),
+		Alg:        string(c.Crossing.Crossing.Alg),
+		Movement: &locationV1beta1.Movement{
+			FromLon: c.Crossing.Crossing.Movement.From.Lon,
+			FromLat: c.Crossing.Crossing.Movement.From.Lat,
+			ToLon:   c.Crossing.Crossing.Movement.To.Lon,
+			ToLat:   c.Crossing.Crossing.Movement.To.Lat,
+		},
+		Created: &timestamppb.Timestamp{
+			Seconds: c.Created.Unix(),
+			Nanos:   0,
+		},
+	}
 }
 
 func (c *Controller) publishLocation(ctx context.Context, workerID string, longitude float64, latitude float64) {
