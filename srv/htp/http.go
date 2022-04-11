@@ -11,23 +11,22 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/log"
 )
 
 type HttpServer struct { //nolint
-	chi.Router
+	Routes
 	lsn net.Listener
 	srv *http.Server
+	log log.Logger
 }
 
 //-----------------------------------------------------------------------------
 
 func NewHttpServer() *HttpServer { //nolint
 	s := new(HttpServer)
-	s.Router = chi.NewMux()
 	return s
 }
 
@@ -40,7 +39,8 @@ func (s *HttpServer) Boot() (err error) {
 	if err != nil {
 		return
 	}
-	log.Infof("HTTP listening on %s", addr)
+	s.log = log.Named("HTTP")
+	s.log.Infof("listening on %s", addr)
 	ctx := cfg.Context()
 	s.srv = &http.Server{
 		Addr: addr,
@@ -48,14 +48,11 @@ func (s *HttpServer) Boot() (err error) {
 			return ctx
 		},
 		ErrorLog:     log.NewStdLog(log.LevelError),
-		Handler:      s.Router,
+		Handler:      s.Build(),
 		IdleTimeout:  c.IdleTimeout(),
 		ReadTimeout:  c.ReadTimeout(),
 		WriteTimeout: c.WriteTimeout(),
 	}
-	s.srv.RegisterOnShutdown(func() {
-		log.Infof("HTTP server shutdown")
-	})
 	go s.serve()
 	return nil
 }
@@ -91,9 +88,8 @@ func (s *HttpServer) SetHeader(key, val string) {
 func (s *HttpServer) serve() {
 	err := s.srv.Serve(s.lsn)
 	if skipClosedError(err) != nil {
-		log.Errorf("HTTP serving failed: %s", err)
+		s.log.Errorf("http.Serve failed: %s", err)
 	}
-	cfg.Context().Stop()
 }
 
 //-----------------------------------------------------------------------------
