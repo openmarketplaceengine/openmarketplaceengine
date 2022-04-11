@@ -23,6 +23,8 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+const areaKey = "global"
+
 type Controller struct {
 	locationV1beta1.UnimplementedLocationServiceServer
 	store        *storage.Storage
@@ -53,7 +55,7 @@ func newController(storeClient *redis.Client, pubSubClient *redis.Client) (*Cont
 	return &Controller{
 		store:        storage.New(storeClient),
 		pubSubClient: pubSubClient,
-		areaKey:      "global",
+		areaKey:      areaKey,
 		detector:     d,
 	}, nil
 }
@@ -84,6 +86,8 @@ func transformTollgates(tollgates []*tollgate.Tollgate) (result []*detector.Toll
 }
 
 func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta1.UpdateLocationRequest) (*locationV1beta1.UpdateLocationResponse, error) {
+	lastLocation := c.store.LastLocation(ctx, c.areaKey, request.WorkerId)
+
 	err := c.store.Update(ctx, c.areaKey, &storage.Location{
 		WorkerID:  request.WorkerId,
 		Longitude: request.Lon,
@@ -95,7 +99,7 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 
 	c.publishLocation(ctx, request.WorkerId, request.Lon, request.Lat)
 
-	tollgateCrossing, err := c.detectTollgateCrossing(ctx, request)
+	tollgateCrossing, err := c.detectTollgateCrossing(ctx, lastLocation, request)
 	if err != nil {
 		return nil, status.Errorf(codes.Unknown, "Crossing insert error: %s", err)
 	}
@@ -106,9 +110,7 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 	}, nil
 }
 
-func (c *Controller) detectTollgateCrossing(ctx context.Context, request *locationV1beta1.UpdateLocationRequest) (*locationV1beta1.TollgateCrossing, error) {
-	lastLocation := c.store.LastLocation(ctx, c.areaKey, request.WorkerId)
-
+func (c *Controller) detectTollgateCrossing(ctx context.Context, lastLocation *storage.LastLocation, request *locationV1beta1.UpdateLocationRequest) (*locationV1beta1.TollgateCrossing, error) {
 	if lastLocation != nil {
 		from := &detector.Location{
 			Lon: lastLocation.Longitude,
@@ -125,13 +127,13 @@ func (c *Controller) detectTollgateCrossing(ctx context.Context, request *locati
 
 		detected, err := c.detector.DetectCrossing(ctx, movement)
 		if err != nil {
-			return nil, fmt.Errorf("DetectCrossing error: %s", err)
+			return nil, fmt.Errorf("detect crossing error: %s", err)
 		}
 		if detected != nil {
 			tollgateCrossing := crossing.NewTollgateCrossing(detected.TollgateID, movement.SubjectID, detected)
 			err := tollgateCrossing.Insert(ctx)
 			if err != nil {
-				return nil, fmt.Errorf("Crossing insert error: %s", err)
+				return nil, fmt.Errorf("crossing insert error: %s", err)
 			}
 			c.publishTollgateCrossing(ctx, detected)
 			return transformCrossing(tollgateCrossing), nil
