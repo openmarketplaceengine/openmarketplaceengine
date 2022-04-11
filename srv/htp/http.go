@@ -11,14 +11,13 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/log"
 )
 
 type HttpServer struct { //nolint
-	chi.Router
+	Routes
 	lsn net.Listener
 	srv *http.Server
 }
@@ -27,7 +26,6 @@ type HttpServer struct { //nolint
 
 func NewHttpServer() *HttpServer { //nolint
 	s := new(HttpServer)
-	s.Router = chi.NewMux()
 	return s
 }
 
@@ -48,7 +46,7 @@ func (s *HttpServer) Boot() (err error) {
 			return ctx
 		},
 		ErrorLog:     log.NewStdLog(log.LevelError),
-		Handler:      s.Router,
+		Handler:      s.Build(),
 		IdleTimeout:  c.IdleTimeout(),
 		ReadTimeout:  c.ReadTimeout(),
 		WriteTimeout: c.WriteTimeout(),
