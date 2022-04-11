@@ -67,15 +67,15 @@ func (t *Tollgate) Update(ctx dom.Context) error {
 	return dao.ExecTX(ctx, exec)
 }
 
-func CreateIfNotExists(ctx dom.Context, tollgate *Tollgate) error {
-	_, err := QueryOne(ctx, tollgate.ID)
+func CreateIfNotExists(ctx dom.Context, tollgate *Tollgate) (created bool, err error) {
+	_, err = QueryOne(ctx, tollgate.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return tollgate.Insert(ctx)
+			return true, tollgate.Insert(ctx)
 		}
-		return fmt.Errorf("CreateIfNotExists, query tollgate error: %w", err)
+		return false, fmt.Errorf("CreateIfNotExists error: %w", err)
 	}
-	return nil
+	return false, nil
 }
 
 func QueryOne(ctx dom.Context, id dom.SUID) (*Tollgate, error) {

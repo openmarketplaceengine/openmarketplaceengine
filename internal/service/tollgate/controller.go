@@ -2,6 +2,9 @@ package tollgate
 
 import (
 	"context"
+	"database/sql"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
 	"google.golang.org/grpc"
@@ -29,7 +32,10 @@ func GrpcRegister() {
 func (c *Controller) QueryOne(ctx context.Context, request *v1beta1.QueryOneRequest) (*v1beta1.QueryOneResponse, error) {
 	toll, err := QueryOne(ctx, request.TollgateId)
 	if err != nil {
-		return nil, err
+		if err == sql.ErrNoRows {
+			return nil, status.Errorf(codes.NotFound, "TollgateId: %s", request.TollgateId)
+		}
+		return nil, status.Errorf(codes.Unknown, "query tollgate error: %s", err)
 	}
 	return &v1beta1.QueryOneResponse{
 		Tollgate: transform(toll),

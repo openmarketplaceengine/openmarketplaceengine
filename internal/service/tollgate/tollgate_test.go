@@ -25,6 +25,10 @@ func TestTollgateModel(t *testing.T) {
 		testCreate(ctx, t, r)
 	})
 
+	t.Run("testCreateIfNotExists", func(t *testing.T) {
+		testCreateIfNotExists(ctx, t, r)
+	})
+
 	t.Run("testUpdate", func(t *testing.T) {
 		testUpdate(ctx, t, r)
 	})
@@ -48,6 +52,18 @@ func testCreate(ctx dom.Context, t *testing.T, r *rand.Rand) {
 	require.Less(t, one.Created.UnixMilli(), time.Now().UnixMilli())
 	require.Greater(t, one.Created.UnixMilli(), int64(0))
 	require.Equal(t, dao.Time{}, one.Updated)
+}
+
+func testCreateIfNotExists(ctx dom.Context, t *testing.T, r *rand.Rand) {
+	toll := newRandomTollgate(r, "testCreate")
+
+	created, err := CreateIfNotExists(ctx, toll)
+	require.NoError(t, err)
+	require.True(t, created)
+
+	created, err = CreateIfNotExists(ctx, toll)
+	require.NoError(t, err)
+	require.False(t, created)
 }
 
 func testUpdate(ctx dom.Context, t *testing.T, r *rand.Rand) {

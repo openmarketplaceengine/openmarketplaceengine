@@ -53,7 +53,7 @@ func LoadTollgates(ctx context.Context) error {
 	}
 
 	for _, t := range tollgates {
-		err := tollgate.CreateIfNotExists(ctx, &tollgate.Tollgate{
+		_, err := tollgate.CreateIfNotExists(ctx, &tollgate.Tollgate{
 			ID:       t.ID,
 			Name:     t.Name,
 			BBoxes:   transformBoxes(t.BBoxes),

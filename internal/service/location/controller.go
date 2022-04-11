@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
@@ -194,5 +196,5 @@ func (c *Controller) QueryLocation(ctx context.Context, request *locationV1beta1
 			},
 		}, nil
 	}
-	return nil, fmt.Errorf("location not found for WorkerId=%s", request.WorkerId)
+	return nil, status.Errorf(codes.NotFound, "WorkerId: %s", request.WorkerId)
 }
