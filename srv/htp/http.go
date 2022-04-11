@@ -20,6 +20,7 @@ type HttpServer struct { //nolint
 	Routes
 	lsn net.Listener
 	srv *http.Server
+	log log.Logger
 }
 
 //-----------------------------------------------------------------------------
@@ -38,7 +39,8 @@ func (s *HttpServer) Boot() (err error) {
 	if err != nil {
 		return
 	}
-	log.Infof("HTTP listening on %s", addr)
+	s.log = log.Named("HTTP")
+	s.log.Infof("listening on %s", addr)
 	ctx := cfg.Context()
 	s.srv = &http.Server{
 		Addr: addr,
@@ -51,9 +53,6 @@ func (s *HttpServer) Boot() (err error) {
 		ReadTimeout:  c.ReadTimeout(),
 		WriteTimeout: c.WriteTimeout(),
 	}
-	s.srv.RegisterOnShutdown(func() {
-		log.Infof("HTTP server shutdown")
-	})
 	go s.serve()
 	return nil
 }
@@ -89,9 +88,8 @@ func (s *HttpServer) SetHeader(key, val string) {
 func (s *HttpServer) serve() {
 	err := s.srv.Serve(s.lsn)
 	if skipClosedError(err) != nil {
-		log.Errorf("HTTP serving failed: %s", err)
+		s.log.Errorf("http.Serve failed: %s", err)
 	}
-	cfg.Context().Stop()
 }
 
 //-----------------------------------------------------------------------------
