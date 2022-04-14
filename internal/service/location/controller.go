@@ -4,8 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-
+	validation "github.com/go-ozzo/ozzo-validation"
+	"github.com/go-ozzo/ozzo-validation/is"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/crossing"
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -85,7 +87,48 @@ func transformTollgates(tollgates []*tollgate.Tollgate) (result []*detector.Toll
 	return
 }
 
+func errorsToBadRequest(errors validation.Errors) *errdetails.BadRequest {
+
+	var violations []*errdetails.BadRequest_FieldViolation
+	for k, err := range errors {
+		violations = append(violations, &errdetails.BadRequest_FieldViolation{
+			Field:       k,
+			Description: err.Error(),
+		})
+	}
+	return &errdetails.BadRequest{
+		FieldViolations: violations,
+	}
+}
+
+type validator struct {
+	errors validation.Errors
+}
+
+func (v *validator) validate(name string, value interface{}, rules ...validation.Rule) {
+	err := validation.Validate(value, rules...)
+	if err != nil {
+		v.errors[name] = err
+	}
+}
+
 func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta1.UpdateLocationRequest) (*locationV1beta1.UpdateLocationResponse, error) {
+
+	v := validator{errors: validation.Errors{}}
+	v.validate("worker_id", request.GetWorkerId(), validation.Required, is.Alphanumeric)
+	v.validate("timestamp", request.GetTimestamp(), validation.Required, is.Int)
+	v.validate("lon", request.GetLon(), validation.Required, is.Longitude)
+	v.validate("lat", request.GetLat(), validation.Required, is.Latitude)
+
+	if len(v.errors) > 0 {
+		st, err := status.New(codes.InvalidArgument, "invalid request").
+			WithDetails(errorsToBadRequest(v.errors))
+		if err != nil {
+			panic(fmt.Errorf("enrich grpc status with details error: %w", err))
+		}
+		return nil, st.Err()
+	}
+
 	lastLocation := c.store.LastLocation(ctx, c.areaKey, request.WorkerId)
 
 	err := c.store.Update(ctx, c.areaKey, &storage.Location{
@@ -111,7 +154,7 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 	return &locationV1beta1.UpdateLocationResponse{
 		WorkerId:         request.WorkerId,
 		TollgateCrossing: tollgateCrossing,
-		UpdateTime:       request.UpdateTime,
+		Timestamp:        request.Timestamp,
 	}, nil
 }
 

@@ -2,6 +2,8 @@ package location
 
 import (
 	"context"
+	validation "github.com/go-ozzo/ozzo-validation"
+	"github.com/go-ozzo/ozzo-validation/is"
 	"log"
 	"net"
 	"testing"
@@ -189,4 +191,14 @@ func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceCl
 	require.Equal(t, id, c.WorkerID)
 	require.InDelta(t, to.Lat, c.Movement.To.Lat, 0.003)
 	require.InDelta(t, to.Lon, c.Movement.To.Lon, 0.003)
+}
+
+func TestValidate(t *testing.T) {
+	v := validator{errors: validation.Errors{}}
+	v.validate("worker_id", "", validation.Required, is.Alphanumeric)
+	v.validate("timestamp", 0, validation.Required, is.Int)
+	v.validate("lon", "", validation.Required, is.Longitude)
+	v.validate("lat", "", validation.Required, is.Latitude)
+
+	require.Len(t, v.errors, 4)
 }

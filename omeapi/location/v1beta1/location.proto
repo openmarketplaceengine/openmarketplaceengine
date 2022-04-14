@@ -15,7 +15,7 @@ message UpdateLocationRequest {
   string worker_id = 1;
   double lon = 2;
   double lat = 3;
-  google.protobuf.Timestamp update_time = 4;
+  int64 timestamp = 4;
 }
 
 message Movement {
@@ -38,7 +38,7 @@ message TollgateCrossing {
 message UpdateLocationResponse {
   string worker_id = 1;
   TollgateCrossing tollgate_crossing = 2;
-  google.protobuf.Timestamp update_time = 3;
+  int64 timestamp = 3;
 }
 
 message QueryLocationRequest {
