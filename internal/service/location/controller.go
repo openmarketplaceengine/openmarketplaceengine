@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/go-ozzo/ozzo-validation/is"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/crossing"
@@ -88,8 +89,7 @@ func transformTollgates(tollgates []*tollgate.Tollgate) (result []*detector.Toll
 }
 
 func errorsToBadRequest(errors validation.Errors) *errdetails.BadRequest {
-
-	var violations []*errdetails.BadRequest_FieldViolation
+	violations := make([]*errdetails.BadRequest_FieldViolation, 0)
 	for k, err := range errors {
 		violations = append(violations, &errdetails.BadRequest_FieldViolation{
 			Field:       k,
@@ -113,12 +113,11 @@ func (v *validator) validate(name string, value interface{}, rules ...validation
 }
 
 func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta1.UpdateLocationRequest) (*locationV1beta1.UpdateLocationResponse, error) {
-
 	v := validator{errors: validation.Errors{}}
-	v.validate("worker_id", request.GetWorkerId(), validation.Required, is.Alphanumeric)
-	v.validate("timestamp", request.GetTimestamp(), validation.Required, is.Int)
-	v.validate("lon", request.GetLon(), validation.Required, is.Longitude)
-	v.validate("lat", request.GetLat(), validation.Required, is.Latitude)
+	v.validate("worker_id", request.GetWorkerId(), validation.Required)
+	v.validate("timestamp", fmt.Sprintf("%v", request.GetTimestamp()), validation.Required, is.Int)
+	v.validate("lon", fmt.Sprintf("%v", request.GetLon()), validation.Required, is.Longitude)
+	v.validate("lat", fmt.Sprintf("%v", request.GetLat()), validation.Required, is.Latitude)
 
 	if len(v.errors) > 0 {
 		st, err := status.New(codes.InvalidArgument, "invalid request").

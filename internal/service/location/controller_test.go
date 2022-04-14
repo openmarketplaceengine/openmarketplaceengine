@@ -2,12 +2,13 @@ package location
 
 import (
 	"context"
-	validation "github.com/go-ozzo/ozzo-validation"
-	"github.com/go-ozzo/ozzo-validation/is"
 	"log"
 	"net"
 	"testing"
 	"time"
+
+	validation "github.com/go-ozzo/ozzo-validation"
+	"github.com/go-ozzo/ozzo-validation/is"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/location/storage"
 
@@ -101,9 +102,10 @@ func dialer(t *testing.T) func(context.Context, string) (net.Conn, error) {
 func testUpdateLocation(t *testing.T, client locationV1beta1.LocationServiceClient) {
 	id := uuid.NewString()
 	request := &locationV1beta1.UpdateLocationRequest{
-		WorkerId: id,
-		Lon:      12.000001966953278,
-		Lat:      13.000001966953278,
+		WorkerId:  id,
+		Lon:       12.000001966953278,
+		Lat:       13.000001966953278,
+		Timestamp: time.Now().Unix(),
 	}
 	response, err := client.UpdateLocation(context.Background(), request)
 	require.NoError(t, err)
@@ -151,14 +153,16 @@ func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceCl
 	err := s.ForgetLocation(ctx, areaKey, id)
 	require.NoError(t, err)
 	from := &locationV1beta1.UpdateLocationRequest{
-		WorkerId: id,
-		Lon:      -74.195995,
-		Lat:      40.636916,
+		WorkerId:  id,
+		Lon:       -74.195995,
+		Lat:       40.636916,
+		Timestamp: time.Now().Unix(),
 	}
 	to := &locationV1beta1.UpdateLocationRequest{
-		WorkerId: id,
-		Lon:      -74.198356,
-		Lat:      40.634408,
+		WorkerId:  id,
+		Lon:       -74.198356,
+		Lat:       40.634408,
+		Timestamp: time.Now().Unix(),
 	}
 
 	sync := make(chan string)
