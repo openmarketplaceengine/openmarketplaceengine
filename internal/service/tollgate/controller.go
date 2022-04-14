@@ -3,6 +3,7 @@ package tollgate
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -34,9 +35,14 @@ func (c *Controller) QueryOne(ctx context.Context, request *v1beta1.QueryOneRequ
 	toll, err := QueryOne(ctx, request.TollgateId)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, status.Errorf(codes.NotFound, "TollgateId: %s", request.TollgateId)
+			st := status.New(codes.NotFound, "Tollgate not found")
+			st, innerErr := st.WithDetails(request)
+			if innerErr != nil {
+				panic(fmt.Errorf("enrich grpc status with details error: %w", innerErr))
+			}
+			return nil, st.Err()
 		}
-		return nil, status.Errorf(codes.Unknown, "query tollgate error: %s", err)
+		return nil, status.Errorf(codes.Internal, "query tollgate error: %s", err)
 	}
 	return &v1beta1.QueryOneResponse{
 		Tollgate: transform(toll),
@@ -46,7 +52,7 @@ func (c *Controller) QueryOne(ctx context.Context, request *v1beta1.QueryOneRequ
 func (c *Controller) QueryAll(ctx context.Context, request *v1beta1.QueryAllRequest) (*v1beta1.QueryAllResponse, error) {
 	all, err := QueryAll(ctx, 100)
 	if err != nil {
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "QueryAll error: %s", err)
 	}
 	return &v1beta1.QueryAllResponse{
 		Tollgates: transformAll(all),

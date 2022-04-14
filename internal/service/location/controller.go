@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	crossing "github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/crossing"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/crossing"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -94,14 +94,19 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 		Latitude:  request.Lat,
 	})
 	if err != nil {
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "update location error: %s", err)
 	}
 
 	c.publishLocation(ctx, request.WorkerId, request.Lon, request.Lat)
 
 	tollgateCrossing, err := c.detectTollgateCrossing(ctx, lastLocation, request)
 	if err != nil {
-		return nil, status.Errorf(codes.Unknown, "Crossing insert error: %s", err)
+		st := status.Newf(codes.Internal, "detect tollgate crossing error: %v", err)
+		st, err = st.WithDetails(request)
+		if err != nil {
+			panic(fmt.Errorf("enrich grpc status with details error: %w", err))
+		}
+		return nil, st.Err()
 	}
 	return &locationV1beta1.UpdateLocationResponse{
 		WorkerId:         request.WorkerId,
@@ -221,5 +226,10 @@ func (c *Controller) QueryLocation(ctx context.Context, request *locationV1beta1
 			},
 		}, nil
 	}
-	return nil, status.Errorf(codes.NotFound, "WorkerId: %s", request.WorkerId)
+	st := status.Newf(codes.NotFound, "location not found")
+	st, err := st.WithDetails(request)
+	if err != nil {
+		panic(fmt.Errorf("enrich grpc status with details error: %w", err))
+	}
+	return nil, st.Err()
 }

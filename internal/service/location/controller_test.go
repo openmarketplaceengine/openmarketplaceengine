@@ -127,7 +127,6 @@ func testQueryLocation(t *testing.T, client locationV1beta1.LocationServiceClien
 	_, err := client.QueryLocation(ctx, request)
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "NotFound")
-	require.Contains(t, err.Error(), request.WorkerId)
 
 	response, err := client.UpdateLocation(ctx, &locationV1beta1.UpdateLocationRequest{
 		WorkerId: id,
