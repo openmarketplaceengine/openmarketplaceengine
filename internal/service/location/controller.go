@@ -5,6 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/crossing"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
 	"google.golang.org/grpc"
@@ -18,6 +22,8 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/log"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
+
+const areaKey = "global"
 
 type Controller struct {
 	locationV1beta1.UnimplementedLocationServiceServer
@@ -49,7 +55,7 @@ func newController(storeClient *redis.Client, pubSubClient *redis.Client) (*Cont
 	return &Controller{
 		store:        storage.New(storeClient),
 		pubSubClient: pubSubClient,
-		areaKey:      "global",
+		areaKey:      areaKey,
 		detector:     d,
 	}, nil
 }
@@ -88,13 +94,28 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 		Latitude:  request.Lat,
 	})
 	if err != nil {
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "update location error: %s", err)
 	}
 
 	c.publishLocation(ctx, request.WorkerId, request.Lon, request.Lat)
 
-	var tollgateCrossing *locationV1beta1.TollgateCrossing
+	tollgateCrossing, err := c.detectTollgateCrossing(ctx, lastLocation, request)
+	if err != nil {
+		st := status.Newf(codes.Internal, "detect tollgate crossing error: %v", err)
+		st, err = st.WithDetails(request)
+		if err != nil {
+			panic(fmt.Errorf("enrich grpc status with details error: %w", err))
+		}
+		return nil, st.Err()
+	}
+	return &locationV1beta1.UpdateLocationResponse{
+		WorkerId:         request.WorkerId,
+		TollgateCrossing: tollgateCrossing,
+		UpdateTime:       request.UpdateTime,
+	}, nil
+}
 
+func (c *Controller) detectTollgateCrossing(ctx context.Context, lastLocation *storage.LastLocation, request *locationV1beta1.UpdateLocationRequest) (*locationV1beta1.TollgateCrossing, error) {
 	if lastLocation != nil {
 		from := &detector.Location{
 			Lon: lastLocation.Longitude,
@@ -109,30 +130,41 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 			To:        to,
 		}
 
-		crossing, err := c.detector.DetectCrossing(ctx, movement)
+		detected, err := c.detector.DetectCrossing(ctx, movement)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("detect crossing error: %s", err)
 		}
-		if crossing != nil {
-			c.publishTollgateCrossing(ctx, crossing)
-			tollgateCrossing = &locationV1beta1.TollgateCrossing{
-				TollgateId: crossing.TollgateID,
-				Movement: &locationV1beta1.Movement{
-					FromLon: crossing.Movement.From.Lon,
-					FromLat: crossing.Movement.From.Lat,
-					ToLon:   crossing.Movement.To.Lon,
-					ToLat:   crossing.Movement.To.Lat,
-				},
-				Direction: string(crossing.Direction),
+		if detected != nil {
+			tollgateCrossing := crossing.NewTollgateCrossing(detected.TollgateID, movement.SubjectID, detected)
+			err := tollgateCrossing.Insert(ctx)
+			if err != nil {
+				return nil, fmt.Errorf("crossing insert error: %s", err)
 			}
+			c.publishTollgateCrossing(ctx, detected)
+			return transformCrossing(tollgateCrossing), nil
 		}
 	}
+	return nil, nil
+}
 
-	return &locationV1beta1.UpdateLocationResponse{
-		WorkerId:         request.WorkerId,
-		TollgateCrossing: tollgateCrossing,
-		UpdateTime:       request.UpdateTime,
-	}, nil
+func transformCrossing(c *crossing.TollgateCrossing) *locationV1beta1.TollgateCrossing {
+	return &locationV1beta1.TollgateCrossing{
+		Id:         c.ID,
+		TollgateId: c.TollgateID,
+		WorkerId:   c.WorkerID,
+		Direction:  string(c.Crossing.Crossing.Direction),
+		Alg:        string(c.Crossing.Crossing.Alg),
+		Movement: &locationV1beta1.Movement{
+			FromLon: c.Crossing.Crossing.Movement.From.Lon,
+			FromLat: c.Crossing.Crossing.Movement.From.Lat,
+			ToLon:   c.Crossing.Crossing.Movement.To.Lon,
+			ToLat:   c.Crossing.Crossing.Movement.To.Lat,
+		},
+		Created: &timestamppb.Timestamp{
+			Seconds: c.Created.Unix(),
+			Nanos:   0,
+		},
+	}
 }
 
 func (c *Controller) publishLocation(ctx context.Context, workerID string, longitude float64, latitude float64) {
@@ -194,5 +226,10 @@ func (c *Controller) QueryLocation(ctx context.Context, request *locationV1beta1
 			},
 		}, nil
 	}
-	return nil, fmt.Errorf("location not found for WorkerId=%s", request.WorkerId)
+	st := status.Newf(codes.NotFound, "location not found")
+	st, err := st.WithDetails(request)
+	if err != nil {
+		panic(fmt.Errorf("enrich grpc status with details error: %w", err))
+	}
+	return nil, st.Err()
 }

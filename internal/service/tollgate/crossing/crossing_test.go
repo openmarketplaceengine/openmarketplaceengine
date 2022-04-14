@@ -97,7 +97,7 @@ func newRandomCrossing(r *rand.Rand, tollgateID dom.SUID, workerID dom.SUID) *To
 					},
 				},
 				Direction: "N",
-				Alg:       0,
+				Alg:       detector.LineAlg,
 			},
 		},
 	}

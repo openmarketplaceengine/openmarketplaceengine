@@ -33,7 +33,7 @@ func GrpcRegister() {
 func (c *Controller) GetWorker(ctx context.Context, request *workerV1beta1.GetWorkerRequest) (*workerV1beta1.GetWorkerResponse, error) {
 	v, ok := c.states[request.WorkerId]
 	if !ok {
-		return nil, status.Errorf(codes.NotFound, "WorkerId=%s", request.WorkerId)
+		return nil, status.Errorf(codes.NotFound, "WorkerId: %s", request.WorkerId)
 	}
 	return &workerV1beta1.GetWorkerResponse{
 		Worker: &workerV1beta1.Worker{

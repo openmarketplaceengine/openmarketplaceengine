@@ -2,11 +2,12 @@ package location
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net"
 	"testing"
 	"time"
+
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/location/storage"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 
@@ -37,16 +38,16 @@ func TestController(t *testing.T) {
 
 	ctx := context.Background()
 
-	err = tollgate.CreateIfNotExists(ctx, &tollgate.Tollgate{
+	_, err = tollgate.CreateIfNotExists(ctx, &tollgate.Tollgate{
 		ID:     tollgateID,
-		Name:   "TestController",
+		Name:   "TestController2",
 		BBoxes: nil,
 		GateLine: &tollgate.GateLine{
 			Line: &detector.Line{
-				Lon1: -79.870262,
-				Lat1: 41.198497,
-				Lon2: -79.870218,
-				Lat2: 41.200268,
+				Lon1: -74.195995,
+				Lat1: 40.636916,
+				Lon2: -74.198356,
+				Lat2: 40.634408,
 			},
 		},
 	})
@@ -125,7 +126,7 @@ func testQueryLocation(t *testing.T, client locationV1beta1.LocationServiceClien
 
 	_, err := client.QueryLocation(ctx, request)
 	require.Error(t, err)
-	require.Contains(t, err.Error(), fmt.Sprintf("location not found for WorkerId=%s", request.WorkerId))
+	require.Contains(t, err.Error(), "NotFound")
 
 	response, err := client.UpdateLocation(ctx, &locationV1beta1.UpdateLocationRequest{
 		WorkerId: id,
@@ -142,17 +143,20 @@ func testQueryLocation(t *testing.T, client locationV1beta1.LocationServiceClien
 }
 
 func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceClient) {
+	s := storage.New(dao.Reds.StoreClient)
 	ctx := context.Background()
 	id := uuid.NewString()
+	err := s.ForgetLocation(ctx, areaKey, id)
+	require.NoError(t, err)
 	from := &locationV1beta1.UpdateLocationRequest{
 		WorkerId: id,
-		Lon:      -79.871248,
-		Lat:      41.199493,
+		Lon:      -74.195995,
+		Lat:      40.636916,
 	}
 	to := &locationV1beta1.UpdateLocationRequest{
 		WorkerId: id,
-		Lon:      -79.867927,
-		Lat:      41.199329,
+		Lon:      -74.198356,
+		Lat:      40.634408,
 	}
 
 	sync := make(chan string)
@@ -181,7 +185,7 @@ func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceCl
 
 	c := <-crossings
 	require.Equal(t, tollgateID, c.TollgateID)
-	require.Equal(t, detector.Direction("SE"), c.Direction)
+	require.Equal(t, detector.Direction("SW"), c.Direction)
 	require.Equal(t, id, c.WorkerID)
 	require.InDelta(t, to.Lat, c.Movement.To.Lat, 0.003)
 	require.InDelta(t, to.Lon, c.Movement.To.Lon, 0.003)

@@ -19,8 +19,12 @@ func TestDetectCrossingLine(t *testing.T) {
 		testNotCrossed(t)
 	})
 
-	t.Run("testNotCrossedPrecision", func(t *testing.T) {
-		testNotCrossedPrecision(t)
+	t.Run("testNotCrossedVector", func(t *testing.T) {
+		testNotCrossedVector(t)
+	})
+
+	t.Run("testCrossedVector", func(t *testing.T) {
+		testCrossedVector(t)
 	})
 }
 
@@ -92,7 +96,7 @@ func testNotCrossed(t *testing.T) {
 	assert.NotNil(t, crossing)
 }
 
-func testNotCrossedPrecision(t *testing.T) {
+func testNotCrossedVector(t *testing.T) {
 	line1 := Line{
 		Lon1: -74.195995,
 		Lat1: 40.636916,
@@ -121,4 +125,27 @@ func testNotCrossedPrecision(t *testing.T) {
 
 	crossing2 := detectCrossingVector("", &line2, &m)
 	assert.Nil(t, crossing2)
+}
+
+func testCrossedVector(t *testing.T) {
+	line := Line{
+		Lon1: -74.195995,
+		Lat1: 40.636916,
+		Lon2: -74.198356,
+		Lat2: 40.634408,
+	}
+
+	m := Movement{
+		From: &Location{
+			Lon: -74.195995,
+			Lat: 40.636916,
+		},
+		To: &Location{
+			Lon: -74.198356,
+			Lat: 40.634408,
+		},
+	}
+
+	crossing1 := detectCrossingVector("", &line, &m)
+	assert.NotNil(t, crossing1)
 }

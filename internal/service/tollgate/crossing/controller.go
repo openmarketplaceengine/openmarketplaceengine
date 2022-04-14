@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
 	"google.golang.org/grpc"
 
@@ -46,7 +49,12 @@ func (c *Controller) QueryTollgateCrossings(ctx context.Context, request *v1beta
 	orderBy := []string{"created desc"}
 	crossings, err := QueryBy(ctx, wheres, orderBy, 100)
 	if err != nil {
-		return nil, err
+		st := status.Newf(codes.Internal, "query tollgate crossing error: %s", err)
+		st, err = st.WithDetails(request)
+		if err != nil {
+			panic(fmt.Errorf("enrich grpc status with details error: %w", err))
+		}
+		return nil, st.Err()
 	}
 
 	return &v1beta1.QueryTollgateCrossingsResponse{
