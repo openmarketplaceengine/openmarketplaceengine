@@ -18,8 +18,9 @@ func Boot() error {
 		return state.StateError(pfxErr)
 	}
 	slog = log.Named("STAT")
-	slog.Debugf("init prometheus")
+	_ = slog
 	bootProm()
+	bootHttp()
 	state.SetRunning()
 	return nil
 }
