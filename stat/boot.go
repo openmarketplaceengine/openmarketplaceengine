@@ -20,7 +20,7 @@ func Boot() error {
 	slog = log.Named("STAT")
 	_ = slog
 	bootProm()
-	bootHttp()
+	bootHTTP()
 	state.SetRunning()
 	return nil
 }

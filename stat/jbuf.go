@@ -88,7 +88,7 @@ var _jsonBufferPool = sync.Pool{New: func() interface{} {
 }}
 
 func AcquireJSONBuffer(indent int) *JSONBuffer {
-	buf := _jsonBufferPool.Get().(*JSONBuffer)
+	buf, _ := _jsonBufferPool.Get().(*JSONBuffer)
 	return buf.WithIndent(indent)
 }
 
@@ -171,7 +171,7 @@ func (b *JSONBuffer) setpos(tok jbtoken) {
 	b.pos = len(b.buf)
 }
 
-func (b *JSONBuffer) srctok() jbtoken {
+func (b *JSONBuffer) srctok() jbtoken { //nolint
 	for i := len(b.buf); i > 0; i-- {
 		b.pos = i
 		switch b.buf[i-1] {
@@ -382,7 +382,7 @@ func (b *JSONBuffer) start(c byte, start jbtoken) {
 	b.indent()
 }
 
-func (b *JSONBuffer) close(c byte, start, close jbtoken) {
+func (b *JSONBuffer) close(c byte, start, endtok jbtoken) {
 	ind := b.ShouldIndent()
 	switch b.tok {
 	case start:
@@ -398,7 +398,7 @@ func (b *JSONBuffer) close(c byte, start, close jbtoken) {
 	}
 	b.buf = append(b.buf, c)
 	b.pos = len(b.buf)
-	b.tok = close
+	b.tok = endtok
 }
 
 //-----------------------------------------------------------------------------
@@ -753,7 +753,7 @@ var _byteBufferPool = sync.Pool{New: func() interface{} {
 }}
 
 func AcquireByteBuffer(size int) *bytes.Buffer {
-	buf := _byteBufferPool.Get().(*bytes.Buffer)
+	buf, _ := _byteBufferPool.Get().(*bytes.Buffer)
 	if size > 0 && size > buf.Cap() {
 		buf.Grow(size)
 	}

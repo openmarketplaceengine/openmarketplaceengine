@@ -8,7 +8,7 @@ import (
 
 var _http List
 
-func bootHttp() {
+func bootHTTP() {
 	const path = "/status"
 	slog.Infof("HTTP stats endpoint: %s", path)
 	srv.Http.Get(path, httpStat)
