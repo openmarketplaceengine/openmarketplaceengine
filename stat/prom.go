@@ -8,5 +8,7 @@ import (
 //-----------------------------------------------------------------------------
 
 func bootProm() {
-	srv.Http.Handle("/metrics", promhttp.Handler())
+	const path = "/metrics"
+	slog.Infof("Prometheus endpoint: %s", path)
+	srv.Http.Handle(path, promhttp.Handler())
 }
