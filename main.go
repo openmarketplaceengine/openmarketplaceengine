@@ -24,8 +24,8 @@ func init() {
 	boot.Use("PGDB", dao.Pgdb)
 	boot.Use("REDS", dao.Reds)
 	boot.Add("STAT", stat.Boot, nil)
-	boot.Use("HTTP", srv.Http)
 	boot.Use("GRPC", srv.Grpc)
+	boot.Use("HTTP", srv.Http)
 
 	location.GrpcRegister()
 	tollgate.GrpcRegister()
