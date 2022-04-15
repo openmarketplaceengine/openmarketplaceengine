@@ -2,9 +2,7 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"os"
-	"time"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/location"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
@@ -19,15 +17,12 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/stat"
 )
 
-var started = time.Now()
-
 var boot cfg.BootList
 
 func init() {
 	boot.Add("DATA", dom.Boot, nil)
 	boot.Use("PGDB", dao.Pgdb)
 	boot.Use("REDS", dao.Reds)
-	boot.Add("URLS", route, nil)
 	boot.Add("STAT", stat.Boot, nil)
 	boot.Use("HTTP", srv.Http)
 	boot.Use("GRPC", srv.Grpc)
@@ -82,28 +77,6 @@ func main() {
 	}
 
 	log.Infof("Done")
-}
-
-//-----------------------------------------------------------------------------
-
-func route() error {
-	if name := cfg.Http.Name; len(name) > 0 {
-		srv.Http.SetHeader("Server", name)
-	}
-	srv.Http.Get("/uptime", uptime)
-	return nil
-}
-
-//-----------------------------------------------------------------------------
-
-func uptime(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		code := http.StatusMethodNotAllowed
-		http.Error(w, http.StatusText(code), code)
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	_, _ = fmt.Fprintf(w, "{\"uptime\": %d}", time.Since(started)/time.Second)
 }
 
 //-----------------------------------------------------------------------------
