@@ -1,6 +1,10 @@
 package dao
 
-import "github.com/openmarketplaceengine/openmarketplaceengine/stat"
+import (
+	"time"
+
+	"github.com/openmarketplaceengine/openmarketplaceengine/stat"
+)
 
 func init() {
 	group := stat.Group("database", "PostgreSQL database stats")
@@ -10,9 +14,10 @@ func init() {
 func poolStat(_ Context) (interface{}, error) {
 	k := stat.GetIntKeyVal()
 	s := DB().Stats()
-	k.Add("MaxOpenConn", int64(s.MaxOpenConnections))
-	k.Add("CurrOpenConn", int64(s.OpenConnections))
-	k.Add("BusyOpenConn", int64(s.InUse))
-	k.Add("IdleOpenConn", int64(s.Idle))
+	k.Add("open_conn_count", int64(s.OpenConnections))
+	k.Add("open_conn_bysy", int64(s.InUse))
+	k.Add("open_conn_idle", int64(s.Idle))
+	k.Add("conn_wait_count", s.WaitCount)
+	k.Add("conn_wait_mills", int64(s.WaitDuration/time.Millisecond))
 	return k, nil
 }
