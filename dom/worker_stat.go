@@ -11,18 +11,21 @@ func init() {
 }
 
 func workerStatus(ctx Context) (interface{}, error) {
+	//goland:noinspection GrazieInspection
+	const query = `
+		select a.name, count(worker.status)
+		from
+		    worker_status_enum a
+		left join
+		    worker on a.id = worker.status
+		group by
+		    a.id
+		order by a.id
+`
 	k := stat.GetIntKeyVal(false)
-	sql := dao.NewSQL(
-		`select status, count(status)
-			from worker
-			group by status
-			order by 1`)
-	err := sql.QueryEach(ctx, func(rows *dao.Rows) {
-		var status, count int64
-		if err := rows.Scan(&status, &count); err != nil {
-			return
-		}
-		k.Add(WorkerStatus(status).String(), count)
+	sql := dao.NewSQL(query)
+	err := sql.QueryRows(ctx, func(rows *dao.Rows) error {
+		return k.Scan(rows)
 	})
 	if k.Len() > 0 {
 		k.Add("total", k.Total())
