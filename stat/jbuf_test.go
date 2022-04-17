@@ -78,5 +78,9 @@ func fillArray(b *JSONBuffer, indent int, inline bool) {
 	b.Comma()
 	b.UnixTime(now)
 	b.Comma()
+	_ = b.Value(nil)
+	b.Comma()
+	b.Comma()
+	b.Comma()
 	b.ArrayClose()
 }

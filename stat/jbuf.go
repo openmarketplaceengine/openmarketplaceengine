@@ -467,11 +467,9 @@ func (b *JSONBuffer) EmptyArray() {
 //-----------------------------------------------------------------------------
 
 func (b *JSONBuffer) Comma() {
-	if b.tok == jbComma {
-		return
-	}
-	b.tok = jbComma
 	switch {
+	case b.tok == jbComma:
+		return
 	case b.ind == 0:
 		b.buf = append(b.buf, ',')
 		b.pos = len(b.buf)
@@ -483,6 +481,7 @@ func (b *JSONBuffer) Comma() {
 		b.pos = len(b.buf) - 1
 		b.indent()
 	}
+	b.tok = jbComma
 }
 
 //-----------------------------------------------------------------------------
