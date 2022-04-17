@@ -11,7 +11,7 @@ func init() {
 }
 
 func workerStatus(ctx Context) (interface{}, error) {
-	k := stat.GetIntKeyVal()
+	k := stat.GetIntKeyVal(false)
 	sql := dao.NewSQL(
 		`select status, count(status)
 			from worker

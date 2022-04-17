@@ -12,7 +12,7 @@ func init() {
 }
 
 func poolStat(_ Context) (interface{}, error) {
-	k := stat.GetIntKeyVal()
+	k := stat.GetIntKeyVal(false)
 	s := DB().Stats()
 	k.Add("open_conn_count", int64(s.OpenConnections))
 	k.Add("open_conn_busy", int64(s.InUse))

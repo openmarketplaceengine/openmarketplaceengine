@@ -10,8 +10,9 @@ import (
 //-----------------------------------------------------------------------------
 
 type IntKeyVal struct {
-	Key []string
-	Val []int64
+	Key    []string
+	Val    []int64
+	EscKey bool
 }
 
 //-----------------------------------------------------------------------------
@@ -20,8 +21,10 @@ var _intKeyValPool = sync.Pool{New: func() interface{} {
 	return new(IntKeyVal).Alloc(16)
 }}
 
-func GetIntKeyVal() *IntKeyVal {
-	return _intKeyValPool.Get().(*IntKeyVal)
+func GetIntKeyVal(escKey bool) *IntKeyVal {
+	kv := _intKeyValPool.Get().(*IntKeyVal)
+	kv.EscKey = escKey
+	return kv
 }
 
 //-----------------------------------------------------------------------------
@@ -97,6 +100,7 @@ func (kv *IntKeyVal) Reset() {
 		kv.Key = kv.Key[:0]
 		kv.Val = kv.Val[:0]
 	}
+	kv.EscKey = false
 }
 
 func (kv *IntKeyVal) WriteJSON(b *JSONBuffer) error {
@@ -104,14 +108,13 @@ func (kv *IntKeyVal) WriteJSON(b *JSONBuffer) error {
 		b.EmptyObject()
 		return nil
 	}
+	escKey := kv.EscKey
 	b.ObjectStart()
 	for i := 0; i < kv.Len(); i++ {
-		if i > 0 {
-			b.Comma()
-		}
 		key, val := kv.Get(i)
-		b.Key(key, true)
+		b.Key(key, escKey)
 		b.Int64(val)
+		b.Comma()
 	}
 	b.ObjectClose()
 	return nil
