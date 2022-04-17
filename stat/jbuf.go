@@ -332,11 +332,9 @@ func (b *JSONBuffer) WriteFrom(w JSONWriter) error {
 //-----------------------------------------------------------------------------
 
 func (b *JSONBuffer) Value(i interface{}) error {
-	if i == nil {
-		b.Null()
-		return nil
-	}
 	switch v := i.(type) {
+	case nil:
+		b.Null()
 	case JSONWriter:
 		return b.WriteFrom(v)
 	case JSONAppender:
