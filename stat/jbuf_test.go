@@ -84,3 +84,75 @@ func fillArray(b *JSONBuffer, indent int, inline bool) {
 	b.Comma()
 	b.ArrayClose()
 }
+
+//-----------------------------------------------------------------------------
+// Trim & White Space
+//-----------------------------------------------------------------------------
+
+func TestTrimRight(t *testing.T) {
+	data := map[string]string{
+		"":            "",
+		" ":           "",
+		" \t\n\r ":    "",
+		"xyz \t\n\r ": "xyz",
+		"abc":         "abc",
+	}
+	for k, v := range data {
+		have := string(trimRight([]byte(k)))
+		require.Equal(t, v, have)
+	}
+}
+
+func TestJSONBuffer_AppendJSON_Trim(t *testing.T) {
+	var b JSONBuffer
+	b.ArrayStart()
+	_ = b.AppendJSON([]byte("12345\n\t\r   "))
+	b.ArrayClose()
+	require.Equal(t, "[12345]", b.UnsafeString())
+}
+
+const tspaces = " \t\r\n abcde \n\r\t "
+
+func checkSpace(c byte) bool {
+	switch c {
+	case ' ', '\n', '\r', '\t':
+		return true
+	default:
+		return false
+	}
+}
+
+func BenchmarkSpaceSwitch(b *testing.B) {
+	b.ReportAllocs()
+	counter := 0
+	for i := 0; i < b.N; i++ {
+		for j := 0; j < len(tspaces); j++ {
+			if checkSpace(tspaces[j]) {
+				counter++
+			}
+		}
+	}
+	if counter == 0 {
+		b.Fatal("counter is zero")
+	}
+}
+
+func BenchmarkSpaceTable(b *testing.B) {
+	b.ReportAllocs()
+	counter := 0
+	for i := 0; i < b.N; i++ {
+		for j := 0; j < len(tspaces); j++ {
+			if space[tspaces[j]] {
+				counter++
+			}
+		}
+	}
+	if counter == 0 {
+		b.Fatal("counter is zero")
+	}
+}
+
+func BenchmarkSpaceDetect(b *testing.B) {
+	b.Run("Switch", BenchmarkSpaceSwitch)
+	b.Run("Table", BenchmarkSpaceTable)
+}

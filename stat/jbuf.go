@@ -286,6 +286,9 @@ func (b *JSONBuffer) AppendJSON(src []byte) error {
 		b.Null()
 		return nil
 	}
+	if n := len(src); n > 0 && space[src[n-1]] {
+		src = needTrimRight(src, n-1)
+	}
 	var pfx, ind string
 	if b.ShouldIndent() {
 		pfx = whiteSpace(b.Indent())
@@ -742,6 +745,28 @@ func escape(b []byte, s string, safeHTML bool) []byte {
 }
 
 //-----------------------------------------------------------------------------
+// Trim
+//-----------------------------------------------------------------------------
+
+func trimRight(b []byte) []byte {
+	if n := len(b); n > 0 && space[b[n-1]] {
+		n--
+		for n > 0 && space[b[n-1]] {
+			n--
+		}
+		return b[:n]
+	}
+	return b
+}
+
+func needTrimRight(b []byte, n int) []byte {
+	for n > 0 && space[b[n-1]] {
+		n--
+	}
+	return b[:n]
+}
+
+//-----------------------------------------------------------------------------
 // bytes.Buffer Pool
 //-----------------------------------------------------------------------------
 
@@ -804,6 +829,13 @@ var ascii = [256]uint8{
 	'k': 1, 'l': 1, 'm': 1, 'n': 1, 'o': 1, 'p': 1, 'q': 1, 'r': 1, 's': 1, 't': 1,
 	'u': 1, 'v': 1, 'w': 1, 'x': 1, 'y': 1, 'z': 1,
 	'-': 1, '_': 1, '@': 1, '*': 1,
+}
+
+var space = [256]bool{
+	'\n': true,
+	'\r': true,
+	'\t': true,
+	' ':  true,
 }
 
 var escASCII = [128]uint8{
