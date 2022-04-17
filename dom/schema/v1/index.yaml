@@ -1,3 +1,4 @@
+- worker_status_enum.sql
 - worker.sql
 - vehicle.sql
 - worker_vehicle.sql
