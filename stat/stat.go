@@ -152,7 +152,7 @@ func listJSON(ctx Context, list *List, buf *JSONBuffer) {
 		} else {
 			err = buf.Value(val)
 			if err != nil {
-				slog.Errorf("%q JSON failed: %s", err)
+				slog.Errorf("%q JSON failed: %s", s.name, err)
 			}
 		}
 		release(val)
