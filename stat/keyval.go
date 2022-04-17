@@ -22,7 +22,7 @@ var _intKeyValPool = sync.Pool{New: func() interface{} {
 }}
 
 func GetIntKeyVal(escKey bool) *IntKeyVal {
-	kv := _intKeyValPool.Get().(*IntKeyVal)
+	kv, _ := _intKeyValPool.Get().(*IntKeyVal)
 	kv.EscKey = escKey
 	return kv
 }
