@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
+	"github.com/openmarketplaceengine/openmarketplaceengine/srv/htp"
 )
 
 var _http List
@@ -15,10 +16,12 @@ func bootHTTP() {
 }
 
 func httpStat(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	res := htp.GetRes(w, r)
+	defer res.Release()
+	res.SetJSON()
 	buf := AcquireJSONBuffer(2)
 	defer buf.Release()
-	listJSON(r.Context(), &_http, buf)
+	listJSON(res.Ctx, &_http, buf)
 	_, _ = buf.WriteTo(w)
 }
 
