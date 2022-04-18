@@ -5,16 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 
-	validation "github.com/go-ozzo/ozzo-validation"
-	"github.com/go-ozzo/ozzo-validation/is"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/crossing"
-	"google.golang.org/genproto/googleapis/rpc/errdetails"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/crossing"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/validate"
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
@@ -88,40 +85,17 @@ func transformTollgates(tollgates []*tollgate.Tollgate) (result []*detector.Toll
 	return
 }
 
-func errorsToBadRequest(errors validation.Errors) *errdetails.BadRequest {
-	violations := make([]*errdetails.BadRequest_FieldViolation, 0)
-	for k, err := range errors {
-		violations = append(violations, &errdetails.BadRequest_FieldViolation{
-			Field:       k,
-			Description: err.Error(),
-		})
-	}
-	return &errdetails.BadRequest{
-		FieldViolations: violations,
-	}
-}
-
-type validator struct {
-	errors validation.Errors
-}
-
-func (v *validator) validate(name string, value interface{}, rules ...validation.Rule) {
-	err := validation.Validate(value, rules...)
-	if err != nil {
-		v.errors[name] = err
-	}
-}
-
 func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta1.UpdateLocationRequest) (*locationV1beta1.UpdateLocationResponse, error) {
-	v := validator{errors: validation.Errors{}}
-	v.validate("worker_id", request.GetWorkerId(), validation.Required)
-	v.validate("timestamp", fmt.Sprintf("%v", request.GetTimestamp()), validation.Required, is.Int)
-	v.validate("lon", fmt.Sprintf("%v", request.GetLon()), validation.Required, is.Longitude)
-	v.validate("lat", fmt.Sprintf("%v", request.GetLat()), validation.Required, is.Latitude)
+	var v validate.Validator
+	v.ValidateString("worker_id", request.GetWorkerId(), validate.IsNotNull)
+	v.ValidateTimestamp("timestamp", request.GetTimestamp())
+	v.ValidateFloat64("lon", request.Lon, validate.IsLongitude)
+	v.ValidateFloat64("lat", request.Lat, validate.IsLatitude)
 
-	if len(v.errors) > 0 {
-		st, err := status.New(codes.InvalidArgument, "invalid request").
-			WithDetails(errorsToBadRequest(v.errors))
+	errorInfo := v.ErrorInfo()
+	if errorInfo != nil {
+		st, err := status.New(codes.InvalidArgument, "bad request").
+			WithDetails(errorInfo)
 		if err != nil {
 			panic(fmt.Errorf("enrich grpc status with details error: %w", err))
 		}
