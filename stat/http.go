@@ -19,7 +19,7 @@ func httpStat(w http.ResponseWriter, r *http.Request) {
 	res := htp.GetRes(w, r)
 	defer res.Release()
 	res.SetJSON()
-	buf := AcquireJSONBuffer(2)
+	buf := AcquireJSONBuffer(4)
 	defer buf.Release()
 	listJSON(res.Ctx, &_http, buf)
 	_, _ = buf.WriteTo(w)
