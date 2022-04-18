@@ -5,14 +5,21 @@ import (
 	"sync"
 )
 
+type KVOption int
+
+const (
+	KVEscapeKeys KVOption = 1 << iota
+	KVReleaseVal          = 1 << iota
+)
+
 //-----------------------------------------------------------------------------
 // IntKeyVal
 //-----------------------------------------------------------------------------
 
 type IntKeyVal struct {
-	Key    []string
-	Val    []int64
-	EscKey bool
+	Key []string
+	Val []int64
+	Opt KVOption
 }
 
 //-----------------------------------------------------------------------------
@@ -21,9 +28,9 @@ var _intKeyValPool = sync.Pool{New: func() interface{} {
 	return new(IntKeyVal).Alloc(16)
 }}
 
-func GetIntKeyVal(escKey bool) *IntKeyVal {
+func GetIntKeyVal(opts ...KVOption) *IntKeyVal {
 	kv, _ := _intKeyValPool.Get().(*IntKeyVal)
-	kv.EscKey = escKey
+	kv.Opt = maskOpts(opts)
 	return kv
 }
 
@@ -100,7 +107,7 @@ func (kv *IntKeyVal) Reset() {
 		kv.Key = kv.Key[:0]
 		kv.Val = kv.Val[:0]
 	}
-	kv.EscKey = false
+	kv.Opt = 0
 }
 
 func (kv *IntKeyVal) WriteJSON(b *JSONBuffer) error {
@@ -108,7 +115,7 @@ func (kv *IntKeyVal) WriteJSON(b *JSONBuffer) error {
 		b.EmptyObject()
 		return nil
 	}
-	escKey := kv.EscKey
+	escKey := (kv.Opt&KVEscapeKeys != 0)
 	b.ObjectStart()
 	for i := 0; i < kv.Len(); i++ {
 		key, val := kv.Get(i)
@@ -118,4 +125,15 @@ func (kv *IntKeyVal) WriteJSON(b *JSONBuffer) error {
 	}
 	b.ObjectClose()
 	return nil
+}
+
+//-----------------------------------------------------------------------------
+// Options
+//-----------------------------------------------------------------------------
+
+func maskOpts(opts []KVOption) (mask KVOption) {
+	for i := 0; i < len(opts); i++ {
+		mask |= opts[i]
+	}
+	return
 }

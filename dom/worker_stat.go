@@ -22,7 +22,7 @@ func workerStatus(ctx Context) (interface{}, error) {
 		    a.id
 		order by a.id
 `
-	k := stat.GetIntKeyVal(false)
+	k := stat.GetIntKeyVal()
 	sql := dao.NewSQL(query)
 	err := sql.QueryRows(ctx, func(rows *dao.Rows) error {
 		return k.Scan(rows)
