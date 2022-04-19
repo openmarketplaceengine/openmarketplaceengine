@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strconv"
 	"sync"
+	"unsafe"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv/htp/hdr"
 )
@@ -85,6 +86,11 @@ func (r *Response) WriteHeader(statusCode int) {
 	}
 }
 
+func (r *Response) SetContentType(mime string) {
+	r.mime = mime
+	r.hdr.Set(hdr.ContentType, mime)
+}
+
 func (r *Response) SetContentLength(n int64) {
 	r.clen = n
 	r.hdr.Set(hdr.ContentLength, strconv.FormatInt(n, 10))
@@ -98,6 +104,10 @@ func (r *Response) Write(p []byte) (int, error) {
 	return r.res.Write(p)
 }
 
+func (r *Response) WriteString(s string) (int, error) {
+	return r.Write(unsafeBytes(s))
+}
+
 func (r *Response) Flush() {
 	if fl, ok := r.res.(http.Flusher); ok {
 		fl.Flush()
@@ -107,11 +117,6 @@ func (r *Response) Flush() {
 //-----------------------------------------------------------------------------
 // Content-Type
 //-----------------------------------------------------------------------------
-
-func (r *Response) SetContentType(mime string) {
-	r.mime = mime
-	r.hdr.Set(hdr.ContentType, mime)
-}
 
 func (r *Response) SetText() {
 	r.SetContentType(hdr.TextPlain)
@@ -129,4 +134,17 @@ func (r *Response) SendBytes(b []byte) error {
 	r.SetContentLength(int64(len(b)))
 	_, err := r.res.Write(b)
 	return err
+}
+
+//-----------------------------------------------------------------------------
+// Unsafe Bytes
+//-----------------------------------------------------------------------------
+
+type slice struct {
+	s string
+	c int
+}
+
+func unsafeBytes(s string) []byte {
+	return *(*[]byte)(unsafe.Pointer(&slice{s, len(s)}))
 }
