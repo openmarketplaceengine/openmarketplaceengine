@@ -18,11 +18,19 @@ func bootHTTP() {
 func httpStat(w http.ResponseWriter, r *http.Request) {
 	res := htp.GetRes(w, r)
 	defer res.Release()
-	res.SetJSON()
 	buf := AcquireJSONBuffer(4)
 	defer buf.Release()
-	listJSON(res.Ctx, &_http, buf)
-	_, _ = buf.WriteTo(w)
+	err := listJSON(res.Ctx, &_http, buf)
+	if err != nil {
+		slog.Errorf("%s", err)
+		res.ServerError()
+		return
+	}
+	res.SetJSON()
+	err = res.SendData(buf.End())
+	if err != nil {
+		slog.Errorf("%s", err)
+	}
 }
 
 func AddStat(name string, help string, stat Func) {

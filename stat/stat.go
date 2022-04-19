@@ -127,11 +127,11 @@ func (ls *List) add(stat *Stat) {
 
 //-----------------------------------------------------------------------------
 
-func listJSON(ctx Context, list *List, buf *JSONBuffer) {
+func listJSON(ctx Context, list *List, buf *JSONBuffer) error {
 	n := list.Len()
 	if n == 0 {
 		buf.EmptyObject()
-		return
+		return nil
 	}
 	buf.ObjectStart()
 	for i := 0; i < n; i++ {
@@ -141,24 +141,28 @@ func listJSON(ctx Context, list *List, buf *JSONBuffer) {
 		}
 		buf.Key(s.name, false)
 		if s.Group() {
-			listJSON(ctx, s.list, buf)
+			err := listJSON(ctx, s.list, buf)
+			if err != nil {
+				return err
+			}
 			buf.Comma()
 			continue
 		}
 		val, err := s.stat(ctx)
 		if err != nil {
-			slog.Errorf("%q stat failed: %s", s.name, err)
-			buf.Stringf("ERR: %s", err)
-		} else {
-			err = buf.Value(val)
-			if err != nil {
-				slog.Errorf("%q JSON failed: %s", s.name, err)
-			}
+			release(val)
+			return fmt.Errorf("%q stat() failed: %w", s.name, err)
+		}
+		err = buf.Value(val)
+		if err != nil {
+			release(val)
+			return fmt.Errorf("%q encoding failed: %w", s.name, err)
 		}
 		release(val)
 		buf.Comma()
 	}
 	buf.ObjectClose()
+	return nil
 }
 
 //-----------------------------------------------------------------------------
