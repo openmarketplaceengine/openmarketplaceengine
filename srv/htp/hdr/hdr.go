@@ -24,6 +24,11 @@ const (
 
 //goland:noinspection GoUnusedConst
 const (
+	XContentTypeOptions = "X-Content-Type-Options"
+)
+
+//goland:noinspection GoUnusedConst
+const (
 	AppJSON     = "application/json; charset=utf-8"
 	AppScript   = "application/javascript; charset=utf-8"
 	TextHTML    = "text/html; charset=utf-8"
@@ -42,4 +47,5 @@ const (
 	Chunked   = "chunked"
 	Gzip      = "gzip"
 	Loopback  = "127.0.0.1"
+	Nosniff   = "nosniff"
 )
