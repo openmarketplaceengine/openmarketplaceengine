@@ -3,8 +3,10 @@ package stat
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"math"
 	"os"
 	"strconv"
 	"sync"
@@ -47,6 +49,13 @@ type JSONAppender interface {
 type JSONWriter interface {
 	WriteJSON(b *JSONBuffer) error
 }
+
+//-----------------------------------------------------------------------------
+
+var (
+	ErrFloatNaN = errors.New("float is NaN")
+	ErrFloatInf = errors.New("float is Inf")
+)
 
 //-----------------------------------------------------------------------------
 
@@ -352,6 +361,10 @@ func (b *JSONBuffer) Value(i interface{}) error {
 		b.Uint64(v)
 	case uint:
 		b.Uint(v)
+	case float64:
+		return b.Float64(v)
+	case float32:
+		return b.Float32(v)
 	case time.Time:
 		b.Time(v)
 	case time.Duration:
@@ -605,6 +618,58 @@ func (b *JSONBuffer) Uint(i uint) {
 
 func (b *JSONBuffer) Uintptr(i uintptr) {
 	b.Uint64(uint64(i))
+}
+
+//-----------------------------------------------------------------------------
+// Float
+//-----------------------------------------------------------------------------
+
+func (b *JSONBuffer) Float32(f float32) error {
+	return b.Float(float64(f), 32)
+}
+
+//-----------------------------------------------------------------------------
+
+func (b *JSONBuffer) Float64(f float64) error {
+	return b.Float(f, 64)
+}
+
+//-----------------------------------------------------------------------------
+
+func (b *JSONBuffer) Float(f float64, bits int) error {
+	switch {
+	case math.IsNaN(f):
+		return ErrFloatNaN
+	case math.IsInf(f, 0):
+		return ErrFloatInf
+	}
+
+	abs := math.Abs(f)
+
+	ffm := byte('f')
+
+	if abs != 0 {
+		if (bits == 64 && (abs < 1e-6 || abs >= 1e21)) || (bits == 32 && (float32(abs) < 1e-6 || float32(abs) >= 1e21)) {
+			ffm = 'e'
+		}
+	}
+
+	buf := strconv.AppendFloat(b.buf, f, ffm, -1, bits)
+
+	if ffm == 'e' {
+		// clean up e-09 to e-9
+		n := len(buf)
+		if n >= 4 && buf[n-4] == 'e' && buf[n-3] == '-' && buf[n-2] == '0' {
+			buf[n-2] = buf[n-1]
+			buf = buf[:n-1]
+		}
+	}
+
+	b.buf = buf
+
+	b.setval()
+
+	return nil
 }
 
 //-----------------------------------------------------------------------------
