@@ -7,6 +7,7 @@ package htp
 import (
 	"context"
 	"net/http"
+	"strconv"
 	"sync"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv/htp/hdr"
@@ -74,6 +75,10 @@ func (r *Response) Header() Header {
 
 func (r *Response) WriteHeader(statusCode int) {
 	r.res.WriteHeader(statusCode)
+}
+
+func (r *Response) SetContentLength(n int64) {
+	r.hdr.Set(hdr.ContentLength, strconv.FormatInt(n, 10))
 }
 
 //-----------------------------------------------------------------------------
