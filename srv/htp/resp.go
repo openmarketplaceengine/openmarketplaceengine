@@ -18,10 +18,13 @@ type (
 )
 
 type Response struct {
-	res http.ResponseWriter
-	Req *http.Request
-	Ctx context.Context
-	hdr Header
+	res  http.ResponseWriter
+	Req  *http.Request
+	Ctx  context.Context
+	hdr  Header
+	mime string // response content type
+	code int    // response HTTP code
+	clen int64  // response content length
 }
 
 //-----------------------------------------------------------------------------
@@ -33,6 +36,8 @@ var rpool = sync.Pool{New: func() interface{} {
 }}
 
 var rzero Response
+
+//-----------------------------------------------------------------------------
 
 func GetRes(res http.ResponseWriter, req *http.Request) *Response {
 	r, _ := rpool.Get().(*Response)
@@ -74,10 +79,14 @@ func (r *Response) Header() Header {
 }
 
 func (r *Response) WriteHeader(statusCode int) {
-	r.res.WriteHeader(statusCode)
+	if r.code == 0 {
+		r.code = statusCode
+		r.res.WriteHeader(statusCode)
+	}
 }
 
 func (r *Response) SetContentLength(n int64) {
+	r.clen = n
 	r.hdr.Set(hdr.ContentLength, strconv.FormatInt(n, 10))
 }
 
@@ -99,8 +108,9 @@ func (r *Response) Flush() {
 // Content-Type
 //-----------------------------------------------------------------------------
 
-func (r *Response) SetContentType(ctype string) {
-	r.hdr.Set(hdr.ContentType, ctype)
+func (r *Response) SetContentType(mime string) {
+	r.mime = mime
+	r.hdr.Set(hdr.ContentType, mime)
 }
 
 func (r *Response) SetText() {
