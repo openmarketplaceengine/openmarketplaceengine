@@ -6,6 +6,7 @@ package htp
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strconv"
 	"sync"
@@ -16,6 +17,7 @@ import (
 
 type (
 	Header = http.Header
+	Status = hdr.Status
 )
 
 type Response struct {
@@ -86,6 +88,12 @@ func (r *Response) WriteHeader(statusCode int) {
 	}
 }
 
+//-----------------------------------------------------------------------------
+
+func (r *Response) Set(header string, value string) {
+	r.hdr.Set(header, value)
+}
+
 func (r *Response) SetContentType(mime string) {
 	r.mime = mime
 	r.hdr.Set(hdr.ContentType, mime)
@@ -137,6 +145,58 @@ func (r *Response) SendBytes(b []byte) error {
 }
 
 //-----------------------------------------------------------------------------
+// Errors
+//-----------------------------------------------------------------------------
+
+func (r *Response) Error(code Status, text ...string) bool {
+	if r.code != 0 {
+		return false
+	}
+	if len(text) == 0 {
+		text = append(text, code.String())
+	}
+	r.errorHeader(code, strLen(text))
+	var err error
+	for i := 0; i < len(text) && err == nil; i++ {
+		_, err = r.WriteString(text[i])
+	}
+	return err == nil
+}
+
+//-----------------------------------------------------------------------------
+
+func (r *Response) Errorf(code Status, format string, args ...interface{}) bool {
+	if r.code != 0 {
+		return false
+	}
+	if len(args) == 0 {
+		return r.Error(code, format)
+	}
+	r.errorHeader(code, 0)
+	_, err := fmt.Fprintf(r, format, args...)
+	return err == nil
+}
+
+//-----------------------------------------------------------------------------
+
+func (r *Response) errorHeader(code Status, clen int) {
+	r.SetText()
+	r.Set(hdr.XContentTypeOptions, hdr.Nosniff)
+	if clen > 0 {
+		r.SetContentLength(int64(clen))
+	}
+	r.WriteHeader(int(code))
+}
+
+//-----------------------------------------------------------------------------
+// Common Errors
+//-----------------------------------------------------------------------------
+
+func (r *Response) ServerError() bool {
+	return r.Error(hdr.StatusInternalServerError)
+}
+
+//-----------------------------------------------------------------------------
 // Unsafe Bytes
 //-----------------------------------------------------------------------------
 
@@ -147,4 +207,15 @@ type slice struct {
 
 func unsafeBytes(s string) []byte {
 	return *(*[]byte)(unsafe.Pointer(&slice{s, len(s)}))
+}
+
+//-----------------------------------------------------------------------------
+// Helpers
+//-----------------------------------------------------------------------------
+
+func strLen(strings []string) (n int) {
+	for i := 0; i < len(strings); i++ {
+		n += len(strings[i])
+	}
+	return
 }
