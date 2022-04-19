@@ -6,6 +6,7 @@ package htp
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -29,6 +30,10 @@ type Response struct {
 	code int    // response HTTP code
 	clen int64  // response content length
 }
+
+var (
+	ErrAlreadySent = errors.New("HTTP response has already been sent")
+)
 
 //-----------------------------------------------------------------------------
 // Response Pool
@@ -138,8 +143,12 @@ func (r *Response) SetJSON() {
 // Send
 //-----------------------------------------------------------------------------
 
-func (r *Response) SendBytes(b []byte) error {
+func (r *Response) SendData(b []byte) error {
+	if r.code != 0 {
+		return ErrAlreadySent
+	}
 	r.SetContentLength(int64(len(b)))
+	r.WriteHeader(200)
 	_, err := r.res.Write(b)
 	return err
 }
