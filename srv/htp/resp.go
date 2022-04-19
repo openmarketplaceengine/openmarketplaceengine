@@ -110,3 +110,13 @@ func (r *Response) SetText() {
 func (r *Response) SetJSON() {
 	r.SetContentType(hdr.AppJSON)
 }
+
+//-----------------------------------------------------------------------------
+// Send
+//-----------------------------------------------------------------------------
+
+func (r *Response) SendBytes(b []byte) error {
+	r.SetContentLength(int64(len(b)))
+	_, err := r.res.Write(b)
+	return err
+}
