@@ -5,13 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/crossing"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/crossing"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/validate"
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
@@ -86,6 +86,22 @@ func transformTollgates(tollgates []*tollgate.Tollgate) (result []*detector.Toll
 }
 
 func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta1.UpdateLocationRequest) (*locationV1beta1.UpdateLocationResponse, error) {
+	var v validate.Validator
+	v.ValidateString("worker_id", request.GetWorkerId(), validate.IsNotNull)
+	v.ValidateTimestamp("timestamp", request.GetTimestamp())
+	v.ValidateFloat64("lon", request.Lon, validate.IsLongitude)
+	v.ValidateFloat64("lat", request.Lat, validate.IsLatitude)
+
+	errorInfo := v.ErrorInfo()
+	if errorInfo != nil {
+		st, err := status.New(codes.InvalidArgument, "bad request").
+			WithDetails(errorInfo)
+		if err != nil {
+			panic(fmt.Errorf("enrich grpc status with details error: %w", err))
+		}
+		return nil, st.Err()
+	}
+
 	lastLocation := c.store.LastLocation(ctx, c.areaKey, request.WorkerId)
 
 	err := c.store.Update(ctx, c.areaKey, &storage.Location{
@@ -111,7 +127,7 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 	return &locationV1beta1.UpdateLocationResponse{
 		WorkerId:         request.WorkerId,
 		TollgateCrossing: tollgateCrossing,
-		UpdateTime:       request.UpdateTime,
+		Timestamp:        request.Timestamp,
 	}, nil
 }
 

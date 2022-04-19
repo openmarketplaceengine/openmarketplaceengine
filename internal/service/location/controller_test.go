@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"google.golang.org/protobuf/types/known/timestamppb"
+
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/location/storage"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
@@ -69,6 +71,9 @@ func TestController(t *testing.T) {
 	t.Run("testUpdateLocation", func(t *testing.T) {
 		testUpdateLocation(t, client)
 	})
+	t.Run("testUpdateLocationBadRequest", func(t *testing.T) {
+		testUpdateLocationBadRequest(t, client)
+	})
 	t.Run("testQueryLocation", func(t *testing.T) {
 		testQueryLocation(t, client)
 	})
@@ -102,6 +107,10 @@ func testUpdateLocation(t *testing.T, client locationV1beta1.LocationServiceClie
 		WorkerId: id,
 		Lon:      12.000001966953278,
 		Lat:      13.000001966953278,
+		Timestamp: &timestamppb.Timestamp{
+			Seconds: time.Now().Unix(),
+			Nanos:   int32(time.Now().Nanosecond()),
+		},
 	}
 	response, err := client.UpdateLocation(context.Background(), request)
 	require.NoError(t, err)
@@ -114,6 +123,28 @@ func testUpdateLocation(t *testing.T, client locationV1beta1.LocationServiceClie
 	require.Equal(t, request.WorkerId, location.WorkerId)
 	require.InDelta(t, request.Lon, location.Lon, 0.001)
 	require.InDelta(t, request.Lat, location.Lat, 0.001)
+}
+
+func testUpdateLocationBadRequest(t *testing.T, client locationV1beta1.LocationServiceClient) {
+	id := uuid.NewString()
+	request := &locationV1beta1.UpdateLocationRequest{
+		WorkerId: "",
+		Lon:      1200,
+		Lat:      1300,
+		Timestamp: &timestamppb.Timestamp{
+			Seconds: time.Now().Unix(),
+			Nanos:   int32(time.Now().Nanosecond()),
+		},
+	}
+	_, err := client.UpdateLocation(context.Background(), request)
+	require.Error(t, err)
+	require.EqualError(t, err, "rpc error: code = InvalidArgument desc = bad request")
+
+	_, err = client.QueryLocation(context.Background(), &locationV1beta1.QueryLocationRequest{
+		WorkerId: id,
+	})
+	require.Error(t, err)
+	require.EqualError(t, err, "rpc error: code = NotFound desc = location not found")
 }
 
 func testQueryLocation(t *testing.T, client locationV1beta1.LocationServiceClient) {
@@ -132,6 +163,10 @@ func testQueryLocation(t *testing.T, client locationV1beta1.LocationServiceClien
 		WorkerId: id,
 		Lon:      12,
 		Lat:      13,
+		Timestamp: &timestamppb.Timestamp{
+			Seconds: time.Now().Unix(),
+			Nanos:   0,
+		},
 	},
 	)
 	require.NoError(t, err)
@@ -152,11 +187,19 @@ func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceCl
 		WorkerId: id,
 		Lon:      -74.195995,
 		Lat:      40.636916,
+		Timestamp: &timestamppb.Timestamp{
+			Seconds: time.Now().Unix(),
+			Nanos:   int32(time.Now().Nanosecond()),
+		},
 	}
 	to := &locationV1beta1.UpdateLocationRequest{
 		WorkerId: id,
 		Lon:      -74.198356,
 		Lat:      40.634408,
+		Timestamp: &timestamppb.Timestamp{
+			Seconds: time.Now().Unix(),
+			Nanos:   int32(time.Now().Nanosecond()),
+		},
 	}
 
 	sync := make(chan string)
