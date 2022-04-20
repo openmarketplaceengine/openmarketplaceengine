@@ -32,7 +32,7 @@ jobs:
       - name: Docker Build
         # image will be used by semantic-release plugin where it will be properly tagged and pushed
         # see release.config.js
-        run: docker build -t ghcr.io/openmarketplaceengine/openmarketplaceengine .
+        run: docker build -t openmarketplaceengine/openmarketplaceengine .
       - name: Release
         uses: actions/setup-node@v2
         with:
