@@ -1,12 +1,20 @@
 module.exports = {
-    branches: ['main'],
+    branches: ['main', 'semver'],
     plugins: [
         [
             "@semantic-release-plus/docker",
             {
-                name: "ghcr.io/openmarketplaceengine/openmarketplaceengine:main",
+                name: {
+                    registry: "ghcr.io",
+                    namespace: "openmarketplaceengine",
+                    repository: "openmarketplaceengine",
+                    tag: undefined,
+                    sha: undefined,
+                },
+                skipLogin: true,
             },
         ],
-        "@semantic-release/github",
     ],
 };
+
+// <registry>/<namespace>/<repo>:<tag> or <registry>/<namespace>/<repo>@<sha>

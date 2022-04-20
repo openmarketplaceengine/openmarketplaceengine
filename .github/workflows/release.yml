@@ -30,7 +30,9 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Docker Build
-        run: docker build -t ome .
+        # image will be used by semantic-release plugin where it will be properly tagged and pushed
+        # see release.config.js
+        run: docker build -t openmarketplaceengine/openmarketplaceengine .
       - name: Release
         uses: actions/setup-node@v2
         with:
@@ -39,3 +41,5 @@ jobs:
       - run: npx semantic-release-plus --debug
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCKER_USERNAME: ${{ github.actor }}
+          DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
