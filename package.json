@@ -4,16 +4,20 @@
   "description": "semantic-release-plus plugin",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky install"
   },
   "author": "OME",
-  "license": "",
+  "license": "Coopyleft",
   "repository": {
     "type": "git",
     "url": "https://github.com/openmarketplaceengine/openmarketplaceengine.git"
   },
   "devDependencies": {
+    "@commitlint/cli": "^16.2.3",
+    "@commitlint/config-conventional": "^16.2.1",
     "@semantic-release-plus/docker": "^3.1.2",
+    "husky": "^7.0.4",
     "semantic-release-plus": "^20.0.0"
   }
 }
