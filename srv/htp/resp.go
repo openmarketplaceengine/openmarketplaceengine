@@ -123,6 +123,9 @@ func (r *Response) WriteString(s string) (int, error) {
 
 func (r *Response) Flush() {
 	if fl, ok := r.res.(http.Flusher); ok {
+		if r.code == 0 {
+			r.WriteHeader(200)
+		}
 		fl.Flush()
 	}
 }
