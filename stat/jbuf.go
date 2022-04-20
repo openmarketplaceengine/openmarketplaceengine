@@ -82,6 +82,10 @@ func (b *JSONBuffer) End() []byte {
 	return b.buf
 }
 
+func (b *JSONBuffer) Lev() int {
+	return b.lev
+}
+
 func (b *JSONBuffer) UnsafeString() string {
 	return *(*string)(unsafe.Pointer(&b.buf))
 }
