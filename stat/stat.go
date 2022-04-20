@@ -173,10 +173,10 @@ func listJSON(ctx Context, list *List, buf *JSONBuffer) error {
 		statTime := float64(time.Since(now)) / float64(time.Millisecond)
 		buf.Key("stat_time", false)
 		_ = buf.Float64(math.Round(statTime*1000) / 1000)
-		nreg := atomic.AddUint64(&statNreq, 1)
+		nreq := atomic.AddUint64(&statNreq, 1)
 		buf.Comma()
 		buf.Key("stat_nreq", false)
-		buf.Uint64(nreg)
+		buf.Uint64(nreq)
 	}
 	buf.ObjectClose()
 	return nil
