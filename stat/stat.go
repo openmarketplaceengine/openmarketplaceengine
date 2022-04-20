@@ -3,7 +3,10 @@ package stat
 import (
 	"context"
 	"fmt"
+	"math"
 	"sort"
+	"sync/atomic"
+	"time"
 )
 
 type (
@@ -26,6 +29,10 @@ type List struct {
 type Releaser interface {
 	Release()
 }
+
+var (
+	stat_nreq uint64
+)
 
 //-----------------------------------------------------------------------------
 // Stat
@@ -133,6 +140,7 @@ func listJSON(ctx Context, list *List, buf *JSONBuffer) error {
 		buf.EmptyObject()
 		return nil
 	}
+	now := time.Now()
 	buf.ObjectStart()
 	for i := 0; i < n; i++ {
 		s := list.stat[i]
@@ -160,6 +168,15 @@ func listJSON(ctx Context, list *List, buf *JSONBuffer) error {
 		}
 		release(val)
 		buf.Comma()
+	}
+	if buf.Lev() == 1 {
+		statTime := float64(time.Since(now)) / float64(time.Millisecond)
+		buf.Key("stat_time", false)
+		_ = buf.Float64(math.Round(statTime*1000) / 1000)
+		nreg := atomic.AddUint64(&stat_nreq, 1)
+		buf.Comma()
+		buf.Key("stat_nreq", false)
+		buf.Uint64(nreg)
 	}
 	buf.ObjectClose()
 	return nil
