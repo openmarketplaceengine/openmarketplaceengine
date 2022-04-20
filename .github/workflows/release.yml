@@ -30,7 +30,9 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Docker Build
-        run: docker build -t ${{env.REGISTRY}}/${{env.IMAGE_NAME}}:ci .
+        # image will be used by semantic-release plugin where it will be properly tagged and pushed
+        # see release.config.js
+        run: docker build -t ghcr.io/openmarketplaceengine/openmarketplaceengine .
       - name: Release
         uses: actions/setup-node@v2
         with:

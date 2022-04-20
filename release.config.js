@@ -4,9 +4,17 @@ module.exports = {
         [
             "@semantic-release-plus/docker",
             {
-                name: "ghcr.io/openmarketplaceengine/openmarketplaceengine:ci",
+                name: {
+                    registry: "ghcr.io",
+                    namespace: "openmarketplaceengine",
+                    repository: "openmarketplaceengine",
+                    tag: undefined,
+                    sha: undefined,
+                },
                 skipLogin: true,
             },
         ],
     ],
 };
+
+// <registry>/<namespace>/<repo>:<tag> or <registry>/<namespace>/<repo>@<sha>
