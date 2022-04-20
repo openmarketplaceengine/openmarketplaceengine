@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	group := stat.Group("database", "PostgreSQL database stats")
+	group := stat.Sys().Group("database", "PostgreSQL database stats")
 	group.Add("pool", "Connection pool stats", poolStat)
 }
 

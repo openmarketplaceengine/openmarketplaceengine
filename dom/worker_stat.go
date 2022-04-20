@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	wg := stat.Group("workers", "Workers stats")
+	wg := stat.App().Group("workers", "Workers stats")
 	wg.Add("status", "Workers status info", workerStatus)
 }
 
