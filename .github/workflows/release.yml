@@ -30,7 +30,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Docker Build
-        run: docker build -t ome:ci-release .
+        run: docker build -t ${{env.REGISTRY}}/${{env.IMAGE_NAME}}:ci .
       - name: Release
         uses: actions/setup-node@v2
         with:

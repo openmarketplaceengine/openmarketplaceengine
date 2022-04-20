@@ -4,7 +4,7 @@ module.exports = {
         [
             "@semantic-release-plus/docker",
             {
-                name: "ome:ci-release",
+                name: "ghcr.io/openmarketplaceengine/openmarketplaceengine:ci",
                 skipLogin: true,
             },
         ],
