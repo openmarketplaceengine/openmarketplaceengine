@@ -30,7 +30,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Docker Build
-      - run: docker build --t ome .
+        run: docker build --t ome .
       - name: Release
         uses: actions/setup-node@v2
         with:
