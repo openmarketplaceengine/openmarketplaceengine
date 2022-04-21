@@ -1,5 +1,5 @@
 module.exports = {
-    branches: ['main', 'semver'],
+    branches: ['main'],
     plugins: [
         [
             "@semantic-release-plus/docker",
