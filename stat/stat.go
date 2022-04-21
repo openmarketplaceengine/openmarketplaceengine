@@ -3,7 +3,6 @@ package stat
 import (
 	"context"
 	"fmt"
-	"math"
 	"sort"
 	"sync/atomic"
 	"time"
@@ -173,9 +172,9 @@ func listJSON(ctx Context, list *List, buf *JSONBuffer) error {
 		buf.Key("req", false)
 		buf.ObjectStart()
 		{
-			statTime := float64(time.Since(now)) / float64(time.Millisecond)
+			statTime := time.Since(now)
 			buf.Key("time", false)
-			_ = buf.Float64(math.Round(statTime*1000) / 1000)
+			buf.Int64(int64(statTime))
 			nreq := atomic.AddUint64(&statNreq, 1)
 			buf.Comma()
 			buf.Key("nreq", false)
