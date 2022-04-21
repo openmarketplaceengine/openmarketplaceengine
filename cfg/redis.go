@@ -18,9 +18,10 @@ type RedisConfig struct {
 
 // RedisConnect contains necessary params to connect to a Redis server.
 type RedisConnect struct {
-	Pool int      `default:"10" usage:"Redis server pool #size#"`
-	Addr string   `default:"127.0.0.1:6379" usage:"Redis server #host:port# address"`
-	Pass Password `usage:"Redis server #password#"`
+	Pool      int      `default:"10" usage:"Redis server pool #size#"`
+	Addr      string   `default:"127.0.0.1:6379" usage:"Redis server #host:port# address"`
+	Pass      Password `usage:"Redis server #password#"`
+	TLSServer string   `usage:"Redis tls server name, optional"`
 }
 
 // Check validates RedisConfig.
