@@ -5,6 +5,7 @@
 package dao
 
 import (
+	"crypto/tls"
 	"github.com/go-redis/redis/v8"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 )
@@ -24,16 +25,30 @@ func (r *r) Boot() (err error) {
 
 	defer r.State.BootOrFail(&err)
 
+	var psCfg *tls.Config
+	if cfg.Redis.Pubsub.TLSServer != "" {
+		psCfg = &tls.Config{
+			ServerName: cfg.Redis.Pubsub.TLSServer,
+		}
+	}
 	r.PubSubClient = redis.NewClient(&redis.Options{
-		Addr:     cfg.Redis.Pubsub.Addr,
-		Password: string(cfg.Redis.Pubsub.Pass),
-		PoolSize: cfg.Redis.Pubsub.Pool,
+		Addr:      cfg.Redis.Pubsub.Addr,
+		Password:  string(cfg.Redis.Pubsub.Pass),
+		PoolSize:  cfg.Redis.Pubsub.Pool,
+		TLSConfig: psCfg,
 	})
 
+	var sCfg *tls.Config
+	if cfg.Redis.Store.TLSServer != "" {
+		sCfg = &tls.Config{
+			ServerName: cfg.Redis.Store.TLSServer,
+		}
+	}
 	r.StoreClient = redis.NewClient(&redis.Options{
-		Addr:     cfg.Redis.Store.Addr,
-		Password: string(cfg.Redis.Store.Pass),
-		PoolSize: cfg.Redis.Store.Pool,
+		Addr:      cfg.Redis.Store.Addr,
+		Password:  string(cfg.Redis.Store.Pass),
+		PoolSize:  cfg.Redis.Store.Pool,
+		TLSConfig: sCfg,
 	})
 
 	ctx := cfg.Context()
