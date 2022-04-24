@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"strconv"
 )
 
 func LatitudeInRange(r *rand.Rand, min, max float64) float64 {
@@ -35,4 +36,42 @@ func float64Range(r *rand.Rand, min, max float64) float64 {
 		return min
 	}
 	return r.Float64()*(max-min) + min
+}
+
+func IsLatitude(lat float64) error {
+	if lat < -90 || lat > 90 {
+		return fmt.Errorf("invalid latitude %v, must be between -90 and 90", lat)
+	}
+	return nil
+}
+
+func IsLongitude(lon float64) error {
+	if lon < -180 || lon > 180 {
+		return fmt.Errorf("invalid longitude %v, must be between -180 and 180", lon)
+	}
+	return nil
+}
+
+func ParseLatitude(s string) (float64, error) {
+	lat, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		return 0, err
+	}
+	err = IsLatitude(lat)
+	if err != nil {
+		return 0, err
+	}
+	return Round6(lat), nil
+}
+
+func ParseLongitude(s string) (float64, error) {
+	lon, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		return 0, err
+	}
+	err = IsLongitude(lon)
+	if err != nil {
+		return 0, err
+	}
+	return Round6(lon), nil
 }
