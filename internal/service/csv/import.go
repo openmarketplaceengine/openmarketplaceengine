@@ -4,10 +4,12 @@ import (
 	"bufio"
 	"context"
 	"fmt"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/location"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/crossing"
 	"os"
 	"strings"
+	"time"
+
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/location"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/crossing"
 )
 
 type Importer struct {
@@ -29,6 +31,7 @@ func (i *Importer) Import(ctx context.Context, csvFile string) ([]*crossing.Toll
 
 	var line int
 	var crossings []*crossing.TollgateCrossing
+	start := time.Now()
 	for {
 		scan := s.Scan()
 		line++
@@ -37,6 +40,7 @@ func (i *Importer) Import(ctx context.Context, csvFile string) ([]*crossing.Toll
 			if err != nil {
 				return nil, fmt.Errorf("scan error:%w", err)
 			}
+			fmt.Printf("Detected %v crossings in %s\n", len(crossings), time.Since(start))
 			return crossings, nil
 		}
 		text := s.Text()
