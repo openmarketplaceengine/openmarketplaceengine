@@ -44,7 +44,7 @@ func TestLocationStorage(t *testing.T) {
 	ctx := context.Background()
 
 	for _, loc := range locations {
-		err = storage.Update(ctx, areaKey, loc)
+		err = storage.Update(ctx, areaKey, loc, time.Now())
 		require.NoError(t, err)
 	}
 
@@ -100,7 +100,7 @@ func testForgetLocation(ctx context.Context, t *testing.T, storage *Storage) {
 func testRemoveExpiredLocations(ctx context.Context, t *testing.T, storage *Storage) {
 	var start time.Time
 	for i, loc := range locations {
-		err := storage.Update(ctx, areaKey, loc)
+		err := storage.Update(ctx, areaKey, loc, time.Now())
 		require.NoError(t, err)
 		time.Sleep(10 * time.Millisecond)
 		if i == len(locations)/2 {
@@ -125,7 +125,7 @@ func testRangeLocationsLastSeen(ctx context.Context, t *testing.T, storage *Stor
 	time.Sleep(10 * time.Millisecond)
 
 	for _, loc := range locations {
-		err := storage.Update(ctx, areaKey, loc)
+		err := storage.Update(ctx, areaKey, loc, time.Now())
 		require.NoError(t, err)
 	}
 
@@ -149,12 +149,12 @@ func testLastLocation(ctx context.Context, t *testing.T, storage *Storage) {
 		WorkerID:  workerID,
 		Longitude: 13,
 		Latitude:  14,
-	})
+	}, time.Now())
 	require.NoError(t, err)
 
 	time.Sleep(5 * time.Millisecond)
 	loc := storage.LastLocation(ctx, areaKey, workerID)
 
-	require.Less(t, loc.LastSeenTime.UnixMilli(), time.Now().UnixMilli())
-	require.Greater(t, loc.LastSeenTime.UnixMilli(), start.UnixMilli())
+	require.Less(t, loc.LastSeenTime.UnixNano(), time.Now().UnixNano())
+	require.Greater(t, loc.LastSeenTime.UnixNano(), start.UnixNano())
 }

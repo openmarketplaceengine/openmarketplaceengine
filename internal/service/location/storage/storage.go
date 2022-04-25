@@ -21,11 +21,11 @@ func New(client *redis.Client) *Storage {
 	return &s
 }
 
-func (s *Storage) Update(ctx context.Context, areaKey string, location *Location) (err error) {
+func (s *Storage) Update(ctx context.Context, areaKey string, l *Location, t time.Time) (err error) {
 	err = s.client.GeoAdd(ctx, areaKey, &redis.GeoLocation{
-		Name:      location.WorkerID,
-		Longitude: location.Longitude,
-		Latitude:  location.Latitude,
+		Name:      l.WorkerID,
+		Longitude: l.Longitude,
+		Latitude:  l.Latitude,
 		Dist:      0,
 		GeoHash:   0,
 	}).Err()
@@ -41,8 +41,8 @@ func (s *Storage) Update(ctx context.Context, areaKey string, location *Location
 		GT: false,
 		Ch: false,
 		Members: []redis.Z{{
-			Score:  float64(time.Now().UnixMilli()),
-			Member: location.WorkerID,
+			Score:  float64(t.UnixMilli()),
+			Member: l.WorkerID,
 		}},
 	})
 
