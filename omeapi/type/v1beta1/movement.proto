@@ -4,7 +4,7 @@ package omeapi.type.v1beta1;
 
 import "omeapi/type/v1beta1/location.proto";
 
-option go_package = "omeapi/type/v1beta1";
+option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/type/v1beta1";
 
 message Movement {
   omeapi.type.v1beta1.Location from = 1;

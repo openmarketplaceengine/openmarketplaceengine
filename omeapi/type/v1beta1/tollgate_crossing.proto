@@ -5,7 +5,7 @@ package omeapi.type.v1beta1;
 import "google/protobuf/timestamp.proto";
 import "omeapi/type/v1beta1/movement.proto";
 
-option go_package = "omeapi/type/v1beta1";
+option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/type/v1beta1";
 
 message TollgateCrossing {
   string id = 1;
@@ -14,5 +14,5 @@ message TollgateCrossing {
   string direction = 4;
   string alg = 5;
   omeapi.type.v1beta1.Movement movement = 6;
-  google.protobuf.Timestamp created = 7;
+  google.protobuf.Timestamp create_time = 7;
 }
