@@ -2,9 +2,10 @@ syntax = "proto3";
 
 package omeapi.location.v1beta1;
 
-option go_package = "omeapi/location/v1beta1";
+option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/location/v1beta1";
 
 import "google/protobuf/timestamp.proto";
+import "omeapi/tollgate_crossing/v1beta1/tollgate_crossing.proto";
 
 service LocationService {
   rpc UpdateLocation(UpdateLocationRequest) returns (UpdateLocationResponse) {}
@@ -18,26 +19,9 @@ message UpdateLocationRequest {
   google.protobuf.Timestamp timestamp = 4;
 }
 
-message Movement {
-  double from_lon = 1;
-  double from_lat = 2;
-  double to_lon = 3;
-  double to_lat = 4;
-}
-
-message TollgateCrossing {
-  string id = 1;
-  string tollgate_id = 2;
-  string worker_id = 3;
-  string direction = 4;
-  string alg = 5;
-  Movement movement = 6;
-  google.protobuf.Timestamp created = 7;
-}
-
 message UpdateLocationResponse {
   string worker_id = 1;
-  TollgateCrossing tollgate_crossing = 2;
+  omeapi.tollgate_crossing.v1beta1.TollgateCrossing tollgate_crossing = 2;
   google.protobuf.Timestamp timestamp = 3;
 }
 

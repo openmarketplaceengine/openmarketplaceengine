@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package omeapi.worker.v1beta1;
 
-option go_package = "omeapi/worker/v1beta1";
+option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/worker/v1beta1";
 
 service WorkerService {
   rpc GetWorker(GetWorkerRequest) returns (GetWorkerResponse) {}
