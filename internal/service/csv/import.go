@@ -12,6 +12,8 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/crossing"
 )
 
+const areaKey = "csv_import"
+
 type Importer struct {
 	tracker *location.Tracker
 }
@@ -53,7 +55,7 @@ func (i *Importer) Import(ctx context.Context, csvFile string) ([]*crossing.Toll
 			return nil, fmt.Errorf("line %v parse error:%w", line, err)
 		}
 
-		x, err := i.tracker.TrackLocation(ctx, l.DriverID, l.Lon, l.Lat)
+		x, err := i.tracker.TrackLocation(ctx, areaKey, l.DriverID, l.Lon, l.Lat)
 		if err != nil {
 			return nil, fmt.Errorf("track location error:%w", err)
 		}

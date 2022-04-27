@@ -61,7 +61,7 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 		return nil, st.Err()
 	}
 
-	x, err := c.tracker.TrackLocation(ctx, request.WorkerId, request.Lon, request.Lat)
+	x, err := c.tracker.TrackLocation(ctx, areaKey, request.WorkerId, request.Lon, request.Lat)
 
 	if err != nil {
 		st := status.Newf(codes.Internal, "update location or detect tollgate error: %v", err)
@@ -102,7 +102,7 @@ func transformCrossing(c *crossing.TollgateCrossing) *tollgateCrossingV1beta1.To
 }
 
 func (c *Controller) QueryLocation(ctx context.Context, request *locationV1beta1.QueryLocationRequest) (*locationV1beta1.QueryLocationResponse, error) {
-	l := c.tracker.QueryLastLocation(ctx, request.WorkerId)
+	l := c.tracker.QueryLastLocation(ctx, areaKey, request.WorkerId)
 	if l != nil {
 		return &locationV1beta1.QueryLocationResponse{
 			WorkerId: l.WorkerID,
