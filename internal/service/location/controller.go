@@ -14,6 +14,7 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/location/v1beta1"
+	tollgateCrossingV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/tollgate_crossing/v1beta1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -77,17 +78,17 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 	}, nil
 }
 
-func transformCrossing(c *crossing.TollgateCrossing) *locationV1beta1.TollgateCrossing {
+func transformCrossing(c *crossing.TollgateCrossing) *tollgateCrossingV1beta1.TollgateCrossing {
 	if c == nil {
 		return nil
 	}
-	return &locationV1beta1.TollgateCrossing{
+	return &tollgateCrossingV1beta1.TollgateCrossing{
 		Id:         c.ID,
 		TollgateId: c.TollgateID,
 		WorkerId:   c.WorkerID,
 		Direction:  string(c.Crossing.Crossing.Direction),
 		Alg:        string(c.Crossing.Crossing.Alg),
-		Movement: &locationV1beta1.Movement{
+		Movement: &tollgateCrossingV1beta1.Movement{
 			FromLon: c.Crossing.Crossing.Movement.From.Lon,
 			FromLat: c.Crossing.Crossing.Movement.From.Lat,
 			ToLon:   c.Crossing.Crossing.Movement.To.Lon,
