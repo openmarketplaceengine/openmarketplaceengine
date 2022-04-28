@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package omeapi.tollgate_crossing.v1beta1;
 
-option go_package = "omeapi/tollgate_crossing/v1beta1";
+option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/tollgate_crossing/v1beta1";
 
 import "google/protobuf/timestamp.proto";
 
