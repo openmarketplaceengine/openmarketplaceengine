@@ -57,11 +57,11 @@ func dialer() func(context.Context, string) (net.Conn, error) {
 
 func testSetState(t *testing.T, client workerV1beta1.WorkerServiceClient) {
 	id := uuid.NewString()
-	request := &workerV1beta1.SetStateRequest{
+	request := &workerV1beta1.UpdateWorkerRequest{
 		WorkerId: id,
 		State:    workerV1beta1.WorkerState_WORKER_STATE_ONLINE,
 	}
-	response, err := client.SetState(context.Background(), request)
+	response, err := client.UpdateWorker(context.Background(), request)
 	require.NoError(t, err)
 	require.Equal(t, request.WorkerId, response.Worker.WorkerId)
 
@@ -75,28 +75,32 @@ func testSetState(t *testing.T, client workerV1beta1.WorkerServiceClient) {
 
 func testQueryByState(t *testing.T, client workerV1beta1.WorkerServiceClient) {
 	id := uuid.NewString()
-	request1 := &workerV1beta1.SetStateRequest{
+	request1 := &workerV1beta1.UpdateWorkerRequest{
 		WorkerId: id,
 		State:    workerV1beta1.WorkerState_WORKER_STATE_ONLINE,
 	}
-	request2 := &workerV1beta1.SetStateRequest{
+	request2 := &workerV1beta1.UpdateWorkerRequest{
 		WorkerId: id,
 		State:    workerV1beta1.WorkerState_WORKER_STATE_OFFLINE,
 	}
-	_, err := client.SetState(context.Background(), request1)
+	_, err := client.UpdateWorker(context.Background(), request1)
 	require.NoError(t, err)
 
-	_, err = client.SetState(context.Background(), request2)
+	_, err = client.UpdateWorker(context.Background(), request2)
 	require.NoError(t, err)
 
-	r1, err := client.QueryByState(context.Background(), &workerV1beta1.QueryByStateRequest{
-		State: workerV1beta1.WorkerState_WORKER_STATE_ONLINE,
+	r1, err := client.ListWorkers(context.Background(), &workerV1beta1.ListWorkersRequest{
+		State:     workerV1beta1.WorkerState_WORKER_STATE_ONLINE,
+		PageSize:  10,
+		PageToken: "",
 	})
 	require.NoError(t, err)
 	require.Len(t, r1.Workers, 1)
 
-	r2, err := client.QueryByState(context.Background(), &workerV1beta1.QueryByStateRequest{
-		State: workerV1beta1.WorkerState_WORKER_STATE_ON_JOB,
+	r2, err := client.ListWorkers(context.Background(), &workerV1beta1.ListWorkersRequest{
+		State:     workerV1beta1.WorkerState_WORKER_STATE_ON_JOB,
+		PageSize:  10,
+		PageToken: "",
 	})
 	require.NoError(t, err)
 	require.Len(t, r2.Workers, 0)

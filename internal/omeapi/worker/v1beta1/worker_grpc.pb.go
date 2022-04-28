@@ -23,8 +23,8 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type WorkerServiceClient interface {
 	GetWorker(ctx context.Context, in *GetWorkerRequest, opts ...grpc.CallOption) (*GetWorkerResponse, error)
-	SetState(ctx context.Context, in *SetStateRequest, opts ...grpc.CallOption) (*SetStateResponse, error)
-	QueryByState(ctx context.Context, in *QueryByStateRequest, opts ...grpc.CallOption) (*QueryByStateResponse, error)
+	UpdateWorker(ctx context.Context, in *UpdateWorkerRequest, opts ...grpc.CallOption) (*UpdateWorkerResponse, error)
+	ListWorkers(ctx context.Context, in *ListWorkersRequest, opts ...grpc.CallOption) (*ListWorkersResponse, error)
 }
 
 type workerServiceClient struct {
@@ -44,18 +44,18 @@ func (c *workerServiceClient) GetWorker(ctx context.Context, in *GetWorkerReques
 	return out, nil
 }
 
-func (c *workerServiceClient) SetState(ctx context.Context, in *SetStateRequest, opts ...grpc.CallOption) (*SetStateResponse, error) {
-	out := new(SetStateResponse)
-	err := c.cc.Invoke(ctx, "/omeapi.worker.v1beta1.WorkerService/SetState", in, out, opts...)
+func (c *workerServiceClient) UpdateWorker(ctx context.Context, in *UpdateWorkerRequest, opts ...grpc.CallOption) (*UpdateWorkerResponse, error) {
+	out := new(UpdateWorkerResponse)
+	err := c.cc.Invoke(ctx, "/omeapi.worker.v1beta1.WorkerService/UpdateWorker", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *workerServiceClient) QueryByState(ctx context.Context, in *QueryByStateRequest, opts ...grpc.CallOption) (*QueryByStateResponse, error) {
-	out := new(QueryByStateResponse)
-	err := c.cc.Invoke(ctx, "/omeapi.worker.v1beta1.WorkerService/QueryByState", in, out, opts...)
+func (c *workerServiceClient) ListWorkers(ctx context.Context, in *ListWorkersRequest, opts ...grpc.CallOption) (*ListWorkersResponse, error) {
+	out := new(ListWorkersResponse)
+	err := c.cc.Invoke(ctx, "/omeapi.worker.v1beta1.WorkerService/ListWorkers", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -67,8 +67,8 @@ func (c *workerServiceClient) QueryByState(ctx context.Context, in *QueryByState
 // for forward compatibility
 type WorkerServiceServer interface {
 	GetWorker(context.Context, *GetWorkerRequest) (*GetWorkerResponse, error)
-	SetState(context.Context, *SetStateRequest) (*SetStateResponse, error)
-	QueryByState(context.Context, *QueryByStateRequest) (*QueryByStateResponse, error)
+	UpdateWorker(context.Context, *UpdateWorkerRequest) (*UpdateWorkerResponse, error)
+	ListWorkers(context.Context, *ListWorkersRequest) (*ListWorkersResponse, error)
 }
 
 // UnimplementedWorkerServiceServer should be embedded to have forward compatible implementations.
@@ -78,11 +78,11 @@ type UnimplementedWorkerServiceServer struct {
 func (UnimplementedWorkerServiceServer) GetWorker(context.Context, *GetWorkerRequest) (*GetWorkerResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetWorker not implemented")
 }
-func (UnimplementedWorkerServiceServer) SetState(context.Context, *SetStateRequest) (*SetStateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetState not implemented")
+func (UnimplementedWorkerServiceServer) UpdateWorker(context.Context, *UpdateWorkerRequest) (*UpdateWorkerResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateWorker not implemented")
 }
-func (UnimplementedWorkerServiceServer) QueryByState(context.Context, *QueryByStateRequest) (*QueryByStateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method QueryByState not implemented")
+func (UnimplementedWorkerServiceServer) ListWorkers(context.Context, *ListWorkersRequest) (*ListWorkersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListWorkers not implemented")
 }
 
 // UnsafeWorkerServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -114,38 +114,38 @@ func _WorkerService_GetWorker_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _WorkerService_SetState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SetStateRequest)
+func _WorkerService_UpdateWorker_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateWorkerRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(WorkerServiceServer).SetState(ctx, in)
+		return srv.(WorkerServiceServer).UpdateWorker(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/omeapi.worker.v1beta1.WorkerService/SetState",
+		FullMethod: "/omeapi.worker.v1beta1.WorkerService/UpdateWorker",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WorkerServiceServer).SetState(ctx, req.(*SetStateRequest))
+		return srv.(WorkerServiceServer).UpdateWorker(ctx, req.(*UpdateWorkerRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _WorkerService_QueryByState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryByStateRequest)
+func _WorkerService_ListWorkers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListWorkersRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(WorkerServiceServer).QueryByState(ctx, in)
+		return srv.(WorkerServiceServer).ListWorkers(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/omeapi.worker.v1beta1.WorkerService/QueryByState",
+		FullMethod: "/omeapi.worker.v1beta1.WorkerService/ListWorkers",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WorkerServiceServer).QueryByState(ctx, req.(*QueryByStateRequest))
+		return srv.(WorkerServiceServer).ListWorkers(ctx, req.(*ListWorkersRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -162,12 +162,12 @@ var WorkerService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _WorkerService_GetWorker_Handler,
 		},
 		{
-			MethodName: "SetState",
-			Handler:    _WorkerService_SetState_Handler,
+			MethodName: "UpdateWorker",
+			Handler:    _WorkerService_UpdateWorker_Handler,
 		},
 		{
-			MethodName: "QueryByState",
-			Handler:    _WorkerService_QueryByState_Handler,
+			MethodName: "ListWorkers",
+			Handler:    _WorkerService_ListWorkers_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

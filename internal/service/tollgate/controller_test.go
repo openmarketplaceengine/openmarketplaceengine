@@ -70,7 +70,7 @@ func testQueryOne(t *testing.T, client v1beta1.TollgateServiceClient) {
 
 	tollgateID := toll.ID
 
-	res, err := client.QueryOne(ctx, &v1beta1.QueryOneRequest{TollgateId: tollgateID})
+	res, err := client.GetTollgate(ctx, &v1beta1.GetTollgateRequest{TollgateId: tollgateID})
 	require.NoError(t, err)
 	require.Equal(t, tollgateID, res.Tollgate.Id)
 }

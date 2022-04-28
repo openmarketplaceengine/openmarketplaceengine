@@ -22,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TollgateCrossingServiceClient interface {
-	QueryTollgateCrossings(ctx context.Context, in *QueryTollgateCrossingsRequest, opts ...grpc.CallOption) (*QueryTollgateCrossingsResponse, error)
+	ListTollgateCrossings(ctx context.Context, in *ListTollgateCrossingsRequest, opts ...grpc.CallOption) (*ListTollgateCrossingsResponse, error)
 }
 
 type tollgateCrossingServiceClient struct {
@@ -33,9 +33,9 @@ func NewTollgateCrossingServiceClient(cc grpc.ClientConnInterface) TollgateCross
 	return &tollgateCrossingServiceClient{cc}
 }
 
-func (c *tollgateCrossingServiceClient) QueryTollgateCrossings(ctx context.Context, in *QueryTollgateCrossingsRequest, opts ...grpc.CallOption) (*QueryTollgateCrossingsResponse, error) {
-	out := new(QueryTollgateCrossingsResponse)
-	err := c.cc.Invoke(ctx, "/omeapi.tollgate_crossing.v1beta1.TollgateCrossingService/QueryTollgateCrossings", in, out, opts...)
+func (c *tollgateCrossingServiceClient) ListTollgateCrossings(ctx context.Context, in *ListTollgateCrossingsRequest, opts ...grpc.CallOption) (*ListTollgateCrossingsResponse, error) {
+	out := new(ListTollgateCrossingsResponse)
+	err := c.cc.Invoke(ctx, "/omeapi.tollgate_crossing.v1beta1.TollgateCrossingService/ListTollgateCrossings", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -46,15 +46,15 @@ func (c *tollgateCrossingServiceClient) QueryTollgateCrossings(ctx context.Conte
 // All implementations should embed UnimplementedTollgateCrossingServiceServer
 // for forward compatibility
 type TollgateCrossingServiceServer interface {
-	QueryTollgateCrossings(context.Context, *QueryTollgateCrossingsRequest) (*QueryTollgateCrossingsResponse, error)
+	ListTollgateCrossings(context.Context, *ListTollgateCrossingsRequest) (*ListTollgateCrossingsResponse, error)
 }
 
 // UnimplementedTollgateCrossingServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedTollgateCrossingServiceServer struct {
 }
 
-func (UnimplementedTollgateCrossingServiceServer) QueryTollgateCrossings(context.Context, *QueryTollgateCrossingsRequest) (*QueryTollgateCrossingsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method QueryTollgateCrossings not implemented")
+func (UnimplementedTollgateCrossingServiceServer) ListTollgateCrossings(context.Context, *ListTollgateCrossingsRequest) (*ListTollgateCrossingsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListTollgateCrossings not implemented")
 }
 
 // UnsafeTollgateCrossingServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -68,20 +68,20 @@ func RegisterTollgateCrossingServiceServer(s grpc.ServiceRegistrar, srv Tollgate
 	s.RegisterService(&TollgateCrossingService_ServiceDesc, srv)
 }
 
-func _TollgateCrossingService_QueryTollgateCrossings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryTollgateCrossingsRequest)
+func _TollgateCrossingService_ListTollgateCrossings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListTollgateCrossingsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TollgateCrossingServiceServer).QueryTollgateCrossings(ctx, in)
+		return srv.(TollgateCrossingServiceServer).ListTollgateCrossings(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/omeapi.tollgate_crossing.v1beta1.TollgateCrossingService/QueryTollgateCrossings",
+		FullMethod: "/omeapi.tollgate_crossing.v1beta1.TollgateCrossingService/ListTollgateCrossings",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TollgateCrossingServiceServer).QueryTollgateCrossings(ctx, req.(*QueryTollgateCrossingsRequest))
+		return srv.(TollgateCrossingServiceServer).ListTollgateCrossings(ctx, req.(*ListTollgateCrossingsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -94,8 +94,8 @@ var TollgateCrossingService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*TollgateCrossingServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "QueryTollgateCrossings",
-			Handler:    _TollgateCrossingService_QueryTollgateCrossings_Handler,
+			MethodName: "ListTollgateCrossings",
+			Handler:    _TollgateCrossingService_ListTollgateCrossings_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

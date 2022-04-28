@@ -11,6 +11,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/tollgate_crossing/v1beta1"
+	typeV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/type/v1beta1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -30,7 +31,7 @@ func GrpcRegister() {
 	})
 }
 
-func (c *Controller) QueryTollgateCrossings(ctx context.Context, request *v1beta1.QueryTollgateCrossingsRequest) (*v1beta1.QueryTollgateCrossingsResponse, error) {
+func (c *Controller) ListTollgateCrossings(ctx context.Context, request *v1beta1.ListTollgateCrossingsRequest) (*v1beta1.ListTollgateCrossingsResponse, error) {
 	wheres := make([]Where, 0)
 	if request.TollgateId != "" {
 		wheres = append(wheres, Where{
@@ -57,27 +58,32 @@ func (c *Controller) QueryTollgateCrossings(ctx context.Context, request *v1beta
 		return nil, st.Err()
 	}
 
-	return &v1beta1.QueryTollgateCrossingsResponse{
-		Tollgate: transform(crossings),
+	return &v1beta1.ListTollgateCrossingsResponse{
+		Crossings:     transform(crossings),
+		NextPageToken: "",
 	}, nil
 }
 
-func transform(crossings []*TollgateCrossing) []*v1beta1.TollgateCrossing {
-	result := make([]*v1beta1.TollgateCrossing, 0)
+func transform(crossings []*TollgateCrossing) []*typeV1beta1.TollgateCrossing {
+	result := make([]*typeV1beta1.TollgateCrossing, 0)
 	for _, crossing := range crossings {
-		result = append(result, &v1beta1.TollgateCrossing{
+		result = append(result, &typeV1beta1.TollgateCrossing{
 			Id:         crossing.ID,
 			TollgateId: crossing.TollgateID,
 			WorkerId:   crossing.WorkerID,
 			Direction:  string(crossing.Crossing.Crossing.Direction),
 			Alg:        fmt.Sprintf("%v", crossing.Crossing.Crossing.Alg),
-			Movement: &v1beta1.Movement{
-				FromLon: crossing.Crossing.Crossing.Movement.From.Lon,
-				FromLat: crossing.Crossing.Crossing.Movement.From.Lat,
-				ToLon:   crossing.Crossing.Crossing.Movement.To.Lon,
-				ToLat:   crossing.Crossing.Crossing.Movement.To.Lat,
+			Movement: &typeV1beta1.Movement{
+				From: &typeV1beta1.Location{
+					Lat: crossing.Crossing.Crossing.Movement.From.Lat,
+					Lon: crossing.Crossing.Crossing.Movement.From.Lon,
+				},
+				To: &typeV1beta1.Location{
+					Lat: crossing.Crossing.Crossing.Movement.To.Lat,
+					Lon: crossing.Crossing.Crossing.Movement.To.Lon,
+				},
 			},
-			Created: &timestamppb.Timestamp{
+			CreateTime: &timestamppb.Timestamp{
 				Seconds: crossing.Created.Unix(),
 				Nanos:   0,
 			},

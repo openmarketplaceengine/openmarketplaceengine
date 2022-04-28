@@ -42,9 +42,9 @@ func (c *Controller) GetWorker(ctx context.Context, request *workerV1beta1.GetWo
 		},
 	}, nil
 }
-func (c *Controller) SetState(ctx context.Context, request *workerV1beta1.SetStateRequest) (*workerV1beta1.SetStateResponse, error) {
+func (c *Controller) UpdateWorker(ctx context.Context, request *workerV1beta1.UpdateWorkerRequest) (*workerV1beta1.UpdateWorkerResponse, error) {
 	c.states[request.WorkerId] = request.GetState()
-	return &workerV1beta1.SetStateResponse{
+	return &workerV1beta1.UpdateWorkerResponse{
 		Worker: &workerV1beta1.Worker{
 			WorkerId: request.GetWorkerId(),
 			State:    request.State,
@@ -52,7 +52,7 @@ func (c *Controller) SetState(ctx context.Context, request *workerV1beta1.SetSta
 	}, nil
 }
 
-func (c *Controller) QueryByState(ctx context.Context, request *workerV1beta1.QueryByStateRequest) (*workerV1beta1.QueryByStateResponse, error) {
+func (c *Controller) ListWorkers(ctx context.Context, request *workerV1beta1.ListWorkersRequest) (*workerV1beta1.ListWorkersResponse, error) {
 	var workers []*workerV1beta1.Worker
 	for k, v := range c.states {
 		if v == request.GetState() {
@@ -63,7 +63,7 @@ func (c *Controller) QueryByState(ctx context.Context, request *workerV1beta1.Qu
 		}
 	}
 
-	return &workerV1beta1.QueryByStateResponse{
+	return &workerV1beta1.ListWorkersResponse{
 		Workers: workers,
 	}, nil
 }

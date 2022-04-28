@@ -14,7 +14,7 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/location/v1beta1"
-	tollgateCrossingV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/tollgate_crossing/v1beta1"
+	typeV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/type/v1beta1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -45,11 +45,12 @@ func newController(storeClient *redis.Client, pubSubClient *redis.Client) (*Cont
 }
 
 func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta1.UpdateLocationRequest) (*locationV1beta1.UpdateLocationResponse, error) {
+	value := request.GetValue()
 	var v validate.Validator
-	v.ValidateString("worker_id", request.GetWorkerId(), validate.IsNotNull)
-	v.ValidateTimestamp("timestamp", request.GetTimestamp())
-	v.ValidateFloat64("lon", request.Lon, validate.IsLongitude)
-	v.ValidateFloat64("lat", request.Lat, validate.IsLatitude)
+	v.ValidateString("worker_id", value.GetWorkerId(), validate.IsNotNull)
+	v.ValidateTimestamp("timestamp", value.GetUpdateTime())
+	v.ValidateFloat64("lon", value.GetLocation().Lon, validate.IsLongitude)
+	v.ValidateFloat64("lat", value.GetLocation().Lat, validate.IsLatitude)
 
 	errorInfo := v.ErrorInfo()
 	if errorInfo != nil {
@@ -61,7 +62,7 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 		return nil, st.Err()
 	}
 
-	x, err := c.tracker.TrackLocation(ctx, areaKey, request.WorkerId, request.Lon, request.Lat)
+	x, err := c.tracker.TrackLocation(ctx, areaKey, value.GetWorkerId(), value.GetLocation().Lon, value.GetLocation().Lat)
 
 	if err != nil {
 		st := status.Newf(codes.Internal, "update location or detect tollgate error: %v", err)
@@ -72,42 +73,48 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 		return nil, st.Err()
 	}
 	return &locationV1beta1.UpdateLocationResponse{
-		WorkerId:         request.WorkerId,
+		WorkerId:         value.GetWorkerId(),
 		TollgateCrossing: transformCrossing(x),
-		Timestamp:        request.Timestamp,
+		UpdateTime:       value.GetUpdateTime(),
 	}, nil
 }
 
-func transformCrossing(c *crossing.TollgateCrossing) *tollgateCrossingV1beta1.TollgateCrossing {
+func transformCrossing(c *crossing.TollgateCrossing) *typeV1beta1.TollgateCrossing {
 	if c == nil {
 		return nil
 	}
-	return &tollgateCrossingV1beta1.TollgateCrossing{
+	return &typeV1beta1.TollgateCrossing{
 		Id:         c.ID,
 		TollgateId: c.TollgateID,
 		WorkerId:   c.WorkerID,
 		Direction:  string(c.Crossing.Crossing.Direction),
 		Alg:        string(c.Crossing.Crossing.Alg),
-		Movement: &tollgateCrossingV1beta1.Movement{
-			FromLon: c.Crossing.Crossing.Movement.From.Lon,
-			FromLat: c.Crossing.Crossing.Movement.From.Lat,
-			ToLon:   c.Crossing.Crossing.Movement.To.Lon,
-			ToLat:   c.Crossing.Crossing.Movement.To.Lat,
+		Movement: &typeV1beta1.Movement{
+			From: &typeV1beta1.Location{
+				Lat: c.Crossing.Crossing.Movement.From.Lat,
+				Lon: c.Crossing.Crossing.Movement.From.Lon,
+			},
+			To: &typeV1beta1.Location{
+				Lat: c.Crossing.Crossing.Movement.To.Lat,
+				Lon: c.Crossing.Crossing.Movement.To.Lon,
+			},
 		},
-		Created: &timestamppb.Timestamp{
+		CreateTime: &timestamppb.Timestamp{
 			Seconds: c.Created.Unix(),
 			Nanos:   0,
 		},
 	}
 }
 
-func (c *Controller) QueryLocation(ctx context.Context, request *locationV1beta1.QueryLocationRequest) (*locationV1beta1.QueryLocationResponse, error) {
+func (c *Controller) GetLocation(ctx context.Context, request *locationV1beta1.GetLocationRequest) (*locationV1beta1.GetLocationResponse, error) {
 	l := c.tracker.QueryLastLocation(ctx, areaKey, request.WorkerId)
 	if l != nil {
-		return &locationV1beta1.QueryLocationResponse{
+		return &locationV1beta1.GetLocationResponse{
 			WorkerId: l.WorkerID,
-			Lon:      l.Longitude,
-			Lat:      l.Latitude,
+			Location: &typeV1beta1.Location{
+				Lon: l.Longitude,
+				Lat: l.Latitude,
+			},
 			LastSeenTime: &timestamppb.Timestamp{
 				Seconds: l.LastSeenTime.Unix(),
 				Nanos:   0,
