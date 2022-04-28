@@ -1,6 +1,11 @@
 
 BUILD_PATH="./build"
 
+GOBIN ?= $(shell go env GOPATH)/bin
+
+CMD_NAME="omecmd"
+CMD_PATH="$(GOBIN)/$(CMD_NAME)"
+
 prepare:
 	mkdir -p $(BUILD_PATH)
 
@@ -8,10 +13,12 @@ echo-env: ## Echo environment variables
 	@echo go version $(shell go version)
 	@echo GOPATH: $(GOPATH)
 	@echo GOROOT: $(GOROOT)
+	@echo GOBIN:  $(GOBIN)
 	@echo GOOS: $(GOOS)
 	@echo GO111MODULE: $(GO111MODULE)
 	@echo PKG_CONFIG_PATH: $(PKG_CONFIG_PATH)
 	@echo AWS_PROFILE: $(AWS_PROFILE)
+	@echo CLIENT_PATH: $(CMD_PATH)
 	@echo BUILD_PATH: $(BUILD_PATH)
 
 .PHONY: clean
@@ -21,6 +28,7 @@ clean: echo-env ## Clean
 	rm -fv cover.out
 	rm -fv cprofile.out
 	rm -fv cover.out.original
+	rm -fv $(CMD_PATH)
 	env GO111MODULE=off go clean -cache -testcache
 
 .PHONY: nuke
@@ -33,6 +41,11 @@ build: echo-env prepare ## Build binary
 	@echo "==> Build"
 	GOOS=linux
 	go build -a -trimpath -ldflags="-s -w" -o $(BUILD_PATH)/app ./
+
+.PHONY: install
+install: echo-env ## Install command line tool
+	@echo "==> Install"
+	go install -trimpath -ldflags="-s -w" ./cmd/...
 
 PACKAGES=$(shell go list ./...)
 PACKAGES_WITH_TESTS = $(shell go list -f '{{if len .XTestGoFiles}}{{.ImportPath}}{{end}}' ./... \
