@@ -112,11 +112,8 @@ func testUpdateLocation(t *testing.T, client locationV1beta1.LocationServiceClie
 				Lon: 12.000001966953278,
 				Lat: 13.000001966953278,
 			},
-			UpdateTime: &timestamppb.Timestamp{
-				Seconds: time.Now().Unix(),
-				Nanos:   int32(time.Now().Nanosecond()),
-			},
-			AreaKey: "",
+			UpdateTime: timestamppb.Now(),
+			AreaKey:    "",
 		},
 		ValidateOnly: false,
 	}
@@ -140,11 +137,8 @@ func testUpdateLocationBadRequest(t *testing.T, client locationV1beta1.LocationS
 				Lon: 1200,
 				Lat: 1300,
 			},
-			UpdateTime: &timestamppb.Timestamp{
-				Seconds: time.Now().Unix(),
-				Nanos:   int32(time.Now().Nanosecond()),
-			},
-			AreaKey: "",
+			UpdateTime: timestamppb.Now(),
+			AreaKey:    "",
 		},
 		ValidateOnly: false,
 	}
@@ -178,11 +172,8 @@ func testQueryLocation(t *testing.T, client locationV1beta1.LocationServiceClien
 				Lon: 12.000001966953278,
 				Lat: 13.000001966953278,
 			},
-			UpdateTime: &timestamppb.Timestamp{
-				Seconds: time.Now().Unix(),
-				Nanos:   int32(time.Now().Nanosecond()),
-			},
-			AreaKey: "",
+			UpdateTime: timestamppb.Now(),
+			AreaKey:    "",
 		},
 		ValidateOnly: false,
 	},
@@ -209,11 +200,8 @@ func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceCl
 				Lon: -74.195995,
 				Lat: 40.636916,
 			},
-			UpdateTime: &timestamppb.Timestamp{
-				Seconds: time.Now().Unix(),
-				Nanos:   int32(time.Now().Nanosecond()),
-			},
-			AreaKey: "",
+			UpdateTime: timestamppb.Now(),
+			AreaKey:    "",
 		},
 		ValidateOnly: false,
 	}
@@ -225,11 +213,8 @@ func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceCl
 				Lon: -74.198356,
 				Lat: 40.634408,
 			},
-			UpdateTime: &timestamppb.Timestamp{
-				Seconds: time.Now().Unix(),
-				Nanos:   int32(time.Now().Nanosecond()),
-			},
-			AreaKey: "",
+			UpdateTime: timestamppb.Now(),
+			AreaKey:    "",
 		},
 		ValidateOnly: false,
 	}
@@ -262,6 +247,6 @@ func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceCl
 	require.Equal(t, tollgateID, c.TollgateID)
 	require.Equal(t, detector.Direction("SW"), c.Direction)
 	require.Equal(t, id, c.WorkerID)
-	require.InDelta(t, to.GetValue().GetLocation().Lat, c.Movement.To.Lat, 0.003)
-	require.InDelta(t, to.GetValue().GetLocation().Lon, c.Movement.To.Lon, 0.003)
+	require.InDelta(t, to.GetValue().GetLocation().GetLat(), c.Movement.To.Lat, 0.003)
+	require.InDelta(t, to.GetValue().GetLocation().GetLon(), c.Movement.To.Lon, 0.003)
 }

@@ -49,8 +49,8 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 	var v validate.Validator
 	v.ValidateString("worker_id", value.GetWorkerId(), validate.IsNotNull)
 	v.ValidateTimestamp("timestamp", value.GetUpdateTime())
-	v.ValidateFloat64("lon", value.GetLocation().Lon, validate.IsLongitude)
-	v.ValidateFloat64("lat", value.GetLocation().Lat, validate.IsLatitude)
+	v.ValidateFloat64("lon", value.GetLocation().GetLon(), validate.IsLongitude)
+	v.ValidateFloat64("lat", value.GetLocation().GetLat(), validate.IsLatitude)
 
 	errorInfo := v.ErrorInfo()
 	if errorInfo != nil {
@@ -99,10 +99,7 @@ func transformCrossing(c *crossing.TollgateCrossing) *typeV1beta1.TollgateCrossi
 				Lon: c.Crossing.Crossing.Movement.To.Lon,
 			},
 		},
-		CreateTime: &timestamppb.Timestamp{
-			Seconds: c.Created.Unix(),
-			Nanos:   0,
-		},
+		CreateTime: timestamppb.New(c.Created.Time),
 	}
 }
 
@@ -115,10 +112,7 @@ func (c *Controller) GetLocation(ctx context.Context, request *locationV1beta1.G
 				Lon: l.Longitude,
 				Lat: l.Latitude,
 			},
-			LastSeenTime: &timestamppb.Timestamp{
-				Seconds: l.LastSeenTime.Unix(),
-				Nanos:   0,
-			},
+			LastSeenTime: timestamppb.New(l.LastSeenTime),
 		}, nil
 	}
 	st := status.Newf(codes.NotFound, "location not found")

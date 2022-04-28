@@ -94,14 +94,8 @@ func transform(toll *Tollgate) *v1beta1.Tollgate {
 		Name:     toll.Name,
 		BBoxes:   bBoxes,
 		GateLine: gLine,
-		Created: &timestamppb.Timestamp{
-			Seconds: toll.Created.Unix(),
-			Nanos:   0,
-		},
-		Updated: &timestamppb.Timestamp{
-			Seconds: toll.Updated.Unix(),
-			Nanos:   0,
-		},
+		Created:  timestamppb.New(toll.Created.Time),
+		Updated:  timestamppb.New(toll.Updated.Time),
 	}
 }
 
