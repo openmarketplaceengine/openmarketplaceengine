@@ -14,7 +14,7 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/location/v1beta1"
-	typeV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/type/v1beta1"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/type/v1beta1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -62,7 +62,7 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 		return nil, st.Err()
 	}
 
-	x, err := c.tracker.TrackLocation(ctx, areaKey, value.GetWorkerId(), value.GetLocation().Lon, value.GetLocation().Lat)
+	x, err := c.tracker.TrackLocation(ctx, areaKey, value.GetWorkerId(), value.GetLocation().GetLon(), value.GetLocation().GetLat())
 
 	if err != nil {
 		st := status.Newf(codes.Internal, "update location or detect tollgate error: %v", err)
@@ -74,27 +74,27 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 	}
 	return &locationV1beta1.UpdateLocationResponse{
 		WorkerId:         value.GetWorkerId(),
-		TollgateCrossing: transformCrossing(x),
+		TollgateCrossing: transform(x),
 		UpdateTime:       value.GetUpdateTime(),
 	}, nil
 }
 
-func transformCrossing(c *crossing.TollgateCrossing) *typeV1beta1.TollgateCrossing {
+func transform(c *crossing.TollgateCrossing) *v1beta1.TollgateCrossing {
 	if c == nil {
 		return nil
 	}
-	return &typeV1beta1.TollgateCrossing{
+	return &v1beta1.TollgateCrossing{
 		Id:         c.ID,
 		TollgateId: c.TollgateID,
 		WorkerId:   c.WorkerID,
 		Direction:  string(c.Crossing.Crossing.Direction),
 		Alg:        string(c.Crossing.Crossing.Alg),
-		Movement: &typeV1beta1.Movement{
-			From: &typeV1beta1.Location{
+		Movement: &v1beta1.Movement{
+			From: &v1beta1.Location{
 				Lat: c.Crossing.Crossing.Movement.From.Lat,
 				Lon: c.Crossing.Crossing.Movement.From.Lon,
 			},
-			To: &typeV1beta1.Location{
+			To: &v1beta1.Location{
 				Lat: c.Crossing.Crossing.Movement.To.Lat,
 				Lon: c.Crossing.Crossing.Movement.To.Lon,
 			},
@@ -108,7 +108,7 @@ func (c *Controller) GetLocation(ctx context.Context, request *locationV1beta1.G
 	if l != nil {
 		return &locationV1beta1.GetLocationResponse{
 			WorkerId: l.WorkerID,
-			Location: &typeV1beta1.Location{
+			Location: &v1beta1.Location{
 				Lon: l.Longitude,
 				Lat: l.Latitude,
 			},
