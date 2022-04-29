@@ -2,29 +2,31 @@ syntax = "proto3";
 
 package omeapi.tollgate.v1beta1;
 
-option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/tollgate/v1beta1";
-
 import "google/protobuf/timestamp.proto";
 
+option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/tollgate/v1beta1";
+
 service TollgateService {
-  rpc QueryOne(QueryOneRequest) returns (QueryOneResponse) {}
-  rpc QueryAll(QueryAllRequest) returns (QueryAllResponse) {}
+  rpc GetTollgate(GetTollgateRequest) returns (GetTollgateResponse) {}
+  rpc ListTollgates(ListTollgatesRequest) returns (ListTollgatesResponse) {}
 }
 
-message QueryOneRequest {
+message GetTollgateRequest {
   string tollgate_id = 1;
 }
 
-message QueryOneResponse {
+message GetTollgateResponse {
   Tollgate tollgate = 1;
 }
 
-message QueryAllRequest {
-  int32 limit = 1;
+message ListTollgatesRequest {
+  int32 page_size = 3;
+  string page_token = 4;
 }
 
-message QueryAllResponse {
+message ListTollgatesResponse {
   repeated Tollgate tollgates = 1;
+  string next_page_token = 2;
 }
 
 message Tollgate {

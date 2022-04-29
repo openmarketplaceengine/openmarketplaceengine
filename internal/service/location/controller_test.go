@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	typeV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/type/v1beta1"
+
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/location/storage"
@@ -104,44 +106,74 @@ func dialer(t *testing.T) func(context.Context, string) (net.Conn, error) {
 func testUpdateLocation(t *testing.T, client locationV1beta1.LocationServiceClient) {
 	id := uuid.NewString()
 	request := &locationV1beta1.UpdateLocationRequest{
-		WorkerId: id,
-		Lon:      12.000001966953278,
-		Lat:      13.000001966953278,
-		Timestamp: &timestamppb.Timestamp{
-			Seconds: time.Now().Unix(),
-			Nanos:   int32(time.Now().Nanosecond()),
+		Value: &locationV1beta1.LocationUpdate{
+			WorkerId: id,
+			Location: &typeV1beta1.Location{
+				Lon: 12.000001966953278,
+				Lat: 13.000001966953278,
+			},
+			UpdateTime: timestamppb.Now(),
 		},
+		AreaKey:      "a",
+		ValidateOnly: false,
 	}
 	response, err := client.UpdateLocation(context.Background(), request)
 	require.NoError(t, err)
-	require.Equal(t, request.WorkerId, response.WorkerId)
+	require.Equal(t, request.GetValue().WorkerId, response.WorkerId)
 
-	location, err := client.QueryLocation(context.Background(), &locationV1beta1.QueryLocationRequest{
+	location, err := client.GetLocation(context.Background(), &locationV1beta1.GetLocationRequest{
 		WorkerId: id,
+		AreaKey:  "a",
 	})
 	require.NoError(t, err)
-	require.Equal(t, request.WorkerId, location.WorkerId)
-	require.InDelta(t, request.Lon, location.Lon, 0.001)
-	require.InDelta(t, request.Lat, location.Lat, 0.001)
+	require.Equal(t, request.GetValue().GetWorkerId(), location.WorkerId)
+	require.Equal(t, request.GetAreaKey(), "a")
 }
 
 func testUpdateLocationBadRequest(t *testing.T, client locationV1beta1.LocationServiceClient) {
 	id := uuid.NewString()
-	request := &locationV1beta1.UpdateLocationRequest{
-		WorkerId: "",
-		Lon:      1200,
-		Lat:      1300,
-		Timestamp: &timestamppb.Timestamp{
-			Seconds: time.Now().Unix(),
-			Nanos:   int32(time.Now().Nanosecond()),
+
+	_, err := client.UpdateLocation(context.Background(), &locationV1beta1.UpdateLocationRequest{
+		Value: &locationV1beta1.LocationUpdate{
+			WorkerId: id,
+			Location: &typeV1beta1.Location{
+				Lon: 1200,
+				Lat: 1300,
+			},
+			UpdateTime: timestamppb.Now(),
 		},
-	}
-	_, err := client.UpdateLocation(context.Background(), request)
+		AreaKey:      "a",
+		ValidateOnly: false,
+	},
+	)
 	require.Error(t, err)
 	require.EqualError(t, err, "rpc error: code = InvalidArgument desc = bad request")
 
-	_, err = client.QueryLocation(context.Background(), &locationV1beta1.QueryLocationRequest{
+	_, err = client.UpdateLocation(context.Background(), &locationV1beta1.UpdateLocationRequest{
+		Value: &locationV1beta1.LocationUpdate{
+			WorkerId: id,
+			Location: &typeV1beta1.Location{
+				Lon: 12,
+				Lat: 13,
+			},
+			UpdateTime: timestamppb.Now(),
+		},
+		AreaKey:      "",
+		ValidateOnly: false,
+	},
+	)
+	require.Error(t, err)
+	require.EqualError(t, err, "rpc error: code = InvalidArgument desc = bad request")
+
+	_, err = client.GetLocation(context.Background(), &locationV1beta1.GetLocationRequest{
 		WorkerId: id,
+	})
+	require.Error(t, err)
+	require.EqualError(t, err, "rpc error: code = InvalidArgument desc = bad request")
+
+	_, err = client.GetLocation(context.Background(), &locationV1beta1.GetLocationRequest{
+		WorkerId: id,
+		AreaKey:  "a",
 	})
 	require.Error(t, err)
 	require.EqualError(t, err, "rpc error: code = NotFound desc = location not found")
@@ -149,57 +181,69 @@ func testUpdateLocationBadRequest(t *testing.T, client locationV1beta1.LocationS
 
 func testQueryLocation(t *testing.T, client locationV1beta1.LocationServiceClient) {
 	id := uuid.NewString()
-	request := &locationV1beta1.QueryLocationRequest{
+	request := &locationV1beta1.GetLocationRequest{
 		WorkerId: id,
+		AreaKey:  "a",
 	}
 
 	ctx := context.Background()
 
-	_, err := client.QueryLocation(ctx, request)
+	_, err := client.GetLocation(ctx, request)
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "NotFound")
 
 	response, err := client.UpdateLocation(ctx, &locationV1beta1.UpdateLocationRequest{
-		WorkerId: id,
-		Lon:      12,
-		Lat:      13,
-		Timestamp: &timestamppb.Timestamp{
-			Seconds: time.Now().Unix(),
-			Nanos:   0,
+		Value: &locationV1beta1.LocationUpdate{
+			WorkerId: id,
+			Location: &typeV1beta1.Location{
+				Lon: 12.000001966953278,
+				Lat: 13.000001966953278,
+			},
+			UpdateTime: timestamppb.Now(),
 		},
+		AreaKey:      "a",
+		ValidateOnly: false,
 	},
 	)
 	require.NoError(t, err)
 	require.Equal(t, request.WorkerId, response.WorkerId)
 
-	location, err := client.QueryLocation(ctx, request)
+	location, err := client.GetLocation(ctx, request)
 	require.NoError(t, err)
-	require.Less(t, location.LastSeenTime.AsTime().UnixMilli(), time.Now().UnixMilli())
+	require.Less(t, location.LastSeenTime.AsTime().UnixNano(), time.Now().UnixNano())
 }
 
 func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceClient) {
 	s := storage.New(dao.Reds.StoreClient)
 	ctx := context.Background()
 	id := uuid.NewString()
-	err := s.ForgetLocation(ctx, areaKey, id)
+	err := s.ForgetLocation(ctx, "a", id)
 	require.NoError(t, err)
 	from := &locationV1beta1.UpdateLocationRequest{
-		WorkerId: id,
-		Lon:      -74.195995,
-		Lat:      40.636916,
-		Timestamp: &timestamppb.Timestamp{
-			Seconds: time.Now().Unix(),
-			Nanos:   int32(time.Now().Nanosecond()),
+
+		Value: &locationV1beta1.LocationUpdate{
+			WorkerId: id,
+			Location: &typeV1beta1.Location{
+				Lon: -74.195995,
+				Lat: 40.636916,
+			},
+			UpdateTime: timestamppb.Now(),
 		},
+		AreaKey:      "a",
+		ValidateOnly: false,
 	}
 	to := &locationV1beta1.UpdateLocationRequest{
-		WorkerId: id,
-		Lon:      -74.198356,
-		Lat:      40.634408,
-		Timestamp: &timestamppb.Timestamp{
-			Seconds: time.Now().Unix(),
-			Nanos:   int32(time.Now().Nanosecond()),
+
+		Value: &locationV1beta1.LocationUpdate{
+			WorkerId: id,
+			Location: &typeV1beta1.Location{
+				Lon: -74.198356,
+				Lat: 40.634408,
+			},
+			UpdateTime: timestamppb.Now(),
 		},
+		AreaKey:      "a",
+		ValidateOnly: false,
 	}
 
 	sync := make(chan string)
@@ -218,18 +262,18 @@ func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceCl
 
 	response1, err := client.UpdateLocation(ctx, from)
 	require.NoError(t, err)
-	require.Equal(t, from.WorkerId, response1.WorkerId)
+	require.Equal(t, from.GetValue().WorkerId, response1.WorkerId)
 	require.Nil(t, response1.TollgateCrossing)
 
 	response2, err := client.UpdateLocation(ctx, to)
 	require.NoError(t, err)
-	require.Equal(t, from.WorkerId, response2.WorkerId)
+	require.Equal(t, from.GetValue().WorkerId, response2.WorkerId)
 	require.NotNil(t, response2.TollgateCrossing)
 
 	c := <-crossings
 	require.Equal(t, tollgateID, c.TollgateID)
 	require.Equal(t, detector.Direction("SW"), c.Direction)
 	require.Equal(t, id, c.WorkerID)
-	require.InDelta(t, to.Lat, c.Movement.To.Lat, 0.003)
-	require.InDelta(t, to.Lon, c.Movement.To.Lon, 0.003)
+	require.InDelta(t, to.GetValue().GetLocation().GetLat(), c.Movement.To.Lat, 0.003)
+	require.InDelta(t, to.GetValue().GetLocation().GetLon(), c.Movement.To.Lon, 0.003)
 }

@@ -2,36 +2,39 @@ syntax = "proto3";
 
 package omeapi.location.v1beta1;
 
-option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/location/v1beta1";
-
 import "google/protobuf/timestamp.proto";
-import "omeapi/tollgate_crossing/v1beta1/tollgate_crossing.proto";
+import "omeapi/type/v1beta1/location.proto";
+import "omeapi/type/v1beta1/tollgate_crossing.proto";
+import "omeapi/location/v1beta1/location_update.proto";
+
+option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/location/v1beta1";
 
 service LocationService {
   rpc UpdateLocation(UpdateLocationRequest) returns (UpdateLocationResponse) {}
-  rpc QueryLocation(QueryLocationRequest) returns (QueryLocationResponse) {}
+  rpc GetLocation(GetLocationRequest) returns (GetLocationResponse) {}
 }
 
 message UpdateLocationRequest {
-  string worker_id = 1;
-  double lon = 2;
-  double lat = 3;
-  google.protobuf.Timestamp timestamp = 4;
+  string area_key = 1;
+  omeapi.location.v1beta1.LocationUpdate value = 2;
+  bool validate_only = 3;
 }
 
 message UpdateLocationResponse {
-  string worker_id = 1;
-  omeapi.tollgate_crossing.v1beta1.TollgateCrossing tollgate_crossing = 2;
-  google.protobuf.Timestamp timestamp = 3;
+  string area_key = 1;
+  string worker_id = 2;
+  omeapi.type.v1beta1.TollgateCrossing tollgate_crossing = 3;
+  google.protobuf.Timestamp update_time = 4;
 }
 
-message QueryLocationRequest {
-  string worker_id = 1;
+message GetLocationRequest {
+  string area_key = 1;
+  string worker_id = 2;
 }
 
-message QueryLocationResponse {
-  string worker_id = 1;
-  double lon = 2;
-  double lat = 3;
-  google.protobuf.Timestamp last_seen_time = 5;
+message GetLocationResponse {
+  string area_key = 1;
+  string worker_id = 2;
+  omeapi.type.v1beta1.Location location = 3;
+  google.protobuf.Timestamp last_seen_time = 4;
 }

@@ -82,24 +82,26 @@ func testQuery(t *testing.T, client v1beta1.TollgateCrossingServiceClient) {
 		require.NoError(t, err)
 	}
 
-	req1 := &v1beta1.QueryTollgateCrossingsRequest{
+	req1 := &v1beta1.ListTollgateCrossingsRequest{
 		TollgateId: tollgateID,
 		WorkerId:   workerID1,
+		PageSize:   0,
+		PageToken:  "",
 	}
 
-	res1, err := client.QueryTollgateCrossings(ctx, req1)
+	res1, err := client.ListTollgateCrossings(ctx, req1)
 	require.NoError(t, err)
-	require.Len(t, res1.Tollgate, 5)
-	require.Equal(t, tollgateID, res1.Tollgate[0].TollgateId)
-	require.Equal(t, workerID1, res1.Tollgate[0].WorkerId)
-	require.NotEqual(t, res1.Tollgate[0].Movement.ToLon, float64(0))
-	require.NotEqual(t, res1.Tollgate[0].Movement.ToLat, float64(0))
+	require.Len(t, res1.Crossings, 5)
+	require.Equal(t, tollgateID, res1.Crossings[0].TollgateId)
+	require.Equal(t, workerID1, res1.Crossings[0].WorkerId)
+	require.NotEqual(t, res1.Crossings[0].Movement.To.Lon, float64(0))
+	require.NotEqual(t, res1.Crossings[0].Movement.To.Lat, float64(0))
 
-	req2 := &v1beta1.QueryTollgateCrossingsRequest{
+	req2 := &v1beta1.ListTollgateCrossingsRequest{
 		TollgateId: tollgateID,
 	}
 
-	res2, err := client.QueryTollgateCrossings(ctx, req2)
+	res2, err := client.ListTollgateCrossings(ctx, req2)
 	require.NoError(t, err)
-	require.Len(t, res2.Tollgate, 10)
+	require.Len(t, res2.Crossings, 10)
 }

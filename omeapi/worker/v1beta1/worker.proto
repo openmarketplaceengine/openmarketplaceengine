@@ -6,8 +6,8 @@ option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/inte
 
 service WorkerService {
   rpc GetWorker(GetWorkerRequest) returns (GetWorkerResponse) {}
-  rpc SetState(SetStateRequest) returns (SetStateResponse) {}
-  rpc QueryByState(QueryByStateRequest) returns (QueryByStateResponse) {}
+  rpc UpdateWorker(UpdateWorkerRequest) returns (UpdateWorkerResponse) {}
+  rpc ListWorkers(ListWorkersRequest) returns (ListWorkersResponse) {}
 }
 
 enum WorkerState {
@@ -25,17 +25,19 @@ message GetWorkerResponse {
   Worker worker = 1;
 }
 
-message SetStateRequest {
+message UpdateWorkerRequest {
   string worker_id = 1;
   WorkerState state = 2;
 }
 
-message SetStateResponse {
+message UpdateWorkerResponse {
   Worker worker = 1;
 }
 
-message QueryByStateRequest {
+message ListWorkersRequest {
   WorkerState state = 1;
+  int32 page_size = 2;
+  string page_token = 3;
 }
 
 message Worker {
@@ -43,7 +45,8 @@ message Worker {
   WorkerState state = 2;
 }
 
-message QueryByStateResponse {
+message ListWorkersResponse {
   repeated Worker workers = 1;
+  string next_page_token = 2;
 }
 

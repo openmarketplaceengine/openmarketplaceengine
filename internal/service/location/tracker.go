@@ -15,11 +15,8 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/log"
 )
 
-const areaKey = "global"
-
 type Tracker struct {
 	storage      *storage.Storage
-	areaKey      string
 	pubSubClient *redis.Client
 	detector     *detector.Detector
 }
@@ -35,7 +32,6 @@ func NewTracker(storeClient *redis.Client, pubSubClient *redis.Client) (*Tracker
 	return &Tracker{
 		storage:      storage.New(storeClient),
 		pubSubClient: pubSubClient,
-		areaKey:      areaKey,
 		detector:     d,
 	}, nil
 }
@@ -65,10 +61,10 @@ func transformTollgates(tollgates []*tollgate.Tollgate) (result []*detector.Toll
 	return
 }
 
-func (s *Tracker) TrackLocation(ctx context.Context, workerID string, lon float64, lat float64) (*crossing.TollgateCrossing, error) {
-	lastLocation := s.storage.LastLocation(ctx, s.areaKey, workerID)
+func (s *Tracker) TrackLocation(ctx context.Context, areaKey string, workerID string, lon float64, lat float64) (*crossing.TollgateCrossing, error) {
+	lastLocation := s.storage.LastLocation(ctx, areaKey, workerID)
 
-	err := s.storage.Update(ctx, s.areaKey, &storage.Location{
+	err := s.storage.Update(ctx, areaKey, &storage.Location{
 		WorkerID:  workerID,
 		Longitude: lon,
 		Latitude:  lat,
@@ -86,8 +82,8 @@ func (s *Tracker) TrackLocation(ctx context.Context, workerID string, lon float6
 	return tollgateCrossing, nil
 }
 
-func (s *Tracker) QueryLastLocation(ctx context.Context, workerID string) *storage.LastLocation {
-	l := s.storage.LastLocation(ctx, s.areaKey, workerID)
+func (s *Tracker) QueryLastLocation(ctx context.Context, areaKey string, workerID string) *storage.LastLocation {
+	l := s.storage.LastLocation(ctx, areaKey, workerID)
 	if l != nil {
 		return l
 	}

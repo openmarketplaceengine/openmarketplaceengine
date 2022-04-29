@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package omeapi.location.v1beta1;
+
+import "google/protobuf/timestamp.proto";
+import "omeapi/type/v1beta1/location.proto";
+import "omeapi/type/v1beta1/tollgate_crossing.proto";
+import "omeapi/location/v1beta1/location_update.proto";
+
+option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/location/v1beta1";
+
+service DetectService {
+  rpc DetectTollgateCrossings(DetectTollgateCrossingsRequest) returns (DetectTollgateCrossingsResponse) {}
+}
+
+message DetectTollgateCrossingsRequest {
+  string area_key = 1;
+  repeated omeapi.location.v1beta1.LocationUpdate values = 2;
+  bool validate_only = 3;
+}
+
+message DetectTollgateCrossingsResponse {
+  string area_key = 1;
+  repeated omeapi.type.v1beta1.TollgateCrossing values = 2;
+}

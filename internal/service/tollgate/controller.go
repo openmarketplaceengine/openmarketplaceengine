@@ -31,7 +31,7 @@ func GrpcRegister() {
 	})
 }
 
-func (c *Controller) QueryOne(ctx context.Context, request *v1beta1.QueryOneRequest) (*v1beta1.QueryOneResponse, error) {
+func (c *Controller) GetTollgate(ctx context.Context, request *v1beta1.GetTollgateRequest) (*v1beta1.GetTollgateResponse, error) {
 	toll, err := QueryOne(ctx, request.TollgateId)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -44,18 +44,19 @@ func (c *Controller) QueryOne(ctx context.Context, request *v1beta1.QueryOneRequ
 		}
 		return nil, status.Errorf(codes.Internal, "query tollgate error: %s", err)
 	}
-	return &v1beta1.QueryOneResponse{
+	return &v1beta1.GetTollgateResponse{
 		Tollgate: transform(toll),
 	}, nil
 }
 
-func (c *Controller) QueryAll(ctx context.Context, request *v1beta1.QueryAllRequest) (*v1beta1.QueryAllResponse, error) {
+func (c *Controller) ListTollgates(ctx context.Context, request *v1beta1.ListTollgatesRequest) (*v1beta1.ListTollgatesResponse, error) {
 	all, err := QueryAll(ctx, 100)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "QueryAll error: %s", err)
 	}
-	return &v1beta1.QueryAllResponse{
-		Tollgates: transformAll(all),
+	return &v1beta1.ListTollgatesResponse{
+		Tollgates:     transformAll(all),
+		NextPageToken: "",
 	}, nil
 }
 
@@ -93,14 +94,8 @@ func transform(toll *Tollgate) *v1beta1.Tollgate {
 		Name:     toll.Name,
 		BBoxes:   bBoxes,
 		GateLine: gLine,
-		Created: &timestamppb.Timestamp{
-			Seconds: toll.Created.Unix(),
-			Nanos:   0,
-		},
-		Updated: &timestamppb.Timestamp{
-			Seconds: toll.Updated.Unix(),
-			Nanos:   0,
-		},
+		Created:  timestamppb.New(toll.Created.Time),
+		Updated:  timestamppb.New(toll.Updated.Time),
 	}
 }
 
