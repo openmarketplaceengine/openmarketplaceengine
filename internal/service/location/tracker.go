@@ -15,8 +15,6 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/log"
 )
 
-const areaKey = "global"
-
 type Tracker struct {
 	storage      *storage.Storage
 	pubSubClient *redis.Client

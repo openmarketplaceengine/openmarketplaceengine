@@ -14,10 +14,12 @@ service DetectService {
 }
 
 message DetectTollgateCrossingsRequest {
-  repeated omeapi.location.v1beta1.LocationUpdate values = 1;
-  bool validate_only = 2;
+  string area_key = 1;
+  repeated omeapi.location.v1beta1.LocationUpdate values = 2;
+  bool validate_only = 3;
 }
 
 message DetectTollgateCrossingsResponse {
+  string area_key = 1;
   repeated omeapi.type.v1beta1.TollgateCrossing values = 2;
 }

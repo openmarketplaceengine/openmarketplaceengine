@@ -45,12 +45,17 @@ func newController(storeClient *redis.Client, pubSubClient *redis.Client) (*Cont
 }
 
 func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta1.UpdateLocationRequest) (*locationV1beta1.UpdateLocationResponse, error) {
+	areaKey := request.GetAreaKey()
 	value := request.GetValue()
+	workerID := value.GetWorkerId()
+	location := value.GetLocation()
+	updateTime := value.GetUpdateTime()
 	var v validate.Validator
-	v.ValidateString("worker_id", value.GetWorkerId(), validate.IsNotNull)
-	v.ValidateTimestamp("timestamp", value.GetUpdateTime())
-	v.ValidateFloat64("lon", value.GetLocation().GetLon(), validate.IsLongitude)
-	v.ValidateFloat64("lat", value.GetLocation().GetLat(), validate.IsLatitude)
+	v.ValidateString("area_key", areaKey, validate.IsNotNull)
+	v.ValidateString("value_worker_id", workerID, validate.IsNotNull)
+	v.ValidateFloat64("value_location_lon", location.GetLon(), validate.IsLongitude)
+	v.ValidateFloat64("value_location_lat", location.GetLat(), validate.IsLatitude)
+	v.ValidateTimestamp("value_update_time", updateTime)
 
 	errorInfo := v.ErrorInfo()
 	if errorInfo != nil {
@@ -62,7 +67,7 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 		return nil, st.Err()
 	}
 
-	x, err := c.tracker.TrackLocation(ctx, areaKey, value.GetWorkerId(), value.GetLocation().GetLon(), value.GetLocation().GetLat())
+	x, err := c.tracker.TrackLocation(ctx, areaKey, workerID, location.GetLon(), location.GetLat())
 
 	if err != nil {
 		st := status.Newf(codes.Internal, "update location or detect tollgate error: %v", err)
@@ -73,9 +78,10 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 		return nil, st.Err()
 	}
 	return &locationV1beta1.UpdateLocationResponse{
-		WorkerId:         value.GetWorkerId(),
+		AreaKey:          areaKey,
+		WorkerId:         workerID,
 		TollgateCrossing: transform(x),
-		UpdateTime:       value.GetUpdateTime(),
+		UpdateTime:       updateTime,
 	}, nil
 }
 
@@ -104,9 +110,26 @@ func transform(c *crossing.TollgateCrossing) *v1beta1.TollgateCrossing {
 }
 
 func (c *Controller) GetLocation(ctx context.Context, request *locationV1beta1.GetLocationRequest) (*locationV1beta1.GetLocationResponse, error) {
-	l := c.tracker.QueryLastLocation(ctx, areaKey, request.WorkerId)
+	workerID := request.GetWorkerId()
+	areaKey := request.GetAreaKey()
+	var v validate.Validator
+	v.ValidateString("worker_id", workerID, validate.IsNotNull)
+	v.ValidateString("area_key", areaKey, validate.IsNotNull)
+
+	errorInfo := v.ErrorInfo()
+	if errorInfo != nil {
+		st, err := status.New(codes.InvalidArgument, "bad request").
+			WithDetails(errorInfo)
+		if err != nil {
+			panic(fmt.Errorf("enrich grpc status with details error: %w", err))
+		}
+		return nil, st.Err()
+	}
+
+	l := c.tracker.QueryLastLocation(ctx, areaKey, workerID)
 	if l != nil {
 		return &locationV1beta1.GetLocationResponse{
+			AreaKey:  areaKey,
 			WorkerId: l.WorkerID,
 			Location: &v1beta1.Location{
 				Lon: l.Longitude,

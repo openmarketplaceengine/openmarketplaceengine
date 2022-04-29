@@ -33,8 +33,8 @@ func (s *Storage) Update(ctx context.Context, areaKey string, l *Location, t tim
 		return err
 	}
 
-	expireTrackingKey := expireTrackingKey(areaKey)
-	s.client.ZAddArgs(ctx, expireTrackingKey, redis.ZAddArgs{
+	updateTimeKey := updateTimeKey(areaKey)
+	s.client.ZAddArgs(ctx, updateTimeKey, redis.ZAddArgs{
 		NX: false,
 		XX: false,
 		LT: false,
@@ -52,8 +52,8 @@ func (s *Storage) Update(ctx context.Context, areaKey string, l *Location, t tim
 func (s *Storage) LastLocation(ctx context.Context, areaKey string, workerID string) *LastLocation {
 	v := s.client.GeoPos(ctx, areaKey, workerID).Val()
 
-	expireTrackingKey := expireTrackingKey(areaKey)
-	score := s.client.ZScore(ctx, expireTrackingKey, workerID).Val()
+	updateTimeKey := updateTimeKey(areaKey)
+	score := s.client.ZScore(ctx, updateTimeKey, workerID).Val()
 
 	lastSeen := time.UnixMilli(int64(score))
 	// At the moment we expect max one element
@@ -73,8 +73,8 @@ func (s *Storage) ForgetLocation(ctx context.Context, areaKey string, workerID s
 	if err != nil {
 		return err
 	}
-	expireTrackingKey := expireTrackingKey(areaKey)
-	err = s.client.ZRem(ctx, expireTrackingKey, workerID).Err()
+	updateTimeKey := updateTimeKey(areaKey)
+	err = s.client.ZRem(ctx, updateTimeKey, workerID).Err()
 	if err != nil {
 		return err
 	}
@@ -83,7 +83,7 @@ func (s *Storage) ForgetLocation(ctx context.Context, areaKey string, workerID s
 }
 
 func (s *Storage) RemoveExpiredLocations(ctx context.Context, areaKey string, before time.Time) (err error) {
-	key := expireTrackingKey(areaKey)
+	key := updateTimeKey(areaKey)
 	min := fmt.Sprintf("%v", float64(0))
 	max := fmt.Sprintf("%v", float64(before.UnixMilli()))
 
@@ -135,12 +135,12 @@ func (s *Storage) RangeLocations(ctx context.Context, areaKey string, fromLongit
 
 	length := len(geoLocations)
 	reasonableLimit := 30
-	expireTrackingKey := expireTrackingKey(areaKey)
+	updateTimeKey := updateTimeKey(areaKey)
 
 	for _, geoLocation := range geoLocations {
 		lastSeen := time.Time{}
 		if length < reasonableLimit {
-			score := s.client.ZScore(ctx, expireTrackingKey, geoLocation.Name).Val()
+			score := s.client.ZScore(ctx, updateTimeKey, geoLocation.Name).Val()
 			lastSeen = time.UnixMilli(int64(score))
 		}
 		locations = append(locations, &RangeLocation{
@@ -157,6 +157,6 @@ func (s *Storage) RangeLocations(ctx context.Context, areaKey string, fromLongit
 	return locations, nil
 }
 
-func expireTrackingKey(areaKey string) string {
-	return fmt.Sprintf("%s-expire-tracking", areaKey)
+func updateTimeKey(areaKey string) string {
+	return fmt.Sprintf("%s_update_time", areaKey)
 }

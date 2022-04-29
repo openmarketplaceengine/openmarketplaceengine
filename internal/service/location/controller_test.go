@@ -113,8 +113,8 @@ func testUpdateLocation(t *testing.T, client locationV1beta1.LocationServiceClie
 				Lat: 13.000001966953278,
 			},
 			UpdateTime: timestamppb.Now(),
-			AreaKey:    "",
 		},
+		AreaKey:      "a",
 		ValidateOnly: false,
 	}
 	response, err := client.UpdateLocation(context.Background(), request)
@@ -123,14 +123,17 @@ func testUpdateLocation(t *testing.T, client locationV1beta1.LocationServiceClie
 
 	location, err := client.GetLocation(context.Background(), &locationV1beta1.GetLocationRequest{
 		WorkerId: id,
+		AreaKey:  "a",
 	})
 	require.NoError(t, err)
-	require.Equal(t, request.GetValue().WorkerId, location.WorkerId)
+	require.Equal(t, request.GetValue().GetWorkerId(), location.WorkerId)
+	require.Equal(t, request.GetAreaKey(), "a")
 }
 
 func testUpdateLocationBadRequest(t *testing.T, client locationV1beta1.LocationServiceClient) {
 	id := uuid.NewString()
-	request := &locationV1beta1.UpdateLocationRequest{
+
+	_, err := client.UpdateLocation(context.Background(), &locationV1beta1.UpdateLocationRequest{
 		Value: &locationV1beta1.LocationUpdate{
 			WorkerId: id,
 			Location: &typeV1beta1.Location{
@@ -138,16 +141,39 @@ func testUpdateLocationBadRequest(t *testing.T, client locationV1beta1.LocationS
 				Lat: 1300,
 			},
 			UpdateTime: timestamppb.Now(),
-			AreaKey:    "",
 		},
+		AreaKey:      "a",
 		ValidateOnly: false,
-	}
-	_, err := client.UpdateLocation(context.Background(), request)
+	},
+	)
+	require.Error(t, err)
+	require.EqualError(t, err, "rpc error: code = InvalidArgument desc = bad request")
+
+	_, err = client.UpdateLocation(context.Background(), &locationV1beta1.UpdateLocationRequest{
+		Value: &locationV1beta1.LocationUpdate{
+			WorkerId: id,
+			Location: &typeV1beta1.Location{
+				Lon: 12,
+				Lat: 13,
+			},
+			UpdateTime: timestamppb.Now(),
+		},
+		AreaKey:      "",
+		ValidateOnly: false,
+	},
+	)
 	require.Error(t, err)
 	require.EqualError(t, err, "rpc error: code = InvalidArgument desc = bad request")
 
 	_, err = client.GetLocation(context.Background(), &locationV1beta1.GetLocationRequest{
 		WorkerId: id,
+	})
+	require.Error(t, err)
+	require.EqualError(t, err, "rpc error: code = InvalidArgument desc = bad request")
+
+	_, err = client.GetLocation(context.Background(), &locationV1beta1.GetLocationRequest{
+		WorkerId: id,
+		AreaKey:  "a",
 	})
 	require.Error(t, err)
 	require.EqualError(t, err, "rpc error: code = NotFound desc = location not found")
@@ -157,6 +183,7 @@ func testQueryLocation(t *testing.T, client locationV1beta1.LocationServiceClien
 	id := uuid.NewString()
 	request := &locationV1beta1.GetLocationRequest{
 		WorkerId: id,
+		AreaKey:  "a",
 	}
 
 	ctx := context.Background()
@@ -173,8 +200,8 @@ func testQueryLocation(t *testing.T, client locationV1beta1.LocationServiceClien
 				Lat: 13.000001966953278,
 			},
 			UpdateTime: timestamppb.Now(),
-			AreaKey:    "",
 		},
+		AreaKey:      "a",
 		ValidateOnly: false,
 	},
 	)
@@ -183,14 +210,14 @@ func testQueryLocation(t *testing.T, client locationV1beta1.LocationServiceClien
 
 	location, err := client.GetLocation(ctx, request)
 	require.NoError(t, err)
-	require.Less(t, location.LastSeenTime.AsTime().UnixMilli(), time.Now().UnixMilli())
+	require.Less(t, location.LastSeenTime.AsTime().UnixNano(), time.Now().UnixNano())
 }
 
 func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceClient) {
 	s := storage.New(dao.Reds.StoreClient)
 	ctx := context.Background()
 	id := uuid.NewString()
-	err := s.ForgetLocation(ctx, areaKey, id)
+	err := s.ForgetLocation(ctx, "a", id)
 	require.NoError(t, err)
 	from := &locationV1beta1.UpdateLocationRequest{
 
@@ -201,8 +228,8 @@ func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceCl
 				Lat: 40.636916,
 			},
 			UpdateTime: timestamppb.Now(),
-			AreaKey:    "",
 		},
+		AreaKey:      "a",
 		ValidateOnly: false,
 	}
 	to := &locationV1beta1.UpdateLocationRequest{
@@ -214,8 +241,8 @@ func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceCl
 				Lat: 40.634408,
 			},
 			UpdateTime: timestamppb.Now(),
-			AreaKey:    "",
 		},
+		AreaKey:      "a",
 		ValidateOnly: false,
 	}
 

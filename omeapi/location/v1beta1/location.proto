@@ -15,22 +15,26 @@ service LocationService {
 }
 
 message UpdateLocationRequest {
-  omeapi.location.v1beta1.LocationUpdate value = 1;
-  bool validate_only = 2;
+  string area_key = 1;
+  omeapi.location.v1beta1.LocationUpdate value = 2;
+  bool validate_only = 3;
 }
 
 message UpdateLocationResponse {
-  string worker_id = 1;
-  omeapi.type.v1beta1.TollgateCrossing tollgate_crossing = 2;
-  google.protobuf.Timestamp update_time = 3;
+  string area_key = 1;
+  string worker_id = 2;
+  omeapi.type.v1beta1.TollgateCrossing tollgate_crossing = 3;
+  google.protobuf.Timestamp update_time = 4;
 }
 
 message GetLocationRequest {
-  string worker_id = 1;
+  string area_key = 1;
+  string worker_id = 2;
 }
 
 message GetLocationResponse {
-  string worker_id = 1;
-  omeapi.type.v1beta1.Location location = 2;
-  google.protobuf.Timestamp last_seen_time = 5;
+  string area_key = 1;
+  string worker_id = 2;
+  omeapi.type.v1beta1.Location location = 3;
+  google.protobuf.Timestamp last_seen_time = 4;
 }

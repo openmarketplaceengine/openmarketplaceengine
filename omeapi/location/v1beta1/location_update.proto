@@ -11,6 +11,4 @@ message LocationUpdate {
   string worker_id = 1;
   omeapi.type.v1beta1.Location location = 2;
   google.protobuf.Timestamp update_time = 3;
-  // area_key is unique string to group locations by. i.e. san_fran, new_york, global or any_string.
-  string area_key = 4;
 }
