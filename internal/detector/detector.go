@@ -3,8 +3,6 @@ package detector
 import (
 	"context"
 	"fmt"
-
-	"github.com/go-redis/redis/v8"
 )
 
 // Alg represents algorithm.
@@ -83,13 +81,13 @@ type Tollgate struct {
 
 type Detector struct {
 	tollgates []*Tollgate
-	storage   *storage
+	storage   Storage
 }
 
-func NewDetector(tollgates []*Tollgate, client *redis.Client) *Detector {
+func NewDetector(tollgates []*Tollgate, storage Storage) *Detector {
 	return &Detector{
 		tollgates: tollgates,
-		storage:   newStorage(client),
+		storage:   storage,
 	}
 }
 

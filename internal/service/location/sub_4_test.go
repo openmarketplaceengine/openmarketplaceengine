@@ -3,9 +3,9 @@ package location
 import (
 	"encoding/json"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/detector"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/detector"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 
 	"context"
 )

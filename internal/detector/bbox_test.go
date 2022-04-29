@@ -4,25 +4,15 @@ import (
 	"context"
 	"testing"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
-
 	"github.com/google/uuid"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/stretchr/testify/require"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestDetectCrossingBBox(t *testing.T) {
-	err := cfg.Load()
-	require.NoError(t, err)
-
-	if !dao.Reds.State.Running() {
-		require.NoError(t, dao.Reds.Boot())
-	}
-
-	storage := newStorage(dao.Reds.StoreClient)
+	storage := NewMapStorage()
 	ctx := context.Background()
 
 	t.Run("testCrossing", func(t *testing.T) {
@@ -30,7 +20,7 @@ func TestDetectCrossingBBox(t *testing.T) {
 	})
 }
 
-func testCrossing(ctx context.Context, t *testing.T, s *storage) {
+func testCrossing(ctx context.Context, t *testing.T, s Storage) {
 	required := int32(4)
 	bBoxes := []*BBox{{
 		LonMin: 1,
@@ -92,16 +82,18 @@ func testCrossing(ctx context.Context, t *testing.T, s *storage) {
 	c4, _ := detectCrossingBBox(ctx, s, tollgateID, bBoxes, required, &Movement{SubjectID: subjectID, From: &loc0, To: &loc0})
 	require.Nil(t, c4)
 
-	visits, err := s.visits(ctx, tollgateID, subjectID, 5)
+	key := storageKey(tollgateID, subjectID)
+
+	visits, err := s.Visits(ctx, key, len(bBoxes))
 	require.NoError(t, err)
 
-	assert.Equal(t, []int64{1, 1, 1, 0, 0}, visits)
+	assert.Equal(t, []int{1, 1, 1, 0, 0}, visits)
 
 	c5, _ := detectCrossingBBox(ctx, s, tollgateID, bBoxes, required, &Movement{SubjectID: subjectID, From: &loc0, To: &loc5})
 	require.NotNil(t, c5)
 
-	visits, err = s.visits(ctx, tollgateID, subjectID, 5)
+	visits, err = s.Visits(ctx, key, len(bBoxes))
 	require.NoError(t, err)
 
-	assert.Equal(t, []int64{0, 0, 0, 0, 0}, visits)
+	assert.Nil(t, visits)
 }

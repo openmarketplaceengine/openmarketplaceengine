@@ -1,4 +1,4 @@
-package detector
+package storage
 
 import (
 	"context"
@@ -19,7 +19,7 @@ func TestStorage(t *testing.T) {
 		require.NoError(t, dao.Reds.Boot())
 	}
 
-	storage := newStorage(dao.Reds.StoreClient)
+	storage := NewRedisStorage(dao.Reds.StoreClient)
 
 	ctx := context.Background()
 
@@ -28,21 +28,22 @@ func TestStorage(t *testing.T) {
 	})
 }
 
-func testVisits(ctx context.Context, t *testing.T, storage *storage) {
+func testVisits(ctx context.Context, t *testing.T, storage *RedisStorage) {
 	tollgateID := "toll-123"
 	subjectID := uuid.NewString()
-	err := storage.visit(ctx, tollgateID, subjectID, 0)
+	key := Key(tollgateID, subjectID)
+	err := storage.Visit(ctx, key, 5, 0)
 	require.NoError(t, err)
-	err = storage.visit(ctx, tollgateID, subjectID, 1)
+	err = storage.Visit(ctx, key, 5, 1)
 	require.NoError(t, err)
-	err = storage.visit(ctx, tollgateID, subjectID, 5)
+	err = storage.Visit(ctx, key, 5, 5)
 	require.NoError(t, err)
 
-	res, err := storage.visits(ctx, tollgateID, subjectID, 5)
+	res, err := storage.Visits(ctx, key, 5)
 	require.NoError(t, err)
-	require.Equal(t, []int64{1, 1, 0, 0, 0}, res)
+	require.Equal(t, []int{1, 1, 0, 0, 0}, res)
 
-	res, err = storage.visits(ctx, tollgateID, subjectID, 6)
+	res, err = storage.Visits(ctx, key, 6)
 	require.NoError(t, err)
-	require.Equal(t, []int64{1, 1, 0, 0, 0, 1}, res)
+	require.Equal(t, []int{1, 1, 0, 0, 0, 1}, res)
 }

@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/detector"
+
 	typeV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/type/v1beta1"
 
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -18,7 +20,6 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/detector"
 
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"

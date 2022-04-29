@@ -4,7 +4,7 @@ import (
 	"context"
 	"embed"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/detector"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/detector"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
 

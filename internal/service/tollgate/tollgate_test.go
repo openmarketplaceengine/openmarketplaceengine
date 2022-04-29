@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/detector"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/detector"
 
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"

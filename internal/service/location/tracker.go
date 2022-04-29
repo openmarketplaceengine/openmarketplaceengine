@@ -6,12 +6,13 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/detector"
+
 	"github.com/go-redis/redis/v8"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/location/storage"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/crossing"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/detector"
 	"github.com/openmarketplaceengine/openmarketplaceengine/log"
 )
 
@@ -27,7 +28,7 @@ func NewTracker(storeClient *redis.Client, pubSubClient *redis.Client) (*Tracker
 		return nil, err
 	}
 
-	d := detector.NewDetector(transformTollgates(tollgates), storeClient)
+	d := detector.NewDetector(transformTollgates(tollgates), storage.NewRedisStorage(storeClient))
 
 	return &Tracker{
 		storage:      storage.New(storeClient),
