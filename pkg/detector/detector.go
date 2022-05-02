@@ -2,9 +2,8 @@ package detector
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-
-	"github.com/go-redis/redis/v8"
 )
 
 // Alg represents algorithm.
@@ -18,24 +17,31 @@ const (
 
 // Crossing represents detected fact of passing through the tollgate by WorkerID.
 type Crossing struct {
-	TollgateID string
-	WorkerID   string
-	Movement   *Movement
-	Direction  Direction
-	Alg        Alg
+	TollgateID string    `json:"tollgate_id"`
+	WorkerID   string    `json:"worker_id"`
+	Movement   *Movement `json:"movement"`
+	Direction  Direction `json:"direction"`
+	Alg        Alg       `json:"alg"`
 }
 
-// Movement represents a moving SubjectID from one Location to another.
+func (c Crossing) String() string {
+	bytes, err := json.Marshal(c)
+	if err != nil {
+		return fmt.Sprintf("json mardhar error: %s", err)
+	}
+	return string(bytes)
+}
+
+// Movement represents a moving from one Location to another.
 type Movement struct {
-	SubjectID string
-	From      *Location
-	To        *Location
+	From *Location `json:"from"`
+	To   *Location `json:"to"`
 }
 
 // Location is longitude, latitude corresponding to linear algebra X, Y axis.
 type Location struct {
-	Lon float64
-	Lat float64
+	Lon float64 `json:"lon"`
+	Lat float64 `json:"lat"`
 }
 
 //Direction to North, South, East or West in form of N, S, E, W, NE, NW, SE, SW.
@@ -83,28 +89,28 @@ type Tollgate struct {
 
 type Detector struct {
 	tollgates []*Tollgate
-	storage   *storage
+	storage   Storage
 }
 
-func NewDetector(tollgates []*Tollgate, client *redis.Client) *Detector {
+func NewDetector(tollgates []*Tollgate, storage Storage) *Detector {
 	return &Detector{
 		tollgates: tollgates,
-		storage:   newStorage(client),
+		storage:   storage,
 	}
 }
 
 // DetectCrossing detects if subject Movement has travelled through the tollgate.
-func (d *Detector) DetectCrossing(ctx context.Context, movement *Movement) (*Crossing, error) {
+func (d *Detector) DetectCrossing(ctx context.Context, workerID string, movement *Movement) (*Crossing, error) {
 	for _, t := range d.tollgates {
 		if t.Line != nil {
-			crossing := detectCrossingVector(t.ID, t.Line, movement)
+			crossing := detectCrossingVector(t.ID, workerID, t.Line, movement)
 			if crossing != nil {
 				return crossing, nil
 			}
 		}
 
 		if len(t.BBoxes) > 0 {
-			crossing, err := detectCrossingBBox(ctx, d.storage, t.ID, t.BBoxes, t.BBoxesRequired, movement)
+			crossing, err := detectCrossingBBox(ctx, d.storage, t.ID, workerID, t.BBoxes, t.BBoxesRequired, movement)
 			if err != nil {
 				return nil, err
 			}

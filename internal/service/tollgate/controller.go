@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -27,6 +28,12 @@ func GrpcRegister() {
 	srv.Grpc.Register(func(srv *grpc.Server) error {
 		controller := newController()
 		v1beta1.RegisterTollgateServiceServer(srv, controller)
+
+		err := Load(cfg.Context())
+		if err != nil {
+			return fmt.Errorf("load tollgates error: %w", err)
+		}
+
 		return nil
 	})
 }

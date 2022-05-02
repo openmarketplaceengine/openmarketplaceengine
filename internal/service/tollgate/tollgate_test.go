@@ -5,13 +5,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/detector"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
 
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/util"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/util"
 	"github.com/stretchr/testify/require"
 )
 
@@ -49,7 +49,7 @@ func testCreate(ctx dom.Context, t *testing.T, r *rand.Rand) {
 	require.Equal(t, toll.Name, one.Name)
 	require.Equal(t, toll.BBoxes, one.BBoxes)
 	require.Equal(t, toll.GateLine, one.GateLine)
-	require.Less(t, one.Created.UnixMilli(), time.Now().UnixMilli())
+	require.Less(t, one.Created.UnixNano(), time.Now().UnixNano())
 	require.Greater(t, one.Created.UnixMilli(), int64(0))
 	require.Equal(t, dao.Time{}, one.Updated)
 }
@@ -79,7 +79,7 @@ func testUpdate(ctx dom.Context, t *testing.T, r *rand.Rand) {
 	one, err := QueryOne(ctx, toll.ID)
 	require.NoError(t, err)
 	require.Equal(t, newName, one.Name)
-	require.Less(t, one.Updated.UnixMilli(), time.Now().UnixMilli())
+	require.Less(t, one.Updated.UnixNano(), time.Now().UnixNano())
 	require.Greater(t, one.Updated.UnixMilli(), int64(0))
 }
 

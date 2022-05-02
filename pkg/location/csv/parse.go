@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/util"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/util"
 )
 
 type Location struct {

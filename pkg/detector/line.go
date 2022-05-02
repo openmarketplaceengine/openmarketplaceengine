@@ -3,7 +3,7 @@ package detector
 import (
 	"math"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/util"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/util"
 )
 
 // Line represents a two points line that Subject crosses.
@@ -38,7 +38,7 @@ type Line struct {
 // Movement - two points representing Movement line, from previous to current Location
 // precision - float greater than 0, i.e. 0.001. for Lat/Long should be 0.00001
 // returns nil if no Crossing, otherwise the location at which Crossing detected.
-func detectCrossingLine(tollgateID string, line *Line, movement *Movement, precision float64) *Crossing {
+func detectCrossingLine(tollgateID string, workerID string, line *Line, movement *Movement, precision float64) *Crossing {
 	//Tollgate-representing line
 	tx1 := util.Round6(line.Lon1)
 	ty1 := util.Round6(line.Lat1)
@@ -64,7 +64,7 @@ func detectCrossingLine(tollgateID string, line *Line, movement *Movement, preci
 		//x := -(C1*B2 - B1*C2) / v
 		//y := -(A1*C2 - C1*A2) / v
 		return &Crossing{
-			WorkerID:   movement.SubjectID,
+			WorkerID:   workerID,
 			TollgateID: tollgateID,
 			Movement:   movement,
 			Direction:  movement.Direction(),
@@ -75,7 +75,7 @@ func detectCrossingLine(tollgateID string, line *Line, movement *Movement, preci
 }
 
 // detectCrossingVector detects two line segment crossing using vector math.
-func detectCrossingVector(tollgateID string, line *Line, movement *Movement) *Crossing {
+func detectCrossingVector(tollgateID string, workerID string, line *Line, movement *Movement) *Crossing {
 	//Tollgate-representing line
 	tx1 := util.Round6(line.Lon1)
 	ty1 := util.Round6(line.Lat1)
@@ -111,7 +111,7 @@ func detectCrossingVector(tollgateID string, line *Line, movement *Movement) *Cr
 	intersect := intersects(s1, s2)
 	if intersect {
 		return &Crossing{
-			WorkerID:   movement.SubjectID,
+			WorkerID:   workerID,
 			TollgateID: tollgateID,
 			Movement:   movement,
 			Direction:  movement.Direction(),
