@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/crossing"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/location"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate/crossing"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/worker"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
