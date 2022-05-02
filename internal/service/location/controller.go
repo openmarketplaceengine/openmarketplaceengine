@@ -78,18 +78,18 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 		return nil, st.Err()
 	}
 	return &locationV1beta1.UpdateLocationResponse{
-		AreaKey:          areaKey,
-		WorkerId:         workerID,
-		TollgateCrossing: transform(x),
-		UpdateTime:       updateTime,
+		AreaKey:    areaKey,
+		WorkerId:   workerID,
+		Crossing:   transform(x),
+		UpdateTime: updateTime,
 	}, nil
 }
 
-func transform(c *crossing.TollgateCrossing) *v1beta1.TollgateCrossing {
+func transform(c *crossing.TollgateCrossing) *v1beta1.Crossing {
 	if c == nil {
 		return nil
 	}
-	return &v1beta1.TollgateCrossing{
+	return &v1beta1.Crossing{
 		Id:         c.ID,
 		TollgateId: c.TollgateID,
 		WorkerId:   c.WorkerID,
