@@ -3,8 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/detector"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/tollgate/yaml"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/location/csv"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/tollgate/yaml"
+	"golang.org/x/net/context"
 	"log"
 	"os"
 	"path/filepath"
@@ -41,11 +43,11 @@ func main() {
 	}
 	defer tFile.Close()
 
-	//lFile, err := os.Open(lPath)
-	//if err != nil {
-	//	log.Fatalf("open locations file error: %s", err)
-	//}
-	//defer tFile.Close()
+	lFile, err := os.Open(lPath)
+	if err != nil {
+		log.Fatalf("open locations file error: %s", err)
+	}
+	defer tFile.Close()
 
 	tolls, err := yaml.ReadYaml(tFile)
 	if err != nil {
@@ -55,11 +57,52 @@ func main() {
 	fmt.Printf("yaml %v\n", tolls)
 
 	tollgates := transform(tolls)
-	fmt.Printf("transformed %v\n", tollgates)
 
-	//d := detector.NewDetector(tollgates, detector.NewMapStorage())
+	d := detector.NewDetector(tollgates, detector.NewMapStorage())
 
-	//d.DetectCrossing(context.Background(), m)
+	scan := csv.NewScan(lFile)
+
+	var crossings []*detector.Crossing
+	var from *detector.Location
+	for {
+		location, err := scan.NextLocation()
+
+		if err != nil {
+			log.Fatalf("scan next location error: %s", err)
+		}
+
+		if location == nil {
+			break
+		}
+
+		to := &detector.Location{
+			Lon: location.Lon,
+			Lat: location.Lat,
+		}
+
+		if from == nil {
+			from = to
+			continue
+		}
+
+		crossing, err := d.DetectCrossing(context.Background(), &detector.Movement{
+			SubjectID: location.DriverID,
+			From:      from,
+			To:        to,
+		})
+
+		if err != nil {
+			log.Fatalf("detect  crossing error: %s", err)
+		}
+		from = to
+		if crossing != nil {
+			fmt.Printf("detected crossing %v\n", crossing)
+			crossings = append(crossings, crossing)
+		}
+	}
+
+	fmt.Printf("%v\n", crossings)
+
 }
 
 func transform(tollgates []yaml.Tollgate) []*detector.Tollgate {
