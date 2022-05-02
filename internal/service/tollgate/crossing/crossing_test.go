@@ -5,14 +5,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/detector"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
 
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/util"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/util"
 	"github.com/stretchr/testify/require"
 )
 
@@ -86,7 +86,6 @@ func newRandomCrossing(r *rand.Rand, tollgateID dom.SUID, workerID dom.SUID) *To
 				TollgateID: tollgateID,
 				WorkerID:   workerID,
 				Movement: &detector.Movement{
-					SubjectID: "",
 					From: &detector.Location{
 						Lon: util.LongitudeInRange(r, -122.473048, -122.430733),
 						Lat: util.LatitudeInRange(r, 37.656177, 37.656177),

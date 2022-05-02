@@ -3,8 +3,9 @@ package yaml
 import (
 	"bytes"
 	_ "embed"
-	"gopkg.in/yaml.v2"
 	"io"
+
+	"gopkg.in/yaml.v2"
 )
 
 //go:embed tollgates.yaml

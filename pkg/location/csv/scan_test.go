@@ -10,7 +10,6 @@ import (
 const csvFile = "testdata/coopdrive-gps-pings-2022.04.06.csv"
 
 func TestScanner(t *testing.T) {
-
 	file, err := os.Open(csvFile)
 	require.NoError(t, err)
 

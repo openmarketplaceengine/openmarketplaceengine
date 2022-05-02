@@ -47,7 +47,7 @@ func testCrossed(t *testing.T) {
 		},
 	}
 
-	crossing := detectCrossingLine("", &line, &m, 0.001)
+	crossing := detectCrossingLine("", "", &line, &m, 0.001)
 	assert.NotNil(t, crossing)
 }
 
@@ -70,7 +70,7 @@ func testCrossedLatLong(t *testing.T) {
 		},
 	}
 
-	crossing := detectCrossingLine("", &line, &m, 0.0000001)
+	crossing := detectCrossingLine("", "", &line, &m, 0.0000001)
 	assert.NotNil(t, crossing)
 }
 
@@ -92,7 +92,7 @@ func testNotCrossed(t *testing.T) {
 		},
 	}
 
-	crossing := detectCrossingVector("", &line, &m)
+	crossing := detectCrossingVector("", "", &line, &m)
 	assert.NotNil(t, crossing)
 }
 
@@ -120,10 +120,10 @@ func testNotCrossedVector(t *testing.T) {
 		},
 	}
 
-	crossing1 := detectCrossingVector("", &line1, &m)
+	crossing1 := detectCrossingVector("", "", &line1, &m)
 	assert.Nil(t, crossing1)
 
-	crossing2 := detectCrossingVector("", &line2, &m)
+	crossing2 := detectCrossingVector("", "", &line2, &m)
 	assert.Nil(t, crossing2)
 }
 
@@ -146,6 +146,6 @@ func testCrossedVector(t *testing.T) {
 		},
 	}
 
-	crossing1 := detectCrossingVector("", &line, &m)
+	crossing1 := detectCrossingVector("", "", &line, &m)
 	assert.NotNil(t, crossing1)
 }

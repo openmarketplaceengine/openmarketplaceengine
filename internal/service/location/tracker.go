@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/detector"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
@@ -101,17 +101,16 @@ func (s *Tracker) detectTollgateCrossing(ctx context.Context, lastLocation *stor
 			Lon: lon,
 			Lat: lat}
 		movement := &detector.Movement{
-			SubjectID: workerID,
-			From:      from,
-			To:        to,
+			From: from,
+			To:   to,
 		}
 
-		detected, err := s.detector.DetectCrossing(ctx, movement)
+		detected, err := s.detector.DetectCrossing(ctx, workerID, movement)
 		if err != nil {
 			return nil, fmt.Errorf("detect crossing error: %s", err)
 		}
 		if detected != nil {
-			tollgateCrossing := crossing.NewTollgateCrossing(detected.TollgateID, movement.SubjectID, detected)
+			tollgateCrossing := crossing.NewTollgateCrossing(detected.TollgateID, workerID, detected)
 			err := tollgateCrossing.Insert(ctx)
 			if err != nil {
 				return nil, fmt.Errorf("crossing insert error: %s", err)

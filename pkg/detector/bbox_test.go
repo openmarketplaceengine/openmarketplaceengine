@@ -68,28 +68,28 @@ func testCrossing(ctx context.Context, t *testing.T, s Storage) {
 		Lon: 33,
 		Lat: 33,
 	}
-	subjectID := uuid.NewString()
+	workerID := uuid.NewString()
 	tollgateID := "toll-1"
-	c1, _ := detectCrossingBBox(ctx, s, tollgateID, bBoxes, required, &Movement{SubjectID: subjectID, From: &loc0, To: &loc1})
+	c1, _ := detectCrossingBBox(ctx, s, tollgateID, workerID, bBoxes, required, &Movement{From: &loc0, To: &loc1})
 	require.Nil(t, c1)
 
-	c2, _ := detectCrossingBBox(ctx, s, tollgateID, bBoxes, required, &Movement{SubjectID: subjectID, From: &loc0, To: &loc2})
+	c2, _ := detectCrossingBBox(ctx, s, tollgateID, workerID, bBoxes, required, &Movement{From: &loc0, To: &loc2})
 	require.Nil(t, c2)
 
-	c3, _ := detectCrossingBBox(ctx, s, tollgateID, bBoxes, required, &Movement{SubjectID: subjectID, From: &loc0, To: &loc3})
+	c3, _ := detectCrossingBBox(ctx, s, tollgateID, workerID, bBoxes, required, &Movement{From: &loc0, To: &loc3})
 	require.Nil(t, c3)
 
-	c4, _ := detectCrossingBBox(ctx, s, tollgateID, bBoxes, required, &Movement{SubjectID: subjectID, From: &loc0, To: &loc0})
+	c4, _ := detectCrossingBBox(ctx, s, tollgateID, workerID, bBoxes, required, &Movement{From: &loc0, To: &loc0})
 	require.Nil(t, c4)
 
-	key := storageKey(tollgateID, subjectID)
+	key := storageKey(tollgateID, workerID)
 
 	visits, err := s.Visits(ctx, key, len(bBoxes))
 	require.NoError(t, err)
 
 	assert.Equal(t, []int{1, 1, 1, 0, 0}, visits)
 
-	c5, _ := detectCrossingBBox(ctx, s, tollgateID, bBoxes, required, &Movement{SubjectID: subjectID, From: &loc0, To: &loc5})
+	c5, _ := detectCrossingBBox(ctx, s, tollgateID, workerID, bBoxes, required, &Movement{From: &loc0, To: &loc5})
 	require.NotNil(t, c5)
 
 	visits, err = s.Visits(ctx, key, len(bBoxes))

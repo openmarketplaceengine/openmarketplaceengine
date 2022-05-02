@@ -1,10 +1,8 @@
-package conf
+package tollgate
 
 import (
 	"testing"
 	"time"
-
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
@@ -12,18 +10,18 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestConfig(t *testing.T) {
+func TestLoadTollgates(t *testing.T) {
 	dom.WillTest(t, "test", false)
 	ctx := cfg.Context()
-	t.Run("testLoadTollgates", func(t *testing.T) {
-		testLoadTollgates(ctx, t)
+	t.Run("testLoad", func(t *testing.T) {
+		testLoad(ctx, t)
 	})
 }
 
-func testLoadTollgates(ctx cfg.SignalContext, t *testing.T) {
-	err := LoadTollgates(ctx)
+func testLoad(ctx cfg.SignalContext, t *testing.T) {
+	err := Load(ctx)
 	require.NoError(t, err)
-	tg, err := tollgate.QueryAll(ctx, 100)
+	tg, err := QueryAll(ctx, 100)
 	require.NoError(t, err)
 
 	require.GreaterOrEqual(t, len(tg), 17)

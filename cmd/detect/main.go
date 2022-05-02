@@ -3,21 +3,21 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
+	"os"
+	"path/filepath"
+
 	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
 	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/location/csv"
 	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/tollgate/yaml"
 	"golang.org/x/net/context"
-	"log"
-	"os"
-	"path/filepath"
 )
 
 func main() {
-
 	var t string
 	var l string
-	flag.StringVar(&t, "t", "", "path to tollgates yaml file")
-	flag.StringVar(&l, "l", "", "path to locations csv file")
+	flag.StringVar(&t, "t", "pkg/tollgate/yaml/tollgates.yaml", "path to tollgates yaml file")
+	flag.StringVar(&l, "l", "pkg/location/csv/testdata/coopdrive-gps-pings-2022.04.06.csv", "path to locations csv file")
 	flag.Parse()
 
 	if t == "" || l == "" {
@@ -54,8 +54,6 @@ func main() {
 		log.Fatalf("readin tollgates error: %s", err)
 	}
 
-	fmt.Printf("yaml %v\n", tolls)
-
 	tollgates := transform(tolls)
 
 	d := detector.NewDetector(tollgates, detector.NewMapStorage())
@@ -85,10 +83,9 @@ func main() {
 			continue
 		}
 
-		crossing, err := d.DetectCrossing(context.Background(), &detector.Movement{
-			SubjectID: location.DriverID,
-			From:      from,
-			To:        to,
+		crossing, err := d.DetectCrossing(context.Background(), location.DriverID, &detector.Movement{
+			From: from,
+			To:   to,
 		})
 
 		if err != nil {
@@ -96,18 +93,18 @@ func main() {
 		}
 		from = to
 		if crossing != nil {
-			fmt.Printf("detected crossing %v\n", crossing)
 			crossings = append(crossings, crossing)
 		}
 	}
 
-	fmt.Printf("%v\n", crossings)
-
+	for i, c := range crossings {
+		fmt.Printf("detected crossing [%v] %v\n", i, c)
+	}
 }
 
 func transform(tollgates []yaml.Tollgate) []*detector.Tollgate {
-	var r []*detector.Tollgate
-	for _, t := range tollgates {
+	r := make([]*detector.Tollgate, len(tollgates))
+	for i, t := range tollgates {
 		var boxes []*detector.BBox
 
 		for _, b := range t.BBoxes.Boxes {
@@ -119,7 +116,7 @@ func transform(tollgates []yaml.Tollgate) []*detector.Tollgate {
 			})
 		}
 
-		r = append(r, &detector.Tollgate{
+		r[i] = &detector.Tollgate{
 			ID: t.ID,
 			Line: &detector.Line{
 				Lon1: t.Line.Lon1,
@@ -129,7 +126,7 @@ func transform(tollgates []yaml.Tollgate) []*detector.Tollgate {
 			},
 			BBoxes:         boxes,
 			BBoxesRequired: t.BBoxes.BoxesRequired,
-		})
+		}
 	}
 	return r
 }

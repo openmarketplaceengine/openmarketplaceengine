@@ -21,8 +21,8 @@ type BBox struct {
 // Consumer of detectCrossingBBox should check returned value for not null, meaning detected fact of crossing the tollgate.
 // Algorithm requires storing 'moving' state in Storage.
 // required is count of visits for successful pass through, required <= []BBox size.
-func detectCrossingBBox(ctx context.Context, storage Storage, tollgateID string, bBoxes []*BBox, required int32, movement *Movement) (*Crossing, error) {
-	key := storageKey(tollgateID, movement.SubjectID)
+func detectCrossingBBox(ctx context.Context, storage Storage, tollgateID string, workerID string, bBoxes []*BBox, required int32, movement *Movement) (*Crossing, error) {
+	key := storageKey(tollgateID, workerID)
 	size := len(bBoxes)
 	for i, box := range bBoxes {
 		inb := inBoundary(box, movement.To)
@@ -43,7 +43,7 @@ func detectCrossingBBox(ctx context.Context, storage Storage, tollgateID string,
 				}
 				return &Crossing{
 					TollgateID: tollgateID,
-					WorkerID:   movement.SubjectID,
+					WorkerID:   workerID,
 					Movement:   movement,
 					Direction:  movement.Direction(),
 					Alg:        BBoxAlg,

@@ -18,7 +18,6 @@ func NewScan(r io.Reader) *Scanner {
 }
 
 func (s *Scanner) NextLocation() (*Location, error) {
-
 	for {
 		scan := s.s.Scan()
 		if !scan {

@@ -3,7 +3,7 @@ package crossing
 import (
 	"encoding/json"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/detector"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
 
 	"github.com/google/uuid"
 

@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/detector"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
 
 	typeV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/type/v1beta1"
 
