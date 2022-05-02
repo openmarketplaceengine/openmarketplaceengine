@@ -3,7 +3,7 @@ package detector
 import (
 	"math"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/util"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/util"
 )
 
 // Line represents a two points line that Subject crosses.
