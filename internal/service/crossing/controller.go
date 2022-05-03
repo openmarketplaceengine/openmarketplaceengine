@@ -10,13 +10,13 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
 	"google.golang.org/grpc"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/tollgate_crossing/v1beta1"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/crossing/v1beta1"
 	typeV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/type/v1beta1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type Controller struct {
-	v1beta1.UnimplementedTollgateCrossingServiceServer
+	v1beta1.UnimplementedCrossingServiceServer
 }
 
 func newController() *Controller {
@@ -26,12 +26,12 @@ func newController() *Controller {
 func GrpcRegister() {
 	srv.Grpc.Register(func(srv *grpc.Server) error {
 		controller := newController()
-		v1beta1.RegisterTollgateCrossingServiceServer(srv, controller)
+		v1beta1.RegisterCrossingServiceServer(srv, controller)
 		return nil
 	})
 }
 
-func (c *Controller) ListTollgateCrossings(ctx context.Context, request *v1beta1.ListTollgateCrossingsRequest) (*v1beta1.ListTollgateCrossingsResponse, error) {
+func (c *Controller) ListCrossings(ctx context.Context, request *v1beta1.ListCrossingsRequest) (*v1beta1.ListCrossingsResponse, error) {
 	wheres := make([]Where, 0)
 	if request.TollgateId != "" {
 		wheres = append(wheres, Where{
@@ -58,16 +58,16 @@ func (c *Controller) ListTollgateCrossings(ctx context.Context, request *v1beta1
 		return nil, st.Err()
 	}
 
-	return &v1beta1.ListTollgateCrossingsResponse{
+	return &v1beta1.ListCrossingsResponse{
 		Crossings:     transform(crossings),
 		NextPageToken: "",
 	}, nil
 }
 
-func transform(crossings []*TollgateCrossing) []*typeV1beta1.TollgateCrossing {
-	result := make([]*typeV1beta1.TollgateCrossing, 0)
+func transform(crossings []*TollgateCrossing) []*typeV1beta1.Crossing {
+	result := make([]*typeV1beta1.Crossing, 0)
 	for _, crossing := range crossings {
-		result = append(result, &typeV1beta1.TollgateCrossing{
+		result = append(result, &typeV1beta1.Crossing{
 			Id:         crossing.ID,
 			TollgateId: crossing.TollgateID,
 			WorkerId:   crossing.WorkerID,

@@ -12,7 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/tollgate_crossing/v1beta1"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/crossing/v1beta1"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -35,7 +35,7 @@ func TestController(t *testing.T) {
 	}(conn)
 
 	require.NoError(t, err)
-	client := v1beta1.NewTollgateCrossingServiceClient(conn)
+	client := v1beta1.NewCrossingServiceClient(conn)
 
 	t.Run("testQuery", func(t *testing.T) {
 		testQuery(t, client)
@@ -47,7 +47,7 @@ func dialer() func(context.Context, string) (net.Conn, error) {
 
 	server := grpc.NewServer()
 	controller := newController()
-	v1beta1.RegisterTollgateCrossingServiceServer(server, controller)
+	v1beta1.RegisterCrossingServiceServer(server, controller)
 
 	go func() {
 		if err := server.Serve(listener); err != nil {
@@ -60,7 +60,7 @@ func dialer() func(context.Context, string) (net.Conn, error) {
 	}
 }
 
-func testQuery(t *testing.T, client v1beta1.TollgateCrossingServiceClient) {
+func testQuery(t *testing.T, client v1beta1.CrossingServiceClient) {
 	ctx := cfg.Context()
 	r := rand.New(rand.NewSource(time.Now().UnixMilli()))
 
@@ -82,14 +82,14 @@ func testQuery(t *testing.T, client v1beta1.TollgateCrossingServiceClient) {
 		require.NoError(t, err)
 	}
 
-	req1 := &v1beta1.ListTollgateCrossingsRequest{
+	req1 := &v1beta1.ListCrossingsRequest{
 		TollgateId: tollgateID,
 		WorkerId:   workerID1,
 		PageSize:   0,
 		PageToken:  "",
 	}
 
-	res1, err := client.ListTollgateCrossings(ctx, req1)
+	res1, err := client.ListCrossings(ctx, req1)
 	require.NoError(t, err)
 	require.Len(t, res1.Crossings, 5)
 	require.Equal(t, tollgateID, res1.Crossings[0].TollgateId)
@@ -97,11 +97,11 @@ func testQuery(t *testing.T, client v1beta1.TollgateCrossingServiceClient) {
 	require.NotEqual(t, res1.Crossings[0].Movement.To.Lon, float64(0))
 	require.NotEqual(t, res1.Crossings[0].Movement.To.Lat, float64(0))
 
-	req2 := &v1beta1.ListTollgateCrossingsRequest{
+	req2 := &v1beta1.ListCrossingsRequest{
 		TollgateId: tollgateID,
 	}
 
-	res2, err := client.ListTollgateCrossings(ctx, req2)
+	res2, err := client.ListCrossings(ctx, req2)
 	require.NoError(t, err)
 	require.Len(t, res2.Crossings, 10)
 }

@@ -7,7 +7,7 @@ import "omeapi/type/v1beta1/movement.proto";
 
 option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/type/v1beta1";
 
-message TollgateCrossing {
+message Crossing {
   string id = 1;
   string tollgate_id = 2;
   string worker_id = 3;

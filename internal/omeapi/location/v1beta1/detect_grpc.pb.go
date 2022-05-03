@@ -22,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type DetectServiceClient interface {
-	DetectTollgateCrossings(ctx context.Context, in *DetectTollgateCrossingsRequest, opts ...grpc.CallOption) (*DetectTollgateCrossingsResponse, error)
+	DetectCrossings(ctx context.Context, in *DetectCrossingsRequest, opts ...grpc.CallOption) (*DetectCrossingsResponse, error)
 }
 
 type detectServiceClient struct {
@@ -33,9 +33,9 @@ func NewDetectServiceClient(cc grpc.ClientConnInterface) DetectServiceClient {
 	return &detectServiceClient{cc}
 }
 
-func (c *detectServiceClient) DetectTollgateCrossings(ctx context.Context, in *DetectTollgateCrossingsRequest, opts ...grpc.CallOption) (*DetectTollgateCrossingsResponse, error) {
-	out := new(DetectTollgateCrossingsResponse)
-	err := c.cc.Invoke(ctx, "/omeapi.location.v1beta1.DetectService/DetectTollgateCrossings", in, out, opts...)
+func (c *detectServiceClient) DetectCrossings(ctx context.Context, in *DetectCrossingsRequest, opts ...grpc.CallOption) (*DetectCrossingsResponse, error) {
+	out := new(DetectCrossingsResponse)
+	err := c.cc.Invoke(ctx, "/omeapi.location.v1beta1.DetectService/DetectCrossings", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -46,15 +46,15 @@ func (c *detectServiceClient) DetectTollgateCrossings(ctx context.Context, in *D
 // All implementations should embed UnimplementedDetectServiceServer
 // for forward compatibility
 type DetectServiceServer interface {
-	DetectTollgateCrossings(context.Context, *DetectTollgateCrossingsRequest) (*DetectTollgateCrossingsResponse, error)
+	DetectCrossings(context.Context, *DetectCrossingsRequest) (*DetectCrossingsResponse, error)
 }
 
 // UnimplementedDetectServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedDetectServiceServer struct {
 }
 
-func (UnimplementedDetectServiceServer) DetectTollgateCrossings(context.Context, *DetectTollgateCrossingsRequest) (*DetectTollgateCrossingsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DetectTollgateCrossings not implemented")
+func (UnimplementedDetectServiceServer) DetectCrossings(context.Context, *DetectCrossingsRequest) (*DetectCrossingsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DetectCrossings not implemented")
 }
 
 // UnsafeDetectServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -68,20 +68,20 @@ func RegisterDetectServiceServer(s grpc.ServiceRegistrar, srv DetectServiceServe
 	s.RegisterService(&DetectService_ServiceDesc, srv)
 }
 
-func _DetectService_DetectTollgateCrossings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DetectTollgateCrossingsRequest)
+func _DetectService_DetectCrossings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DetectCrossingsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DetectServiceServer).DetectTollgateCrossings(ctx, in)
+		return srv.(DetectServiceServer).DetectCrossings(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/omeapi.location.v1beta1.DetectService/DetectTollgateCrossings",
+		FullMethod: "/omeapi.location.v1beta1.DetectService/DetectCrossings",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DetectServiceServer).DetectTollgateCrossings(ctx, req.(*DetectTollgateCrossingsRequest))
+		return srv.(DetectServiceServer).DetectCrossings(ctx, req.(*DetectCrossingsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -94,8 +94,8 @@ var DetectService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*DetectServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "DetectTollgateCrossings",
-			Handler:    _DetectService_DetectTollgateCrossings_Handler,
+			MethodName: "DetectCrossings",
+			Handler:    _DetectService_DetectCrossings_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
