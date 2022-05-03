@@ -10,20 +10,15 @@ type ExitCoder interface {
 	ExitCode() int
 }
 
-func Exit(code int, errs ...error) {
-	if n := len(errs); n > 0 {
-		for i := 0; i < n; i++ {
-			if err := errs[i]; err != nil {
-				println(err.Error())
-				if code == 0 {
-					if ec, ok := err.(ExitCoder); ok {
-						code = ec.ExitCode()
-					}
-				}
-			}
+func Exit(err error) {
+	code := 0
+	if err != nil {
+		code = 1
+		if ec, ok := err.(ExitCoder); ok {
+			code = ec.ExitCode()
 		}
-		if code == 0 {
-			code = 1
+		if msg := err.Error(); len(msg) > 0 {
+			println(msg)
 		}
 	}
 	os.Exit(code)
