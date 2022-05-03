@@ -11,7 +11,7 @@ Two args required
 
 Run command example 
 ```shell
-go run main.go -t ../../pkg/tollgate/yaml/tollgates.yaml -l ../../pkg/location/csv/testdata/coopdrive-gps-pings-2022.04.06.csv
+go run omecrossdetect.go -t ../../pkg/tollgate/yaml/tollgates.yaml -l ../../pkg/location/csv/testdata/coopdrive-gps-pings-2022.04.06.csv
 ```
 
 # Output example
