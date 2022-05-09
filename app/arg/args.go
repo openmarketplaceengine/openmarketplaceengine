@@ -15,6 +15,7 @@ type (
 	Context = context.Context
 )
 
+//nolint
 type ArgSet struct {
 	FlagSet
 }
