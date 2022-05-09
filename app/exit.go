@@ -17,8 +17,8 @@ func Exit(err error) {
 		if ec, ok := err.(ExitCoder); ok {
 			code = ec.ExitCode()
 		}
-		if msg := err.Error(); len(msg) > 0 {
-			println(msg)
+		if code != 0 {
+			println(err.Error())
 		}
 	}
 	os.Exit(code)
