@@ -21,6 +21,8 @@ type GrpcServer struct {
 	reg []RegFun
 }
 
+var glog = log.Log()
+
 //-----------------------------------------------------------------------------
 
 func NewGrpcServer() *GrpcServer {
@@ -31,6 +33,9 @@ func NewGrpcServer() *GrpcServer {
 //-----------------------------------------------------------------------------
 
 func (s *GrpcServer) Boot() (err error) {
+
+	glog = log.Named("GRPC")
+
 	c := cfg.Grpc
 
 	addr := c.Addr()
@@ -41,7 +46,7 @@ func (s *GrpcServer) Boot() (err error) {
 		return
 	}
 
-	log.Infof("GRPC listening on %s", addr)
+	glog.Infof("listening on %s", addr)
 
 	s.srv = grpc.NewServer(s.configOptions()...)
 
@@ -77,6 +82,24 @@ func (s *GrpcServer) Register(fn RegFun) {
 
 //-----------------------------------------------------------------------------
 
+func (s *GrpcServer) Debugf(format string, args ...interface{}) {
+	glog.Debugf(format, args...)
+}
+
+func (s *GrpcServer) Infof(format string, args ...interface{}) {
+	glog.Infof(format, args...)
+}
+
+func (s *GrpcServer) Warnf(format string, args ...interface{}) {
+	glog.Warnf(format, args...)
+}
+
+func (s *GrpcServer) Errorf(format string, args ...interface{}) {
+	glog.Errorf(format, args...)
+}
+
+//-----------------------------------------------------------------------------
+
 func (s *GrpcServer) runreg(reg []RegFun) (err error) {
 	for i := 0; i < len(reg) && err == nil; i++ {
 		err = reg[i](s.srv)
@@ -89,7 +112,7 @@ func (s *GrpcServer) runreg(reg []RegFun) (err error) {
 func (s *GrpcServer) serve() {
 	err := s.srv.Serve(s.lsn)
 	if err != nil {
-		log.Errorf("GRPC serve error: %s", err)
+		glog.Errorf("serve error: %s", err)
 	}
 	cfg.Context().Stop()
 }
