@@ -6,15 +6,17 @@ option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/inte
 
 service WorkerService {
   rpc GetWorker(GetWorkerRequest) returns (GetWorkerResponse) {}
-  rpc UpdateWorker(UpdateWorkerRequest) returns (UpdateWorkerResponse) {}
+  rpc UpdateWorkerStatus(UpdateWorkerStatusRequest) returns (UpdateWorkerStatusResponse) {}
   rpc ListWorkers(ListWorkersRequest) returns (ListWorkersResponse) {}
 }
 
-enum WorkerState {
-  WORKER_STATE_UNSPECIFIED = 0;
-  WORKER_STATE_ONLINE = 1;
-  WORKER_STATE_OFFLINE = 2;
-  WORKER_STATE_ON_JOB = 3;
+enum WorkerStatus {
+  WORKER_STATUS_UNSPECIFIED = 0;
+  WORKER_STATUS_OFFLINE = 1;
+  WORKER_STATUS_READY = 2;
+  WORKER_STATUS_ON_JOB = 3;
+  WORKER_STATUS_PAUSED = 4;
+  WORKER_STATUS_DISABLED = 5;
 }
 
 message GetWorkerRequest {
@@ -25,24 +27,25 @@ message GetWorkerResponse {
   Worker worker = 1;
 }
 
-message UpdateWorkerRequest {
+message UpdateWorkerStatusRequest {
   string worker_id = 1;
-  WorkerState state = 2;
+  WorkerStatus status = 2;
 }
 
-message UpdateWorkerResponse {
-  Worker worker = 1;
+message UpdateWorkerStatusResponse {
+  string worker_id = 1;
+  WorkerStatus status = 2;
 }
 
 message ListWorkersRequest {
-  WorkerState state = 1;
+  WorkerStatus status = 1;
   int32 page_size = 2;
   string page_token = 3;
 }
 
 message Worker {
   string worker_id = 1;
-  WorkerState state = 2;
+  WorkerStatus status = 2;
 }
 
 message ListWorkersResponse {

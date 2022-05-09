@@ -6,9 +6,11 @@ import (
 	"net"
 	"testing"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
+
 	workerV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/worker/v1beta1"
 
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -16,6 +18,7 @@ import (
 )
 
 func TestController(t *testing.T) {
+	dom.WillTest(t, "test", true)
 	ctx := context.Background()
 	conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(dialer()))
 	defer func(conn *grpc.ClientConn) {
@@ -28,12 +31,12 @@ func TestController(t *testing.T) {
 	require.NoError(t, err)
 	client := workerV1beta1.NewWorkerServiceClient(conn)
 
-	t.Run("testSetState", func(t *testing.T) {
-		testSetState(t, client)
+	t.Run("testUpdateWorkerState", func(t *testing.T) {
+		testUpdateWorkerState(t, client)
 	})
 
-	t.Run("testQueryByState", func(t *testing.T) {
-		testQueryByState(t, client)
+	t.Run("testListWorkersByState", func(t *testing.T) {
+		testListWorkersByState(t, client)
 	})
 }
 
@@ -55,53 +58,61 @@ func dialer() func(context.Context, string) (net.Conn, error) {
 	}
 }
 
-func testSetState(t *testing.T, client workerV1beta1.WorkerServiceClient) {
-	id := uuid.NewString()
-	request := &workerV1beta1.UpdateWorkerRequest{
-		WorkerId: id,
-		State:    workerV1beta1.WorkerState_WORKER_STATE_ONLINE,
-	}
-	response, err := client.UpdateWorker(context.Background(), request)
-	require.NoError(t, err)
-	require.Equal(t, request.WorkerId, response.Worker.WorkerId)
+func testUpdateWorkerState(t *testing.T, client workerV1beta1.WorkerServiceClient) {
+	ctx := cfg.Context()
 
-	state, err := client.GetWorker(context.Background(), &workerV1beta1.GetWorkerRequest{
-		WorkerId: id,
+	worker := genWorker(Offline)
+	require.NoError(t, worker.Persist(ctx))
+
+	request := &workerV1beta1.UpdateWorkerStatusRequest{
+		WorkerId: worker.ID,
+		Status:   workerV1beta1.WorkerStatus_WORKER_STATUS_ON_JOB,
+	}
+	response, err := client.UpdateWorkerStatus(ctx, request)
+	require.NoError(t, err)
+	require.Equal(t, request.WorkerId, response.WorkerId)
+
+	state, err := client.GetWorker(ctx, &workerV1beta1.GetWorkerRequest{
+		WorkerId: worker.ID,
 	})
 	require.NoError(t, err)
 	require.Equal(t, request.WorkerId, state.Worker.WorkerId)
-	require.Equal(t, request.State, state.Worker.State, 0.001)
+	require.Equal(t, request.Status, state.Worker.Status)
 }
 
-func testQueryByState(t *testing.T, client workerV1beta1.WorkerServiceClient) {
-	id := uuid.NewString()
-	request1 := &workerV1beta1.UpdateWorkerRequest{
-		WorkerId: id,
-		State:    workerV1beta1.WorkerState_WORKER_STATE_ONLINE,
+func testListWorkersByState(t *testing.T, client workerV1beta1.WorkerServiceClient) {
+	ctx := cfg.Context()
+
+	worker := genWorker(Offline)
+	require.NoError(t, worker.Persist(ctx))
+
+	request1 := &workerV1beta1.UpdateWorkerStatusRequest{
+		WorkerId: worker.ID,
+		Status:   workerV1beta1.WorkerStatus_WORKER_STATUS_PAUSED,
 	}
-	request2 := &workerV1beta1.UpdateWorkerRequest{
-		WorkerId: id,
-		State:    workerV1beta1.WorkerState_WORKER_STATE_OFFLINE,
+	request2 := &workerV1beta1.UpdateWorkerStatusRequest{
+		WorkerId: worker.ID,
+		Status:   workerV1beta1.WorkerStatus_WORKER_STATUS_DISABLED,
 	}
-	_, err := client.UpdateWorker(context.Background(), request1)
+	_, err := client.UpdateWorkerStatus(context.Background(), request1)
 	require.NoError(t, err)
 
-	_, err = client.UpdateWorker(context.Background(), request2)
+	_, err = client.UpdateWorkerStatus(context.Background(), request2)
 	require.NoError(t, err)
 
 	r1, err := client.ListWorkers(context.Background(), &workerV1beta1.ListWorkersRequest{
-		State:     workerV1beta1.WorkerState_WORKER_STATE_ONLINE,
+		Status:    workerV1beta1.WorkerStatus_WORKER_STATUS_PAUSED,
 		PageSize:  10,
 		PageToken: "",
 	})
 	require.NoError(t, err)
-	require.Len(t, r1.Workers, 1)
+	require.Len(t, r1.Workers, 0)
 
 	r2, err := client.ListWorkers(context.Background(), &workerV1beta1.ListWorkersRequest{
-		State:     workerV1beta1.WorkerState_WORKER_STATE_ON_JOB,
+		Status:    workerV1beta1.WorkerStatus_WORKER_STATUS_DISABLED,
 		PageSize:  10,
 		PageToken: "",
 	})
 	require.NoError(t, err)
-	require.Len(t, r2.Workers, 0)
+	require.Len(t, r2.Workers, 1)
 }

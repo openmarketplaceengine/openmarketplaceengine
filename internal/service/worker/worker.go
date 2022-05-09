@@ -88,6 +88,43 @@ func GetWorker(ctx dom.Context, workerID dom.SUID) (wrk *Worker, has bool, err e
 	return
 }
 
+func QueryAll(ctx dom.Context, status *Status, limit int, offset int) ([]*Worker, error) {
+	query := dao.From(workerTable).
+		Select("*").
+		Limit(limit).
+		Offset(offset)
+
+	if status != nil {
+		query.Where("status = ?", status)
+	}
+
+	ary := make([]*Worker, 0, limit)
+	err := query.QueryRows(ctx, func(rows *dao.Rows) error {
+		for rows.Next() {
+			var w Worker
+			if err := rows.Scan(
+				&w.ID,
+				&w.Status,
+				&w.Rating,
+				&w.Jobs,
+				&w.FirstName,
+				&w.LastName,
+				&w.Vehicle,
+				&w.Created,
+				&w.Updated,
+			); err != nil {
+				return err
+			}
+			ary = append(ary, &w)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return ary, nil
+}
+
 //-----------------------------------------------------------------------------
 
 func GetWorkerStatus(ctx dom.Context, workerID dom.SUID) (Status, bool, error) {

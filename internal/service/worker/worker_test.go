@@ -26,6 +26,9 @@ func TestWorker(t *testing.T) {
 	t.Run("testGetWorker", func(t *testing.T) {
 		testGetWorker(t)
 	})
+	t.Run("testQueryAll", func(t *testing.T) {
+		testQueryAll(t)
+	})
 	t.Run("testWorkerStatus", func(t *testing.T) {
 		testWorkerStatus(t)
 	})
@@ -72,6 +75,24 @@ func testGetWorker(t *testing.T) {
 		require.Equal(t, wput, wget)
 		testGetWorkerStatus(t, ctx, wput)
 	}
+}
+
+func testQueryAll(t *testing.T) {
+	ctx := cfg.Context()
+	for i := 0; i < 20; i++ {
+		worker := genWorker(randStatus())
+		require.NoError(t, worker.Persist(ctx))
+	}
+
+	all0, err := QueryAll(ctx, nil, 10, 0)
+	require.NoError(t, err)
+	require.Len(t, all0, 10)
+
+	all1, err := QueryAll(ctx, nil, 10, 10)
+	require.NoError(t, err)
+	require.Len(t, all1, 10)
+
+	require.NotEqual(t, all0, all1)
 }
 
 func testWorkerStatus(t *testing.T) {

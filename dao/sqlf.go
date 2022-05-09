@@ -158,6 +158,11 @@ func (s *SQL) Limit(limit interface{}) *SQL {
 	return s
 }
 
+func (s *SQL) Offset(offset interface{}) *SQL {
+	s.stmt.Offset(offset)
+	return s
+}
+
 //-----------------------------------------------------------------------------
 // Query
 //-----------------------------------------------------------------------------
