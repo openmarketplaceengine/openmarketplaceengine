@@ -53,53 +53,12 @@ func mockEnum(last int) int {
 	return _rnd.Intn(last + 1)
 }
 
-func mockIntn(n int) int {
-	return _rnd.Intn(n)
-}
-
 func mockString(list ...string) string {
 	return list[_rnd.Intn(len(list))]
 }
 
 func mockRange(min, max int) int {
 	return _rnd.Intn(max-min+1) + min
-}
-
-//-----------------------------------------------------------------------------
-
-func mockFirstName() string {
-	n := _rnd.Intn(len(names))
-	return names[n][0]
-}
-
-func mockLastName() string {
-	n := _rnd.Intn(len(names))
-	return names[n][1]
-}
-
-//-----------------------------------------------------------------------------
-
-var names = [][2]string{
-	{"Jasmine", "Young"},
-	{"Samantha", "Thomson"},
-	{"Joseph", "Berry"},
-	{"Leah", "Thomson"},
-	{"Christopher", "Slater"},
-	{"Carl", "Paterson"},
-	{"Joan", "Skinner"},
-	{"Caroline", "Parr"},
-	{"Carl", "Peters"},
-	{"Kimberly", "Watson"},
-	{"Adam", "Bell"},
-	{"Matt", "Clarkson"},
-	{"Jan", "Jones"},
-	{"Isaac", "Young"},
-	{"Frank", "Ball"},
-	{"Steven", "Baker"},
-	{"Colin", "Churchill"},
-	{"Jane", "James"},
-	{"Warren", "Piper"},
-	{"Oliver", "Avery"},
 }
 
 //-----------------------------------------------------------------------------

@@ -1,16 +1,17 @@
-package dom
+package worker
 
 import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
 	"github.com/openmarketplaceengine/openmarketplaceengine/stat"
 )
 
 func init() {
 	wg := stat.App().Group("workers", "Workers stats")
-	wg.Add("status", "Workers status info", workerStatus)
+	wg.Add("status", "Workers by status", workersByStatus)
 }
 
-func workerStatus(ctx Context) (interface{}, error) {
+func workersByStatus(ctx dom.Context) (interface{}, error) {
 	//goland:noinspection GrazieInspection
 	const query = `
 		select a.name, count(worker.status)

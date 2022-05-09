@@ -1,29 +1,48 @@
-package dom
+package worker
 
 import (
 	"testing"
 	"time"
+
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 	"github.com/stretchr/testify/require"
 )
 
-//-----------------------------------------------------------------------------
+func TestWorker(t *testing.T) {
+	dom.WillTest(t, "test", true)
 
-func TestWorker_Persist(t *testing.T) {
-	WillTest(t, "test", true)
+	t.Run("testPersist", func(t *testing.T) {
+		testPersist(t)
+	})
+	t.Run("testVehiclePersist", func(t *testing.T) {
+		testVehiclePersist(t)
+	})
+	t.Run("testWorkerInsertConstraint", func(t *testing.T) {
+		testWorkerInsertConstraint(t)
+	})
+	t.Run("testGetWorker", func(t *testing.T) {
+		testGetWorker(t)
+	})
+	t.Run("testWorkerStatus", func(t *testing.T) {
+		testWorkerStatus(t)
+	})
+	t.Run("testRowsAffected", func(t *testing.T) {
+		testRowsAffected(t)
+	})
+}
+
+func testPersist(t *testing.T) {
 	ctx := cfg.Context()
 	for i := 0; i < 100; i++ {
-		wrk := genWorker()
+		wrk := genWorker(randStatus())
 		require.NoError(t, wrk.Persist(ctx))
 	}
 }
 
-//-----------------------------------------------------------------------------
-
-func TestWorkerVehicle_Persist(t *testing.T) {
-	WillTest(t, "test", true)
+func testVehiclePersist(t *testing.T) {
 	ctx := cfg.Context()
 	for i := 0; i < 100; i++ {
 		wv := genWorkerVehicle()
@@ -31,23 +50,17 @@ func TestWorkerVehicle_Persist(t *testing.T) {
 	}
 }
 
-//-----------------------------------------------------------------------------
-
-func TestWorker_InsertConstraint(t *testing.T) {
-	WillTest(t, "test", true)
-	wrk := genWorker()
+func testWorkerInsertConstraint(t *testing.T) {
+	wrk := genWorker(randStatus())
 	require.NoError(t, wrk.Persist(cfg.Context()))
 	err := wrk.Persist(cfg.Context())
 	require.True(t, dao.ErrUniqueViolation(err))
 }
 
-//-----------------------------------------------------------------------------
-
-func TestGetWorker(t *testing.T) {
-	WillTest(t, "test", true)
+func testGetWorker(t *testing.T) {
 	ctx := cfg.Context()
 	for i := 0; i < 100; i++ {
-		wput := genWorker()
+		wput := genWorker(randStatus())
 		require.NoError(t, wput.Persist(ctx))
 		wget, _, err := GetWorker(ctx, wput.ID)
 		require.NoError(t, err)
@@ -61,27 +74,23 @@ func TestGetWorker(t *testing.T) {
 	}
 }
 
-//-----------------------------------------------------------------------------
-
-func TestSetWorkerStatus(t *testing.T) {
-	WillTest(t, "test", true)
-	wrk := genWorker()
+func testWorkerStatus(t *testing.T) {
+	dom.WillTest(t, "test", true)
+	wrk := genWorker(randStatus())
 	ctx := cfg.Context()
 	require.NoError(t, wrk.Persist(ctx))
 	testGetWorkerStatus(t, ctx, wrk)
-	wrk.Status = WorkerStatus(mockEnum(WorkerDisabled))
+	wrk.Status = randStatus()
 	require.NoError(t, SetWorkerStatus(ctx, wrk.ID, wrk.Status))
 	testGetWorkerStatus(t, ctx, wrk)
 }
 
-//-----------------------------------------------------------------------------
-
-func TestWorker_RowsAffected(t *testing.T) {
-	WillTest(t, "test", true)
+func testRowsAffected(t *testing.T) {
+	dom.WillTest(t, "test", true)
 	max := 100
 	ctx := cfg.Context()
 	for i := 0; i < max; i++ {
-		wrk := genWorker()
+		wrk := genWorker(randStatus())
 		require.NoError(t, wrk.Persist(ctx))
 	}
 	sql := dao.Update(workerTable).Set("updated", time.Now())
@@ -89,34 +98,27 @@ func TestWorker_RowsAffected(t *testing.T) {
 	require.Equal(t, max, int(sql.RowsAffected()))
 }
 
-//-----------------------------------------------------------------------------
-// Helpers
-//-----------------------------------------------------------------------------
-
-func testGetWorkerStatus(t *testing.T, ctx Context, wput *Worker) {
+func testGetWorkerStatus(t *testing.T, ctx dom.Context, wput *Worker) {
 	status, _, er := GetWorkerStatus(ctx, wput.ID)
 	require.NoError(t, er)
 	require.Equal(t, wput.Status, status)
 }
 
-//-----------------------------------------------------------------------------
-
-func genWorker() *Worker {
-	stamp := mockStamp()
+func genWorker(status Status) *Worker {
+	stamp := dom.Time{}
+	stamp.Now()
 	return &Worker{
 		ID:        mockUUID("drv"),
-		Status:    WorkerStatus(mockEnum(WorkerDisabled)),
-		Rating:    int32(mockIntn(100)),
-		Jobs:      mockIntn(1_000),
-		FirstName: mockFirstName(),
-		LastName:  mockLastName(),
+		Status:    status,
+		Rating:    int32(randInt(100)),
+		Jobs:      randInt(1_000),
+		FirstName: randFirstName(),
+		LastName:  randLastName(),
 		Vehicle:   mockUUID("car"),
 		Created:   stamp,
 		Updated:   stamp,
 	}
 }
-
-//-----------------------------------------------------------------------------
 
 func genWorkerVehicle() *WorkerVehicle {
 	return &WorkerVehicle{
