@@ -30,7 +30,7 @@ func main() {
 }
 
 func setlog() {
-	log.SetOutput(os.Stdout)
-	log.SetFlags(0)
+	// log.SetOutput(os.Stdout)
+	log.SetFlags(log.Ltime)
 	log.SetPrefix("")
 }
