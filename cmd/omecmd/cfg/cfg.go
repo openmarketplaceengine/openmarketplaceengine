@@ -9,9 +9,12 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"time"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/app"
 	"github.com/openmarketplaceengine/openmarketplaceengine/app/enc/uri"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"gopkg.in/yaml.v2"
 )
 
@@ -20,13 +23,21 @@ const (
 	defAddr = "localhost:8090"
 )
 
+const (
+	defTimeout = 5
+	minTimeout = 0
+	maxTimeout = 60
+)
+
 type Cmdcfg struct {
-	Server string
-	debug  bool
+	Server  string
+	timeout int64 // connection timeout in seconds
+	debug   bool
 }
 
 var _cfg = Cmdcfg{
-	Server: defAddr,
+	Server:  defAddr,
+	timeout: defTimeout,
 }
 
 var file = &app.Client().Dirs.ConfFile
@@ -90,4 +101,32 @@ func SafeClose(c io.Closer) {
 	if c != nil {
 		_ = c.Close()
 	}
+}
+
+//-----------------------------------------------------------------------------
+
+func timeout() time.Duration {
+	t := _cfg.timeout
+	if t < minTimeout || t > maxTimeout {
+		t = defTimeout
+	}
+	return time.Duration(t) * time.Second
+}
+
+//-----------------------------------------------------------------------------
+
+func Dial(ctx context.Context) (*grpc.ClientConn, error) {
+	srv := _cfg.Server
+	Debugf("connecting to %s", srv)
+	timectx, cancel := context.WithTimeout(ctx, timeout())
+	con, err := grpc.DialContext(timectx, srv, grpc.WithBlock(), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	cancel()
+	if err != nil {
+		if err == context.DeadlineExceeded {
+			err = fmt.Errorf("connection timeout %s", srv)
+		}
+		return nil, err
+	}
+	Debugf("connection established")
+	return con, nil
 }
