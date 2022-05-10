@@ -5,5 +5,5 @@
 package svc
 
 import (
-	_ "github.com/openmarketplaceengine/openmarketplaceengine/svc/status"
+	_ "github.com/openmarketplaceengine/openmarketplaceengine/svc/status" //nolint
 )
