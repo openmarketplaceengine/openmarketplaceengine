@@ -65,6 +65,19 @@ func ParseWithDefaultScheme(rawURL string, scheme string) (*url.URL, error) {
 	return u, nil
 }
 
+//-----------------------------------------------------------------------------
+
+func CheckHostPort(addr string) (string, error) {
+	addr = strings.ToLower(addr)
+	host, _, err := SplitHostPort(addr)
+	if err == nil {
+		err = checkHost(host)
+	}
+	return addr, err
+}
+
+//-----------------------------------------------------------------------------
+
 // SplitHostPort splits network address of the form "host:port" into
 // host and port. Unlike net.SplitHostPort(), it doesn't remove brackets
 // from [IPv6] host.
@@ -72,18 +85,16 @@ func SplitHostPort(addr string) (host, port string, err error) {
 	n := len(addr)
 
 	host = addr
+	sepa := false
 
 loop:
 	for n > 0 {
 		c := addr[n-1]
 		switch c {
 		case ':':
-			if n == len(addr) {
-				err = parseError(addr, ErrEmptyPort)
-				return
-			}
 			host = addr[:n-1]
 			port = addr[n:]
+			sepa = true
 			break loop
 		case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 			n--
@@ -98,6 +109,9 @@ loop:
 	}
 
 	if len(port) == 0 {
+		if sepa {
+			err = parseError(addr, ErrEmptyPort)
+		}
 		return
 	}
 
@@ -115,7 +129,7 @@ loop:
 //-----------------------------------------------------------------------------
 
 func parseError(URL string, err error) error {
-	return &url.Error{Op: "error parsing URL", URL: URL, Err: err}
+	return &url.Error{Op: "error parsing", URL: URL, Err: err}
 }
 
 //-----------------------------------------------------------------------------

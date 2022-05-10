@@ -126,7 +126,8 @@ func TestSplitHostPort(t *testing.T) {
 		fail error
 	}{
 		{"", "", "", ErrEmptyHost},
-		{":", "", "", ErrEmptyPort},
+		{":", "", "", ErrEmptyHost},
+		{"xxx:", "", "", ErrEmptyPort},
 		{":8080", "", "", ErrEmptyHost},
 		{"localhost", "localhost", "", nil},
 		{"localhost:8080", "localhost", "8080", nil},
