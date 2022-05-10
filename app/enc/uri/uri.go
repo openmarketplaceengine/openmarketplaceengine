@@ -12,7 +12,7 @@ func Join(addr string, pathElem ...string) string {
 	}
 	full := path.Join(pathElem...)
 	plen := len(full)
-	if plen == 0 || (plen == 1 && full[0] == '.') {
+	if plen == 0 || (plen == 1 && (full[0] == '.' || full[0] == '/')) {
 		return addr
 	}
 	alen := len(addr)
