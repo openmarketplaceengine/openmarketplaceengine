@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.28.0
 // 	protoc        (unknown)
-// source: uptime/v1/uptime.proto
+// source: status/v1/uptime.proto
 
 package v1
 
@@ -34,7 +34,7 @@ type UptimeResponse struct {
 func (x *UptimeResponse) Reset() {
 	*x = UptimeResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_uptime_v1_uptime_proto_msgTypes[0]
+		mi := &file_status_v1_uptime_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -47,7 +47,7 @@ func (x *UptimeResponse) String() string {
 func (*UptimeResponse) ProtoMessage() {}
 
 func (x *UptimeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_uptime_v1_uptime_proto_msgTypes[0]
+	mi := &file_status_v1_uptime_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -60,7 +60,7 @@ func (x *UptimeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UptimeResponse.ProtoReflect.Descriptor instead.
 func (*UptimeResponse) Descriptor() ([]byte, []int) {
-	return file_uptime_v1_uptime_proto_rawDescGZIP(), []int{0}
+	return file_status_v1_uptime_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *UptimeResponse) GetUptime() int64 {
@@ -77,12 +77,12 @@ func (x *UptimeResponse) GetStarted() *timestamppb.Timestamp {
 	return nil
 }
 
-var File_uptime_v1_uptime_proto protoreflect.FileDescriptor
+var File_status_v1_uptime_proto protoreflect.FileDescriptor
 
-var file_uptime_v1_uptime_proto_rawDesc = []byte{
-	0x0a, 0x16, 0x75, 0x70, 0x74, 0x69, 0x6d, 0x65, 0x2f, 0x76, 0x31, 0x2f, 0x75, 0x70, 0x74, 0x69,
-	0x6d, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x0d, 0x61, 0x70, 0x69, 0x2e, 0x75, 0x70,
-	0x74, 0x69, 0x6d, 0x65, 0x2e, 0x76, 0x31, 0x1a, 0x1b, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2f,
+var file_status_v1_uptime_proto_rawDesc = []byte{
+	0x0a, 0x16, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x2f, 0x76, 0x31, 0x2f, 0x75, 0x70, 0x74, 0x69,
+	0x6d, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x0d, 0x61, 0x70, 0x69, 0x2e, 0x73, 0x74,
+	0x61, 0x74, 0x75, 0x73, 0x2e, 0x76, 0x31, 0x1a, 0x1b, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2f,
 	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f, 0x65, 0x6d, 0x70, 0x74, 0x79, 0x2e, 0x70,
 	0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1f, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2f, 0x70, 0x72, 0x6f,
 	0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f, 0x74, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x2e,
@@ -96,34 +96,34 @@ var file_uptime_v1_uptime_proto_rawDesc = []byte{
 	0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x44, 0x0a, 0x09, 0x47, 0x65, 0x74, 0x55, 0x70, 0x74,
 	0x69, 0x6d, 0x65, 0x12, 0x16, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f,
 	0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x1a, 0x1d, 0x2e, 0x61, 0x70,
-	0x69, 0x2e, 0x75, 0x70, 0x74, 0x69, 0x6d, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x55, 0x70, 0x74, 0x69,
+	0x69, 0x2e, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x2e, 0x76, 0x31, 0x2e, 0x55, 0x70, 0x74, 0x69,
 	0x6d, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x42, 0x0f, 0x5a, 0x0d,
-	0x61, 0x70, 0x69, 0x2f, 0x75, 0x70, 0x74, 0x69, 0x6d, 0x65, 0x2f, 0x76, 0x31, 0x62, 0x06, 0x70,
+	0x61, 0x70, 0x69, 0x2f, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x2f, 0x76, 0x31, 0x62, 0x06, 0x70,
 	0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
-	file_uptime_v1_uptime_proto_rawDescOnce sync.Once
-	file_uptime_v1_uptime_proto_rawDescData = file_uptime_v1_uptime_proto_rawDesc
+	file_status_v1_uptime_proto_rawDescOnce sync.Once
+	file_status_v1_uptime_proto_rawDescData = file_status_v1_uptime_proto_rawDesc
 )
 
-func file_uptime_v1_uptime_proto_rawDescGZIP() []byte {
-	file_uptime_v1_uptime_proto_rawDescOnce.Do(func() {
-		file_uptime_v1_uptime_proto_rawDescData = protoimpl.X.CompressGZIP(file_uptime_v1_uptime_proto_rawDescData)
+func file_status_v1_uptime_proto_rawDescGZIP() []byte {
+	file_status_v1_uptime_proto_rawDescOnce.Do(func() {
+		file_status_v1_uptime_proto_rawDescData = protoimpl.X.CompressGZIP(file_status_v1_uptime_proto_rawDescData)
 	})
-	return file_uptime_v1_uptime_proto_rawDescData
+	return file_status_v1_uptime_proto_rawDescData
 }
 
-var file_uptime_v1_uptime_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-var file_uptime_v1_uptime_proto_goTypes = []interface{}{
-	(*UptimeResponse)(nil),        // 0: api.uptime.v1.UptimeResponse
+var file_status_v1_uptime_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_status_v1_uptime_proto_goTypes = []interface{}{
+	(*UptimeResponse)(nil),        // 0: api.status.v1.UptimeResponse
 	(*timestamppb.Timestamp)(nil), // 1: google.protobuf.Timestamp
 	(*emptypb.Empty)(nil),         // 2: google.protobuf.Empty
 }
-var file_uptime_v1_uptime_proto_depIdxs = []int32{
-	1, // 0: api.uptime.v1.UptimeResponse.started:type_name -> google.protobuf.Timestamp
-	2, // 1: api.uptime.v1.UptimeService.GetUptime:input_type -> google.protobuf.Empty
-	0, // 2: api.uptime.v1.UptimeService.GetUptime:output_type -> api.uptime.v1.UptimeResponse
+var file_status_v1_uptime_proto_depIdxs = []int32{
+	1, // 0: api.status.v1.UptimeResponse.started:type_name -> google.protobuf.Timestamp
+	2, // 1: api.status.v1.UptimeService.GetUptime:input_type -> google.protobuf.Empty
+	0, // 2: api.status.v1.UptimeService.GetUptime:output_type -> api.status.v1.UptimeResponse
 	2, // [2:3] is the sub-list for method output_type
 	1, // [1:2] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
@@ -131,13 +131,13 @@ var file_uptime_v1_uptime_proto_depIdxs = []int32{
 	0, // [0:1] is the sub-list for field type_name
 }
 
-func init() { file_uptime_v1_uptime_proto_init() }
-func file_uptime_v1_uptime_proto_init() {
-	if File_uptime_v1_uptime_proto != nil {
+func init() { file_status_v1_uptime_proto_init() }
+func file_status_v1_uptime_proto_init() {
+	if File_status_v1_uptime_proto != nil {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_uptime_v1_uptime_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_status_v1_uptime_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*UptimeResponse); i {
 			case 0:
 				return &v.state
@@ -154,18 +154,18 @@ func file_uptime_v1_uptime_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_uptime_v1_uptime_proto_rawDesc,
+			RawDescriptor: file_status_v1_uptime_proto_rawDesc,
 			NumEnums:      0,
 			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_uptime_v1_uptime_proto_goTypes,
-		DependencyIndexes: file_uptime_v1_uptime_proto_depIdxs,
-		MessageInfos:      file_uptime_v1_uptime_proto_msgTypes,
+		GoTypes:           file_status_v1_uptime_proto_goTypes,
+		DependencyIndexes: file_status_v1_uptime_proto_depIdxs,
+		MessageInfos:      file_status_v1_uptime_proto_msgTypes,
 	}.Build()
-	File_uptime_v1_uptime_proto = out.File
-	file_uptime_v1_uptime_proto_rawDesc = nil
-	file_uptime_v1_uptime_proto_goTypes = nil
-	file_uptime_v1_uptime_proto_depIdxs = nil
+	File_status_v1_uptime_proto = out.File
+	file_status_v1_uptime_proto_rawDesc = nil
+	file_status_v1_uptime_proto_goTypes = nil
+	file_status_v1_uptime_proto_depIdxs = nil
 }
