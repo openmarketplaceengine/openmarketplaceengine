@@ -7,6 +7,7 @@ package cfg
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/app"
@@ -16,7 +17,7 @@ import (
 
 const (
 	CfgFile = "omecmd.yaml"
-	defAddr = "http://localhost:8090"
+	defAddr = "localhost:8090"
 )
 
 type Cmdcfg struct {
@@ -34,7 +35,7 @@ var file = &app.Client().Dirs.ConfFile
 
 func init() {
 	args := &app.Client().Args
-	args.String("s", "OME gRPC `server address`", srvArg).Option(true).DefVal(defAddr)
+	args.String("s", "OME gRPC server `address`", srvArg).Option(true).DefVal(defAddr)
 	args.BoolVar(&_cfg.debug, "d", false, "Enable debug output")
 }
 
@@ -44,11 +45,11 @@ func srvArg(_ context.Context, arg string) error {
 	if _cfg.Server == arg {
 		return nil
 	}
-	url, err := uri.Parse(arg)
+	host, err := uri.CheckHostPort(arg)
 	if err != nil {
 		return err
 	}
-	_cfg.Server = url.String()
+	_cfg.Server = host
 	log.Println("using gRPC server:", _cfg.Server)
 	return file.Encode(&_cfg, 0, yaml.Marshal)
 }
@@ -80,5 +81,13 @@ func Server(pathElem ...string) string {
 func Debugf(format string, args ...interface{}) {
 	if _cfg.debug {
 		log.Printf(format, args...)
+	}
+}
+
+//-----------------------------------------------------------------------------
+
+func SafeClose(c io.Closer) {
+	if c != nil {
+		_ = c.Close()
 	}
 }
