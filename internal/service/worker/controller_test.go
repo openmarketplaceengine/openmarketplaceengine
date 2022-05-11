@@ -37,7 +37,9 @@ func TestController(t *testing.T) {
 	t.Run("testUpdateWorkerState", func(t *testing.T) {
 		testUpdateWorkerState(t, client)
 	})
-
+	t.Run("testUpdateWorkerStateBadRequest", func(t *testing.T) {
+		testUpdateWorkerStateBadRequest(t, client)
+	})
 	t.Run("testListWorkersByState", func(t *testing.T) {
 		testListWorkersByState(t, client)
 	})
@@ -81,6 +83,27 @@ func testUpdateWorkerState(t *testing.T, client workerV1beta1.WorkerServiceClien
 	require.NoError(t, err)
 	require.Equal(t, request.WorkerId, state.Worker.WorkerId)
 	require.Equal(t, request.Status, state.Worker.Status)
+}
+
+func testUpdateWorkerStateBadRequest(t *testing.T, client workerV1beta1.WorkerServiceClient) {
+	ctx := cfg.Context()
+
+	w := newWorker()
+	require.NoError(t, w.Persist(ctx))
+
+	_, err := client.UpdateWorkerStatus(ctx, &workerV1beta1.UpdateWorkerStatusRequest{
+		WorkerId: w.ID,
+	},
+	)
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "bad request")
+
+	_, err = client.UpdateWorkerStatus(ctx, &workerV1beta1.UpdateWorkerStatusRequest{
+		WorkerId: w.ID,
+		Status:   workerV1beta1.WorkerStatus_WORKER_STATUS_DISABLED,
+	},
+	)
+	require.NoError(t, err)
 }
 
 func testListWorkersByState(t *testing.T, client workerV1beta1.WorkerServiceClient) {

@@ -173,17 +173,7 @@ func transformStatusFrom(sta workerV1beta1.WorkerStatus) *worker.Status {
 // Controller API is explicit about status payload.
 func ValidateStatus(value interface{}) error {
 	v, ok := value.(workerV1beta1.WorkerStatus)
-	if !ok {
-		return fmt.Errorf("illegal status: %v", value)
-	}
-	switch v {
-	case workerV1beta1.WorkerStatus_WORKER_STATUS_OFFLINE:
-	case workerV1beta1.WorkerStatus_WORKER_STATUS_READY:
-	case workerV1beta1.WorkerStatus_WORKER_STATUS_ON_JOB:
-	case workerV1beta1.WorkerStatus_WORKER_STATUS_PAUSED:
-	case workerV1beta1.WorkerStatus_WORKER_STATUS_DISABLED:
-		break
-	default:
+	if !ok || v == 0 {
 		return fmt.Errorf("illegal status: %v", value)
 	}
 	return nil
