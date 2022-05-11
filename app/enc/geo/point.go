@@ -10,10 +10,13 @@ import (
 	"math"
 )
 
+const (
+	WKBPointLen = 50
+)
+
 func DecodePointWKB(src string) (lat, lon float64, err error) {
 	const fename = "DecodePointWKB"
-	const srclen = 50
-	if len(src) != srclen {
+	if len(src) != WKBPointLen {
 		return 0, 0, funcError{fename, ErrSrcLen}
 	}
 	var val []byte
