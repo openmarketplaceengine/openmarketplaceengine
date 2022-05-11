@@ -90,14 +90,10 @@ func (c *Controller) UpdateWorkerStatus(ctx context.Context, request *workerV1be
 		return nil, st.Err()
 	}
 	s := transformStatusFrom(workerStatus)
-	err := worker.SetWorkerStatus(ctx, workerID, s)
+	err := worker.SetWorkerStatus(ctx, workerID, *s)
 
 	if err != nil {
 		st := status.Newf(codes.Internal, "update worker status error: %s", err)
-		st, err = st.WithDetails(request)
-		if err != nil {
-			panic(fmt.Errorf("enrich grpc status with details error: %w", err))
-		}
 		return nil, st.Err()
 	}
 
@@ -114,21 +110,16 @@ func (c *Controller) ListWorkers(ctx context.Context, request *workerV1beta1.Lis
 	var v validate.Validator
 	v.ValidateString("page_token", pageToken, validate.IsNotNull)
 	v.Validate("page_size", pageSize, ValidatePageSize)
-	v.Validate("status", st, ValidateStatus)
 
-	var s worker.Status
+	var s *worker.Status
 	if st != workerV1beta1.WorkerStatus_WORKER_STATUS_UNSPECIFIED {
 		s = transformStatusFrom(st)
 	}
 	//todo make use of page_token as offset
-	all, err := worker.QueryAll(ctx, &s, int(pageSize), 0)
+	all, err := worker.QueryAll(ctx, s, int(pageSize), 0)
 
 	if err != nil {
 		st := status.Newf(codes.Internal, "query all error: %s", err)
-		st, err = st.WithDetails(request)
-		if err != nil {
-			panic(fmt.Errorf("enrich grpc status with details error: %w", err))
-		}
 		return nil, st.Err()
 	}
 
@@ -170,18 +161,20 @@ func transformWorker(wrk *worker.Worker) *workerV1beta1.Worker {
 	}
 }
 
-func transformStatusFrom(sta workerV1beta1.WorkerStatus) worker.Status {
+func transformStatusFrom(sta workerV1beta1.WorkerStatus) *worker.Status {
 	s, ok := statusFrom[sta]
 	if !ok {
-		s = worker.Offline
+		return nil
 	}
-	return s
+	return &s
 }
 
+// ValidateStatus should not allow UNSPECIFIED status to pass through, as
+// Controller API is explicit about status payload.
 func ValidateStatus(value interface{}) error {
 	v, ok := value.(workerV1beta1.WorkerStatus)
 	if !ok {
-		return fmt.Errorf("not a status value: %v", value)
+		return fmt.Errorf("illegal status: %v", value)
 	}
 	switch v {
 	case workerV1beta1.WorkerStatus_WORKER_STATUS_OFFLINE:
@@ -191,7 +184,7 @@ func ValidateStatus(value interface{}) error {
 	case workerV1beta1.WorkerStatus_WORKER_STATUS_DISABLED:
 		break
 	default:
-		return fmt.Errorf("unknown status value: %v", value)
+		return fmt.Errorf("illegal status: %v", value)
 	}
 	return nil
 }
@@ -201,5 +194,5 @@ func ValidatePageSize(value interface{}) error {
 	if ok && v > 0 {
 		return nil
 	}
-	return fmt.Errorf("wrong page_size value: %v", value)
+	return fmt.Errorf("illegal page_size: %v", value)
 }
