@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/worker"
+
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/validate"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
@@ -45,7 +47,7 @@ func (c *Controller) GetWorker(ctx context.Context, request *workerV1beta1.GetWo
 		return nil, st.Err()
 	}
 
-	worker, has, err := GetWorker(ctx, request.WorkerId)
+	wrk, has, err := worker.GetWorker(ctx, request.WorkerId)
 
 	if err != nil {
 		st := status.Newf(codes.Internal, "get worker error: %s", err)
@@ -65,7 +67,7 @@ func (c *Controller) GetWorker(ctx context.Context, request *workerV1beta1.GetWo
 		return nil, st.Err()
 	}
 
-	w := transformWorker(worker)
+	w := transformWorker(wrk)
 	return &workerV1beta1.GetWorkerResponse{
 		Worker: w,
 	}, nil
@@ -88,7 +90,7 @@ func (c *Controller) UpdateWorkerStatus(ctx context.Context, request *workerV1be
 		return nil, st.Err()
 	}
 	s := transformStatusFrom(workerStatus)
-	err := SetWorkerStatus(ctx, workerID, s)
+	err := worker.SetWorkerStatus(ctx, workerID, s)
 
 	if err != nil {
 		st := status.Newf(codes.Internal, "update worker status error: %s", err)
@@ -114,12 +116,12 @@ func (c *Controller) ListWorkers(ctx context.Context, request *workerV1beta1.Lis
 	v.Validate("page_size", pageSize, ValidatePageSize)
 	v.Validate("status", st, ValidateStatus)
 
-	var s Status
+	var s worker.Status
 	if st != workerV1beta1.WorkerStatus_WORKER_STATUS_UNSPECIFIED {
 		s = transformStatusFrom(st)
 	}
 	//todo make use of page_token as offset
-	all, err := QueryAll(ctx, &s, int(pageSize), 0)
+	all, err := worker.QueryAll(ctx, &s, int(pageSize), 0)
 
 	if err != nil {
 		st := status.Newf(codes.Internal, "query all error: %s", err)
@@ -141,23 +143,23 @@ func (c *Controller) ListWorkers(ctx context.Context, request *workerV1beta1.Lis
 	}, nil
 }
 
-var statusTo = map[Status]workerV1beta1.WorkerStatus{
-	Offline:  workerV1beta1.WorkerStatus_WORKER_STATUS_OFFLINE,
-	Ready:    workerV1beta1.WorkerStatus_WORKER_STATUS_READY,
-	OnJob:    workerV1beta1.WorkerStatus_WORKER_STATUS_ON_JOB,
-	Paused:   workerV1beta1.WorkerStatus_WORKER_STATUS_PAUSED,
-	Disabled: workerV1beta1.WorkerStatus_WORKER_STATUS_DISABLED,
+var statusTo = map[worker.Status]workerV1beta1.WorkerStatus{
+	worker.Offline:  workerV1beta1.WorkerStatus_WORKER_STATUS_OFFLINE,
+	worker.Ready:    workerV1beta1.WorkerStatus_WORKER_STATUS_READY,
+	worker.OnJob:    workerV1beta1.WorkerStatus_WORKER_STATUS_ON_JOB,
+	worker.Paused:   workerV1beta1.WorkerStatus_WORKER_STATUS_PAUSED,
+	worker.Disabled: workerV1beta1.WorkerStatus_WORKER_STATUS_DISABLED,
 }
 
-var statusFrom = map[workerV1beta1.WorkerStatus]Status{
-	workerV1beta1.WorkerStatus_WORKER_STATUS_OFFLINE:  Offline,
-	workerV1beta1.WorkerStatus_WORKER_STATUS_READY:    Ready,
-	workerV1beta1.WorkerStatus_WORKER_STATUS_ON_JOB:   OnJob,
-	workerV1beta1.WorkerStatus_WORKER_STATUS_PAUSED:   Paused,
-	workerV1beta1.WorkerStatus_WORKER_STATUS_DISABLED: Disabled,
+var statusFrom = map[workerV1beta1.WorkerStatus]worker.Status{
+	workerV1beta1.WorkerStatus_WORKER_STATUS_OFFLINE:  worker.Offline,
+	workerV1beta1.WorkerStatus_WORKER_STATUS_READY:    worker.Ready,
+	workerV1beta1.WorkerStatus_WORKER_STATUS_ON_JOB:   worker.OnJob,
+	workerV1beta1.WorkerStatus_WORKER_STATUS_PAUSED:   worker.Paused,
+	workerV1beta1.WorkerStatus_WORKER_STATUS_DISABLED: worker.Disabled,
 }
 
-func transformWorker(wrk *Worker) *workerV1beta1.Worker {
+func transformWorker(wrk *worker.Worker) *workerV1beta1.Worker {
 	s, ok := statusTo[wrk.Status]
 	if !ok {
 		s = workerV1beta1.WorkerStatus_WORKER_STATUS_UNSPECIFIED
@@ -168,10 +170,10 @@ func transformWorker(wrk *Worker) *workerV1beta1.Worker {
 	}
 }
 
-func transformStatusFrom(sta workerV1beta1.WorkerStatus) Status {
+func transformStatusFrom(sta workerV1beta1.WorkerStatus) worker.Status {
 	s, ok := statusFrom[sta]
 	if !ok {
-		s = Offline
+		s = worker.Offline
 	}
 	return s
 }

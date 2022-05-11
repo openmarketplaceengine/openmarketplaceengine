@@ -6,6 +6,9 @@ import (
 	"net"
 	"testing"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/worker"
+
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
 
@@ -61,11 +64,11 @@ func dialer() func(context.Context, string) (net.Conn, error) {
 func testUpdateWorkerState(t *testing.T, client workerV1beta1.WorkerServiceClient) {
 	ctx := cfg.Context()
 
-	worker := genWorker(Offline)
-	require.NoError(t, worker.Persist(ctx))
+	w := newWorker()
+	require.NoError(t, w.Persist(ctx))
 
 	request := &workerV1beta1.UpdateWorkerStatusRequest{
-		WorkerId: worker.ID,
+		WorkerId: w.ID,
 		Status:   workerV1beta1.WorkerStatus_WORKER_STATUS_ON_JOB,
 	}
 	response, err := client.UpdateWorkerStatus(ctx, request)
@@ -73,7 +76,7 @@ func testUpdateWorkerState(t *testing.T, client workerV1beta1.WorkerServiceClien
 	require.Equal(t, request.WorkerId, response.WorkerId)
 
 	state, err := client.GetWorker(ctx, &workerV1beta1.GetWorkerRequest{
-		WorkerId: worker.ID,
+		WorkerId: w.ID,
 	})
 	require.NoError(t, err)
 	require.Equal(t, request.WorkerId, state.Worker.WorkerId)
@@ -83,15 +86,15 @@ func testUpdateWorkerState(t *testing.T, client workerV1beta1.WorkerServiceClien
 func testListWorkersByState(t *testing.T, client workerV1beta1.WorkerServiceClient) {
 	ctx := cfg.Context()
 
-	worker := genWorker(Offline)
-	require.NoError(t, worker.Persist(ctx))
+	w := newWorker()
+	require.NoError(t, w.Persist(ctx))
 
 	request1 := &workerV1beta1.UpdateWorkerStatusRequest{
-		WorkerId: worker.ID,
+		WorkerId: w.ID,
 		Status:   workerV1beta1.WorkerStatus_WORKER_STATUS_PAUSED,
 	}
 	request2 := &workerV1beta1.UpdateWorkerStatusRequest{
-		WorkerId: worker.ID,
+		WorkerId: w.ID,
 		Status:   workerV1beta1.WorkerStatus_WORKER_STATUS_DISABLED,
 	}
 	_, err := client.UpdateWorkerStatus(context.Background(), request1)
@@ -115,4 +118,20 @@ func testListWorkersByState(t *testing.T, client workerV1beta1.WorkerServiceClie
 	})
 	require.NoError(t, err)
 	require.Len(t, r2.Workers, 1)
+}
+
+func newWorker() *worker.Worker {
+	stamp := dom.Time{}
+	stamp.Now()
+	return &worker.Worker{
+		ID:        dao.MockUUID(),
+		Status:    worker.Ready,
+		Rating:    0,
+		Jobs:      0,
+		FirstName: "",
+		LastName:  "",
+		Vehicle:   "",
+		Created:   stamp,
+		Updated:   stamp,
+	}
 }

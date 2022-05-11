@@ -40,7 +40,7 @@ func TestWorker(t *testing.T) {
 func testPersist(t *testing.T) {
 	ctx := cfg.Context()
 	for i := 0; i < 100; i++ {
-		wrk := genWorker(randStatus())
+		wrk := newWorker(randStatus())
 		require.NoError(t, wrk.Persist(ctx))
 	}
 }
@@ -48,13 +48,13 @@ func testPersist(t *testing.T) {
 func testVehiclePersist(t *testing.T) {
 	ctx := cfg.Context()
 	for i := 0; i < 100; i++ {
-		wv := genWorkerVehicle()
+		wv := newWorkerVehicle()
 		require.NoError(t, wv.Persist(ctx))
 	}
 }
 
 func testWorkerInsertConstraint(t *testing.T) {
-	wrk := genWorker(randStatus())
+	wrk := newWorker(randStatus())
 	require.NoError(t, wrk.Persist(cfg.Context()))
 	err := wrk.Persist(cfg.Context())
 	require.True(t, dao.ErrUniqueViolation(err))
@@ -63,7 +63,7 @@ func testWorkerInsertConstraint(t *testing.T) {
 func testGetWorker(t *testing.T) {
 	ctx := cfg.Context()
 	for i := 0; i < 100; i++ {
-		wput := genWorker(randStatus())
+		wput := newWorker(randStatus())
 		require.NoError(t, wput.Persist(ctx))
 		wget, _, err := GetWorker(ctx, wput.ID)
 		require.NoError(t, err)
@@ -80,7 +80,7 @@ func testGetWorker(t *testing.T) {
 func testQueryAll(t *testing.T) {
 	ctx := cfg.Context()
 	for i := 0; i < 20; i++ {
-		worker := genWorker(randStatus())
+		worker := newWorker(randStatus())
 		require.NoError(t, worker.Persist(ctx))
 	}
 
@@ -97,7 +97,7 @@ func testQueryAll(t *testing.T) {
 
 func testWorkerStatus(t *testing.T) {
 	dom.WillTest(t, "test", true)
-	wrk := genWorker(randStatus())
+	wrk := newWorker(randStatus())
 	ctx := cfg.Context()
 	require.NoError(t, wrk.Persist(ctx))
 	testGetWorkerStatus(t, ctx, wrk)
@@ -111,7 +111,7 @@ func testRowsAffected(t *testing.T) {
 	max := 100
 	ctx := cfg.Context()
 	for i := 0; i < max; i++ {
-		wrk := genWorker(randStatus())
+		wrk := newWorker(randStatus())
 		require.NoError(t, wrk.Persist(ctx))
 	}
 	sql := dao.Update(workerTable).Set("updated", time.Now())
@@ -125,7 +125,7 @@ func testGetWorkerStatus(t *testing.T, ctx dom.Context, wput *Worker) {
 	require.Equal(t, wput.Status, status)
 }
 
-func genWorker(status Status) *Worker {
+func newWorker(status Status) *Worker {
 	stamp := dom.Time{}
 	stamp.Now()
 	return &Worker{
@@ -141,7 +141,7 @@ func genWorker(status Status) *Worker {
 	}
 }
 
-func genWorkerVehicle() *WorkerVehicle {
+func newWorkerVehicle() *WorkerVehicle {
 	return &WorkerVehicle{
 		Worker:  mockUUID("drv"),
 		Vehicle: mockUUID("car"),
