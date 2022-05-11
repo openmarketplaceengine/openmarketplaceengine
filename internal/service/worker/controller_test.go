@@ -100,7 +100,7 @@ func testUpdateWorkerStateBadRequest(t *testing.T, client workerV1beta1.WorkerSe
 
 	_, err = client.UpdateWorkerStatus(ctx, &workerV1beta1.UpdateWorkerStatusRequest{
 		WorkerId: w.ID,
-		Status:   workerV1beta1.WorkerStatus_WORKER_STATUS_DISABLED,
+		Status:   workerV1beta1.WorkerStatus_WORKER_STATUS_OFFLINE,
 	},
 	)
 	require.NoError(t, err)
