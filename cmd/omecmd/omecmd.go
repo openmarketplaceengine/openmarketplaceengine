@@ -10,6 +10,7 @@ import (
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/app"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cmd/omecmd/cfg"
+	_ "github.com/openmarketplaceengine/openmarketplaceengine/cmd/omecmd/job"
 	_ "github.com/openmarketplaceengine/openmarketplaceengine/cmd/omecmd/status"
 )
 
@@ -31,6 +32,6 @@ func main() {
 
 func setlog() {
 	// log.SetOutput(os.Stdout)
-	log.SetFlags(log.Ltime)
+	log.SetFlags(log.Ltime | log.Lmicroseconds)
 	log.SetPrefix("")
 }
