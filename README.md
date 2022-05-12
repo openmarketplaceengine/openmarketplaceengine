@@ -6,6 +6,12 @@
   A matchmaking system for labor platforms.
 </p>
 
+![Go](https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white)
+[![Lines Of Code](https://tokei.rs/b1/github/openmarketplaceengine/openmarketplaceengine?category=code)](https://github.com/openmarketplaceengine/openmarketplaceengine)
+[![Build & Test](https://github.com/openmarketplaceengine/openmarketplaceengine/actions/workflows/build-test.yml/badge.svg)](https://github.com/openmarketplaceengine/openmarketplaceengine/actions/workflows/build-test.yml)
+![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
+![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white)
+
 <!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
