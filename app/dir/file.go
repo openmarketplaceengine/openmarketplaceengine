@@ -80,3 +80,44 @@ func (p *FilePath) Encode(src interface{}, perm FileMode, enc func(src interface
 func (p *FilePath) BasePath() string {
 	return p.FullPath[:len(p.FullPath)-len(p.FileName)]
 }
+
+//-----------------------------------------------------------------------------
+// File Operations
+//-----------------------------------------------------------------------------
+
+func ReadFile(name string) ([]byte, error) {
+	return os.ReadFile(name)
+}
+
+//-----------------------------------------------------------------------------
+
+func WriteFile(name string, data []byte, perm FileMode) error {
+	if perm == 0 {
+		perm = UserFilePerm
+	}
+	return os.WriteFile(name, data, perm)
+}
+
+//-----------------------------------------------------------------------------
+
+type DecodeFunc = func(buf []byte, dst interface{}) error
+
+func DecodeFile(name string, dst interface{}, dec DecodeFunc) error {
+	buf, err := ReadFile(name)
+	if err == nil {
+		err = dec(buf, dst)
+	}
+	return err
+}
+
+//-----------------------------------------------------------------------------
+
+type EncodeFunc = func(src interface{}) ([]byte, error)
+
+func EncodeFile(name string, src interface{}, perm FileMode, enc EncodeFunc) error {
+	buf, err := enc(src)
+	if err == nil {
+		err = WriteFile(name, buf, perm)
+	}
+	return err
+}
