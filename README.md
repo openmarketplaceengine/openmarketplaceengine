@@ -6,6 +6,15 @@
   A matchmaking system for labor platforms.
 </p>
 
+[![Lines Of Code](https://tokei.rs/b1/github/openmarketplaceengine/openmarketplaceengine?category=code)](https://github.com/openmarketplaceengine/openmarketplaceengine)
+[![Build & Test](https://github.com/openmarketplaceengine/openmarketplaceengine/actions/workflows/build-test.yml/badge.svg)](https://github.com/openmarketplaceengine/openmarketplaceengine/actions/workflows/build-test.yml)
+[![GitHub go.mod Go version of a Go module](https://img.shields.io/github/go-mod/go-version/openmarketplaceengine/openmarketplaceengine.svg)](https://github.com/openmarketplaceengine/openmarketplaceengine)
+[![GoReportCard](https://goreportcard.com/badge/github.com/openmarketplaceengine/openmarketplaceengine)](https://goreportcard.com/report/github.com/openmarketplaceengine/openmarketplaceengine)
+
+![Go](https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white)
+![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
+![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white)
+
 <!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>

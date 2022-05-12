@@ -1,0 +1,6 @@
+*.pb.go
+*.yaml
+*.yml
+README.md
+*.json
+*.js
