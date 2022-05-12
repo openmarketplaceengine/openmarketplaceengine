@@ -102,6 +102,16 @@ func Stopped() bool {
 	return _ctx.Stopped()
 }
 
+// Done checks if the context.Context is done.
+func Done(ctx context.Context) bool {
+	select {
+	case <-ctx.Done():
+		return true
+	default:
+		return false
+	}
+}
+
 //-----------------------------------------------------------------------------
 
 func (c *sigctx) context() SignalContext {
