@@ -84,35 +84,35 @@ func Jobimp(ctx context.Context, files []string) error {
 //-----------------------------------------------------------------------------
 
 var (
-	pickup_loc  jobimpv1.Location
-	dropoff_loc jobimpv1.Location
-	pickup_date timestamppb.Timestamp
-	created     timestamppb.Timestamp
-	updated     timestamppb.Timestamp
+	pickupLoc  jobimpv1.Location
+	dropoffLoc jobimpv1.Location
+	pickupDate timestamppb.Timestamp
+	created    timestamppb.Timestamp
+	updated    timestamppb.Timestamp
 )
 
 func updateRequest(r *jobimpv1.JobimpRequest, j *jobfile) {
 	r.Reset()
 	updateTimestamp(&created, j.Created.Time)
 	updateTimestamp(&updated, j.Updated.Time)
-	updateTimestamp(&pickup_date, j.PickupDate.Time)
-	updateLocation(&pickup_loc, j.PickupGeo)
-	updateLocation(&dropoff_loc, j.DropoffGeo)
+	updateTimestamp(&pickupDate, j.PickupDate.Time)
+	updateLocation(&pickupLoc, j.PickupGeo)
+	updateLocation(&dropoffLoc, j.DropoffGeo)
 	r.Id = j.ID
 	r.WorkerId = j.WorkerID
 	r.Created = &created
 	r.Updated = &updated
 	r.State = j.State
-	r.PickupDate = &pickup_date
+	r.PickupDate = &pickupDate
 	r.PickupAddr = j.PickupAddr
-	r.PickupLoc = &pickup_loc
+	r.PickupLoc = &pickupLoc
 	r.DropoffAddr = j.DropoffAddr
-	r.DropoffLoc = &dropoff_loc
+	r.DropoffLoc = &dropoffLoc
 	r.TripType = j.TripType
 	r.Category = j.Category
 }
 
-// &Timestamp{Seconds: int64(t.Unix()), Nanos: int32(t.Nanosecond())}
+// &Timestamp{Seconds: int64(t.Unix()), Nanos: int32(t.Nanosecond())}.
 func updateTimestamp(dst *timestamppb.Timestamp, src time.Time) {
 	dst.Reset()
 	dst.Seconds = src.Unix()
