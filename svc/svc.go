@@ -5,5 +5,6 @@
 package svc
 
 import (
+	_ "github.com/openmarketplaceengine/openmarketplaceengine/svc/jobimp" //nolint
 	_ "github.com/openmarketplaceengine/openmarketplaceengine/svc/status" //nolint
 )
