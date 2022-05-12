@@ -7,6 +7,7 @@ package arg
 import "fmt"
 
 type fset = func(ctx Context, set *FlagSet, val string) error
+type Validator = func(arg string) (string, error)
 
 //-----------------------------------------------------------------------------
 

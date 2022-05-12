@@ -284,6 +284,7 @@ type Flag struct {
 	Usage string // help message
 	Value Value  // value as set
 	fset  fset
+	aval  Validator
 	opts  Option
 	defv  interface{}
 	// DefValue string // default value (as text); for usage message
@@ -703,6 +704,12 @@ func (f *FlagSet) next() (string, bool) {
 	return "", false
 }
 
+func (f *FlagSet) rest() []string {
+	args := f.args
+	f.args = nil
+	return args
+}
+
 // Parsed reports whether f.Parse has been called.
 func (f *FlagSet) Parsed() bool {
 	return f.parsed
@@ -738,5 +745,10 @@ func (f *Flag) Option(flag bool) *Flag {
 
 func (f *Flag) AllowEmpty(flag bool) *Flag {
 	f.setOpt(argEmpty, flag)
+	return f
+}
+
+func (f *Flag) Validator(v Validator) *Flag {
+	f.aval = v
 	return f
 }
