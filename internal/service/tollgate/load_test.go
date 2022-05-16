@@ -1,6 +1,7 @@
 package tollgate
 
 import (
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/tollgate"
 	"testing"
 	"time"
 
