@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/tollgate"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"google.golang.org/grpc/codes"
@@ -39,7 +40,7 @@ func GrpcRegister() {
 }
 
 func (c *Controller) GetTollgate(ctx context.Context, request *v1beta1.GetTollgateRequest) (*v1beta1.GetTollgateResponse, error) {
-	toll, err := QueryOne(ctx, request.TollgateId)
+	toll, err := tollgate.QueryOne(ctx, request.TollgateId)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			st := status.New(codes.NotFound, "Tollgate not found")
@@ -57,7 +58,7 @@ func (c *Controller) GetTollgate(ctx context.Context, request *v1beta1.GetTollga
 }
 
 func (c *Controller) ListTollgates(ctx context.Context, request *v1beta1.ListTollgatesRequest) (*v1beta1.ListTollgatesResponse, error) {
-	all, err := QueryAll(ctx, 100)
+	all, err := tollgate.QueryAll(ctx, 100)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "QueryAll error: %s", err)
 	}
@@ -67,22 +68,22 @@ func (c *Controller) ListTollgates(ctx context.Context, request *v1beta1.ListTol
 	}, nil
 }
 
-func transform(toll *Tollgate) *v1beta1.Tollgate {
+func transform(t *tollgate.Tollgate) *v1beta1.Tollgate {
 	var bBoxes *v1beta1.BBoxes
 	var gLine *v1beta1.GateLine
 
-	if toll.GateLine != nil {
+	if t.GateLine != nil {
 		gLine = &v1beta1.GateLine{
-			Lon1: toll.GateLine.Line.Lon1,
-			Lat1: toll.GateLine.Line.Lat1,
-			Lon2: toll.GateLine.Line.Lon2,
-			Lat2: toll.GateLine.Line.Lat2,
+			Lon1: t.GateLine.Line.Lon1,
+			Lat1: t.GateLine.Line.Lat1,
+			Lon2: t.GateLine.Line.Lon2,
+			Lat2: t.GateLine.Line.Lat2,
 		}
 	}
 
-	if toll.BBoxes != nil {
+	if t.BBoxes != nil {
 		bb := make([]*v1beta1.BBox, 0)
-		for _, box := range toll.BBoxes.BBoxes {
+		for _, box := range t.BBoxes.BBoxes {
 			bb = append(bb, &v1beta1.BBox{
 				LonMin: box.LonMin,
 				LatMin: box.LatMin,
@@ -92,24 +93,24 @@ func transform(toll *Tollgate) *v1beta1.Tollgate {
 		}
 		bBoxes = &v1beta1.BBoxes{
 			BBoxes:   bb,
-			Required: toll.BBoxes.Required,
+			Required: t.BBoxes.Required,
 		}
 	}
 
 	return &v1beta1.Tollgate{
-		Id:       toll.ID,
-		Name:     toll.Name,
+		Id:       t.ID,
+		Name:     t.Name,
 		BBoxes:   bBoxes,
 		GateLine: gLine,
-		Created:  timestamppb.New(toll.Created.Time),
-		Updated:  timestamppb.New(toll.Updated.Time),
+		Created:  timestamppb.New(t.Created.Time),
+		Updated:  timestamppb.New(t.Updated.Time),
 	}
 }
 
-func transformAll(tollgates []*Tollgate) []*v1beta1.Tollgate {
+func transformAll(tollgates []*tollgate.Tollgate) []*v1beta1.Tollgate {
 	result := make([]*v1beta1.Tollgate, 0)
-	for _, tollgate := range tollgates {
-		result = append(result, transform(tollgate))
+	for _, t := range tollgates {
+		result = append(result, transform(t))
 	}
 	return result
 }

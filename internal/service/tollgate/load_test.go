@@ -1,6 +1,7 @@
 package tollgate
 
 import (
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/tollgate"
 	"testing"
 	"time"
 
@@ -21,7 +22,7 @@ func TestLoadTollgates(t *testing.T) {
 func testLoad(ctx cfg.SignalContext, t *testing.T) {
 	err := Load(ctx)
 	require.NoError(t, err)
-	tg, err := QueryAll(ctx, 100)
+	tg, err := tollgate.QueryAll(ctx, 100)
 	require.NoError(t, err)
 
 	require.GreaterOrEqual(t, len(tg), 17)
