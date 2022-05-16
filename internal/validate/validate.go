@@ -128,6 +128,18 @@ func (v *Validator) ValidateTimestamp(name string, timestamp *timestamppb.Timest
 	}
 }
 
+func (v *Validator) Validate(name string, value interface{}, rule func(value interface{}) error) {
+	err := rule(value)
+	if err != nil {
+		v.Errors = append(v.Errors, ValidationError{
+			Name:  name,
+			Value: value,
+			Err:   err,
+		},
+		)
+	}
+}
+
 func (v *Validator) ErrorInfo() *errdetails.ErrorInfo {
 	if len(v.Errors) == 0 {
 		return nil

@@ -2,23 +2,25 @@
 // Use of this source code is governed by a dual
 // license that can be found in the LICENSE file.
 
-package dom
+package worker
 
 import (
 	"fmt"
 	"time"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
+
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 )
 
-type WorkerStatus int32
+type Status int32
 
 const (
-	WorkerOffline  = iota // worker is offline
-	WorkerReady           // worker is ready for a job
-	WorkerOnjob           // worker is on the job
-	WorkerPaused          // worker is on hold
-	WorkerDisabled        // worker is disabled
+	Offline  = iota // worker is offline
+	Ready           // worker is ready for a job
+	OnJob           // worker is on the job
+	Paused          // worker is on hold
+	Disabled        // worker is disabled
 )
 
 const (
@@ -28,30 +30,30 @@ const (
 
 // Worker represents information about a driver.
 type Worker struct {
-	ID        SUID         `db:"id"`
-	Status    WorkerStatus `db:"status"`     // worker's status
-	Rating    int32        `db:"rating"`     // worker's rating by customers
-	Jobs      int          `db:"jobs"`       // total number of jobs completed
-	FirstName string       `db:"first_name"` // first name
-	LastName  string       `db:"last_name"`  // last name
-	Vehicle   SUID         `db:"vehicle"`    // vehicle id foreign key
-	Created   Time         `db:"created"`    // worker creation time
-	Updated   Time         `db:"updated"`    // worker last modified time
+	ID        dom.SUID `db:"id"`
+	Status    Status   `db:"status"`     // worker's status
+	Rating    int32    `db:"rating"`     // worker's rating by customers
+	Jobs      int      `db:"jobs"`       // total number of jobs completed
+	FirstName string   `db:"first_name"` // first name
+	LastName  string   `db:"last_name"`  // last name
+	Vehicle   dom.SUID `db:"vehicle"`    // vehicle id foreign key
+	Created   dom.Time `db:"created"`    // worker creation time
+	Updated   dom.Time `db:"updated"`    // worker last modified time
 }
 
 // WorkerVehicle represents relationships among workers and vehicles.
 //
 // One worker can operate one or more vehicles and one vehicle can be shared among
 // several workers.
-type WorkerVehicle struct {
-	Worker  SUID `db:"worker"`
-	Vehicle SUID `db:"vehicle"`
+type WorkerVehicle struct { //nolint:revive
+	Worker  dom.SUID `db:"worker"`
+	Vehicle dom.SUID `db:"vehicle"`
 }
 
 //-----------------------------------------------------------------------------
 
 // Persist saves Worker to the database.
-func (w *Worker) Persist(ctx Context) error {
+func (w *Worker) Persist(ctx dom.Context) error {
 	return dao.ExecTX(ctx, w.Insert())
 }
 
@@ -74,7 +76,7 @@ func (w *Worker) Insert() dao.Executable {
 // Getters
 //-----------------------------------------------------------------------------
 
-func GetWorker(ctx Context, workerID SUID) (wrk *Worker, has bool, err error) {
+func GetWorker(ctx dom.Context, workerID dom.SUID) (wrk *Worker, has bool, err error) {
 	wrk = new(Worker)
 	has, err = dao.From(workerTable).
 		Bind(wrk).
@@ -86,22 +88,59 @@ func GetWorker(ctx Context, workerID SUID) (wrk *Worker, has bool, err error) {
 	return
 }
 
+func QueryAll(ctx dom.Context, status *Status, limit int, offset int) ([]*Worker, error) {
+	query := dao.From(workerTable).
+		Select("*").
+		Limit(limit).
+		Offset(offset)
+
+	if status != nil {
+		query.Where("status = ?", status)
+	}
+
+	ary := make([]*Worker, 0, limit)
+	err := query.QueryRows(ctx, func(rows *dao.Rows) error {
+		for rows.Next() {
+			var w Worker
+			if err := rows.Scan(
+				&w.ID,
+				&w.Status,
+				&w.Rating,
+				&w.Jobs,
+				&w.FirstName,
+				&w.LastName,
+				&w.Vehicle,
+				&w.Created,
+				&w.Updated,
+			); err != nil {
+				return err
+			}
+			ary = append(ary, &w)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return ary, nil
+}
+
 //-----------------------------------------------------------------------------
 
-func GetWorkerStatus(ctx Context, workerID SUID) (WorkerStatus, bool, error) {
+func GetWorkerStatus(ctx dom.Context, workerID dom.SUID) (Status, bool, error) {
 	var status int32
 	has, err := dao.From(workerTable).
 		Select("status").To(&status).
 		Where("id = ?", workerID).
 		QueryOne(ctx)
-	return WorkerStatus(status), has, err
+	return Status(status), has, err
 }
 
 //-----------------------------------------------------------------------------
 // Setters
 //-----------------------------------------------------------------------------
 
-func SetWorkerStatus(ctx Context, workerID SUID, status WorkerStatus) error {
+func SetWorkerStatus(ctx dom.Context, workerID dom.SUID, status Status) error {
 	sql := dao.Update(workerTable).
 		Set("status", int32(status)).
 		Set("updated", time.Now()).
@@ -114,7 +153,7 @@ func SetWorkerStatus(ctx Context, workerID SUID, status WorkerStatus) error {
 //-----------------------------------------------------------------------------
 
 // Persist saves WorkerVehicle to the database.
-func (w *WorkerVehicle) Persist(ctx Context) error {
+func (w *WorkerVehicle) Persist(ctx dom.Context) error {
 	return dao.ExecTX(ctx, w.Insert())
 }
 
@@ -127,17 +166,17 @@ func (w *WorkerVehicle) Insert() dao.Executable {
 //-----------------------------------------------------------------------------
 
 // String representation of WorkerStatus.
-func (s WorkerStatus) String() string {
+func (s Status) String() string {
 	switch s {
-	case WorkerOffline:
+	case Offline:
 		return "offline"
-	case WorkerReady:
+	case Ready:
 		return "ready"
-	case WorkerOnjob:
+	case OnJob:
 		return "onjob"
-	case WorkerPaused:
+	case Paused:
 		return "paused"
-	case WorkerDisabled:
+	case Disabled:
 		return "disabled"
 	}
 	return fmt.Sprintf("WorkerStatus<%d>", s)

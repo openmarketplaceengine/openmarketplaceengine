@@ -23,7 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type WorkerServiceClient interface {
 	GetWorker(ctx context.Context, in *GetWorkerRequest, opts ...grpc.CallOption) (*GetWorkerResponse, error)
-	UpdateWorker(ctx context.Context, in *UpdateWorkerRequest, opts ...grpc.CallOption) (*UpdateWorkerResponse, error)
+	UpdateWorkerStatus(ctx context.Context, in *UpdateWorkerStatusRequest, opts ...grpc.CallOption) (*UpdateWorkerStatusResponse, error)
 	ListWorkers(ctx context.Context, in *ListWorkersRequest, opts ...grpc.CallOption) (*ListWorkersResponse, error)
 }
 
@@ -44,9 +44,9 @@ func (c *workerServiceClient) GetWorker(ctx context.Context, in *GetWorkerReques
 	return out, nil
 }
 
-func (c *workerServiceClient) UpdateWorker(ctx context.Context, in *UpdateWorkerRequest, opts ...grpc.CallOption) (*UpdateWorkerResponse, error) {
-	out := new(UpdateWorkerResponse)
-	err := c.cc.Invoke(ctx, "/omeapi.worker.v1beta1.WorkerService/UpdateWorker", in, out, opts...)
+func (c *workerServiceClient) UpdateWorkerStatus(ctx context.Context, in *UpdateWorkerStatusRequest, opts ...grpc.CallOption) (*UpdateWorkerStatusResponse, error) {
+	out := new(UpdateWorkerStatusResponse)
+	err := c.cc.Invoke(ctx, "/omeapi.worker.v1beta1.WorkerService/UpdateWorkerStatus", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func (c *workerServiceClient) ListWorkers(ctx context.Context, in *ListWorkersRe
 // for forward compatibility
 type WorkerServiceServer interface {
 	GetWorker(context.Context, *GetWorkerRequest) (*GetWorkerResponse, error)
-	UpdateWorker(context.Context, *UpdateWorkerRequest) (*UpdateWorkerResponse, error)
+	UpdateWorkerStatus(context.Context, *UpdateWorkerStatusRequest) (*UpdateWorkerStatusResponse, error)
 	ListWorkers(context.Context, *ListWorkersRequest) (*ListWorkersResponse, error)
 }
 
@@ -78,8 +78,8 @@ type UnimplementedWorkerServiceServer struct {
 func (UnimplementedWorkerServiceServer) GetWorker(context.Context, *GetWorkerRequest) (*GetWorkerResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetWorker not implemented")
 }
-func (UnimplementedWorkerServiceServer) UpdateWorker(context.Context, *UpdateWorkerRequest) (*UpdateWorkerResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateWorker not implemented")
+func (UnimplementedWorkerServiceServer) UpdateWorkerStatus(context.Context, *UpdateWorkerStatusRequest) (*UpdateWorkerStatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateWorkerStatus not implemented")
 }
 func (UnimplementedWorkerServiceServer) ListWorkers(context.Context, *ListWorkersRequest) (*ListWorkersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListWorkers not implemented")
@@ -114,20 +114,20 @@ func _WorkerService_GetWorker_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _WorkerService_UpdateWorker_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateWorkerRequest)
+func _WorkerService_UpdateWorkerStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateWorkerStatusRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(WorkerServiceServer).UpdateWorker(ctx, in)
+		return srv.(WorkerServiceServer).UpdateWorkerStatus(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/omeapi.worker.v1beta1.WorkerService/UpdateWorker",
+		FullMethod: "/omeapi.worker.v1beta1.WorkerService/UpdateWorkerStatus",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WorkerServiceServer).UpdateWorker(ctx, req.(*UpdateWorkerRequest))
+		return srv.(WorkerServiceServer).UpdateWorkerStatus(ctx, req.(*UpdateWorkerStatusRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -162,8 +162,8 @@ var WorkerService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _WorkerService_GetWorker_Handler,
 		},
 		{
-			MethodName: "UpdateWorker",
-			Handler:    _WorkerService_UpdateWorker_Handler,
+			MethodName: "UpdateWorkerStatus",
+			Handler:    _WorkerService_UpdateWorkerStatus_Handler,
 		},
 		{
 			MethodName: "ListWorkers",
