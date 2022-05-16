@@ -2,13 +2,14 @@ package tollgate
 
 import (
 	"context"
+	"log"
+	"net"
+	"testing"
+
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom/tollgate"
 	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
-	"log"
-	"net"
-	"testing"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/tollgate/v1beta1"

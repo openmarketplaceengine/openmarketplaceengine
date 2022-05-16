@@ -7,27 +7,20 @@ import (
 	"testing"
 	"time"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
-
-	typeV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/type/v1beta1"
-
-	"google.golang.org/protobuf/types/known/timestamppb"
-
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/location/storage"
-
-	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
-
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
-
-	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
-
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/tollgate"
 	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/location/v1beta1"
+	typeV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/type/v1beta1"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/location/storage"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const tollgateID = "tollgate-123"

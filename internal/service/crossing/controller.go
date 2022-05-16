@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/crossing"
+
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -32,23 +34,23 @@ func GrpcRegister() {
 }
 
 func (c *Controller) ListCrossings(ctx context.Context, request *v1beta1.ListCrossingsRequest) (*v1beta1.ListCrossingsResponse, error) {
-	wheres := make([]Where, 0)
+	wheres := make([]crossing.Where, 0)
 	if request.TollgateId != "" {
-		wheres = append(wheres, Where{
+		wheres = append(wheres, crossing.Where{
 			Expr: "tollgate_id = ?",
 			Args: []interface{}{request.TollgateId},
 		})
 	}
 
 	if request.WorkerId != "" {
-		wheres = append(wheres, Where{
+		wheres = append(wheres, crossing.Where{
 			Expr: "worker_id = ?",
 			Args: []interface{}{request.WorkerId},
 		})
 	}
 
 	orderBy := []string{"created desc"}
-	crossings, err := QueryBy(ctx, wheres, orderBy, 100)
+	crossings, err := crossing.QueryBy(ctx, wheres, orderBy, 100)
 	if err != nil {
 		st := status.Newf(codes.Internal, "query tollgate crossing error: %s", err)
 		st, err = st.WithDetails(request)
@@ -64,7 +66,7 @@ func (c *Controller) ListCrossings(ctx context.Context, request *v1beta1.ListCro
 	}, nil
 }
 
-func transform(crossings []*TollgateCrossing) []*typeV1beta1.Crossing {
+func transform(crossings []*crossing.TollgateCrossing) []*typeV1beta1.Crossing {
 	result := make([]*typeV1beta1.Crossing, 0)
 	for _, crossing := range crossings {
 		result = append(result, &typeV1beta1.Crossing{
