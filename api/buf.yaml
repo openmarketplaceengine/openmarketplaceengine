@@ -1,0 +1,9 @@
+version: v1
+breaking:
+  use:
+    - FILE
+lint:
+  use:
+    - DEFAULT
+    - UNARY_RPC
+    - PACKAGE_NO_IMPORT_CYCLE

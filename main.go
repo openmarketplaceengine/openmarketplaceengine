@@ -15,6 +15,7 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/log"
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
 	"github.com/openmarketplaceengine/openmarketplaceengine/stat"
+	_ "github.com/openmarketplaceengine/openmarketplaceengine/svc" // gRPC services registration
 )
 
 var boot cfg.BootList
