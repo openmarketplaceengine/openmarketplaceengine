@@ -33,7 +33,7 @@ func init() {
 //-----------------------------------------------------------------------------
 
 func (j *jobimpService) ImportJob(ctx context.Context, req *svc.JobimpRequest) (*svc.JobimpResponse, error) {
-	var act = svc.JobimpAction_JOBIMP_CREATED
+	var act = svc.JobimpAction_JOBIMP_ACTION_CREATED
 	var job dom.Jobimp
 	j.setJob(&job, req)
 	_, ups, err := dao.Upsert(ctx, job.Insert, job.Update)
@@ -41,7 +41,7 @@ func (j *jobimpService) ImportJob(ctx context.Context, req *svc.JobimpRequest) (
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	if ups == dao.UpsertUpdated {
-		act = svc.JobimpAction_JOBIMP_UPDATED
+		act = svc.JobimpAction_JOBIMP_ACTION_UPDATED
 	}
 	res := &svc.JobimpResponse{Action: act}
 	return res, nil

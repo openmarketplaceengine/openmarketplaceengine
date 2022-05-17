@@ -31,9 +31,9 @@ message JobimpRequest {
 }
 
 enum JobimpAction {
-  JOBIMP_UNKNOWN = 0;
-  JOBIMP_CREATED = 1;
-  JOBIMP_UPDATED = 2;
+  JOBIMP_ACTION_UNSPECIFIED = 0;
+  JOBIMP_ACTION_CREATED = 1;
+  JOBIMP_ACTION_UPDATED = 2;
 }
 
 message JobimpResponse {
