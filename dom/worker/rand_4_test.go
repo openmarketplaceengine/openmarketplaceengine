@@ -25,6 +25,10 @@ func randInt(n int) int {
 	return _rnd.Intn(n)
 }
 
+func randRange(min, max int) int {
+	return _rnd.Intn(max-min+1) + min
+}
+
 func randFirstName() string {
 	n := _rnd.Intn(len(names))
 	return names[n][0]

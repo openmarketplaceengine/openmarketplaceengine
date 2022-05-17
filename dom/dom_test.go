@@ -36,19 +36,6 @@ func numUUID(n int, prefix ...string) string { //nolint
 	return uuid
 }
 
-func mockStamp() (time Time) {
-	time.Now()
-	return
-}
-
-func mockSpeed() int {
-	return _rnd.Intn(111)
-}
-
-func mockCoord() float64 {
-	return _rnd.Float64() * 10_000
-}
-
 func mockEnum(last int) int {
 	return _rnd.Intn(last + 1)
 }

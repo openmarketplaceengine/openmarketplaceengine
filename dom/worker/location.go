@@ -1,8 +1,10 @@
-package dom
+package worker
 
 import (
 	"fmt"
 	"time"
+
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 	"gopkg.in/yaml.v2"
@@ -10,23 +12,23 @@ import (
 
 const workerLocationTable = "worker_location"
 
-type WorkerLocation struct {
-	Recnum    int64   `db:"recnum"` // auto-increasing record number
-	Worker    SUID    `db:"worker"`
-	Stamp     Time    `db:"stamp"`
-	Longitude float64 `db:"longitude"`
-	Latitude  float64 `db:"latitude"`
-	Speed     int     `db:"speed"`
+type Location struct {
+	Recnum    int64    `db:"recnum"` // auto-increasing record number
+	Worker    dom.SUID `db:"worker"`
+	Stamp     dom.Time `db:"stamp"`
+	Longitude float64  `db:"longitude"`
+	Latitude  float64  `db:"latitude"`
+	Speed     int      `db:"speed"`
 }
 
 //-----------------------------------------------------------------------------
 // Getters
 //-----------------------------------------------------------------------------
 
-func LastWorkerLocation(ctx Context, workerID SUID) (loc Coord, has bool, err error) {
+func LastLocation(ctx dom.Context, workerID dom.SUID) (loc *Location, has bool, err error) {
+	loc = new(Location)
 	sql := dao.From(workerLocationTable).
-		Select("longitude").To(&loc.Longitude).
-		Select("latitude").To(&loc.Latitude).
+		Bind(loc).
 		Where("worker = ?", workerID).
 		OrderBy("stamp desc").
 		Limit(1)
@@ -36,21 +38,32 @@ func LastWorkerLocation(ctx Context, workerID SUID) (loc Coord, has bool, err er
 
 //-----------------------------------------------------------------------------
 
-func ListWorkerLocation(ctx Context, workerID SUID, limit int) ([]Coord, error) {
+func ListLocations(ctx dom.Context, workerID dom.SUID, limit int) ([]*Location, error) {
 	sql := dao.From(workerLocationTable).
+		Select("recnum").
+		Select("worker").
+		Select("stamp").
 		Select("longitude").
 		Select("latitude").
+		Select("speed").
 		Where("worker = ?", workerID).
 		OrderBy("stamp desc").
 		Limit(limit)
-	ary := make([]Coord, 0, limit)
+	ary := make([]*Location, 0, limit)
 	err := sql.QueryRows(ctx, func(rows *dao.Rows) error {
 		for rows.Next() {
-			var c Coord
-			if err := rows.Scan(&c.Longitude, &c.Latitude); err != nil {
+			var c Location
+			if err := rows.Scan(
+				&c.Recnum,
+				&c.Worker,
+				&c.Stamp,
+				&c.Longitude,
+				&c.Latitude,
+				&c.Speed,
+			); err != nil {
 				return err
 			}
-			ary = append(ary, c)
+			ary = append(ary, &c)
 		}
 		return nil
 	})
@@ -64,7 +77,7 @@ func ListWorkerLocation(ctx Context, workerID SUID, limit int) ([]Coord, error) 
 // Setters
 //-----------------------------------------------------------------------------
 
-func AddWorkerLocation(ctx Context, workerID SUID, lon float64, lat float64, stamp time.Time, speed int) error {
+func AddLocation(ctx dom.Context, workerID dom.SUID, lon float64, lat float64, stamp time.Time, speed int) error {
 	sql := dao.Insert(workerLocationTable).
 		Set("worker", workerID).
 		Set("stamp", stamp).
@@ -76,26 +89,26 @@ func AddWorkerLocation(ctx Context, workerID SUID, lon float64, lat float64, sta
 
 //-----------------------------------------------------------------------------
 
-// Persist saves WorkerLocation to the database.
-func (w *WorkerLocation) Persist(ctx dao.Context) error {
-	return dao.ExecTX(ctx, w.Insert())
+// Persist saves Location to the database.
+func (l *Location) Persist(ctx dao.Context) error {
+	return dao.ExecTX(ctx, l.Insert())
 }
 
 //-----------------------------------------------------------------------------
 
-func (w *WorkerLocation) Insert() dao.Executable {
+func (l *Location) Insert() dao.Executable {
 	return dao.Insert(workerLocationTable).
-		Set("worker", w.Worker).
-		Set("stamp", w.Stamp).
-		Set("longitude", w.Longitude).
-		Set("latitude", w.Latitude).
-		Set("speed", w.Speed)
+		Set("worker", l.Worker).
+		Set("stamp", l.Stamp).
+		Set("longitude", l.Longitude).
+		Set("latitude", l.Latitude).
+		Set("speed", l.Speed)
 }
 
 //-----------------------------------------------------------------------------
 
-func (w *WorkerLocation) DumpYAML() {
-	buf, err := yaml.Marshal(w)
+func (l *Location) DumpYAML() {
+	buf, err := yaml.Marshal(l)
 	if err != nil {
 		fmt.Printf("yaml.Marshal failed: %s\n", err)
 		return
