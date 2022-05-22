@@ -3,12 +3,13 @@ package tollgate
 import (
 	"context"
 	"log"
-	"math/rand"
 	"net"
 	"testing"
-	"time"
 
+	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/tollgate"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/tollgate/v1beta1"
@@ -61,9 +62,7 @@ func dialer() func(context.Context, string) (net.Conn, error) {
 
 func testQueryOne(t *testing.T, client v1beta1.TollgateServiceClient) {
 	ctx := cfg.Context()
-	r := rand.New(rand.NewSource(time.Now().UnixMilli()))
-
-	toll := newRandomTollgate(r, "testCreate")
+	toll := newTollgate(uuid.NewString(), "testCreate")
 
 	err := toll.Insert(ctx)
 	require.NoError(t, err)
@@ -73,4 +72,28 @@ func testQueryOne(t *testing.T, client v1beta1.TollgateServiceClient) {
 	res, err := client.GetTollgate(ctx, &v1beta1.GetTollgateRequest{TollgateId: tollgateID})
 	require.NoError(t, err)
 	require.Equal(t, tollgateID, res.Tollgate.Id)
+}
+
+func newTollgate(id string, name string) *tollgate.Tollgate {
+	return &tollgate.Tollgate{
+		ID:   id,
+		Name: name,
+		BBoxes: &tollgate.BBoxes{
+			BBoxes: []*detector.BBox{{
+				LonMin: 0,
+				LatMin: 0,
+				LonMax: 0,
+				LatMax: 0,
+			}},
+			Required: 2,
+		},
+		GateLine: &tollgate.GateLine{
+			Line: &detector.Line{
+				Lon1: 0,
+				Lat1: 0,
+				Lon2: 0,
+				Lat2: 0,
+			},
+		},
+	}
 }

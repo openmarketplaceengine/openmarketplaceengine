@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/crossing"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/crossing"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/validate"
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
 	"google.golang.org/grpc"

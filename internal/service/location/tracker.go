@@ -10,9 +10,9 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/crossing"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/crossing"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/tollgate"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/location/storage"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
 	"github.com/openmarketplaceengine/openmarketplaceengine/log"
 )
 

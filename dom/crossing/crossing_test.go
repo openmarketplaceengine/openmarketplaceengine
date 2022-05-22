@@ -7,7 +7,7 @@ import (
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/tollgate"
 
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"

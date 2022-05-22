@@ -9,6 +9,10 @@ import (
 	"time"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/crossing"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/tollgate"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/util"
 
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
@@ -104,4 +108,56 @@ func testQuery(t *testing.T, client v1beta1.CrossingServiceClient) {
 	res2, err := client.ListCrossings(ctx, req2)
 	require.NoError(t, err)
 	require.Len(t, res2.Crossings, 10)
+}
+
+func newRandomTollgate(r *rand.Rand, name string) *tollgate.Tollgate {
+	id := uuid.NewString()
+
+	return &tollgate.Tollgate{
+		ID:   id,
+		Name: name,
+		BBoxes: &tollgate.BBoxes{
+			BBoxes: []*detector.BBox{{
+				LonMin: util.LongitudeInRange(r, -122.473048, -122.430733),
+				LatMin: util.LatitudeInRange(r, 37.656177, 37.656177),
+				LonMax: util.LongitudeInRange(r, -122.473048, -122.430733),
+				LatMax: util.LatitudeInRange(r, 37.656177, 37.656177),
+			}},
+			Required: 2,
+		},
+		GateLine: &tollgate.GateLine{
+			Line: &detector.Line{
+				Lon1: util.LongitudeInRange(r, -122.473048, -122.430733),
+				Lat1: util.LatitudeInRange(r, 37.656177, 37.656177),
+				Lon2: util.LongitudeInRange(r, -122.473048, -122.430733),
+				Lat2: util.LatitudeInRange(r, 37.656177, 37.656177),
+			},
+		},
+	}
+}
+
+func newRandomCrossing(r *rand.Rand, tollgateID dom.SUID, workerID dom.SUID) *crossing.TollgateCrossing {
+	return &crossing.TollgateCrossing{
+		ID:         uuid.NewString(),
+		TollgateID: tollgateID,
+		WorkerID:   workerID,
+		Crossing: crossing.Crossing{
+			Crossing: detector.Crossing{
+				TollgateID: tollgateID,
+				WorkerID:   workerID,
+				Movement: &detector.Movement{
+					From: &detector.Location{
+						Lon: util.LongitudeInRange(r, -122.473048, -122.430733),
+						Lat: util.LatitudeInRange(r, 37.656177, 37.656177),
+					},
+					To: &detector.Location{
+						Lon: util.LongitudeInRange(r, -122.473048, -122.430733),
+						Lat: util.LatitudeInRange(r, 37.656177, 37.656177),
+					},
+				},
+				Direction: "N",
+				Alg:       detector.LineAlg,
+			},
+		},
+	}
 }

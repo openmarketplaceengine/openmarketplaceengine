@@ -1,1 +1,0 @@
-move here internal/service/tollgate dom model
