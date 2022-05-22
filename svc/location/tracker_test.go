@@ -116,7 +116,7 @@ func subscribe(t *testing.T, client *redis.Client, channel string, target chan d
 		}
 	}()
 	//subscribe takes a while
-	time.Sleep(10 * time.Millisecond)
+	time.Sleep(50 * time.Millisecond)
 }
 
 func transformTollgates(tollgates []*tollgate.Tollgate) (result []*detector.Tollgate) {
