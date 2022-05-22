@@ -21,6 +21,16 @@ func NewStorage(client *redis.Client) *Storage {
 	return &s
 }
 
+func (s *Storage) RedisUpdateHandler() Handler {
+	return func(ctx context.Context, areaKey string, l *Location) error {
+		err := s.Update(ctx, areaKey, l, time.Now())
+		if err != nil {
+			return fmt.Errorf("update location error: %w", err)
+		}
+		return nil
+	}
+}
+
 func (s *Storage) Update(ctx context.Context, areaKey string, l *Location, t time.Time) (err error) {
 	err = s.client.GeoAdd(ctx, areaKey, &redis.GeoLocation{
 		Name:      l.WorkerID,

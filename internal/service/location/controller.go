@@ -46,7 +46,7 @@ func newController() (*Controller, error) {
 	storeClient := dao.Reds.StoreClient
 	s := location.NewStorage(storeClient)
 	d := detector.NewDetector(transformTollgates(tollgates), detect2.NewRedisStorage(storeClient))
-	tracker, err := location.NewTracker(s, d)
+	tracker := location.NewTracker(s, d)
 	if err != nil {
 		return nil, err
 	}

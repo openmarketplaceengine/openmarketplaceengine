@@ -52,7 +52,7 @@ func TestTracker(t *testing.T) {
 	storeClient := dao.Reds.StoreClient
 	pubSubClient := dao.Reds.PubSubClient
 	_d := detector.NewDetector(transformTollgates(tollgates), detect2.NewRedisStorage(storeClient))
-	tracker, err := NewTracker(NewStorage(storeClient), _d)
+	tracker := NewTracker(NewStorage(storeClient), _d)
 	require.NoError(t, err)
 
 	t.Run("testDetectCrossing", func(t *testing.T) {

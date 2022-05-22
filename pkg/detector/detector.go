@@ -15,6 +15,8 @@ const (
 	VectorAlg Alg = "vector"
 )
 
+type Handler func(ctx context.Context, c *Crossing) error
+
 // Crossing represents detected fact of passing through the tollgate by WorkerID.
 type Crossing struct {
 	ID         string    `json:"id"`
@@ -101,11 +103,17 @@ func NewDetector(tollgates []*Tollgate, storage Storage) *Detector {
 }
 
 // DetectCrossing detects if subject Movement has travelled through the tollgate.
-func (d *Detector) DetectCrossing(ctx context.Context, workerID string, movement *Movement) (*Crossing, error) {
+func (d *Detector) DetectCrossing(ctx context.Context, workerID string, movement *Movement, handlers ...Handler) (*Crossing, error) {
 	for _, t := range d.tollgates {
 		if t.Line != nil {
 			crossing := detectCrossingVector(t.ID, workerID, t.Line, movement)
 			if crossing != nil {
+				for _, handler := range handlers {
+					innerErr := handler(ctx, crossing)
+					if innerErr != nil {
+						return nil, fmt.Errorf("handler error: %s", innerErr)
+					}
+				}
 				return crossing, nil
 			}
 		}
@@ -116,6 +124,12 @@ func (d *Detector) DetectCrossing(ctx context.Context, workerID string, movement
 				return nil, err
 			}
 			if crossing != nil {
+				for _, handler := range handlers {
+					innerErr := handler(ctx, crossing)
+					if innerErr != nil {
+						return nil, fmt.Errorf("handler error: %s", err)
+					}
+				}
 				return crossing, nil
 			}
 		}

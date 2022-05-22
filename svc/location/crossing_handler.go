@@ -11,16 +11,16 @@ import (
 	"golang.org/x/net/context"
 )
 
-func PersistCrossing(ctx context.Context, c *detector.Crossing) error {
+func persistCrossing(ctx context.Context, c *detector.Crossing) error {
 	tollgateCrossing := crossing.NewTollgateCrossing(c.TollgateID, c.WorkerID, c)
 	err := tollgateCrossing.Persist(ctx)
 	if err != nil {
-		return fmt.Errorf("crossing insert error: %s", err)
+		return fmt.Errorf("crossing persist error: %s", err)
 	}
 	return nil
 }
 
-func PublishCrossing(ctx context.Context, c *detector.Crossing) error {
+func publishCrossing(ctx context.Context, c *detector.Crossing) error {
 	channel := crossingChannel(c.TollgateID)
 
 	bytes, err := json.Marshal(c)
