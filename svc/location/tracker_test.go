@@ -108,11 +108,11 @@ func testDetectCrossing(t *testing.T, tracker *Tracker) {
 	//	require.Fail(t, "timeout")
 	//}
 
-	wheres := []crossing.Where{{Expr: "worker_id = ?", Args: []interface{}{id}}, {Expr: "tollgate_id = ?", Args: []interface{}{tollgateID}}}
+	wheres := []crossing.Where{{Expr: "worker_id = ?", Args: []interface{}{id}}}
 	orderBy := []string{"created desc"}
 	retrieved, err := crossing.QueryBy(ctx, wheres, orderBy, 100)
 	require.NoError(t, err)
-	require.Len(t, retrieved, 1)
+	require.GreaterOrEqual(t, len(retrieved), 1)
 	require.Equal(t, tollgateID, retrieved[0].TollgateID)
 	require.Equal(t, id, retrieved[0].WorkerID)
 
