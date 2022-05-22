@@ -9,6 +9,7 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom/tollgate"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/tollgate/v1beta1"
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
+	svcTollgate "github.com/openmarketplaceengine/openmarketplaceengine/svc/tollgate"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -28,7 +29,7 @@ func GrpcRegister() {
 		controller := newController()
 		v1beta1.RegisterTollgateServiceServer(srv, controller)
 
-		err := Load(cfg.Context())
+		err := svcTollgate.Load(cfg.Context())
 		if err != nil {
 			return fmt.Errorf("load tollgates error: %w", err)
 		}

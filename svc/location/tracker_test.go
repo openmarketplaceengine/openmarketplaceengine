@@ -2,7 +2,6 @@ package location
 
 import (
 	"context"
-	"github.com/openmarketplaceengine/openmarketplaceengine/dom/worker"
 	"testing"
 
 	"github.com/google/uuid"
@@ -11,7 +10,9 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom/crossing"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom/tollgate"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/worker"
 	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
+	svcTollgate "github.com/openmarketplaceengine/openmarketplaceengine/svc/tollgate"
 	"github.com/stretchr/testify/require"
 )
 
@@ -27,6 +28,9 @@ func TestTracker(t *testing.T) {
 	}
 
 	ctx := context.Background()
+
+	err = svcTollgate.Load(ctx)
+	require.NoError(t, err)
 
 	_, err = tollgate.CreateIfNotExists(ctx, &tollgate.Tollgate{
 		ID:     tollgateID,
