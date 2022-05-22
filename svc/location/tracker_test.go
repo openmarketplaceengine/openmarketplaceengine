@@ -80,11 +80,21 @@ func testDetectCrossing(t *testing.T, tracker *Tracker) {
 	require.NoError(t, err)
 	require.Nil(t, c0)
 
+	l0, has0, err := worker.LastLocation(ctx, id)
+	require.NoError(t, err)
+	require.True(t, has0)
+	require.NotNil(t, l0)
+
 	c1, err := tracker.TrackLocation(ctx, areaKey, id, lon1, lat1)
 
 	require.NoError(t, err)
 	require.NotNil(t, c1)
 	require.Equal(t, id, c1.WorkerID)
+
+	l1, has1, err := worker.LastLocation(ctx, id)
+	require.NoError(t, err)
+	require.True(t, has1)
+	require.NotNil(t, l1)
 
 	//select {
 	//case c := <-target:
