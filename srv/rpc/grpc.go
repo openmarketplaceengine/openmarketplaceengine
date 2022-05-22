@@ -33,7 +33,6 @@ func NewGrpcServer() *GrpcServer {
 //-----------------------------------------------------------------------------
 
 func (s *GrpcServer) Boot() (err error) {
-
 	glog = log.Named("GRPC")
 
 	c := cfg.Grpc

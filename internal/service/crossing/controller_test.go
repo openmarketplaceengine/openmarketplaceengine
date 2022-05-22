@@ -79,10 +79,10 @@ func testQuery(t *testing.T, client v1beta1.CrossingServiceClient) {
 
 	for i := 0; i < 5; i++ {
 		x1 := newRandomCrossing(r, tollgateID, workerID1)
-		err = x1.Insert(ctx)
+		err = x1.Persist(ctx)
 		require.NoError(t, err)
 		x2 := newRandomCrossing(r, tollgateID, workerID2)
-		err = x2.Insert(ctx)
+		err = x2.Persist(ctx)
 		require.NoError(t, err)
 	}
 

@@ -5,8 +5,6 @@ import (
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
 
-	"github.com/google/uuid"
-
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
 )
@@ -31,7 +29,7 @@ type TollgateCrossing struct {
 
 func NewTollgateCrossing(tollgateID dom.SUID, workerID dom.SUID, crossing *detector.Crossing) *TollgateCrossing {
 	return &TollgateCrossing{
-		ID:         uuid.NewString(),
+		ID:         crossing.ID,
 		TollgateID: tollgateID,
 		WorkerID:   workerID,
 		Crossing: Crossing{
@@ -40,7 +38,7 @@ func NewTollgateCrossing(tollgateID dom.SUID, workerID dom.SUID, crossing *detec
 	}
 }
 
-func (t *TollgateCrossing) Insert(ctx dom.Context) error {
+func (t *TollgateCrossing) Persist(ctx dom.Context) error {
 	now := dao.Time{}
 	now.Now()
 	now.UTC()

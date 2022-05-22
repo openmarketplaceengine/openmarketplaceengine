@@ -17,6 +17,7 @@ const (
 
 // Crossing represents detected fact of passing through the tollgate by WorkerID.
 type Crossing struct {
+	ID         string    `json:"id"`
 	TollgateID string    `json:"tollgate_id"`
 	WorkerID   string    `json:"worker_id"`
 	Movement   *Movement `json:"movement"`

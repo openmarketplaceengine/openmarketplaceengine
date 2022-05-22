@@ -5,18 +5,13 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/dom/tollgate"
-
-	"github.com/openmarketplaceengine/openmarketplaceengine/dom/tollgate"
-
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/tollgate"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/tollgate/v1beta1"
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
 	"google.golang.org/grpc"
-
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/tollgate/v1beta1"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

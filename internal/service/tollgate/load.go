@@ -6,8 +6,6 @@ import (
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom/tollgate"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/dom/tollgate"
-
 	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
 	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/tollgate/yaml"
 )

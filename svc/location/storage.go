@@ -1,4 +1,4 @@
-package storage
+package location
 
 import (
 	"context"
@@ -14,7 +14,7 @@ type Storage struct {
 	client *redis.Client
 }
 
-func New(client *redis.Client) *Storage {
+func NewStorage(client *redis.Client) *Storage {
 	s := Storage{
 		client: client,
 	}

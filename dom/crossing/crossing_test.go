@@ -37,7 +37,7 @@ func testCreate(ctx dom.Context, t *testing.T, r *rand.Rand) {
 	workerID := uuid.NewString()
 	tollgateID := toll.ID
 	x := newRandomCrossing(r, tollgateID, workerID)
-	err = x.Insert(ctx)
+	err = x.Persist(ctx)
 	require.NoError(t, err)
 
 	wheres := []Where{{Expr: "worker_id = ?", Args: []interface{}{workerID}}, {Expr: "tollgate_id = ?", Args: []interface{}{tollgateID}}}

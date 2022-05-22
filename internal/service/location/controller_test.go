@@ -2,6 +2,7 @@ package location
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
 	"testing"
@@ -14,8 +15,8 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom/tollgate"
 	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/location/v1beta1"
 	typeV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/type/v1beta1"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/location/storage"
 	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
+	"github.com/openmarketplaceengine/openmarketplaceengine/svc/location"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -82,7 +83,7 @@ func dialer(t *testing.T) func(context.Context, string) (net.Conn, error) {
 	listener := bufconn.Listen(1024 * 1024)
 
 	server := grpc.NewServer()
-	controller, err := newController(dao.Reds.StoreClient, dao.Reds.PubSubClient)
+	controller, err := newController()
 	require.NoError(t, err)
 	locationV1beta1.RegisterLocationServiceServer(server, controller)
 
@@ -115,12 +116,12 @@ func testUpdateLocation(t *testing.T, client locationV1beta1.LocationServiceClie
 	require.NoError(t, err)
 	require.Equal(t, request.GetValue().WorkerId, response.WorkerId)
 
-	location, err := client.GetLocation(context.Background(), &locationV1beta1.GetLocationRequest{
+	l, err := client.GetLocation(context.Background(), &locationV1beta1.GetLocationRequest{
 		WorkerId: id,
 		AreaKey:  "a",
 	})
 	require.NoError(t, err)
-	require.Equal(t, request.GetValue().GetWorkerId(), location.WorkerId)
+	require.Equal(t, request.GetValue().GetWorkerId(), l.WorkerId)
 	require.Equal(t, request.GetAreaKey(), "a")
 }
 
@@ -202,13 +203,13 @@ func testQueryLocation(t *testing.T, client locationV1beta1.LocationServiceClien
 	require.NoError(t, err)
 	require.Equal(t, request.WorkerId, response.WorkerId)
 
-	location, err := client.GetLocation(ctx, request)
+	l, err := client.GetLocation(ctx, request)
 	require.NoError(t, err)
-	require.Less(t, location.LastSeenTime.AsTime().UnixNano(), time.Now().UnixNano())
+	require.Less(t, l.LastSeenTime.AsTime().UnixNano(), time.Now().UnixNano())
 }
 
 func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceClient) {
-	s := storage.New(dao.Reds.StoreClient)
+	s := location.NewStorage(dao.Reds.StoreClient)
 	ctx := context.Background()
 	id := uuid.NewString()
 	err := s.ForgetLocation(ctx, "a", id)
@@ -270,4 +271,8 @@ func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceCl
 	require.Equal(t, id, c.WorkerID)
 	require.InDelta(t, to.GetValue().GetLocation().GetLat(), c.Movement.To.Lat, 0.003)
 	require.InDelta(t, to.GetValue().GetLocation().GetLon(), c.Movement.To.Lon, 0.003)
+}
+
+func crossingChannel(tollgateID string) string {
+	return fmt.Sprintf("channel:crossing:%s", tollgateID)
 }
