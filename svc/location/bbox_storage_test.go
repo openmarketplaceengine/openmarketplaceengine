@@ -1,17 +1,16 @@
-package detect
+package location
 
 import (
 	"context"
 	"testing"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
-
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 	"github.com/stretchr/testify/require"
 )
 
-func TestStorage(t *testing.T) {
+func TestBBoxStorage(t *testing.T) {
 	err := cfg.Load()
 	require.NoError(t, err)
 
@@ -19,7 +18,7 @@ func TestStorage(t *testing.T) {
 		require.NoError(t, dao.Reds.Boot())
 	}
 
-	storage := NewRedisStorage(dao.Reds.StoreClient)
+	storage := NewBBoxStorage(dao.Reds.StoreClient)
 
 	ctx := context.Background()
 
@@ -28,7 +27,7 @@ func TestStorage(t *testing.T) {
 	})
 }
 
-func testVisits(ctx context.Context, t *testing.T, storage *RedisStorage) {
+func testVisits(ctx context.Context, t *testing.T, storage *BBoxStorage) {
 	tollgateID := "toll-123"
 	subjectID := uuid.NewString()
 	key := Key(tollgateID, subjectID)

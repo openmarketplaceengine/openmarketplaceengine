@@ -14,7 +14,6 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom/crossing"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom/tollgate"
 	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
-	detect2 "github.com/openmarketplaceengine/openmarketplaceengine/svc/location/detect"
 	"github.com/stretchr/testify/require"
 )
 
@@ -51,7 +50,7 @@ func TestTracker(t *testing.T) {
 
 	storeClient := dao.Reds.StoreClient
 	pubSubClient := dao.Reds.PubSubClient
-	_d := detector.NewDetector(transformTollgates(tollgates), detect2.NewRedisStorage(storeClient))
+	_d := detector.NewDetector(transformTollgates(tollgates), NewBBoxStorage(storeClient))
 	tracker := NewTracker(NewStorage(storeClient), _d)
 	require.NoError(t, err)
 

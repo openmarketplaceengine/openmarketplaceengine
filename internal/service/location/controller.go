@@ -12,7 +12,6 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
 	"github.com/openmarketplaceengine/openmarketplaceengine/svc/location"
-	detect2 "github.com/openmarketplaceengine/openmarketplaceengine/svc/location/detect"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -45,7 +44,7 @@ func newController() (*Controller, error) {
 	}
 	storeClient := dao.Reds.StoreClient
 	s := location.NewStorage(storeClient)
-	d := detector.NewDetector(transformTollgates(tollgates), detect2.NewRedisStorage(storeClient))
+	d := detector.NewDetector(transformTollgates(tollgates), location.NewBBoxStorage(storeClient))
 	tracker := location.NewTracker(s, d)
 	if err != nil {
 		return nil, err
