@@ -113,7 +113,6 @@ func testDetectCrossing(t *testing.T, tracker *Tracker) {
 	retrieved, err := crossing.QueryBy(ctx, wheres, orderBy, 100)
 	require.NoError(t, err)
 	require.GreaterOrEqual(t, len(retrieved), 1)
-	require.Equal(t, tollgateID, retrieved[0].TollgateID)
 	require.Equal(t, id, retrieved[0].WorkerID)
 
 	ls, err := worker.ListLocations(ctx, id, 100)
