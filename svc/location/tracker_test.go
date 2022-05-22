@@ -2,11 +2,9 @@ package location
 
 import (
 	"context"
-	"encoding/json"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/worker"
 	"testing"
-	"time"
 
-	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
@@ -49,22 +47,22 @@ func TestTracker(t *testing.T) {
 	require.NoError(t, err)
 
 	storeClient := dao.Reds.StoreClient
-	pubSubClient := dao.Reds.PubSubClient
+	//pubSubClient := dao.Reds.PubSubClient
 	_d := detector.NewDetector(transformTollgates(tollgates), NewBBoxStorage(storeClient))
 	tracker := NewTracker(NewStorage(storeClient), _d)
 	require.NoError(t, err)
 
 	t.Run("testDetectCrossing", func(t *testing.T) {
-		testDetectCrossing(t, tracker, pubSubClient)
+		testDetectCrossing(t, tracker)
 	})
 }
 
-func testDetectCrossing(t *testing.T, tracker *Tracker, client *redis.Client) {
+func testDetectCrossing(t *testing.T, tracker *Tracker) {
 	ctx := context.Background()
 
-	target := make(chan detector.Crossing)
-	channel := crossingChannel(tollgateID)
-	subscribe(t, client, channel, target)
+	//target := make(chan detector.Crossing)
+	//channel := crossingChannel(tollgateID)
+	//subscribe(t, client, channel, target)
 
 	id := uuid.NewString()
 	lon0 := -74.195995
@@ -84,17 +82,17 @@ func testDetectCrossing(t *testing.T, tracker *Tracker, client *redis.Client) {
 	require.NotNil(t, c1)
 	require.Equal(t, id, c1.WorkerID)
 
-	select {
-	case c := <-target:
-		require.Equal(t, tollgateID, c.TollgateID)
-		require.Equal(t, detector.Direction("SW"), c.Direction)
-		require.Equal(t, id, c.WorkerID)
-		require.InDelta(t, lon1, c.Movement.To.Lon, 0.003)
-		require.InDelta(t, lat1, c.Movement.To.Lat, 0.003)
-		break
-	case <-time.After(5 * time.Second):
-		require.Fail(t, "timeout")
-	}
+	//select {
+	//case c := <-target:
+	//	require.Equal(t, tollgateID, c.TollgateID)
+	//	require.Equal(t, detector.Direction("SW"), c.Direction)
+	//	require.Equal(t, id, c.WorkerID)
+	//	require.InDelta(t, lon1, c.Movement.To.Lon, 0.003)
+	//	require.InDelta(t, lat1, c.Movement.To.Lat, 0.003)
+	//	break
+	//case <-time.After(5 * time.Second):
+	//	require.Fail(t, "timeout")
+	//}
 
 	wheres := []crossing.Where{{Expr: "worker_id = ?", Args: []interface{}{id}}, {Expr: "tollgate_id = ?", Args: []interface{}{tollgateID}}}
 	orderBy := []string{"created desc"}
@@ -103,21 +101,25 @@ func testDetectCrossing(t *testing.T, tracker *Tracker, client *redis.Client) {
 	require.Len(t, retrieved, 1)
 	require.Equal(t, tollgateID, retrieved[0].TollgateID)
 	require.Equal(t, id, retrieved[0].WorkerID)
+
+	ls, err := worker.ListLocations(ctx, id, 100)
+	require.NoError(t, err)
+	require.Len(t, ls, 2)
 }
 
-func subscribe(t *testing.T, client *redis.Client, channel string, target chan detector.Crossing) {
-	pubSub := client.PSubscribe(context.Background(), channel)
-	go func() {
-		for m := range pubSub.Channel() {
-			var c detector.Crossing
-			err := json.Unmarshal([]byte(m.Payload), &c)
-			require.NoError(t, err)
-			target <- c
-		}
-	}()
-	//subscribe takes a while
-	time.Sleep(50 * time.Millisecond)
-}
+//func subscribe(t *testing.T, client *redis.Client, channel string, target chan detector.Crossing) {
+//	pubSub := client.PSubscribe(context.Background(), channel)
+//	go func() {
+//		for m := range pubSub.Channel() {
+//			var c detector.Crossing
+//			err := json.Unmarshal([]byte(m.Payload), &c)
+//			require.NoError(t, err)
+//			target <- c
+//		}
+//	}()
+//	//subscribe takes a while
+//	time.Sleep(50 * time.Millisecond)
+//}
 
 func transformTollgates(tollgates []*tollgate.Tollgate) (result []*detector.Tollgate) {
 	for _, t := range tollgates {
