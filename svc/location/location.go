@@ -1,4 +1,4 @@
-package storage
+package location
 
 import (
 	"time"

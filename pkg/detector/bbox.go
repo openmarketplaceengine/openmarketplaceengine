@@ -3,6 +3,8 @@ package detector
 import (
 	"context"
 	"fmt"
+
+	"github.com/google/uuid"
 )
 
 // BBox is a bounded box, represents area defined by two longitudes and two latitudes
@@ -42,6 +44,7 @@ func detectCrossingBBox(ctx context.Context, storage Storage, tollgateID string,
 					return nil, fmt.Errorf("delete visits err=%v", err)
 				}
 				return &Crossing{
+					ID:         uuid.NewString(),
 					TollgateID: tollgateID,
 					WorkerID:   workerID,
 					Movement:   movement,

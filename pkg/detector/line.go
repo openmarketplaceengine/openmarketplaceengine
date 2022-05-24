@@ -3,6 +3,8 @@ package detector
 import (
 	"math"
 
+	"github.com/google/uuid"
+
 	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/util"
 )
 
@@ -111,6 +113,7 @@ func detectCrossingVector(tollgateID string, workerID string, line *Line, moveme
 	intersect := intersects(s1, s2)
 	if intersect {
 		return &Crossing{
+			ID:         uuid.NewString(),
 			WorkerID:   workerID,
 			TollgateID: tollgateID,
 			Movement:   movement,

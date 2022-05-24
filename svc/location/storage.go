@@ -1,4 +1,4 @@
-package storage
+package location
 
 import (
 	"context"
@@ -14,11 +14,21 @@ type Storage struct {
 	client *redis.Client
 }
 
-func New(client *redis.Client) *Storage {
+func NewStorage(client *redis.Client) *Storage {
 	s := Storage{
 		client: client,
 	}
 	return &s
+}
+
+func (s *Storage) RedisUpdateHandler() Handler {
+	return func(ctx context.Context, areaKey string, l *Location) error {
+		err := s.Update(ctx, areaKey, l, time.Now())
+		if err != nil {
+			return fmt.Errorf("update location error: %w", err)
+		}
+		return nil
+	}
 }
 
 func (s *Storage) Update(ctx context.Context, areaKey string, l *Location, t time.Time) (err error) {

@@ -5,16 +5,14 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/dom/tollgate"
-
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/tollgate"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/tollgate/v1beta1"
+	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
+	svcTollgate "github.com/openmarketplaceengine/openmarketplaceengine/svc/tollgate"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-
-	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
-	"google.golang.org/grpc"
-
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/tollgate/v1beta1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -31,7 +29,7 @@ func GrpcRegister() {
 		controller := newController()
 		v1beta1.RegisterTollgateServiceServer(srv, controller)
 
-		err := Load(cfg.Context())
+		err := svcTollgate.Load(cfg.Context())
 		if err != nil {
 			return fmt.Errorf("load tollgates error: %w", err)
 		}

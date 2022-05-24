@@ -1,4 +1,4 @@
-package storage
+package location
 
 import (
 	"context"
@@ -31,7 +31,7 @@ var myLocation = Location{
 
 const areaKey = "san_fran"
 
-func TestLocationStorage(t *testing.T) {
+func TestStorage(t *testing.T) {
 	err := cfg.Load()
 	require.NoError(t, err)
 
@@ -39,7 +39,7 @@ func TestLocationStorage(t *testing.T) {
 		require.NoError(t, dao.Reds.Boot())
 	}
 
-	storage := New(dao.Reds.StoreClient)
+	storage := NewStorage(dao.Reds.StoreClient)
 
 	ctx := context.Background()
 

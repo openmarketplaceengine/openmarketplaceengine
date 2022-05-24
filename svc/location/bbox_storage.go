@@ -1,4 +1,4 @@
-package storage
+package location
 
 import (
 	"context"
@@ -7,12 +7,12 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-type RedisStorage struct {
+type BBoxStorage struct {
 	client *redis.Client
 }
 
-func NewRedisStorage(client *redis.Client) *RedisStorage {
-	s := RedisStorage{
+func NewBBoxStorage(client *redis.Client) *BBoxStorage {
+	s := BBoxStorage{
 		client: client,
 	}
 	return &s
@@ -22,11 +22,11 @@ func Key(tollgateID, subjectID string) string {
 	return fmt.Sprintf("toll-bbox-%s-%s", tollgateID, subjectID)
 }
 
-func (s *RedisStorage) Visit(ctx context.Context, key string, size int, index int) error {
+func (s *BBoxStorage) Visit(ctx context.Context, key string, size int, index int) error {
 	return s.client.BitField(ctx, key, "SET", "i2", fmt.Sprintf("#%v", index), 1).Err()
 }
 
-func (s *RedisStorage) Visits(ctx context.Context, key string, size int) ([]int, error) {
+func (s *BBoxStorage) Visits(ctx context.Context, key string, size int) ([]int, error) {
 	var args []interface{}
 	for i := 0; i < size; i++ {
 		args = append(args, "GET")
@@ -44,6 +44,6 @@ func (s *RedisStorage) Visits(ctx context.Context, key string, size int) ([]int,
 	return res, err
 }
 
-func (s *RedisStorage) Del(ctx context.Context, key string) error {
+func (s *BBoxStorage) Del(ctx context.Context, key string) error {
 	return s.client.Del(ctx, key).Err()
 }
