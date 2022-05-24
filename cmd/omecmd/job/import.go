@@ -11,12 +11,12 @@ import (
 	"strings"
 	"time"
 
-	jobimpv1 "github.com/openmarketplaceengine/openmarketplaceengine/api/gen/jobimp/v1"
 	"github.com/openmarketplaceengine/openmarketplaceengine/app"
 	"github.com/openmarketplaceengine/openmarketplaceengine/app/arg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/app/dir"
 	"github.com/openmarketplaceengine/openmarketplaceengine/app/enc/geo"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cmd/omecmd/cfg"
+	jobv1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/job/v1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/yaml.v2"
 )
@@ -31,7 +31,7 @@ const (
 func init() {
 	const flags = arg.FileMustExist | arg.FileSkipInvalid | arg.PathPrintError
 	v := arg.FileValidator(flags, fyaml, fjson)
-	app.Client().Args.Files("jobimp", "Import job description from YAML or JSON `file(s)`", flags, Jobimp).Validator(v)
+	app.Client().Args.Files("job", "Import job description from YAML or JSON `file(s)`", flags, Jobimp).Validator(v)
 }
 
 //-----------------------------------------------------------------------------
@@ -42,9 +42,9 @@ func Jobimp(ctx context.Context, files []string) error {
 		return err
 	}
 	defer cfg.SafeClose(con)
-	svc := jobimpv1.NewJobimpServiceClient(con)
-	var req jobimpv1.JobimpRequest
-	var res *jobimpv1.JobimpResponse
+	svc := jobv1.NewJobServiceClient(con)
+	var req jobv1.ImportJobRequest
+	var res *jobv1.ImportJobResponse
 	cfg.Debugf("importing %d job file(s)", len(files))
 	var job jobfile
 	var dec dir.DecodeFunc
@@ -84,14 +84,14 @@ func Jobimp(ctx context.Context, files []string) error {
 //-----------------------------------------------------------------------------
 
 var (
-	pickupLoc  jobimpv1.Location
-	dropoffLoc jobimpv1.Location
+	pickupLoc  jobv1.Location
+	dropoffLoc jobv1.Location
 	pickupDate timestamppb.Timestamp
 	created    timestamppb.Timestamp
 	updated    timestamppb.Timestamp
 )
 
-func updateRequest(r *jobimpv1.JobimpRequest, j *jobfile) {
+func updateRequest(r *jobv1.ImportJobRequest, j *jobfile) {
 	r.Reset()
 	updateTimestamp(&created, j.Created.Time)
 	updateTimestamp(&updated, j.Updated.Time)
@@ -119,7 +119,7 @@ func updateTimestamp(dst *timestamppb.Timestamp, src time.Time) {
 	dst.Nanos = int32(src.Nanosecond())
 }
 
-func updateLocation(dst *jobimpv1.Location, src geo.LocationWKB) {
+func updateLocation(dst *jobv1.Location, src geo.LocationWKB) {
 	dst.Reset()
 	dst.Lat = src.Lat
 	dst.Lon = src.Lon

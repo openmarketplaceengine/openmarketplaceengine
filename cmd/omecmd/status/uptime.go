@@ -9,10 +9,9 @@ import (
 	"fmt"
 	"time"
 
-	uptimev1 "github.com/openmarketplaceengine/openmarketplaceengine/api/gen/status/v1"
 	"github.com/openmarketplaceengine/openmarketplaceengine/app"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cmd/omecmd/cfg"
-	"google.golang.org/protobuf/types/known/emptypb"
+	uptimev1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/status/v1"
 )
 
 func init() {
@@ -27,7 +26,7 @@ func uptime(ctx context.Context) error {
 	}
 	defer cfg.SafeClose(con)
 	svc := uptimev1.NewUptimeServiceClient(con)
-	res, err2 := svc.GetUptime(ctx, &emptypb.Empty{})
+	res, err2 := svc.GetUptime(ctx, &uptimev1.GetUptimeRequest{})
 	if err2 != nil {
 		return err2
 	}

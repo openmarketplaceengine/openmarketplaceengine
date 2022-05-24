@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package api.type.v1beta1;
+
+option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/type/v1beta1";
+
+message Location {
+  double lat = 1;
+  double lon = 2;
+}

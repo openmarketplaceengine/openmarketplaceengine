@@ -16,8 +16,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/location/v1beta1"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/type/v1beta1"
+	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/location/v1beta1"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/api/type/v1beta1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

@@ -16,7 +16,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/omeapi/crossing/v1beta1"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/api/crossing/v1beta1"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
