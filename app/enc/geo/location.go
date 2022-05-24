@@ -10,8 +10,8 @@ import (
 )
 
 type Location struct {
-	Lat float64 // latitude
-	Lon float64 // longitude
+	Lat float64
+	Lon float64
 }
 
 type LocationWKB struct {

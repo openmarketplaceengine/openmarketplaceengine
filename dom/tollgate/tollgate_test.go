@@ -111,19 +111,19 @@ func newRandomTollgate(r *rand.Rand, name string) *Tollgate {
 		Name: name,
 		BBoxes: &BBoxes{
 			BBoxes: []*detector.BBox{{
-				LonMin: util.LongitudeInRange(r, -122.47304848490842, -122.43073395709482),
-				LatMin: util.LatitudeInRange(r, 37.65046887713942, 37.65617701286946),
-				LonMax: util.LongitudeInRange(r, -122.47304848490842, -122.43073395709482),
-				LatMax: util.LatitudeInRange(r, 37.65046887713942, 37.65617701286946),
+				LonMin: util.LonInRange(r, -122.47304848490842, -122.43073395709482),
+				LatMin: util.LatInRange(r, 37.65046887713942, 37.65617701286946),
+				LonMax: util.LonInRange(r, -122.47304848490842, -122.43073395709482),
+				LatMax: util.LatInRange(r, 37.65046887713942, 37.65617701286946),
 			}},
 			Required: 2,
 		},
 		GateLine: &GateLine{
 			Line: &detector.Line{
-				Lon1: util.LongitudeInRange(r, -122.47304848490842, -122.43073395709482),
-				Lat1: util.LatitudeInRange(r, 37.65046887713942, 37.65617701286946),
-				Lon2: util.LongitudeInRange(r, -122.47304848490842, -122.43073395709482),
-				Lat2: util.LatitudeInRange(r, 37.65046887713942, 37.65617701286946),
+				Lon1: util.LonInRange(r, -122.47304848490842, -122.43073395709482),
+				Lat1: util.LatInRange(r, 37.65046887713942, 37.65617701286946),
+				Lon2: util.LonInRange(r, -122.47304848490842, -122.43073395709482),
+				Lat2: util.LatInRange(r, 37.65046887713942, 37.65617701286946),
 			},
 		},
 	}

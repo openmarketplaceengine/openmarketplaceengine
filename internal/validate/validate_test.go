@@ -15,19 +15,19 @@ func TestValidateString(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestValidateLongitude(t *testing.T) {
-	err := Float64("test", 0, IsLongitude)
+func TestValidateLon(t *testing.T) {
+	err := Float64("test", 0, IsLon)
 	require.NoError(t, err)
 
-	err = Float64("test", 200, IsLongitude)
+	err = Float64("test", 200, IsLon)
 	require.EqualError(t, err, "must be valid floats between -180 and 180")
 }
 
-func TestValidateLatitude(t *testing.T) {
-	err := Float64("test", 0, IsLatitude)
+func TestValidateLat(t *testing.T) {
+	err := Float64("test", 0, IsLat)
 	require.NoError(t, err)
 
-	err = Float64("test", 93, IsLatitude)
+	err = Float64("test", 93, IsLat)
 	require.EqualError(t, err, "must be valid floats between -90 and 90")
 }
 
@@ -38,8 +38,8 @@ func TestValidate(t *testing.T) {
 		Seconds: -1,
 		Nanos:   0,
 	})
-	v.ValidateLongitude("lon", 1000.00)
-	v.ValidateLatitude("lat", 1000.00)
+	v.ValidateLon("lon", 1000.00)
+	v.ValidateLat("lat", 1000.00)
 
 	require.Len(t, v.Errors, 4)
 }

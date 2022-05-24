@@ -29,9 +29,9 @@ func (t *Tracker) TrackLocation(ctx context.Context, areaKey string, workerID st
 	lastLocation := t.storage.LastLocation(ctx, areaKey, workerID)
 
 	l := &Location{
-		WorkerID:  workerID,
-		Longitude: lon,
-		Latitude:  lat,
+		WorkerID: workerID,
+		Lon:      lon,
+		Lat:      lat,
 	}
 
 	for _, handler := range t.locationHandlers {
@@ -43,8 +43,8 @@ func (t *Tracker) TrackLocation(ctx context.Context, areaKey string, workerID st
 
 	if lastLocation != nil {
 		from := &detector.Location{
-			Lon: lastLocation.Longitude,
-			Lat: lastLocation.Latitude,
+			Lon: lastLocation.Lon,
+			Lat: lastLocation.Lat,
 		}
 		to := &detector.Location{
 			Lon: lon,

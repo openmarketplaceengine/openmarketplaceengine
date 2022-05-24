@@ -17,12 +17,12 @@ type Location struct {
 func Parse(line string) (*Location, error) {
 	split := strings.Split(line, ",")
 
-	lat, err := util.ParseLatitude(split[1])
+	lat, err := util.ParseLat(split[1])
 	if err != nil {
 		return nil, err
 	}
 
-	lon, err := util.ParseLongitude(split[2])
+	lon, err := util.ParseLon(split[2])
 	if err != nil {
 		return nil, err
 	}

@@ -118,19 +118,19 @@ func newRandomTollgate(r *rand.Rand, name string) *tollgate.Tollgate {
 		Name: name,
 		BBoxes: &tollgate.BBoxes{
 			BBoxes: []*detector.BBox{{
-				LonMin: util.LongitudeInRange(r, -122.473048, -122.430733),
-				LatMin: util.LatitudeInRange(r, 37.656177, 37.656177),
-				LonMax: util.LongitudeInRange(r, -122.473048, -122.430733),
-				LatMax: util.LatitudeInRange(r, 37.656177, 37.656177),
+				LonMin: util.LonInRange(r, -122.473048, -122.430733),
+				LatMin: util.LatInRange(r, 37.656177, 37.656177),
+				LonMax: util.LonInRange(r, -122.473048, -122.430733),
+				LatMax: util.LatInRange(r, 37.656177, 37.656177),
 			}},
 			Required: 2,
 		},
 		GateLine: &tollgate.GateLine{
 			Line: &detector.Line{
-				Lon1: util.LongitudeInRange(r, -122.473048, -122.430733),
-				Lat1: util.LatitudeInRange(r, 37.656177, 37.656177),
-				Lon2: util.LongitudeInRange(r, -122.473048, -122.430733),
-				Lat2: util.LatitudeInRange(r, 37.656177, 37.656177),
+				Lon1: util.LonInRange(r, -122.473048, -122.430733),
+				Lat1: util.LatInRange(r, 37.656177, 37.656177),
+				Lon2: util.LonInRange(r, -122.473048, -122.430733),
+				Lat2: util.LatInRange(r, 37.656177, 37.656177),
 			},
 		},
 	}
@@ -147,12 +147,12 @@ func newRandomCrossing(r *rand.Rand, tollgateID dom.SUID, workerID dom.SUID) *cr
 				WorkerID:   workerID,
 				Movement: &detector.Movement{
 					From: &detector.Location{
-						Lon: util.LongitudeInRange(r, -122.473048, -122.430733),
-						Lat: util.LatitudeInRange(r, 37.656177, 37.656177),
+						Lon: util.LonInRange(r, -122.473048, -122.430733),
+						Lat: util.LatInRange(r, 37.656177, 37.656177),
 					},
 					To: &detector.Location{
-						Lon: util.LongitudeInRange(r, -122.473048, -122.430733),
-						Lat: util.LatitudeInRange(r, 37.656177, 37.656177),
+						Lon: util.LonInRange(r, -122.473048, -122.430733),
+						Lat: util.LatInRange(r, 37.656177, 37.656177),
 					},
 				},
 				Direction: "N",

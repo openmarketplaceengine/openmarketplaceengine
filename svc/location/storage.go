@@ -34,8 +34,8 @@ func (s *Storage) RedisUpdateHandler() Handler {
 func (s *Storage) Update(ctx context.Context, areaKey string, l *Location, t time.Time) (err error) {
 	err = s.client.GeoAdd(ctx, areaKey, &redis.GeoLocation{
 		Name:      l.WorkerID,
-		Longitude: l.Longitude,
-		Latitude:  l.Latitude,
+		Longitude: l.Lon,
+		Latitude:  l.Lat,
 		Dist:      0,
 		GeoHash:   0,
 	}).Err()
@@ -70,8 +70,8 @@ func (s *Storage) LastLocation(ctx context.Context, areaKey string, workerID str
 	if len(v) > 0 && v[0] != nil {
 		return &LastLocation{
 			WorkerID:     workerID,
-			Longitude:    util.Round6(v[0].Longitude),
-			Latitude:     util.Round6(v[0].Latitude),
+			Lon:          util.Round6(v[0].Longitude),
+			Lat:          util.Round6(v[0].Latitude),
 			LastSeenTime: lastSeen,
 		}
 	}
@@ -119,12 +119,12 @@ func (s *Storage) RemoveExpiredLocations(ctx context.Context, areaKey string, be
 	return nil
 }
 
-func (s *Storage) RangeLocations(ctx context.Context, areaKey string, fromLongitude float64, fromLatitude float64, radius float64, radiusUnit string) (locations []*RangeLocation, err error) {
+func (s *Storage) RangeLocations(ctx context.Context, areaKey string, fromLon float64, fromLat float64, radius float64, radiusUnit string) (locations []*RangeLocation, err error) {
 	geoLocations, err := s.client.GeoSearchLocation(ctx, areaKey, &redis.GeoSearchLocationQuery{
 		GeoSearchQuery: redis.GeoSearchQuery{
 			Member:     "",
-			Longitude:  fromLongitude,
-			Latitude:   fromLatitude,
+			Longitude:  fromLon,
+			Latitude:   fromLat,
 			Radius:     radius,
 			RadiusUnit: radiusUnit,
 			BoxWidth:   0,
@@ -154,13 +154,13 @@ func (s *Storage) RangeLocations(ctx context.Context, areaKey string, fromLongit
 			lastSeen = time.UnixMilli(int64(score))
 		}
 		locations = append(locations, &RangeLocation{
-			WorkerID:      geoLocation.Name,
-			Longitude:     util.Round6(geoLocation.Longitude),
-			Latitude:      util.Round6(geoLocation.Latitude),
-			Distance:      geoLocation.Dist,
-			FromLatitude:  fromLatitude,
-			FromLongitude: fromLongitude,
-			LastSeenTime:  lastSeen,
+			WorkerID:     geoLocation.Name,
+			Lon:          util.Round6(geoLocation.Longitude),
+			Lat:          util.Round6(geoLocation.Latitude),
+			Distance:     geoLocation.Dist,
+			FromLat:      fromLat,
+			FromLon:      fromLon,
+			LastSeenTime: lastSeen,
 		})
 	}
 

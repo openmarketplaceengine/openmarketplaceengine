@@ -13,12 +13,12 @@ import (
 const workerLocationTable = "worker_location"
 
 type Location struct {
-	Recnum    int64    `db:"recnum"` // auto-increasing record number
-	Worker    dom.SUID `db:"worker"`
-	Stamp     dom.Time `db:"stamp"`
-	Longitude float64  `db:"longitude"`
-	Latitude  float64  `db:"latitude"`
-	Speed     int      `db:"speed"`
+	Recnum int64    `db:"recnum"` // auto-increasing record number
+	Worker dom.SUID `db:"worker"`
+	Stamp  dom.Time `db:"stamp"`
+	Lon    float64  `db:"longitude"`
+	Lat    float64  `db:"latitude"`
+	Speed  int      `db:"speed"`
 }
 
 //-----------------------------------------------------------------------------
@@ -57,8 +57,8 @@ func ListLocations(ctx dom.Context, workerID dom.SUID, limit int) ([]*Location, 
 				&c.Recnum,
 				&c.Worker,
 				&c.Stamp,
-				&c.Longitude,
-				&c.Latitude,
+				&c.Lon,
+				&c.Lat,
 				&c.Speed,
 			); err != nil {
 				return err
@@ -100,8 +100,8 @@ func (l *Location) Insert() dao.Executable {
 	return dao.Insert(workerLocationTable).
 		Set("worker", l.Worker).
 		Set("stamp", l.Stamp).
-		Set("longitude", l.Longitude).
-		Set("latitude", l.Latitude).
+		Set("longitude", l.Lon).
+		Set("latitude", l.Lat).
 		Set("speed", l.Speed)
 }
 

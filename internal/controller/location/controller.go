@@ -88,8 +88,8 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 	var v validate.Validator
 	v.ValidateString("area_key", areaKey, validate.IsNotNull)
 	v.ValidateString("value_worker_id", workerID, validate.IsNotNull)
-	v.ValidateFloat64("value_location_lon", loc.GetLon(), validate.IsLongitude)
-	v.ValidateFloat64("value_location_lat", loc.GetLat(), validate.IsLatitude)
+	v.ValidateFloat64("value_location_lon", loc.GetLon(), validate.IsLon)
+	v.ValidateFloat64("value_location_lat", loc.GetLat(), validate.IsLat)
 	v.ValidateTimestamp("value_update_time", updateTime)
 
 	errorInfo := v.ErrorInfo()
@@ -167,8 +167,8 @@ func (c *Controller) GetLocation(ctx context.Context, request *locationV1beta1.G
 			AreaKey:  areaKey,
 			WorkerId: l.WorkerID,
 			Location: &v1beta1.Location{
-				Lon: l.Longitude,
-				Lat: l.Latitude,
+				Lon: l.Lon,
+				Lat: l.Lat,
 			},
 			LastSeenTime: timestamppb.New(l.LastSeenTime),
 		}, nil

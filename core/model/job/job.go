@@ -11,10 +11,10 @@ type Address struct {
 
 // Location to visit.
 type Location struct {
-	Longitude float64
-	Latitude  float64
-	Name      string
-	Address   Address
+	Lon     float64
+	Lat     float64
+	Name    string
+	Address Address
 }
 
 // Request represents the action of ride or delivery
