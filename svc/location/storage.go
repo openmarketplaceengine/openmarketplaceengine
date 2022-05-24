@@ -119,12 +119,12 @@ func (s *Storage) RemoveExpiredLocations(ctx context.Context, areaKey string, be
 	return nil
 }
 
-func (s *Storage) RangeLocations(ctx context.Context, areaKey string, fromLongitude float64, fromLatitude float64, radius float64, radiusUnit string) (locations []*RangeLocation, err error) {
+func (s *Storage) RangeLocations(ctx context.Context, areaKey string, fromLon float64, fromLat float64, radius float64, radiusUnit string) (locations []*RangeLocation, err error) {
 	geoLocations, err := s.client.GeoSearchLocation(ctx, areaKey, &redis.GeoSearchLocationQuery{
 		GeoSearchQuery: redis.GeoSearchQuery{
 			Member:     "",
-			Longitude:  fromLongitude,
-			Latitude:   fromLatitude,
+			Longitude:  fromLon,
+			Latitude:   fromLat,
 			Radius:     radius,
 			RadiusUnit: radiusUnit,
 			BoxWidth:   0,
@@ -154,13 +154,13 @@ func (s *Storage) RangeLocations(ctx context.Context, areaKey string, fromLongit
 			lastSeen = time.UnixMilli(int64(score))
 		}
 		locations = append(locations, &RangeLocation{
-			WorkerID:      geoLocation.Name,
-			Longitude:     util.Round6(geoLocation.Longitude),
-			Latitude:      util.Round6(geoLocation.Latitude),
-			Distance:      geoLocation.Dist,
-			FromLatitude:  fromLatitude,
-			FromLongitude: fromLongitude,
-			LastSeenTime:  lastSeen,
+			WorkerID:     geoLocation.Name,
+			Longitude:    util.Round6(geoLocation.Longitude),
+			Latitude:     util.Round6(geoLocation.Latitude),
+			Distance:     geoLocation.Dist,
+			FromLat:      fromLat,
+			FromLon:      fromLon,
+			LastSeenTime: lastSeen,
 		})
 	}
 

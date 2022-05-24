@@ -38,12 +38,12 @@ func testCrossed(t *testing.T) {
 
 	m := Movement{
 		From: &Location{
-			Lon: 2,
-			Lat: 2,
+			Longitude: 2,
+			Latitude:  2,
 		},
 		To: &Location{
-			Lon: 5,
-			Lat: 5,
+			Longitude: 5,
+			Latitude:  5,
 		},
 	}
 
@@ -61,12 +61,12 @@ func testCrossedLatLong(t *testing.T) {
 
 	m := Movement{
 		From: &Location{
-			Lon: -79.87124651670456,
-			Lat: 41.199493331477335,
+			Longitude: -79.87124651670456,
+			Latitude:  41.199493331477335,
 		},
 		To: &Location{
-			Lon: -79.867927,
-			Lat: 41.199329,
+			Longitude: -79.867927,
+			Latitude:  41.199329,
 		},
 	}
 
@@ -83,12 +83,12 @@ func testNotCrossed(t *testing.T) {
 	}
 	m := Movement{
 		From: &Location{
-			Lon: 5,
-			Lat: 5,
+			Longitude: 5,
+			Latitude:  5,
 		},
 		To: &Location{
-			Lon: 5,
-			Lat: 5,
+			Longitude: 5,
+			Latitude:  5,
 		},
 	}
 
@@ -111,12 +111,12 @@ func testNotCrossedVector(t *testing.T) {
 	}
 	m := Movement{
 		From: &Location{
-			Lon: -74.172478,
-			Lat: 40.663041,
+			Longitude: -74.172478,
+			Latitude:  40.663041,
 		},
 		To: &Location{
-			Lon: -74.154282,
-			Lat: 40.669812,
+			Longitude: -74.154282,
+			Latitude:  40.669812,
 		},
 	}
 
@@ -137,12 +137,12 @@ func testCrossedVector(t *testing.T) {
 
 	m := Movement{
 		From: &Location{
-			Lon: -74.195995,
-			Lat: 40.636916,
+			Longitude: -74.195995,
+			Latitude:  40.636916,
 		},
 		To: &Location{
-			Lon: -74.198356,
-			Lat: 40.634408,
+			Longitude: -74.198356,
+			Latitude:  40.634408,
 		},
 	}
 

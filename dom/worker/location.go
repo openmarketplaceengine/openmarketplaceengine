@@ -77,12 +77,12 @@ func ListLocations(ctx dom.Context, workerID dom.SUID, limit int) ([]*Location, 
 // Setters
 //-----------------------------------------------------------------------------
 
-func AddLocation(ctx dom.Context, workerID dom.SUID, lon float64, lat float64, stamp time.Time, speed int) error {
+func AddLocation(ctx dom.Context, workerID dom.SUID, longitude float64, latitude float64, stamp time.Time, speed int) error {
 	sql := dao.Insert(workerLocationTable).
 		Set("worker", workerID).
 		Set("stamp", stamp).
-		Set("longitude", lon).
-		Set("latitude", lat).
+		Set("longitude", longitude).
+		Set("latitude", latitude).
 		Set("speed", speed)
 	return dao.ExecTX(ctx, sql)
 }

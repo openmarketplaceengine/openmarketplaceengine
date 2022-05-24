@@ -8,10 +8,9 @@ import (
 	"context"
 	"time"
 
-	uptimev1 "github.com/openmarketplaceengine/openmarketplaceengine/api/gen/status/v1"
+	uptimev1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/status/v1"
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
 	"google.golang.org/grpc"
-	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -32,8 +31,8 @@ func init() {
 
 //-----------------------------------------------------------------------------
 
-func (u *uptimeService) GetUptime(context.Context, *emptypb.Empty) (*uptimev1.UptimeResponse, error) {
-	res := new(uptimev1.UptimeResponse)
+func (u *uptimeService) GetUptime(context.Context, *uptimev1.GetUptimeRequest) (*uptimev1.GetUptimeResponse, error) {
+	res := new(uptimev1.GetUptimeResponse)
 	res.Uptime = int64(time.Since(u.start))
 	res.Started = timestamppb.New(u.start)
 	return res, nil

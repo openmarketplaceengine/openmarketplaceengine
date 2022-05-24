@@ -73,7 +73,7 @@ func checkVisits(visits []int, required int32) bool {
 }
 
 func inBoundary(box *BBox, location *Location) bool {
-	x := location.Lon
-	y := location.Lat
+	x := location.Longitude
+	y := location.Latitude
 	return box.LonMin < x && x < box.LonMax && box.LatMin < y && y < box.LatMax
 }

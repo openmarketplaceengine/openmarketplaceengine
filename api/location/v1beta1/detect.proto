@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package api.location.v1beta1;
+
+import "google/protobuf/timestamp.proto";
+import "api/type/v1beta1/location.proto";
+import "api/type/v1beta1/crossing.proto";
+import "api/location/v1beta1/location_update.proto";
+
+option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/location/v1beta1";
+
+service DetectService {
+  rpc DetectCrossings(DetectCrossingsRequest) returns (DetectCrossingsResponse) {}
+}
+
+message DetectCrossingsRequest {
+  string area_key = 1;
+  repeated api.location.v1beta1.LocationUpdate values = 2;
+  bool validate_only = 3;
+}
+
+message DetectCrossingsResponse {
+  string area_key = 1;
+  repeated api.type.v1beta1.Crossing values = 2;
+}

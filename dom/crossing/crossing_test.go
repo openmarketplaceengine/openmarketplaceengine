@@ -87,12 +87,12 @@ func newRandomCrossing(r *rand.Rand, tollgateID dom.SUID, workerID dom.SUID) *To
 				WorkerID:   workerID,
 				Movement: &detector.Movement{
 					From: &detector.Location{
-						Lon: util.LongitudeInRange(r, -122.473048, -122.430733),
-						Lat: util.LatitudeInRange(r, 37.656177, 37.656177),
+						Longitude: util.LongitudeInRange(r, -122.473048, -122.430733),
+						Latitude:  util.LatitudeInRange(r, 37.656177, 37.656177),
 					},
 					To: &detector.Location{
-						Lon: util.LongitudeInRange(r, -122.473048, -122.430733),
-						Lat: util.LatitudeInRange(r, 37.656177, 37.656177),
+						Longitude: util.LongitudeInRange(r, -122.473048, -122.430733),
+						Latitude:  util.LatitudeInRange(r, 37.656177, 37.656177),
 					},
 				},
 				Direction: "N",

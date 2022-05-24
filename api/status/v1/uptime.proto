@@ -5,13 +5,16 @@ import "google/protobuf/timestamp.proto";
 
 package api.status.v1;
 
-option go_package = "api/status/v1";
+option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/status/v1";
 
 service UptimeService {
-  rpc GetUptime(google.protobuf.Empty) returns (UptimeResponse) {}
+  rpc GetUptime(GetUptimeRequest) returns (GetUptimeResponse) {}
 }
 
-message UptimeResponse {
+message GetUptimeRequest {
+}
+
+message GetUptimeResponse {
   int64 uptime = 1;
   google.protobuf.Timestamp started = 2;
 }

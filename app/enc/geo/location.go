@@ -10,8 +10,8 @@ import (
 )
 
 type Location struct {
-	Lat float64 // latitude
-	Lon float64 // longitude
+	Latitude  float64
+	Longitude float64
 }
 
 type LocationWKB struct {
@@ -27,13 +27,13 @@ func (loc *Location) Reset() {
 //-----------------------------------------------------------------------------
 
 func (loc Location) String() string {
-	return fmt.Sprintf("[%f, %f]", loc.Lat, loc.Lon)
+	return fmt.Sprintf("[%f, %f]", loc.Latitude, loc.Longitude)
 }
 
 //-----------------------------------------------------------------------------
 
 func (loc Location) EqualsCoord(lat, lon float64) bool {
-	return loc.Lat == lat && loc.Lon == lon
+	return loc.Latitude == lat && loc.Longitude == lon
 }
 
 //-----------------------------------------------------------------------------
@@ -44,7 +44,7 @@ func (loc *LocationWKB) UnmarshalText(text []byte) (err error) {
 		loc.Reset()
 	case WKBPointLen:
 		src := *(*string)(unsafe.Pointer(&text))
-		loc.Lat, loc.Lon, err = DecodePointWKB(src)
+		loc.Latitude, loc.Longitude, err = DecodePointWKB(src)
 	default:
 		return ErrSrcLen
 	}
