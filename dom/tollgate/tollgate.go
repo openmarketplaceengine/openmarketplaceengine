@@ -1,10 +1,7 @@
 package tollgate
 
 import (
-	"database/sql"
 	"encoding/json"
-	"fmt"
-
 	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
@@ -39,43 +36,46 @@ type Tollgate struct {
 	Updated  dao.Time  `db:"updated"`
 }
 
-func (t *Tollgate) Insert(ctx dom.Context) error {
+func (t *Tollgate) insert() dao.Executable {
 	now := dao.Time{}
 	now.Now()
 	now.UTC()
 	t.Created = now
-	exec := dao.Insert(table).
+	sql := dao.Insert(table).
 		Set("id", t.ID).
 		Set("name", t.Name).
 		Set("b_boxes", t.BBoxes).
 		Set("gate_line", t.GateLine).
 		Set("created", t.Created)
-	return dao.ExecTX(ctx, exec)
+	return sql
 }
 
-func (t *Tollgate) Update(ctx dom.Context) error {
+func (t *Tollgate) update() dao.Executable {
 	now := dao.Time{}
 	now.Now()
 	now.UTC()
 	t.Updated = now
-	exec := dao.Update(table).
+	sql := dao.Update(table).
 		Set("name", t.Name).
 		Set("b_boxes", t.BBoxes).
 		Set("gate_line", t.GateLine).
 		Set("updated", t.Updated).
 		Where("id = ?", t.ID)
-	return dao.ExecTX(ctx, exec)
+	return sql
 }
 
-func CreateIfNotExists(ctx dom.Context, tollgate *Tollgate) (created bool, err error) {
-	_, err = QueryOne(ctx, tollgate.ID)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return true, tollgate.Insert(ctx)
-		}
-		return false, fmt.Errorf("CreateIfNotExists error: %w", err)
-	}
-	return false, nil
+func (t *Tollgate) Insert(ctx dom.Context) error {
+	executable := t.insert()
+	return dao.ExecTX(ctx, executable)
+}
+
+func (t *Tollgate) Update(ctx dom.Context) error {
+	executable := t.update()
+	return dao.ExecTX(ctx, executable)
+}
+
+func (t *Tollgate) Upsert(ctx dom.Context) (dao.Result, dao.UpsertStatus, error) {
+	return dao.Upsert(ctx, t.insert, t.update)
 }
 
 func QueryOne(ctx dom.Context, id dom.SUID) (*Tollgate, error) {

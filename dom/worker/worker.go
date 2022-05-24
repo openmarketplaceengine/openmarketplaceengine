@@ -52,14 +52,14 @@ type WorkerVehicle struct { //nolint:revive
 
 //-----------------------------------------------------------------------------
 
-// Persist saves Worker to the database.
-func (w *Worker) Persist(ctx dom.Context) error {
-	return dao.ExecTX(ctx, w.Insert())
+// Insert inserts Worker to the database.
+func (w *Worker) Insert(ctx dom.Context) error {
+	return dao.ExecTX(ctx, w.insert())
 }
 
 //-----------------------------------------------------------------------------
 
-func (w *Worker) Insert() dao.Executable {
+func (w *Worker) insert() dao.Executable {
 	return dao.Insert(workerTable).
 		Set("id", w.ID).
 		Set("status", w.Status).
@@ -76,7 +76,7 @@ func (w *Worker) Insert() dao.Executable {
 // Getters
 //-----------------------------------------------------------------------------
 
-func GetWorker(ctx dom.Context, workerID dom.SUID) (wrk *Worker, has bool, err error) {
+func QueryOne(ctx dom.Context, workerID dom.SUID) (wrk *Worker, has bool, err error) {
 	wrk = new(Worker)
 	has, err = dao.From(workerTable).
 		Bind(wrk).
@@ -127,7 +127,7 @@ func QueryAll(ctx dom.Context, status *Status, limit int, offset int) ([]*Worker
 
 //-----------------------------------------------------------------------------
 
-func GetWorkerStatus(ctx dom.Context, workerID dom.SUID) (Status, bool, error) {
+func QueryWorkerStatus(ctx dom.Context, workerID dom.SUID) (Status, bool, error) {
 	var status int32
 	has, err := dao.From(workerTable).
 		Select("status").To(&status).
@@ -140,7 +140,7 @@ func GetWorkerStatus(ctx dom.Context, workerID dom.SUID) (Status, bool, error) {
 // Setters
 //-----------------------------------------------------------------------------
 
-func SetWorkerStatus(ctx dom.Context, workerID dom.SUID, status Status) error {
+func UpdateWorkerStatus(ctx dom.Context, workerID dom.SUID, status Status) error {
 	sql := dao.Update(workerTable).
 		Set("status", int32(status)).
 		Set("updated", time.Now()).
@@ -152,12 +152,12 @@ func SetWorkerStatus(ctx dom.Context, workerID dom.SUID, status Status) error {
 // Worker <-> Vehicle
 //-----------------------------------------------------------------------------
 
-// Persist saves WorkerVehicle to the database.
-func (w *WorkerVehicle) Persist(ctx dom.Context) error {
-	return dao.ExecTX(ctx, w.Insert())
+// Insert inserts WorkerVehicle to the database.
+func (w *WorkerVehicle) Insert(ctx dom.Context) error {
+	return dao.ExecTX(ctx, w.insert())
 }
 
-func (w *WorkerVehicle) Insert() dao.Executable {
+func (w *WorkerVehicle) insert() dao.Executable {
 	return dao.Insert(workerVehicleTable).
 		Set("worker", w.Worker).
 		Set("vehicle", w.Vehicle)

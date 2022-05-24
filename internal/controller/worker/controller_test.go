@@ -67,7 +67,7 @@ func testUpdateWorkerState(t *testing.T, client workerV1beta1.WorkerServiceClien
 	ctx := cfg.Context()
 
 	w := newWorker()
-	require.NoError(t, w.Persist(ctx))
+	require.NoError(t, w.Insert(ctx))
 
 	request := &workerV1beta1.UpdateWorkerStatusRequest{
 		WorkerId: w.ID,
@@ -89,7 +89,7 @@ func testUpdateWorkerStateBadRequest(t *testing.T, client workerV1beta1.WorkerSe
 	ctx := cfg.Context()
 
 	w := newWorker()
-	require.NoError(t, w.Persist(ctx))
+	require.NoError(t, w.Insert(ctx))
 
 	_, err := client.UpdateWorkerStatus(ctx, &workerV1beta1.UpdateWorkerStatusRequest{
 		WorkerId: w.ID,
@@ -110,7 +110,7 @@ func testListWorkersByState(t *testing.T, client workerV1beta1.WorkerServiceClie
 	ctx := cfg.Context()
 
 	w := newWorker()
-	require.NoError(t, w.Persist(ctx))
+	require.NoError(t, w.Insert(ctx))
 
 	request1 := &workerV1beta1.UpdateWorkerStatusRequest{
 		WorkerId: w.ID,

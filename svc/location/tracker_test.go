@@ -32,7 +32,7 @@ func TestTracker(t *testing.T) {
 	err = svcTollgate.Load(ctx)
 	require.NoError(t, err)
 
-	_, err = tollgate.CreateIfNotExists(ctx, &tollgate.Tollgate{
+	_, err = tollgate.Upsert(ctx, &tollgate.Tollgate{
 		ID:     tollgateID,
 		Name:   "TestController2",
 		BBoxes: nil,

@@ -47,7 +47,7 @@ func (c *Controller) GetWorker(ctx context.Context, request *workerV1beta1.GetWo
 		return nil, st.Err()
 	}
 
-	wrk, has, err := worker.GetWorker(ctx, request.WorkerId)
+	wrk, has, err := worker.QueryOne(ctx, request.WorkerId)
 
 	if err != nil {
 		st := status.Newf(codes.Internal, "get worker error: %s", err)
@@ -90,7 +90,7 @@ func (c *Controller) UpdateWorkerStatus(ctx context.Context, request *workerV1be
 		return nil, st.Err()
 	}
 	s := transformStatusFrom(workerStatus)
-	err := worker.SetWorkerStatus(ctx, workerID, *s)
+	err := worker.UpdateWorkerStatus(ctx, workerID, *s)
 
 	if err != nil {
 		st := status.Newf(codes.Internal, "update worker status error: %s", err)

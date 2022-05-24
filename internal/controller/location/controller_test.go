@@ -37,7 +37,7 @@ func TestController(t *testing.T) {
 
 	ctx := context.Background()
 
-	_, err = tollgate.CreateIfNotExists(ctx, &tollgate.Tollgate{
+	_, err = tollgate.Upsert(ctx, &tollgate.Tollgate{
 		ID:     tollgateID,
 		Name:   "TestController2",
 		BBoxes: nil,

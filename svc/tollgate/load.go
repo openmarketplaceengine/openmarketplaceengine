@@ -15,7 +15,7 @@ func Load(ctx context.Context) error {
 		return fmt.Errorf("read embedded tollgates error: %w", err)
 	}
 	for _, t := range tollgates {
-		_, err := tollgate.CreateIfNotExists(ctx, &tollgate.Tollgate{
+		_, err := tollgate.Upsert(ctx, &tollgate.Tollgate{
 			ID:       t.ID,
 			Name:     t.Name,
 			BBoxes:   transformBoxes(t.BBoxes),
