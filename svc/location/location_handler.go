@@ -14,10 +14,10 @@ func persistLocation(ctx context.Context, areaKey string, l *Location) error {
 	stamp := dom.Time{}
 	stamp.Now()
 	location := worker.Location{
-		Worker: l.WorkerID,
-		Stamp:  stamp,
-		Lon:    l.Lon,
-		Lat:    l.Lat,
+		Worker:    l.WorkerID,
+		Stamp:     stamp,
+		Longitude: l.Longitude,
+		Latitude:  l.Latitude,
 	}
 	err := location.Persist(ctx)
 	if err != nil {
@@ -30,9 +30,9 @@ func publishLocation(ctx context.Context, areaKey string, l *Location) error {
 	channel := locationChannel(l.WorkerID)
 
 	bytes, err := json.Marshal(Location{
-		WorkerID: l.WorkerID,
-		Lon:      l.Lon,
-		Lat:      l.Lat,
+		WorkerID:  l.WorkerID,
+		Longitude: l.Longitude,
+		Latitude:  l.Latitude,
 	})
 	if err != nil {
 		return fmt.Errorf("location marshal error: %q", err)

@@ -7,15 +7,15 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func IsLat(lat float64) error {
-	if lat < -90 || lat > 90 {
+func IsLatitude(latitude float64) error {
+	if latitude < -90 || latitude > 90 {
 		return fmt.Errorf("must be valid floats between -90 and 90")
 	}
 	return nil
 }
 
-func IsLon(lon float64) error {
-	if lon < -180 || lon > 180 {
+func IsLongitude(longitude float64) error {
+	if longitude < -180 || longitude > 180 {
 		return fmt.Errorf("must be valid floats between -180 and 180")
 	}
 	return nil
@@ -102,15 +102,15 @@ func (v *Validator) ValidateFloat64(name string, value float64, rule func(value 
 	}
 }
 
-func (v *Validator) ValidateLat(name string, value float64) {
-	err := Float64(name, value, IsLat)
+func (v *Validator) ValidateLatitude(name string, value float64) {
+	err := Float64(name, value, IsLatitude)
 	if err != nil {
 		v.Errors = append(v.Errors, err)
 	}
 }
 
-func (v *Validator) ValidateLon(name string, value float64) {
-	err := Float64(name, value, IsLon)
+func (v *Validator) ValidateLongitude(name string, value float64) {
+	err := Float64(name, value, IsLongitude)
 	if err != nil {
 		v.Errors = append(v.Errors, err)
 	}

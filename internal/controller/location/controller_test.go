@@ -104,8 +104,8 @@ func testUpdateLocation(t *testing.T, client locationV1beta1.LocationServiceClie
 		Value: &locationV1beta1.LocationUpdate{
 			WorkerId: id,
 			Location: &typeV1beta1.Location{
-				Lon: 12.000001966953278,
-				Lat: 13.000001966953278,
+				Longitude: 12.000001966953278,
+				Latitude:  13.000001966953278,
 			},
 			UpdateTime: timestamppb.Now(),
 		},
@@ -132,8 +132,8 @@ func testUpdateLocationBadRequest(t *testing.T, client locationV1beta1.LocationS
 		Value: &locationV1beta1.LocationUpdate{
 			WorkerId: id,
 			Location: &typeV1beta1.Location{
-				Lon: 1200,
-				Lat: 1300,
+				Longitude: 1200,
+				Latitude:  1300,
 			},
 			UpdateTime: timestamppb.Now(),
 		},
@@ -148,8 +148,8 @@ func testUpdateLocationBadRequest(t *testing.T, client locationV1beta1.LocationS
 		Value: &locationV1beta1.LocationUpdate{
 			WorkerId: id,
 			Location: &typeV1beta1.Location{
-				Lon: 12,
-				Lat: 13,
+				Longitude: 12,
+				Latitude:  13,
 			},
 			UpdateTime: timestamppb.Now(),
 		},
@@ -191,8 +191,8 @@ func testQueryLocation(t *testing.T, client locationV1beta1.LocationServiceClien
 		Value: &locationV1beta1.LocationUpdate{
 			WorkerId: id,
 			Location: &typeV1beta1.Location{
-				Lon: 12.000001966953278,
-				Lat: 13.000001966953278,
+				Longitude: 12.000001966953278,
+				Latitude:  13.000001966953278,
 			},
 			UpdateTime: timestamppb.Now(),
 		},
@@ -219,8 +219,8 @@ func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceCl
 		Value: &locationV1beta1.LocationUpdate{
 			WorkerId: id,
 			Location: &typeV1beta1.Location{
-				Lon: -74.195995,
-				Lat: 40.636916,
+				Longitude: -74.195995,
+				Latitude:  40.636916,
 			},
 			UpdateTime: timestamppb.Now(),
 		},
@@ -232,8 +232,8 @@ func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceCl
 		Value: &locationV1beta1.LocationUpdate{
 			WorkerId: id,
 			Location: &typeV1beta1.Location{
-				Lon: -74.198356,
-				Lat: 40.634408,
+				Longitude: -74.198356,
+				Latitude:  40.634408,
 			},
 			UpdateTime: timestamppb.Now(),
 		},
@@ -269,8 +269,8 @@ func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceCl
 	require.Equal(t, tollgateID, c.TollgateID)
 	require.Equal(t, detector.Direction("SW"), c.Direction)
 	require.Equal(t, id, c.WorkerID)
-	require.InDelta(t, to.GetValue().GetLocation().GetLat(), c.Movement.To.Lat, 0.003)
-	require.InDelta(t, to.GetValue().GetLocation().GetLon(), c.Movement.To.Lon, 0.003)
+	require.InDelta(t, to.GetValue().GetLocation().GetLatitude(), c.Movement.To.Latitude, 0.003)
+	require.InDelta(t, to.GetValue().GetLocation().GetLongitude(), c.Movement.To.Longitude, 0.003)
 }
 
 func crossingChannel(tollgateID string) string {

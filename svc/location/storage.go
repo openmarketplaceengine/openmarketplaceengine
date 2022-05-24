@@ -34,8 +34,8 @@ func (s *Storage) RedisUpdateHandler() Handler {
 func (s *Storage) Update(ctx context.Context, areaKey string, l *Location, t time.Time) (err error) {
 	err = s.client.GeoAdd(ctx, areaKey, &redis.GeoLocation{
 		Name:      l.WorkerID,
-		Longitude: l.Lon,
-		Latitude:  l.Lat,
+		Longitude: l.Longitude,
+		Latitude:  l.Latitude,
 		Dist:      0,
 		GeoHash:   0,
 	}).Err()
@@ -70,8 +70,8 @@ func (s *Storage) LastLocation(ctx context.Context, areaKey string, workerID str
 	if len(v) > 0 && v[0] != nil {
 		return &LastLocation{
 			WorkerID:     workerID,
-			Lon:          util.Round6(v[0].Longitude),
-			Lat:          util.Round6(v[0].Latitude),
+			Longitude:    util.Round6(v[0].Longitude),
+			Latitude:     util.Round6(v[0].Latitude),
 			LastSeenTime: lastSeen,
 		}
 	}
@@ -155,8 +155,8 @@ func (s *Storage) RangeLocations(ctx context.Context, areaKey string, fromLon fl
 		}
 		locations = append(locations, &RangeLocation{
 			WorkerID:     geoLocation.Name,
-			Lon:          util.Round6(geoLocation.Longitude),
-			Lat:          util.Round6(geoLocation.Latitude),
+			Longitude:    util.Round6(geoLocation.Longitude),
+			Latitude:     util.Round6(geoLocation.Latitude),
 			Distance:     geoLocation.Dist,
 			FromLat:      fromLat,
 			FromLon:      fromLon,

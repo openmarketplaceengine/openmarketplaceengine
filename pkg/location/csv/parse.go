@@ -9,20 +9,20 @@ import (
 
 type Location struct {
 	DriverID  string    `csv:"driver_id"`
-	Lat       float64   `csv:"lat"`
-	Lon       float64   `csv:"lng"`
+	Latitude  float64   `csv:"lat"`
+	Longitude float64   `csv:"lng"`
 	Timestamp time.Time `csv:"bronx_timestamp"`
 }
 
 func Parse(line string) (*Location, error) {
 	split := strings.Split(line, ",")
 
-	lat, err := util.ParseLat(split[1])
+	latitude, err := util.ParseLatitude(split[1])
 	if err != nil {
 		return nil, err
 	}
 
-	lon, err := util.ParseLon(split[2])
+	longitude, err := util.ParseLongitude(split[2])
 	if err != nil {
 		return nil, err
 	}
@@ -33,8 +33,8 @@ func Parse(line string) (*Location, error) {
 	}
 	return &Location{
 		DriverID:  split[0],
-		Lat:       lat,
-		Lon:       lon,
+		Latitude:  latitude,
+		Longitude: longitude,
 		Timestamp: ts,
 	}, nil
 }

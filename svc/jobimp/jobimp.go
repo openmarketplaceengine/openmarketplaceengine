@@ -55,11 +55,11 @@ func (j *jobimpService) setJob(job *dom.Jobimp, req *svc.ImportJobRequest) {
 	job.State = req.State
 	job.PickupDate = req.PickupDate.AsTime()
 	job.PickupAddr = req.PickupAddr
-	job.PickupLat = req.PickupLoc.Lat
-	job.PickupLon = req.PickupLoc.Lon
+	job.PickupLat = req.PickupLoc.GetLatitude()
+	job.PickupLon = req.PickupLoc.GetLongitude()
 	job.DropoffAddr = req.DropoffAddr
-	job.DropoffLat = req.DropoffLoc.Lat
-	job.DropoffLon = req.DropoffLoc.Lon
+	job.DropoffLat = req.DropoffLoc.GetLatitude()
+	job.DropoffLon = req.DropoffLoc.GetLongitude()
 	job.TripType = req.TripType
 	job.Category = req.Category
 }

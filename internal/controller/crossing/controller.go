@@ -77,12 +77,12 @@ func transform(crossings []*crossing.TollgateCrossing) []*typeV1beta1.Crossing {
 			Alg:        fmt.Sprintf("%v", crossing.Crossing.Crossing.Alg),
 			Movement: &typeV1beta1.Movement{
 				From: &typeV1beta1.Location{
-					Lat: crossing.Crossing.Crossing.Movement.From.Lat,
-					Lon: crossing.Crossing.Crossing.Movement.From.Lon,
+					Latitude:  crossing.Crossing.Crossing.Movement.From.Latitude,
+					Longitude: crossing.Crossing.Crossing.Movement.From.Longitude,
 				},
 				To: &typeV1beta1.Location{
-					Lat: crossing.Crossing.Crossing.Movement.To.Lat,
-					Lon: crossing.Crossing.Crossing.Movement.To.Lon,
+					Latitude:  crossing.Crossing.Crossing.Movement.To.Latitude,
+					Longitude: crossing.Crossing.Crossing.Movement.To.Longitude,
 				},
 			},
 			CreateTime: timestamppb.New(crossing.Created.Time),

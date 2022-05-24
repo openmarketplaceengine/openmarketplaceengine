@@ -25,13 +25,13 @@ func NewTracker(s *Storage, d *detector.Detector) *Tracker {
 	}
 }
 
-func (t *Tracker) TrackLocation(ctx context.Context, areaKey string, workerID string, lon float64, lat float64) (*detector.Crossing, error) {
+func (t *Tracker) TrackLocation(ctx context.Context, areaKey string, workerID string, longitude float64, latitude float64) (*detector.Crossing, error) {
 	lastLocation := t.storage.LastLocation(ctx, areaKey, workerID)
 
 	l := &Location{
-		WorkerID: workerID,
-		Lon:      lon,
-		Lat:      lat,
+		WorkerID:  workerID,
+		Longitude: longitude,
+		Latitude:  latitude,
 	}
 
 	for _, handler := range t.locationHandlers {
@@ -43,12 +43,12 @@ func (t *Tracker) TrackLocation(ctx context.Context, areaKey string, workerID st
 
 	if lastLocation != nil {
 		from := &detector.Location{
-			Lon: lastLocation.Lon,
-			Lat: lastLocation.Lat,
+			Longitude: lastLocation.Longitude,
+			Latitude:  lastLocation.Latitude,
 		}
 		to := &detector.Location{
-			Lon: lon,
-			Lat: lat}
+			Longitude: longitude,
+			Latitude:  latitude}
 
 		movement := &detector.Movement{
 			From: from,

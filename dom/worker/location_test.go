@@ -39,10 +39,10 @@ func insWorkerLocations(t *testing.T, r *rand.Rand, max int) (wid dom.SUID, loca
 	wid = dao.MockUUID()
 	ctx := cfg.Context()
 	for i := 0; i < max; i++ {
-		lon := util.LonInRange(r, -122.47304848490842, -122.43073395709482)
-		lat := util.LatInRange(r, 37.65046887713942, 37.65617701286946)
-		err := AddLocation(ctx, wid, lon, lat, time.Now(), randRange(10, 80))
-		locations = append(locations, Location{Lon: lon, Lat: lat})
+		longitude := util.LongitudeInRange(r, -122.47304848490842, -122.43073395709482)
+		latitude := util.LatitudeInRange(r, 37.65046887713942, 37.65617701286946)
+		err := AddLocation(ctx, wid, longitude, latitude, time.Now(), randRange(10, 80))
+		locations = append(locations, Location{Longitude: longitude, Latitude: latitude})
 		require.NoError(t, err)
 	}
 	return
@@ -58,8 +58,8 @@ func TestLastWorkerLocation(t *testing.T) {
 	ctx := cfg.Context()
 	location, _, err := LastLocation(ctx, wid)
 	require.NoError(t, err)
-	require.Equal(t, loc[len(loc)-1].Lon, location.Lon)
-	require.Equal(t, loc[len(loc)-1].Lat, location.Lat)
+	require.Equal(t, loc[len(loc)-1].Longitude, location.Longitude)
+	require.Equal(t, loc[len(loc)-1].Latitude, location.Latitude)
 }
 
 //-----------------------------------------------------------------------------
@@ -73,8 +73,8 @@ func TestListWorkerLocation(t *testing.T) {
 	require.NoError(t, err)
 	max = len(locations)
 	for i := 0; i < max; i++ {
-		require.Equal(t, loc[max-i-1].Lon, locations[i].Lon)
-		require.Equal(t, loc[max-i-1].Lat, locations[i].Lat)
+		require.Equal(t, loc[max-i-1].Longitude, locations[i].Longitude)
+		require.Equal(t, loc[max-i-1].Latitude, locations[i].Latitude)
 	}
 }
 
@@ -84,10 +84,10 @@ func genWorkerLocation(r *rand.Rand) *Location {
 	stamp := dom.Time{}
 	stamp.Now()
 	return &Location{
-		Worker: dao.MockUUID(),
-		Stamp:  stamp,
-		Lon:    util.LonInRange(r, -122.47304848490842, -122.43073395709482),
-		Lat:    util.LatInRange(r, 37.65046887713942, 37.65617701286946),
-		Speed:  10,
+		Worker:    dao.MockUUID(),
+		Stamp:     stamp,
+		Longitude: util.LongitudeInRange(r, -122.47304848490842, -122.43073395709482),
+		Latitude:  util.LatitudeInRange(r, 37.65046887713942, 37.65617701286946),
+		Speed:     10,
 	}
 }

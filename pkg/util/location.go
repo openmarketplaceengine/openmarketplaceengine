@@ -7,14 +7,14 @@ import (
 	"strconv"
 )
 
-func LatInRange(r *rand.Rand, min, max float64) float64 {
+func LatitudeInRange(r *rand.Rand, min, max float64) float64 {
 	if min > max || min < -90 || min > 90 || max < -90 || max > 90 {
 		panic(fmt.Errorf("invalid min=%v or max=%v range, must be valid floats and between -90 and 90", min, max))
 	}
 	return ToFixed(float64Range(r, min, max), 6)
 }
 
-func LonInRange(r *rand.Rand, min, max float64) float64 {
+func LongitudeInRange(r *rand.Rand, min, max float64) float64 {
 	if min > max || min < -180 || min > 180 || max < -180 || max > 180 {
 		panic(fmt.Errorf("invalid min=%v or max=%v range, must be valid floats and between -180 and 180", min, max))
 	}
@@ -38,40 +38,40 @@ func float64Range(r *rand.Rand, min, max float64) float64 {
 	return r.Float64()*(max-min) + min
 }
 
-func IsLat(lat float64) error {
-	if lat < -90 || lat > 90 {
-		return fmt.Errorf("invalid latitude %v, must be between -90 and 90", lat)
+func IsLatitude(latitude float64) error {
+	if latitude < -90 || latitude > 90 {
+		return fmt.Errorf("invalid latitude %v, must be between -90 and 90", latitude)
 	}
 	return nil
 }
 
-func IsLon(lon float64) error {
-	if lon < -180 || lon > 180 {
-		return fmt.Errorf("invalid longitude %v, must be between -180 and 180", lon)
+func IsLongitude(longitude float64) error {
+	if longitude < -180 || longitude > 180 {
+		return fmt.Errorf("invalid longitude %v, must be between -180 and 180", longitude)
 	}
 	return nil
 }
 
-func ParseLat(s string) (float64, error) {
-	lat, err := strconv.ParseFloat(s, 64)
+func ParseLatitude(s string) (float64, error) {
+	latitude, err := strconv.ParseFloat(s, 64)
 	if err != nil {
 		return 0, err
 	}
-	err = IsLat(lat)
+	err = IsLatitude(latitude)
 	if err != nil {
 		return 0, err
 	}
-	return Round6(lat), nil
+	return Round6(latitude), nil
 }
 
-func ParseLon(s string) (float64, error) {
-	lon, err := strconv.ParseFloat(s, 64)
+func ParseLongitude(s string) (float64, error) {
+	longitude, err := strconv.ParseFloat(s, 64)
 	if err != nil {
 		return 0, err
 	}
-	err = IsLon(lon)
+	err = IsLongitude(longitude)
 	if err != nil {
 		return 0, err
 	}
-	return Round6(lon), nil
+	return Round6(longitude), nil
 }

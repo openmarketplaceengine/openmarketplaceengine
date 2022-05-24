@@ -75,8 +75,8 @@ func main() {
 		}
 
 		to := &detector.Location{
-			Lon: location.Lon,
-			Lat: location.Lat,
+			Longitude: location.Longitude,
+			Latitude:  location.Latitude,
 		}
 
 		if from == nil {

@@ -101,8 +101,8 @@ func testDetectCrossing(t *testing.T, tracker *Tracker) {
 	//	require.Equal(t, tollgateID, c.TollgateID)
 	//	require.Equal(t, detector.Direction("SW"), c.Direction)
 	//	require.Equal(t, id, c.WorkerID)
-	//	require.InDelta(t, lon1, c.Movement.To.Lon, 0.003)
-	//	require.InDelta(t, lat1, c.Movement.To.Lat, 0.003)
+	//	require.InDelta(t, lon1, c.Movement.To.Longitude, 0.003)
+	//	require.InDelta(t, lat1, c.Movement.To.Latitude, 0.003)
 	//	break
 	//case <-time.After(5 * time.Second):
 	//	require.Fail(t, "timeout")

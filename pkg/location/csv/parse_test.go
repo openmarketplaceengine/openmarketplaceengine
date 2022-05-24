@@ -14,7 +14,7 @@ func TestParse(t *testing.T) {
 	location, err := Parse(line)
 	require.NoError(t, err)
 	assert.Equal(t, "4026b7e2b949a25312a6ba7a038e852b1a927ff6", location.DriverID)
-	assert.Equal(t, 40.751251, location.Lat)
-	assert.Equal(t, -73.994103, location.Lon)
+	assert.Equal(t, 40.751251, location.Latitude)
+	assert.Equal(t, -73.994103, location.Longitude)
 	assert.Equal(t, time.Unix(1648784151, 0).Unix(), location.Timestamp.Unix())
 }
