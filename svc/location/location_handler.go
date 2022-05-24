@@ -5,21 +5,18 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/location"
+
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
-	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
-	"github.com/openmarketplaceengine/openmarketplaceengine/dom/worker"
 )
 
 func persistLocation(ctx context.Context, areaKey string, l *Location) error {
-	stamp := dom.Time{}
-	stamp.Now()
-	location := worker.Location{
+	loc := location.Location{
 		Worker:    l.WorkerID,
-		Stamp:     stamp,
 		Longitude: l.Longitude,
 		Latitude:  l.Latitude,
 	}
-	err := location.Persist(ctx)
+	err := loc.Insert(ctx)
 	if err != nil {
 		return fmt.Errorf("location persist error: %s", err)
 	}

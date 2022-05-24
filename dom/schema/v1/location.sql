@@ -1,4 +1,4 @@
-create table if not exists worker_location
+create table if not exists location
 (
     recnum    bigserial   not null primary key,
     worker    text        not null,

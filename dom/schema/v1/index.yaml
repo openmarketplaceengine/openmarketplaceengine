@@ -2,7 +2,7 @@
 - worker.sql
 - vehicle.sql
 - worker_vehicle.sql
-- worker_location.sql
+- location.sql
 - tollgate.sql
 - tollgate_crossing.sql
 - jobimp.sql

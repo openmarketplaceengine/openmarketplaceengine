@@ -4,13 +4,14 @@ import (
 	"context"
 	"testing"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/location"
+
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom/crossing"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom/tollgate"
-	"github.com/openmarketplaceengine/openmarketplaceengine/dom/worker"
 	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
 	svcTollgate "github.com/openmarketplaceengine/openmarketplaceengine/svc/tollgate"
 	"github.com/stretchr/testify/require"
@@ -32,7 +33,7 @@ func TestTracker(t *testing.T) {
 	err = svcTollgate.Load(ctx)
 	require.NoError(t, err)
 
-	_, err = tollgate.Upsert(ctx, &tollgate.Tollgate{
+	tg := &tollgate.Tollgate{
 		ID:     tollgateID,
 		Name:   "TestController2",
 		BBoxes: nil,
@@ -44,7 +45,8 @@ func TestTracker(t *testing.T) {
 				Lat2: 40.634408,
 			},
 		},
-	})
+	}
+	_, _, err = tg.Upsert(ctx)
 	require.NoError(t, err)
 
 	tollgates, err := tollgate.QueryAll(cfg.Context(), 100)
@@ -80,7 +82,7 @@ func testDetectCrossing(t *testing.T, tracker *Tracker) {
 	require.NoError(t, err)
 	require.Nil(t, c0)
 
-	l0, has0, err := worker.LastLocation(ctx, id)
+	l0, has0, err := location.QueryLast(ctx, id)
 	require.NoError(t, err)
 	require.True(t, has0)
 	require.NotNil(t, l0)
@@ -91,7 +93,7 @@ func testDetectCrossing(t *testing.T, tracker *Tracker) {
 	require.NotNil(t, c1)
 	require.Equal(t, id, c1.WorkerID)
 
-	l1, has1, err := worker.LastLocation(ctx, id)
+	l1, has1, err := location.QueryLast(ctx, id)
 	require.NoError(t, err)
 	require.True(t, has1)
 	require.NotNil(t, l1)
@@ -115,7 +117,7 @@ func testDetectCrossing(t *testing.T, tracker *Tracker) {
 	require.GreaterOrEqual(t, len(retrieved), 1)
 	require.Equal(t, id, retrieved[0].WorkerID)
 
-	ls, err := worker.ListLocations(ctx, id, 100)
+	ls, err := location.QueryAll(ctx, id, 100)
 	require.NoError(t, err)
 	require.Len(t, ls, 2)
 }

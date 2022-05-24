@@ -2,6 +2,7 @@ package tollgate
 
 import (
 	"encoding/json"
+
 	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
