@@ -2,19 +2,21 @@
 // Use of this source code is governed by a dual
 // license that can be found in the LICENSE file.
 
-package dom
+package job
 
 import (
 	"time"
 
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
+
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 )
 
-const jobimpTable = "jobimp"
+const table = "job"
 
-type Jobimp struct {
-	ID          SUID      `db:"id"`
-	WorkerID    SUID      `db:"worker_id"`
+type Job struct {
+	ID          dom.SUID  `db:"id"`
+	WorkerID    dom.SUID  `db:"worker_id"`
 	Created     time.Time `db:"created"`
 	Updated     time.Time `db:"updated"`
 	State       string    `db:"state"`
@@ -29,24 +31,26 @@ type Jobimp struct {
 	Category    string    `db:"category"`
 }
 
-//-----------------------------------------------------------------------------
+func (j *Job) Upsert(ctx dom.Context) (dao.Result, dao.UpsertStatus, error) {
+	return dao.Upsert(ctx, j.insert, j.update)
+}
 
-func (j *Jobimp) Insert() dao.Executable {
-	sql := dao.Insert(jobimpTable).
+func (j *Job) insert() dao.Executable {
+	sql := dao.Insert(table).
 		Set("id", j.ID).
 		Set("worker_id", j.WorkerID)
 	j.setSQL(sql)
 	return sql
 }
 
-func (j *Jobimp) Update() dao.Executable {
-	sql := dao.Update(jobimpTable)
+func (j *Job) update() dao.Executable {
+	sql := dao.Update(table)
 	j.setSQL(sql)
 	sql.Where("id = ?", j.ID)
 	return sql
 }
 
-func (j *Jobimp) setSQL(sql *dao.SQL) {
+func (j *Job) setSQL(sql *dao.SQL) {
 	sql.
 		Set("created", j.Created).
 		Set("updated", j.Updated).

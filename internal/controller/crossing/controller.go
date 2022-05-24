@@ -17,23 +17,19 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-type Controller struct {
+type controller struct {
 	v1beta1.UnimplementedCrossingServiceServer
 }
 
-func newController() *Controller {
-	return &Controller{}
-}
-
-func GrpcRegister() {
-	srv.Grpc.Register(func(srv *grpc.Server) error {
-		controller := newController()
-		v1beta1.RegisterCrossingServiceServer(srv, controller)
+func init() {
+	srv.Grpc.Register(func(s *grpc.Server) error {
+		srv.Grpc.Infof("registering: %s", v1beta1.CrossingService_ServiceDesc.ServiceName)
+		v1beta1.RegisterCrossingServiceServer(s, &controller{})
 		return nil
 	})
 }
 
-func (c *Controller) ListCrossings(ctx context.Context, request *v1beta1.ListCrossingsRequest) (*v1beta1.ListCrossingsResponse, error) {
+func (c *controller) ListCrossings(ctx context.Context, request *v1beta1.ListCrossingsRequest) (*v1beta1.ListCrossingsResponse, error) {
 	wheres := make([]crossing.Where, 0)
 	if request.TollgateId != "" {
 		wheres = append(wheres, crossing.Where{
@@ -68,24 +64,24 @@ func (c *Controller) ListCrossings(ctx context.Context, request *v1beta1.ListCro
 
 func transform(crossings []*crossing.TollgateCrossing) []*typeV1beta1.Crossing {
 	result := make([]*typeV1beta1.Crossing, 0)
-	for _, crossing := range crossings {
+	for _, cross := range crossings {
 		result = append(result, &typeV1beta1.Crossing{
-			Id:         crossing.ID,
-			TollgateId: crossing.TollgateID,
-			WorkerId:   crossing.WorkerID,
-			Direction:  string(crossing.Crossing.Crossing.Direction),
-			Alg:        fmt.Sprintf("%v", crossing.Crossing.Crossing.Alg),
+			Id:         cross.ID,
+			TollgateId: cross.TollgateID,
+			WorkerId:   cross.WorkerID,
+			Direction:  string(cross.Crossing.Crossing.Direction),
+			Alg:        fmt.Sprintf("%v", cross.Crossing.Crossing.Alg),
 			Movement: &typeV1beta1.Movement{
 				From: &typeV1beta1.Location{
-					Latitude:  crossing.Crossing.Crossing.Movement.From.Latitude,
-					Longitude: crossing.Crossing.Crossing.Movement.From.Longitude,
+					Latitude:  cross.Crossing.Crossing.Movement.From.Latitude,
+					Longitude: cross.Crossing.Crossing.Movement.From.Longitude,
 				},
 				To: &typeV1beta1.Location{
-					Latitude:  crossing.Crossing.Crossing.Movement.To.Latitude,
-					Longitude: crossing.Crossing.Crossing.Movement.To.Longitude,
+					Latitude:  cross.Crossing.Crossing.Movement.To.Latitude,
+					Longitude: cross.Crossing.Crossing.Movement.To.Longitude,
 				},
 			},
-			CreateTime: timestamppb.New(crossing.Created.Time),
+			CreateTime: timestamppb.New(cross.Created.Time),
 		})
 	}
 	return result

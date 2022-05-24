@@ -50,8 +50,7 @@ func dialer() func(context.Context, string) (net.Conn, error) {
 	listener := bufconn.Listen(1024 * 1024)
 
 	server := grpc.NewServer()
-	controller := newController()
-	v1beta1.RegisterCrossingServiceServer(server, controller)
+	v1beta1.RegisterCrossingServiceServer(server, &controller{})
 
 	go func() {
 		if err := server.Serve(listener); err != nil {

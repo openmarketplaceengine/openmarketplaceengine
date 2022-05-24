@@ -16,29 +16,23 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-type Controller struct {
+type controller struct {
 	v1beta1.UnimplementedTollgateServiceServer
 }
 
-func newController() *Controller {
-	return &Controller{}
-}
-
-func GrpcRegister() {
-	srv.Grpc.Register(func(srv *grpc.Server) error {
-		controller := newController()
-		v1beta1.RegisterTollgateServiceServer(srv, controller)
-
+func init() {
+	srv.Grpc.Register(func(s *grpc.Server) error {
+		srv.Grpc.Infof("registering: %s", v1beta1.TollgateService_ServiceDesc.ServiceName)
+		v1beta1.RegisterTollgateServiceServer(s, &controller{})
 		err := svcTollgate.Load(cfg.Context())
 		if err != nil {
 			return fmt.Errorf("load tollgates error: %w", err)
 		}
-
 		return nil
 	})
 }
 
-func (c *Controller) GetTollgate(ctx context.Context, request *v1beta1.GetTollgateRequest) (*v1beta1.GetTollgateResponse, error) {
+func (c *controller) GetTollgate(ctx context.Context, request *v1beta1.GetTollgateRequest) (*v1beta1.GetTollgateResponse, error) {
 	toll, err := tollgate.QueryOne(ctx, request.TollgateId)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -56,7 +50,7 @@ func (c *Controller) GetTollgate(ctx context.Context, request *v1beta1.GetTollga
 	}, nil
 }
 
-func (c *Controller) ListTollgates(ctx context.Context, request *v1beta1.ListTollgatesRequest) (*v1beta1.ListTollgatesResponse, error) {
+func (c *controller) ListTollgates(ctx context.Context, request *v1beta1.ListTollgatesRequest) (*v1beta1.ListTollgatesResponse, error) {
 	all, err := tollgate.QueryAll(ctx, 100)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "QueryAll error: %s", err)

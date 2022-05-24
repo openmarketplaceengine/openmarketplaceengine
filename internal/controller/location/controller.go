@@ -21,23 +21,12 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-type Controller struct {
+type controller struct {
 	locationV1beta1.UnimplementedLocationServiceServer
 	tracker *location.Tracker
 }
 
-func GrpcRegister() {
-	srv.Grpc.Register(func(srv *grpc.Server) error {
-		controller, err := newController()
-		if err != nil {
-			return err
-		}
-		locationV1beta1.RegisterLocationServiceServer(srv, controller)
-		return nil
-	})
-}
-
-func newController() (*Controller, error) {
+func newController() (*controller, error) {
 	tollgates, err := tollgate.QueryAll(cfg.Context(), 100)
 	if err != nil {
 		return nil, err
@@ -49,9 +38,21 @@ func newController() (*Controller, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Controller{
+	return &controller{
 		tracker: tracker,
 	}, nil
+}
+
+func init() {
+	srv.Grpc.Register(func(s *grpc.Server) error {
+		srv.Grpc.Infof("registering: %s", locationV1beta1.LocationService_ServiceDesc.ServiceName)
+		controller, err := newController()
+		if err != nil {
+			return err
+		}
+		locationV1beta1.RegisterLocationServiceServer(s, controller)
+		return nil
+	})
 }
 
 func transformTollgates(tollgates []*tollgate.Tollgate) (result []*detector.Tollgate) {
@@ -79,7 +80,7 @@ func transformTollgates(tollgates []*tollgate.Tollgate) (result []*detector.Toll
 	return
 }
 
-func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta1.UpdateLocationRequest) (*locationV1beta1.UpdateLocationResponse, error) {
+func (c *controller) UpdateLocation(ctx context.Context, request *locationV1beta1.UpdateLocationRequest) (*locationV1beta1.UpdateLocationResponse, error) {
 	areaKey := request.GetAreaKey()
 	value := request.GetValue()
 	workerID := value.GetWorkerId()
@@ -144,7 +145,7 @@ func transform(c *detector.Crossing) *v1beta1.Crossing {
 	}
 }
 
-func (c *Controller) GetLocation(ctx context.Context, request *locationV1beta1.GetLocationRequest) (*locationV1beta1.GetLocationResponse, error) {
+func (c *controller) GetLocation(ctx context.Context, request *locationV1beta1.GetLocationRequest) (*locationV1beta1.GetLocationResponse, error) {
 	workerID := request.GetWorkerId()
 	areaKey := request.GetAreaKey()
 	var v validate.Validator
