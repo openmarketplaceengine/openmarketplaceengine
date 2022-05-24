@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             (unknown)
-// source: api/status/v1/uptime.proto
+// source: api/status/v1beta1/uptime.proto
 
-package v1
+package v1beta1
 
 import (
 	context "context"
@@ -35,7 +35,7 @@ func NewUptimeServiceClient(cc grpc.ClientConnInterface) UptimeServiceClient {
 
 func (c *uptimeServiceClient) GetUptime(ctx context.Context, in *GetUptimeRequest, opts ...grpc.CallOption) (*GetUptimeResponse, error) {
 	out := new(GetUptimeResponse)
-	err := c.cc.Invoke(ctx, "/api.status.v1.UptimeService/GetUptime", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.status.v1beta1.UptimeService/GetUptime", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +78,7 @@ func _UptimeService_GetUptime_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.status.v1.UptimeService/GetUptime",
+		FullMethod: "/api.status.v1beta1.UptimeService/GetUptime",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UptimeServiceServer).GetUptime(ctx, req.(*GetUptimeRequest))
@@ -90,7 +90,7 @@ func _UptimeService_GetUptime_Handler(srv interface{}, ctx context.Context, dec 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var UptimeService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "api.status.v1.UptimeService",
+	ServiceName: "api.status.v1beta1.UptimeService",
 	HandlerType: (*UptimeServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -99,5 +99,5 @@ var UptimeService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/status/v1/uptime.proto",
+	Metadata: "api/status/v1beta1/uptime.proto",
 }

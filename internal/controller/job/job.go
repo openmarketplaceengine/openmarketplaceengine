@@ -9,7 +9,7 @@ import (
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom/job"
-	jobV1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/job/v1"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/api/job/v1beta1"
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -17,19 +17,19 @@ import (
 )
 
 type controller struct {
-	jobV1.UnimplementedJobServiceServer
+	v1beta1.UnimplementedJobServiceServer
 }
 
 func init() {
 	srv.Grpc.Register(func(s *grpc.Server) error {
-		srv.Grpc.Infof("registering: %s", jobV1.JobService_ServiceDesc.ServiceName)
-		jobV1.RegisterJobServiceServer(s, &controller{})
+		srv.Grpc.Infof("registering: %s", v1beta1.JobService_ServiceDesc.ServiceName)
+		v1beta1.RegisterJobServiceServer(s, &controller{})
 		return nil
 	})
 }
 
-func (s *controller) ImportJob(ctx context.Context, req *jobV1.ImportJobRequest) (*jobV1.ImportJobResponse, error) {
-	var act = jobV1.JobAction_JOB_ACTION_CREATED
+func (s *controller) ImportJob(ctx context.Context, req *v1beta1.ImportJobRequest) (*v1beta1.ImportJobResponse, error) {
+	var act = v1beta1.JobAction_JOB_ACTION_CREATED
 	var j job.Job
 	s.setJob(&j, req)
 	_, ups, err := j.Upsert(ctx)
@@ -37,13 +37,13 @@ func (s *controller) ImportJob(ctx context.Context, req *jobV1.ImportJobRequest)
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	if ups == dao.UpsertUpdated {
-		act = jobV1.JobAction_JOB_ACTION_UPDATED
+		act = v1beta1.JobAction_JOB_ACTION_UPDATED
 	}
-	res := &jobV1.ImportJobResponse{Action: act}
+	res := &v1beta1.ImportJobResponse{Action: act}
 	return res, nil
 }
 
-func (s *controller) setJob(job *job.Job, req *jobV1.ImportJobRequest) {
+func (s *controller) setJob(job *job.Job, req *v1beta1.ImportJobRequest) {
 	job.ID = req.Id
 	job.WorkerID = req.WorkerId
 	job.Created = req.Created.AsTime()

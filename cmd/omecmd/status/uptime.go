@@ -11,7 +11,7 @@ import (
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/app"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cmd/omecmd/cfg"
-	uptimev1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/status/v1"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/api/status/v1beta1"
 )
 
 func init() {
@@ -25,8 +25,8 @@ func uptime(ctx context.Context) error {
 		return err
 	}
 	defer cfg.SafeClose(con)
-	svc := uptimev1.NewUptimeServiceClient(con)
-	res, err2 := svc.GetUptime(ctx, &uptimev1.GetUptimeRequest{})
+	svc := v1beta1.NewUptimeServiceClient(con)
+	res, err2 := svc.GetUptime(ctx, &v1beta1.GetUptimeRequest{})
 	if err2 != nil {
 		return err2
 	}
