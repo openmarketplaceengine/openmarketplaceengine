@@ -98,8 +98,8 @@ func testQuery(t *testing.T, client v1beta1.CrossingServiceClient) {
 	require.Len(t, res1.Crossings, 5)
 	require.Equal(t, tollgateID, res1.Crossings[0].TollgateId)
 	require.Equal(t, workerID1, res1.Crossings[0].WorkerId)
-	require.NotEqual(t, res1.Crossings[0].Movement.To.Lon, float64(0))
-	require.NotEqual(t, res1.Crossings[0].Movement.To.Lat, float64(0))
+	require.NotEqual(t, res1.Crossings[0].Movement.To.Longitude, float64(0))
+	require.NotEqual(t, res1.Crossings[0].Movement.To.Latitude, float64(0))
 
 	req2 := &v1beta1.ListCrossingsRequest{
 		TollgateId: tollgateID,
@@ -147,12 +147,12 @@ func newRandomCrossing(r *rand.Rand, tollgateID dom.SUID, workerID dom.SUID) *cr
 				WorkerID:   workerID,
 				Movement: &detector.Movement{
 					From: &detector.Location{
-						Lon: util.LongitudeInRange(r, -122.473048, -122.430733),
-						Lat: util.LatitudeInRange(r, 37.656177, 37.656177),
+						Longitude: util.LongitudeInRange(r, -122.473048, -122.430733),
+						Latitude:  util.LatitudeInRange(r, 37.656177, 37.656177),
 					},
 					To: &detector.Location{
-						Lon: util.LongitudeInRange(r, -122.473048, -122.430733),
-						Lat: util.LatitudeInRange(r, 37.656177, 37.656177),
+						Longitude: util.LongitudeInRange(r, -122.473048, -122.430733),
+						Latitude:  util.LatitudeInRange(r, 37.656177, 37.656177),
 					},
 				},
 				Direction: "N",

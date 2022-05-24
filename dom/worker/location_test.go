@@ -39,10 +39,10 @@ func insWorkerLocations(t *testing.T, r *rand.Rand, max int) (wid dom.SUID, loca
 	wid = dao.MockUUID()
 	ctx := cfg.Context()
 	for i := 0; i < max; i++ {
-		lon := util.LongitudeInRange(r, -122.47304848490842, -122.43073395709482)
-		lat := util.LatitudeInRange(r, 37.65046887713942, 37.65617701286946)
-		err := AddLocation(ctx, wid, lon, lat, time.Now(), randRange(10, 80))
-		locations = append(locations, Location{Longitude: lon, Latitude: lat})
+		longitude := util.LongitudeInRange(r, -122.47304848490842, -122.43073395709482)
+		latitude := util.LatitudeInRange(r, 37.65046887713942, 37.65617701286946)
+		err := AddLocation(ctx, wid, longitude, latitude, time.Now(), randRange(10, 80))
+		locations = append(locations, Location{Longitude: longitude, Latitude: latitude})
 		require.NoError(t, err)
 	}
 	return

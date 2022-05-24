@@ -7,15 +7,15 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func IsLatitude(lat float64) error {
-	if lat < -90 || lat > 90 {
+func IsLatitude(latitude float64) error {
+	if latitude < -90 || latitude > 90 {
 		return fmt.Errorf("must be valid floats between -90 and 90")
 	}
 	return nil
 }
 
-func IsLongitude(lon float64) error {
-	if lon < -180 || lon > 180 {
+func IsLongitude(longitude float64) error {
+	if longitude < -180 || longitude > 180 {
 		return fmt.Errorf("must be valid floats between -180 and 180")
 	}
 	return nil

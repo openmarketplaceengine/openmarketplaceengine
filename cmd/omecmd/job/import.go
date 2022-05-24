@@ -16,7 +16,8 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/app/dir"
 	"github.com/openmarketplaceengine/openmarketplaceengine/app/enc/geo"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cmd/omecmd/cfg"
-	jobv1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/job/v1"
+	jobV1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/job/v1"
+	typeV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/type/v1beta1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/yaml.v2"
 )
@@ -42,9 +43,9 @@ func Jobimp(ctx context.Context, files []string) error {
 		return err
 	}
 	defer cfg.SafeClose(con)
-	svc := jobv1.NewJobServiceClient(con)
-	var req jobv1.ImportJobRequest
-	var res *jobv1.ImportJobResponse
+	svc := jobV1.NewJobServiceClient(con)
+	var req jobV1.ImportJobRequest
+	var res *jobV1.ImportJobResponse
 	cfg.Debugf("importing %d job file(s)", len(files))
 	var job jobfile
 	var dec dir.DecodeFunc
@@ -84,14 +85,14 @@ func Jobimp(ctx context.Context, files []string) error {
 //-----------------------------------------------------------------------------
 
 var (
-	pickupLoc  jobv1.Location
-	dropoffLoc jobv1.Location
+	pickupLoc  typeV1beta1.Location
+	dropoffLoc typeV1beta1.Location
 	pickupDate timestamppb.Timestamp
 	created    timestamppb.Timestamp
 	updated    timestamppb.Timestamp
 )
 
-func updateRequest(r *jobv1.ImportJobRequest, j *jobfile) {
+func updateRequest(r *jobV1.ImportJobRequest, j *jobfile) {
 	r.Reset()
 	updateTimestamp(&created, j.Created.Time)
 	updateTimestamp(&updated, j.Updated.Time)
@@ -119,8 +120,8 @@ func updateTimestamp(dst *timestamppb.Timestamp, src time.Time) {
 	dst.Nanos = int32(src.Nanosecond())
 }
 
-func updateLocation(dst *jobv1.Location, src geo.LocationWKB) {
+func updateLocation(dst *typeV1beta1.Location, src geo.LocationWKB) {
 	dst.Reset()
-	dst.Lat = src.Lat
-	dst.Lon = src.Lon
+	dst.Latitude = src.Latitude
+	dst.Longitude = src.Longitude
 }

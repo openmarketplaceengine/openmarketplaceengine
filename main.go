@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/crossing"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/location"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/tollgate"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/service/worker"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/controller/crossing"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/controller/location"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/controller/tollgate"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/controller/worker"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"

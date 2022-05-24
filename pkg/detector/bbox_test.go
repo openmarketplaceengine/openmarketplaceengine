@@ -52,21 +52,21 @@ func testCrossing(ctx context.Context, t *testing.T, s Storage) {
 	loc0 := Location{}
 
 	loc1 := Location{
-		Lon: 2,
-		Lat: 2,
+		Longitude: 2,
+		Latitude:  2,
 	}
 	loc2 := Location{
-		Lon: 7,
-		Lat: 7,
+		Longitude: 7,
+		Latitude:  7,
 	}
 	loc3 := Location{
-		Lon: 13,
-		Lat: 13,
+		Longitude: 13,
+		Latitude:  13,
 	}
 	//noisy GPS at 4, skipping
 	loc5 := Location{
-		Lon: 33,
-		Lat: 33,
+		Longitude: 33,
+		Latitude:  33,
 	}
 	workerID := uuid.NewString()
 	tollgateID := "toll-1"

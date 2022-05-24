@@ -88,8 +88,8 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 	var v validate.Validator
 	v.ValidateString("area_key", areaKey, validate.IsNotNull)
 	v.ValidateString("value_worker_id", workerID, validate.IsNotNull)
-	v.ValidateFloat64("value_location_lon", loc.GetLon(), validate.IsLongitude)
-	v.ValidateFloat64("value_location_lat", loc.GetLat(), validate.IsLatitude)
+	v.ValidateFloat64("value_location_longitude", loc.GetLongitude(), validate.IsLongitude)
+	v.ValidateFloat64("value_location_latitude", loc.GetLatitude(), validate.IsLatitude)
 	v.ValidateTimestamp("value_update_time", updateTime)
 
 	errorInfo := v.ErrorInfo()
@@ -102,7 +102,7 @@ func (c *Controller) UpdateLocation(ctx context.Context, request *locationV1beta
 		return nil, st.Err()
 	}
 
-	x, err := c.tracker.TrackLocation(ctx, areaKey, workerID, loc.GetLon(), loc.GetLat())
+	x, err := c.tracker.TrackLocation(ctx, areaKey, workerID, loc.GetLongitude(), loc.GetLatitude())
 
 	if err != nil {
 		st := status.Newf(codes.Internal, "update location or detect tollgate error: %v", err)
@@ -132,12 +132,12 @@ func transform(c *detector.Crossing) *v1beta1.Crossing {
 		Alg:        string(c.Alg),
 		Movement: &v1beta1.Movement{
 			From: &v1beta1.Location{
-				Lat: c.Movement.From.Lat,
-				Lon: c.Movement.From.Lon,
+				Latitude:  c.Movement.From.Latitude,
+				Longitude: c.Movement.From.Longitude,
 			},
 			To: &v1beta1.Location{
-				Lat: c.Movement.To.Lat,
-				Lon: c.Movement.To.Lon,
+				Latitude:  c.Movement.To.Latitude,
+				Longitude: c.Movement.To.Longitude,
 			},
 		},
 		CreateTime: timestamppb.New(time.Now()),
@@ -167,8 +167,8 @@ func (c *Controller) GetLocation(ctx context.Context, request *locationV1beta1.G
 			AreaKey:  areaKey,
 			WorkerId: l.WorkerID,
 			Location: &v1beta1.Location{
-				Lon: l.Longitude,
-				Lat: l.Latitude,
+				Longitude: l.Longitude,
+				Latitude:  l.Latitude,
 			},
 			LastSeenTime: timestamppb.New(l.LastSeenTime),
 		}, nil

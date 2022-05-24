@@ -38,7 +38,7 @@ type Line struct {
 //
 // Tollgate - two points representing Tollgate line
 // Movement - two points representing Movement line, from previous to current Location
-// precision - float greater than 0, i.e. 0.001. for Lat/Long should be 0.00001
+// precision - float greater than 0, i.e. 0.001. for Latitude/Long should be 0.00001
 // returns nil if no Crossing, otherwise the location at which Crossing detected.
 func detectCrossingLine(tollgateID string, workerID string, line *Line, movement *Movement, precision float64) *Crossing {
 	//Tollgate-representing line
@@ -52,10 +52,10 @@ func detectCrossingLine(tollgateID string, workerID string, line *Line, movement
 	//C1 := ty1*tx2 - tx1*ty2
 
 	//Movement-representing line
-	mx1 := util.Round6(movement.From.Lon)
-	my1 := util.Round6(movement.From.Lat)
-	mx2 := util.Round6(movement.To.Lon)
-	my2 := util.Round6(movement.To.Lat)
+	mx1 := util.Round6(movement.From.Longitude)
+	my1 := util.Round6(movement.From.Latitude)
+	mx2 := util.Round6(movement.To.Longitude)
+	my2 := util.Round6(movement.To.Latitude)
 
 	A2 := my2 - my1
 	B2 := mx1 - mx2
@@ -85,10 +85,10 @@ func detectCrossingVector(tollgateID string, workerID string, line *Line, moveme
 	ty2 := util.Round6(line.Lat2)
 
 	//Movement-representing line
-	mx1 := util.Round6(movement.From.Lon)
-	my1 := util.Round6(movement.From.Lat)
-	mx2 := util.Round6(movement.To.Lon)
-	my2 := util.Round6(movement.To.Lat)
+	mx1 := util.Round6(movement.From.Longitude)
+	my1 := util.Round6(movement.From.Latitude)
+	mx2 := util.Round6(movement.To.Longitude)
+	my2 := util.Round6(movement.To.Latitude)
 
 	s1 := segment{
 		start: point{

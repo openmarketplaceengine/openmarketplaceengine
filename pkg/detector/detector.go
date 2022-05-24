@@ -43,8 +43,8 @@ type Movement struct {
 
 // Location is longitude, latitude corresponding to linear algebra X, Y axis.
 type Location struct {
-	Lon float64 `json:"lon"`
-	Lat float64 `json:"lat"`
+	Longitude float64 `json:"lon"`
+	Latitude  float64 `json:"lat"`
 }
 
 //Direction to North, South, East or West in form of N, S, E, W, NE, NW, SE, SW.
@@ -59,10 +59,10 @@ type Direction string
 // Movement represents a moving subject
 // returns Direction in form of N, S, E, W, NE, NW, SE, SW.
 func (m *Movement) Direction() Direction {
-	fromX := m.From.Lon
-	fromY := m.From.Lat
-	toX := m.To.Lon
-	toY := m.To.Lat
+	fromX := m.From.Longitude
+	fromY := m.From.Latitude
+	toX := m.To.Longitude
+	toY := m.To.Latitude
 
 	var pole string
 	var side string

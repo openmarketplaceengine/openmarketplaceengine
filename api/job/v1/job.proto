@@ -3,16 +3,12 @@ syntax = "proto3";
 package api.job.v1;
 
 import "google/protobuf/timestamp.proto";
+import "api/type/v1beta1/location.proto";
 
 option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/job/v1";
 
 service JobService {
   rpc ImportJob(ImportJobRequest) returns (ImportJobResponse) {}
-}
-
-message Location {
-  double lat = 1;
-  double lon = 2;
 }
 
 message ImportJobRequest {
@@ -23,9 +19,9 @@ message ImportJobRequest {
   string state = 5;
   google.protobuf.Timestamp pickup_date = 6;
   string pickup_addr = 7;
-  Location pickup_loc = 8;
+  api.type.v1beta1.Location pickup_loc = 8;
   string dropoff_addr = 9;
-  Location dropoff_loc = 10;
+  api.type.v1beta1.Location dropoff_loc = 10;
   string trip_type = 11;
   string category = 12;
 }
