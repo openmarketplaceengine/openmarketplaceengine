@@ -4,18 +4,13 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/controller/crossing"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/controller/location"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/controller/tollgate"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/controller/worker"
-
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
+	_ "github.com/openmarketplaceengine/openmarketplaceengine/internal/controller" // gRPC services registration
 	"github.com/openmarketplaceengine/openmarketplaceengine/log"
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
 	"github.com/openmarketplaceengine/openmarketplaceengine/stat"
-	_ "github.com/openmarketplaceengine/openmarketplaceengine/svc" // gRPC services registration
 )
 
 var boot cfg.BootList
@@ -27,11 +22,6 @@ func init() {
 	boot.Add("STAT", stat.Boot, nil)
 	boot.Use("GRPC", srv.Grpc)
 	boot.Use("HTTP", srv.Http)
-
-	location.GrpcRegister()
-	tollgate.GrpcRegister()
-	crossing.GrpcRegister()
-	worker.GrpcRegister()
 }
 
 func main() {

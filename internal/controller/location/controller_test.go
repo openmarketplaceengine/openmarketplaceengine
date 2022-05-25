@@ -37,7 +37,7 @@ func TestController(t *testing.T) {
 
 	ctx := context.Background()
 
-	_, err = tollgate.CreateIfNotExists(ctx, &tollgate.Tollgate{
+	tg := &tollgate.Tollgate{
 		ID:     tollgateID,
 		Name:   "TestController2",
 		BBoxes: nil,
@@ -49,7 +49,8 @@ func TestController(t *testing.T) {
 				Lat2: 40.634408,
 			},
 		},
-	})
+	}
+	_, _, err = tg.Upsert(ctx)
 	require.NoError(t, err)
 
 	require.NoError(t, err)

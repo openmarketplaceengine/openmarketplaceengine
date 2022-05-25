@@ -38,18 +38,23 @@ func NewTollgateCrossing(tollgateID dom.SUID, workerID dom.SUID, crossing *detec
 	}
 }
 
-func (t *TollgateCrossing) Persist(ctx dom.Context) error {
+func (t *TollgateCrossing) insert() dao.Executable {
 	now := dao.Time{}
 	now.Now()
 	now.UTC()
 	t.Created = now
-	exec := dao.Insert(table).
+	sql := dao.Insert(table).
 		Set("id", t.ID).
 		Set("tollgate_id", t.TollgateID).
 		Set("worker_id", t.WorkerID).
 		Set("crossing", t.Crossing).
 		Set("created", t.Created)
-	return dao.ExecTX(ctx, exec)
+	return sql
+}
+
+func (t *TollgateCrossing) Insert(ctx dom.Context) error {
+	executable := t.insert()
+	return dao.ExecTX(ctx, executable)
 }
 
 type Where struct {

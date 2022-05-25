@@ -50,8 +50,7 @@ func dialer() func(context.Context, string) (net.Conn, error) {
 	listener := bufconn.Listen(1024 * 1024)
 
 	server := grpc.NewServer()
-	controller := newController()
-	v1beta1.RegisterCrossingServiceServer(server, controller)
+	v1beta1.RegisterCrossingServiceServer(server, &controller{})
 
 	go func() {
 		if err := server.Serve(listener); err != nil {
@@ -79,10 +78,10 @@ func testQuery(t *testing.T, client v1beta1.CrossingServiceClient) {
 
 	for i := 0; i < 5; i++ {
 		x1 := newRandomCrossing(r, tollgateID, workerID1)
-		err = x1.Persist(ctx)
+		err = x1.Insert(ctx)
 		require.NoError(t, err)
 		x2 := newRandomCrossing(r, tollgateID, workerID2)
-		err = x2.Persist(ctx)
+		err = x2.Insert(ctx)
 		require.NoError(t, err)
 	}
 

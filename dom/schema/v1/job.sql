@@ -1,4 +1,4 @@
-create table if not exists jobimp
+create table if not exists job
 (
     id           text not null primary key,
     worker_id    text not null,

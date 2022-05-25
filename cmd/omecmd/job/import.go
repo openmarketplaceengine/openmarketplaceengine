@@ -16,7 +16,7 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/app/dir"
 	"github.com/openmarketplaceengine/openmarketplaceengine/app/enc/geo"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cmd/omecmd/cfg"
-	jobV1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/job/v1"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/api/job/v1beta1"
 	typeV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/type/v1beta1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/yaml.v2"
@@ -43,9 +43,9 @@ func Jobimp(ctx context.Context, files []string) error {
 		return err
 	}
 	defer cfg.SafeClose(con)
-	svc := jobV1.NewJobServiceClient(con)
-	var req jobV1.ImportJobRequest
-	var res *jobV1.ImportJobResponse
+	svc := v1beta1.NewJobServiceClient(con)
+	var req v1beta1.ImportJobRequest
+	var res *v1beta1.ImportJobResponse
 	cfg.Debugf("importing %d job file(s)", len(files))
 	var job jobfile
 	var dec dir.DecodeFunc
@@ -92,7 +92,7 @@ var (
 	updated    timestamppb.Timestamp
 )
 
-func updateRequest(r *jobV1.ImportJobRequest, j *jobfile) {
+func updateRequest(r *v1beta1.ImportJobRequest, j *jobfile) {
 	r.Reset()
 	updateTimestamp(&created, j.Created.Time)
 	updateTimestamp(&updated, j.Updated.Time)

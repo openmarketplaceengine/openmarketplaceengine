@@ -1,4 +1,4 @@
-package worker
+package location
 
 import (
 	"math/rand"
@@ -13,63 +13,61 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestWorkerLocation_Persist(t *testing.T) {
+func TestInsertLocation(t *testing.T) {
 	dom.WillTest(t, "test", false)
 	r := rand.New(rand.NewSource(time.Now().UnixMilli()))
 
 	ctx := cfg.Context()
 	for i := 0; i < 100; i++ {
-		wloc := genWorkerLocation(r)
-		require.NoError(t, wloc.Persist(ctx))
+		wloc := genLocation(r)
+		require.NoError(t, wloc.Insert(ctx))
 	}
 }
 
-//-----------------------------------------------------------------------------
-
-func TestAddWorkerLocation(t *testing.T) {
+func TestInsertLocations(t *testing.T) {
 	dom.WillTest(t, "test", true)
 	r := rand.New(rand.NewSource(time.Now().UnixMilli()))
 
-	insWorkerLocations(t, r, 100)
+	insert(t, r, 100)
 }
 
-//-----------------------------------------------------------------------------
-
-func insWorkerLocations(t *testing.T, r *rand.Rand, max int) (wid dom.SUID, locations []Location) {
+func insert(t *testing.T, r *rand.Rand, max int) (wid dom.SUID, locations []Location) {
 	wid = dao.MockUUID()
 	ctx := cfg.Context()
 	for i := 0; i < max; i++ {
 		longitude := util.LongitudeInRange(r, -122.47304848490842, -122.43073395709482)
 		latitude := util.LatitudeInRange(r, 37.65046887713942, 37.65617701286946)
-		err := AddLocation(ctx, wid, longitude, latitude, time.Now(), randRange(10, 80))
+		l := &Location{
+			Worker:    wid,
+			Longitude: longitude,
+			Latitude:  latitude,
+			Speed:     10,
+		}
+		err := l.Insert(ctx)
 		locations = append(locations, Location{Longitude: longitude, Latitude: latitude})
 		require.NoError(t, err)
 	}
 	return
 }
 
-//-----------------------------------------------------------------------------
-
-func TestLastWorkerLocation(t *testing.T) {
+func TestQueryLastLocation(t *testing.T) {
 	dom.WillTest(t, "test", true)
 	r := rand.New(rand.NewSource(time.Now().UnixMilli()))
 
-	wid, loc := insWorkerLocations(t, r, 100)
+	wid, loc := insert(t, r, 100)
 	ctx := cfg.Context()
-	location, _, err := LastLocation(ctx, wid)
+	location, _, err := QueryLast(ctx, wid)
 	require.NoError(t, err)
 	require.Equal(t, loc[len(loc)-1].Longitude, location.Longitude)
 	require.Equal(t, loc[len(loc)-1].Latitude, location.Latitude)
 }
 
-//-----------------------------------------------------------------------------
-
-func TestListWorkerLocation(t *testing.T) {
+func TestQueryAllLocations(t *testing.T) {
 	dom.WillTest(t, "test", true)
 	r := rand.New(rand.NewSource(time.Now().UnixMilli()))
 	max := 100
-	wid, loc := insWorkerLocations(t, r, 100)
-	locations, err := ListLocations(cfg.Context(), wid, max)
+	wid, loc := insert(t, r, 100)
+	locations, err := QueryAll(cfg.Context(), wid, max)
 	require.NoError(t, err)
 	max = len(locations)
 	for i := 0; i < max; i++ {
@@ -78,9 +76,7 @@ func TestListWorkerLocation(t *testing.T) {
 	}
 }
 
-//-----------------------------------------------------------------------------
-
-func genWorkerLocation(r *rand.Rand) *Location {
+func genLocation(r *rand.Rand) *Location {
 	stamp := dom.Time{}
 	stamp.Now()
 	return &Location{

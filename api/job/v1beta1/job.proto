@@ -1,11 +1,11 @@
 syntax = "proto3";
 
-package api.job.v1;
+package api.job.v1beta1;
 
 import "google/protobuf/timestamp.proto";
 import "api/type/v1beta1/location.proto";
 
-option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/job/v1";
+option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/job/v1beta1";
 
 service JobService {
   rpc ImportJob(ImportJobRequest) returns (ImportJobResponse) {}

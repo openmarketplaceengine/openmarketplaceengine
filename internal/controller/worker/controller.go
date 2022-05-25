@@ -5,34 +5,27 @@ import (
 	"fmt"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom/worker"
-
+	v1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/worker/v1beta1"
 	"github.com/openmarketplaceengine/openmarketplaceengine/internal/validate"
-
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
 	"google.golang.org/grpc"
-
-	workerV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/worker/v1beta1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-type Controller struct {
-	workerV1beta1.UnimplementedWorkerServiceServer
+type controller struct {
+	v1beta1.UnimplementedWorkerServiceServer
 }
 
-func newController() *Controller {
-	return &Controller{}
-}
-
-func GrpcRegister() {
-	srv.Grpc.Register(func(srv *grpc.Server) error {
-		controller := newController()
-		workerV1beta1.RegisterWorkerServiceServer(srv, controller)
+func init() {
+	srv.Grpc.Register(func(s *grpc.Server) error {
+		srv.Grpc.Infof("registering: %s", v1beta1.WorkerService_ServiceDesc.ServiceName)
+		v1beta1.RegisterWorkerServiceServer(s, &controller{})
 		return nil
 	})
 }
 
-func (c *Controller) GetWorker(ctx context.Context, request *workerV1beta1.GetWorkerRequest) (*workerV1beta1.GetWorkerResponse, error) {
+func (c *controller) GetWorker(ctx context.Context, request *v1beta1.GetWorkerRequest) (*v1beta1.GetWorkerResponse, error) {
 	workerID := request.GetWorkerId()
 	var v validate.Validator
 	v.ValidateString("worker_id", workerID, validate.IsNotNull)
@@ -47,7 +40,7 @@ func (c *Controller) GetWorker(ctx context.Context, request *workerV1beta1.GetWo
 		return nil, st.Err()
 	}
 
-	wrk, has, err := worker.GetWorker(ctx, request.WorkerId)
+	wrk, has, err := worker.QueryOne(ctx, request.WorkerId)
 
 	if err != nil {
 		st := status.Newf(codes.Internal, "get worker error: %s", err)
@@ -68,12 +61,12 @@ func (c *Controller) GetWorker(ctx context.Context, request *workerV1beta1.GetWo
 	}
 
 	w := transformWorker(wrk)
-	return &workerV1beta1.GetWorkerResponse{
+	return &v1beta1.GetWorkerResponse{
 		Worker: w,
 	}, nil
 }
 
-func (c *Controller) UpdateWorkerStatus(ctx context.Context, request *workerV1beta1.UpdateWorkerStatusRequest) (*workerV1beta1.UpdateWorkerStatusResponse, error) {
+func (c *controller) UpdateWorkerStatus(ctx context.Context, request *v1beta1.UpdateWorkerStatusRequest) (*v1beta1.UpdateWorkerStatusResponse, error) {
 	workerID := request.GetWorkerId()
 	workerStatus := request.GetStatus()
 	var v validate.Validator
@@ -90,20 +83,20 @@ func (c *Controller) UpdateWorkerStatus(ctx context.Context, request *workerV1be
 		return nil, st.Err()
 	}
 	s := transformStatusFrom(workerStatus)
-	err := worker.SetWorkerStatus(ctx, workerID, *s)
+	err := worker.UpdateWorkerStatus(ctx, workerID, *s)
 
 	if err != nil {
 		st := status.Newf(codes.Internal, "update worker status error: %s", err)
 		return nil, st.Err()
 	}
 
-	return &workerV1beta1.UpdateWorkerStatusResponse{
+	return &v1beta1.UpdateWorkerStatusResponse{
 		WorkerId: workerID,
 		Status:   workerStatus,
 	}, nil
 }
 
-func (c *Controller) ListWorkers(ctx context.Context, request *workerV1beta1.ListWorkersRequest) (*workerV1beta1.ListWorkersResponse, error) {
+func (c *controller) ListWorkers(ctx context.Context, request *v1beta1.ListWorkersRequest) (*v1beta1.ListWorkersResponse, error) {
 	pageSize := request.GetPageSize()
 	pageToken := request.GetPageToken()
 	st := request.GetStatus()
@@ -112,7 +105,7 @@ func (c *Controller) ListWorkers(ctx context.Context, request *workerV1beta1.Lis
 	v.Validate("page_size", pageSize, ValidatePageSize)
 
 	var s *worker.Status
-	if st != workerV1beta1.WorkerStatus_WORKER_STATUS_UNSPECIFIED {
+	if st != v1beta1.WorkerStatus_WORKER_STATUS_UNSPECIFIED {
 		s = transformStatusFrom(st)
 	}
 	//todo make use of page_token as offset
@@ -123,45 +116,45 @@ func (c *Controller) ListWorkers(ctx context.Context, request *workerV1beta1.Lis
 		return nil, st.Err()
 	}
 
-	var workers = make([]*workerV1beta1.Worker, 0, int(pageSize))
+	var workers = make([]*v1beta1.Worker, 0, int(pageSize))
 	for _, v := range all {
 		workers = append(workers, transformWorker(v))
 	}
 
-	return &workerV1beta1.ListWorkersResponse{
+	return &v1beta1.ListWorkersResponse{
 		Workers:       workers,
 		NextPageToken: "todo",
 	}, nil
 }
 
-var statusTo = map[worker.Status]workerV1beta1.WorkerStatus{
-	worker.Offline:  workerV1beta1.WorkerStatus_WORKER_STATUS_OFFLINE,
-	worker.Ready:    workerV1beta1.WorkerStatus_WORKER_STATUS_READY,
-	worker.OnJob:    workerV1beta1.WorkerStatus_WORKER_STATUS_ON_JOB,
-	worker.Paused:   workerV1beta1.WorkerStatus_WORKER_STATUS_PAUSED,
-	worker.Disabled: workerV1beta1.WorkerStatus_WORKER_STATUS_DISABLED,
+var statusTo = map[worker.Status]v1beta1.WorkerStatus{
+	worker.Offline:  v1beta1.WorkerStatus_WORKER_STATUS_OFFLINE,
+	worker.Ready:    v1beta1.WorkerStatus_WORKER_STATUS_READY,
+	worker.OnJob:    v1beta1.WorkerStatus_WORKER_STATUS_ON_JOB,
+	worker.Paused:   v1beta1.WorkerStatus_WORKER_STATUS_PAUSED,
+	worker.Disabled: v1beta1.WorkerStatus_WORKER_STATUS_DISABLED,
 }
 
-var statusFrom = map[workerV1beta1.WorkerStatus]worker.Status{
-	workerV1beta1.WorkerStatus_WORKER_STATUS_OFFLINE:  worker.Offline,
-	workerV1beta1.WorkerStatus_WORKER_STATUS_READY:    worker.Ready,
-	workerV1beta1.WorkerStatus_WORKER_STATUS_ON_JOB:   worker.OnJob,
-	workerV1beta1.WorkerStatus_WORKER_STATUS_PAUSED:   worker.Paused,
-	workerV1beta1.WorkerStatus_WORKER_STATUS_DISABLED: worker.Disabled,
+var statusFrom = map[v1beta1.WorkerStatus]worker.Status{
+	v1beta1.WorkerStatus_WORKER_STATUS_OFFLINE:  worker.Offline,
+	v1beta1.WorkerStatus_WORKER_STATUS_READY:    worker.Ready,
+	v1beta1.WorkerStatus_WORKER_STATUS_ON_JOB:   worker.OnJob,
+	v1beta1.WorkerStatus_WORKER_STATUS_PAUSED:   worker.Paused,
+	v1beta1.WorkerStatus_WORKER_STATUS_DISABLED: worker.Disabled,
 }
 
-func transformWorker(wrk *worker.Worker) *workerV1beta1.Worker {
+func transformWorker(wrk *worker.Worker) *v1beta1.Worker {
 	s, ok := statusTo[wrk.Status]
 	if !ok {
-		s = workerV1beta1.WorkerStatus_WORKER_STATUS_UNSPECIFIED
+		s = v1beta1.WorkerStatus_WORKER_STATUS_UNSPECIFIED
 	}
-	return &workerV1beta1.Worker{
+	return &v1beta1.Worker{
 		WorkerId: wrk.ID,
 		Status:   s,
 	}
 }
 
-func transformStatusFrom(sta workerV1beta1.WorkerStatus) *worker.Status {
+func transformStatusFrom(sta v1beta1.WorkerStatus) *worker.Status {
 	s, ok := statusFrom[sta]
 	if !ok {
 		return nil
@@ -170,9 +163,9 @@ func transformStatusFrom(sta workerV1beta1.WorkerStatus) *worker.Status {
 }
 
 // ValidateStatus should not allow UNSPECIFIED status to pass through, as
-// Controller API is explicit about status payload.
+// controller API is explicit about status payload.
 func ValidateStatus(value interface{}) error {
-	v, ok := value.(workerV1beta1.WorkerStatus)
+	v, ok := value.(v1beta1.WorkerStatus)
 	if !ok || v == 0 {
 		return fmt.Errorf("illegal status: %v", value)
 	}

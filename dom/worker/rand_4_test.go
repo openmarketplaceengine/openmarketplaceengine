@@ -25,7 +25,7 @@ func randInt(n int) int {
 	return _rnd.Intn(n)
 }
 
-func randRange(min, max int) int {
+func randRange(min, max int) int { //nolint:deadcode
 	return _rnd.Intn(max-min+1) + min
 }
 

@@ -41,7 +41,7 @@ func testPersist(t *testing.T) {
 	ctx := cfg.Context()
 	for i := 0; i < 100; i++ {
 		wrk := newWorker(randStatus())
-		require.NoError(t, wrk.Persist(ctx))
+		require.NoError(t, wrk.Insert(ctx))
 	}
 }
 
@@ -49,14 +49,14 @@ func testVehiclePersist(t *testing.T) {
 	ctx := cfg.Context()
 	for i := 0; i < 100; i++ {
 		wv := newWorkerVehicle()
-		require.NoError(t, wv.Persist(ctx))
+		require.NoError(t, wv.Insert(ctx))
 	}
 }
 
 func testWorkerInsertConstraint(t *testing.T) {
 	wrk := newWorker(randStatus())
-	require.NoError(t, wrk.Persist(cfg.Context()))
-	err := wrk.Persist(cfg.Context())
+	require.NoError(t, wrk.Insert(cfg.Context()))
+	err := wrk.Insert(cfg.Context())
 	require.True(t, dao.ErrUniqueViolation(err))
 }
 
@@ -64,8 +64,8 @@ func testGetWorker(t *testing.T) {
 	ctx := cfg.Context()
 	for i := 0; i < 100; i++ {
 		wput := newWorker(randStatus())
-		require.NoError(t, wput.Persist(ctx))
-		wget, _, err := GetWorker(ctx, wput.ID)
+		require.NoError(t, wput.Insert(ctx))
+		wget, _, err := QueryOne(ctx, wput.ID)
 		require.NoError(t, err)
 		require.NotNil(t, wget)
 		wput.Created.Reset()
@@ -81,7 +81,7 @@ func testQueryAll(t *testing.T) {
 	ctx := cfg.Context()
 	for i := 0; i < 20; i++ {
 		worker := newWorker(randStatus())
-		require.NoError(t, worker.Persist(ctx))
+		require.NoError(t, worker.Insert(ctx))
 	}
 
 	all0, err := QueryAll(ctx, nil, 10, 0)
@@ -99,10 +99,10 @@ func testWorkerStatus(t *testing.T) {
 	dom.WillTest(t, "test", true)
 	wrk := newWorker(randStatus())
 	ctx := cfg.Context()
-	require.NoError(t, wrk.Persist(ctx))
+	require.NoError(t, wrk.Insert(ctx))
 	testGetWorkerStatus(t, ctx, wrk)
 	wrk.Status = randStatus()
-	require.NoError(t, SetWorkerStatus(ctx, wrk.ID, wrk.Status))
+	require.NoError(t, UpdateWorkerStatus(ctx, wrk.ID, wrk.Status))
 	testGetWorkerStatus(t, ctx, wrk)
 }
 
@@ -112,7 +112,7 @@ func testRowsAffected(t *testing.T) {
 	ctx := cfg.Context()
 	for i := 0; i < max; i++ {
 		wrk := newWorker(randStatus())
-		require.NoError(t, wrk.Persist(ctx))
+		require.NoError(t, wrk.Insert(ctx))
 	}
 	sql := dao.Update(workerTable).Set("updated", time.Now())
 	require.NoError(t, dao.ExecTX(ctx, sql))
@@ -120,7 +120,7 @@ func testRowsAffected(t *testing.T) {
 }
 
 func testGetWorkerStatus(t *testing.T, ctx dom.Context, wput *Worker) {
-	status, _, er := GetWorkerStatus(ctx, wput.ID)
+	status, _, er := QueryWorkerStatus(ctx, wput.ID)
 	require.NoError(t, er)
 	require.Equal(t, wput.Status, status)
 }

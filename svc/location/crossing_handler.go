@@ -13,7 +13,7 @@ import (
 
 func persistCrossing(ctx context.Context, c *detector.Crossing) error {
 	tollgateCrossing := crossing.NewTollgateCrossing(c.TollgateID, c.WorkerID, c)
-	err := tollgateCrossing.Persist(ctx)
+	err := tollgateCrossing.Insert(ctx)
 	if err != nil {
 		return fmt.Errorf("crossing persist error: %s", err)
 	}

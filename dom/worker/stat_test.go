@@ -21,15 +21,15 @@ func testWorkersByStatus(t *testing.T) {
 	ctx := cfg.Context()
 	for i := 0; i < 3; i++ {
 		wrk := newWorker(Offline)
-		require.NoError(t, wrk.Persist(ctx))
+		require.NoError(t, wrk.Insert(ctx))
 	}
 	for i := 0; i < 5; i++ {
 		wrk := newWorker(Paused)
-		require.NoError(t, wrk.Persist(ctx))
+		require.NoError(t, wrk.Insert(ctx))
 	}
 	for i := 0; i < 7; i++ {
 		wrk := newWorker(OnJob)
-		require.NoError(t, wrk.Persist(ctx))
+		require.NoError(t, wrk.Insert(ctx))
 	}
 
 	status, err := workersByStatus(ctx)

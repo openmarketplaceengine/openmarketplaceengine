@@ -7,9 +7,9 @@ package dao
 type UpsertStatus int
 
 const (
-	UpsertUnknown = 0
-	UpsertCreated = 1
-	UpsertUpdated = 2
+	UpsertUnknown UpsertStatus = 0
+	UpsertCreated UpsertStatus = 1
+	UpsertUpdated UpsertStatus = 2
 )
 
 func Upsert(ctx Context, insert, update func() Executable) (Result, UpsertStatus, error) {

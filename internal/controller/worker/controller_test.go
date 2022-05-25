@@ -49,8 +49,7 @@ func dialer() func(context.Context, string) (net.Conn, error) {
 	listener := bufconn.Listen(1024 * 1024)
 
 	server := grpc.NewServer()
-	controller := newController()
-	workerV1beta1.RegisterWorkerServiceServer(server, controller)
+	workerV1beta1.RegisterWorkerServiceServer(server, &controller{})
 
 	go func() {
 		if err := server.Serve(listener); err != nil {
@@ -67,7 +66,7 @@ func testUpdateWorkerState(t *testing.T, client workerV1beta1.WorkerServiceClien
 	ctx := cfg.Context()
 
 	w := newWorker()
-	require.NoError(t, w.Persist(ctx))
+	require.NoError(t, w.Insert(ctx))
 
 	request := &workerV1beta1.UpdateWorkerStatusRequest{
 		WorkerId: w.ID,
@@ -89,7 +88,7 @@ func testUpdateWorkerStateBadRequest(t *testing.T, client workerV1beta1.WorkerSe
 	ctx := cfg.Context()
 
 	w := newWorker()
-	require.NoError(t, w.Persist(ctx))
+	require.NoError(t, w.Insert(ctx))
 
 	_, err := client.UpdateWorkerStatus(ctx, &workerV1beta1.UpdateWorkerStatusRequest{
 		WorkerId: w.ID,
@@ -110,7 +109,7 @@ func testListWorkersByState(t *testing.T, client workerV1beta1.WorkerServiceClie
 	ctx := cfg.Context()
 
 	w := newWorker()
-	require.NoError(t, w.Persist(ctx))
+	require.NoError(t, w.Insert(ctx))
 
 	request1 := &workerV1beta1.UpdateWorkerStatusRequest{
 		WorkerId: w.ID,

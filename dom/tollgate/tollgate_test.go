@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestTollgateModel(t *testing.T) {
+func TestTollgate(t *testing.T) {
 	dom.WillTest(t, "test", false)
 	ctx := cfg.Context()
 
@@ -25,8 +25,8 @@ func TestTollgateModel(t *testing.T) {
 		testCreate(ctx, t, r)
 	})
 
-	t.Run("testCreateIfNotExists", func(t *testing.T) {
-		testCreateIfNotExists(ctx, t, r)
+	t.Run("testUpsert", func(t *testing.T) {
+		testUpsert(ctx, t, r)
 	})
 
 	t.Run("testUpdate", func(t *testing.T) {
@@ -54,16 +54,18 @@ func testCreate(ctx dom.Context, t *testing.T, r *rand.Rand) {
 	require.Equal(t, dao.Time{}, one.Updated)
 }
 
-func testCreateIfNotExists(ctx dom.Context, t *testing.T, r *rand.Rand) {
+func testUpsert(ctx dom.Context, t *testing.T, r *rand.Rand) {
 	toll := newRandomTollgate(r, "testCreate")
 
-	created, err := CreateIfNotExists(ctx, toll)
+	res, status, err := toll.Upsert(ctx)
 	require.NoError(t, err)
-	require.True(t, created)
+	require.Equal(t, dao.UpsertCreated, status)
+	require.NotNil(t, res)
 
-	created, err = CreateIfNotExists(ctx, toll)
+	res, status, err = toll.Upsert(ctx)
 	require.NoError(t, err)
-	require.False(t, created)
+	require.Equal(t, dao.UpsertUpdated, status)
+	require.NotNil(t, res)
 }
 
 func testUpdate(ctx dom.Context, t *testing.T, r *rand.Rand) {

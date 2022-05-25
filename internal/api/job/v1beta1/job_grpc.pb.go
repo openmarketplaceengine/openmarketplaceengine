@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             (unknown)
-// source: api/job/v1/job.proto
+// source: api/job/v1beta1/job.proto
 
-package v1
+package v1beta1
 
 import (
 	context "context"
@@ -35,7 +35,7 @@ func NewJobServiceClient(cc grpc.ClientConnInterface) JobServiceClient {
 
 func (c *jobServiceClient) ImportJob(ctx context.Context, in *ImportJobRequest, opts ...grpc.CallOption) (*ImportJobResponse, error) {
 	out := new(ImportJobResponse)
-	err := c.cc.Invoke(ctx, "/api.job.v1.JobService/ImportJob", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.job.v1beta1.JobService/ImportJob", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +78,7 @@ func _JobService_ImportJob_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.job.v1.JobService/ImportJob",
+		FullMethod: "/api.job.v1beta1.JobService/ImportJob",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(JobServiceServer).ImportJob(ctx, req.(*ImportJobRequest))
@@ -90,7 +90,7 @@ func _JobService_ImportJob_Handler(srv interface{}, ctx context.Context, dec fun
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var JobService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "api.job.v1.JobService",
+	ServiceName: "api.job.v1beta1.JobService",
 	HandlerType: (*JobServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -99,5 +99,5 @@ var JobService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/job/v1/job.proto",
+	Metadata: "api/job/v1beta1/job.proto",
 }
