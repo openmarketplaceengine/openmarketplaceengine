@@ -1,6 +1,7 @@
 package location
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -8,7 +9,6 @@ import (
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom/crossing"
 	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
-	"golang.org/x/net/context"
 )
 
 func persistCrossing(ctx context.Context, c *detector.Crossing) error {
