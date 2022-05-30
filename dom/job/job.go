@@ -7,16 +7,14 @@ package job
 import (
 	"time"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
-
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 )
 
 const table = "job"
 
 type Job struct {
-	ID          dom.SUID  `db:"id"`
-	WorkerID    dom.SUID  `db:"worker_id"`
+	ID          dao.SUID  `db:"id"`
+	WorkerID    dao.SUID  `db:"worker_id"`
 	Created     time.Time `db:"created"`
 	Updated     time.Time `db:"updated"`
 	State       string    `db:"state"`
@@ -31,7 +29,7 @@ type Job struct {
 	Category    string    `db:"category"`
 }
 
-func (j *Job) Upsert(ctx dom.Context) (dao.Result, dao.UpsertStatus, error) {
+func (j *Job) Upsert(ctx dao.Context) (dao.Result, dao.UpsertStatus, error) {
 	return dao.Upsert(ctx, j.insert, j.update)
 }
 
