@@ -63,3 +63,15 @@ func (j *Job) setSQL(sql *dao.SQL) {
 		Set("trip_type", j.TripType).
 		Set("category", j.Category)
 }
+
+func QueryOne(ctx dao.Context, jobID dao.SUID) (job *Job, has bool, err error) {
+	job = new(Job)
+	has, err = dao.From(table).
+		Bind(job).
+		Where("id = ?", jobID).
+		QueryOne(ctx)
+	if !has {
+		job = nil
+	}
+	return
+}
