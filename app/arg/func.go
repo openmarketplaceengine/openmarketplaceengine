@@ -55,7 +55,7 @@ func (f *FlagSet) Rest(name string, help string, call func(ctx Context, args []s
 		if len(val) > 0 {
 			return call(ctx, []string{val})
 		}
-		args := set.Args()
+		args := set.rest()
 		if !flag.hasOpt(argEmpty) {
 			if len(args) == 0 {
 				return fmt.Errorf("flag needs an argument: -%s", name)
