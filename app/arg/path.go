@@ -19,6 +19,7 @@ const (
 	FileMustExist PathFlag = 1 << iota
 	FileSkipInvalid
 	PathPrintError
+	DirCreate
 )
 
 var (
@@ -47,6 +48,46 @@ func (f *FlagSet) Files(name string, help string, flags PathFlag, call func(ctx 
 			return err
 		}
 		return call(ctx, files)
+	}
+	return flag
+}
+
+//-----------------------------------------------------------------------------
+
+func (f *FlagSet) Dir(name string, help string, flags PathFlag, call func(ctx Context, path string) error) *Flag {
+	checkNameCall(name, call == nil)
+	flag := f.Var(new(stringValue), name, help)
+	flag.fset = func(ctx Context, set *FlagSet, val string) error {
+		if len(val) == 0 {
+			val, _ = set.next()
+		}
+		if len(val) == 0 {
+			return fmt.Errorf("flag needs an argument: -%s", name)
+		}
+		// current working directory
+		if len(val) == 1 && val[0] == '.' {
+			cwd, err := os.Getwd()
+			if err == nil {
+				err = call(ctx, cwd)
+			}
+			return err
+		}
+		inf, err := dir.Stat(val)
+		if err != nil {
+			if os.IsNotExist(err) {
+				if flags.Has(DirCreate) {
+					err = dir.MkdirAll(val, 0700)
+					if err == nil {
+						err = call(ctx, val)
+					}
+				}
+			}
+			return err
+		}
+		if !inf.IsDir() {
+			return fmt.Errorf("not a directory: %q", val)
+		}
+		return call(ctx, val)
 	}
 	return flag
 }
@@ -134,4 +175,10 @@ func pathError(prefix, arg string, err error) error {
 		err = pe.Err
 	}
 	return fmt.Errorf("%s error %w: %q", prefix, err, arg)
+}
+
+//-----------------------------------------------------------------------------
+
+func (f PathFlag) Has(flag PathFlag) bool {
+	return (f & flag) != 0
 }
