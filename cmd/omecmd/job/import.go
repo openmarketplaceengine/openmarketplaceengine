@@ -32,7 +32,7 @@ const (
 func init() {
 	const flags = arg.FileMustExist | arg.FileSkipInvalid | arg.PathPrintError
 	v := arg.FileValidator(flags, fyaml, fjson)
-	app.Client().Args.Files("job", "Import job description from YAML or JSON `file(s)`", flags, Jobimp).Validator(v)
+	app.Client().Args.Files("jobimp", "Import job description from YAML or JSON `file(s)`", flags, Jobimp).Validator(v)
 }
 
 //-----------------------------------------------------------------------------
@@ -92,13 +92,15 @@ var (
 	updated    timestamppb.Timestamp
 )
 
-func updateRequest(r *v1beta1.ImportJobRequest, j *jobfile) {
-	r.Reset()
+func updateRequest(req *v1beta1.ImportJobRequest, j *jobfile) {
+	req.Reset()
+	req.Job = new(v1beta1.JobInfo)
 	updateTimestamp(&created, j.Created.Time)
 	updateTimestamp(&updated, j.Updated.Time)
 	updateTimestamp(&pickupDate, j.PickupDate.Time)
 	updateLocation(&pickupLoc, j.PickupGeo)
 	updateLocation(&dropoffLoc, j.DropoffGeo)
+	r := req.Job
 	r.Id = j.ID
 	r.WorkerId = j.WorkerID
 	r.Created = &created

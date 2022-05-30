@@ -31,7 +31,7 @@ func init() {
 func (s *controller) ImportJob(ctx context.Context, req *v1beta1.ImportJobRequest) (*v1beta1.ImportJobResponse, error) {
 	var act = v1beta1.JobAction_JOB_ACTION_CREATED
 	var j job.Job
-	s.setJob(&j, req)
+	s.setJob(&j, req.Job)
 	_, ups, err := j.Upsert(ctx)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -43,7 +43,7 @@ func (s *controller) ImportJob(ctx context.Context, req *v1beta1.ImportJobReques
 	return res, nil
 }
 
-func (s *controller) setJob(job *job.Job, req *v1beta1.ImportJobRequest) {
+func (s *controller) setJob(job *job.Job, req *v1beta1.JobInfo) {
 	job.ID = req.Id
 	job.WorkerID = req.WorkerId
 	job.Created = req.Created.AsTime()
