@@ -78,11 +78,11 @@ func (f *FlagSet) Dir(name string, help string, flags PathFlag, call func(ctx Co
 				if flags.Has(DirCreate) {
 					err = dir.MkdirAll(val, 0700)
 					if err == nil {
-						err = call(ctx, val)
+						return call(ctx, val)
 					}
 				}
 			}
-			return err
+			return pathError("directory", val, err)
 		}
 		if !inf.IsDir() {
 			return fmt.Errorf("not a directory: %q", val)
