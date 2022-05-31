@@ -18,7 +18,7 @@ func init() {
 	app.Client().Args.Rest("jobexp", "Export job description with `id(s)` to YAML", JobExp)
 }
 
-func JobExp(ctx context.Context, ids []string) error {
+func JobExp(ctx context.Context, ids []string) error { //nolint
 	dst, derr := cfg.DstDir()
 	if derr != nil {
 		return derr
