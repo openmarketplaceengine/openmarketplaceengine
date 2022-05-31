@@ -57,16 +57,16 @@ func (s *controller) ExportJob(ctx context.Context, req *rpc.ExportJobRequest) (
 	}
 	jobs := make([]*rpc.ExportJobItem, cnt)
 	for i := 0; i < cnt; i++ {
-		job_id := ids[i]
-		if len(job_id) == 0 {
+		jobID := ids[i]
+		if len(jobID) == 0 {
 			jobs[i] = &rpc.ExportJobItem{Id: "", Job: nil}
 			continue
 		}
-		val, _, err := job.QueryOne(ctx, job_id)
+		val, _, err := job.QueryOne(ctx, jobID)
 		if err != nil {
-			return nil, status.Errorf(codes.Internal, "failed querying job %q: %v", job_id, err)
+			return nil, status.Errorf(codes.Internal, "failed querying job %q: %v", jobID, err)
 		}
-		jobs[i] = &rpc.ExportJobItem{Id: job_id, Job: s.getJobInfo(val)}
+		jobs[i] = &rpc.ExportJobItem{Id: jobID, Job: s.getJobInfo(val)}
 	}
 	return &rpc.ExportJobResponse{Jobs: jobs}, nil
 }
