@@ -13,6 +13,9 @@ import (
 )
 
 type (
+	// SUID represents opaque UUID string coming from external sources.
+	// Neither format, nor length known in advance.
+	SUID = string
 	// XUID represents locally generated, sortable 12-bytes UUID.
 	XUID = string
 )

@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"os"
 	"time"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/app"
@@ -21,6 +22,7 @@ import (
 const (
 	CfgFile = "omecmd.yaml"
 	defAddr = "localhost:8090"
+	defDir  = "."
 )
 
 const (
@@ -32,12 +34,14 @@ const (
 type Cmdcfg struct {
 	Server  string
 	timeout int64 // connection timeout in seconds
+	dstDir  string
 	debug   bool
 }
 
 var _cfg = Cmdcfg{
 	Server:  defAddr,
 	timeout: defTimeout,
+	dstDir:  defDir,
 }
 
 var file = &app.Client().Dirs.ConfFile
@@ -48,6 +52,10 @@ func init() {
 	args := &app.Client().Args
 	args.String("s", "OME gRPC server `address`", srvArg).Option(true).DefVal(defAddr)
 	args.BoolVar(&_cfg.debug, "d", false, "Enable debug output")
+	args.Dir("dir", "Destination directory `path` for the current command", 0, func(_ context.Context, path string) error {
+		_cfg.dstDir = path
+		return nil
+	}).DefVal(defDir).Option(true)
 }
 
 //-----------------------------------------------------------------------------
@@ -91,8 +99,16 @@ func Server(pathElem ...string) string {
 
 func Debugf(format string, args ...interface{}) {
 	if _cfg.debug {
+		format = "[DBG] " + format
 		log.Printf(format, args...)
 	}
+}
+
+//-----------------------------------------------------------------------------
+
+func Errorf(format string, args ...interface{}) {
+	format = "[ERR] " + format
+	log.Printf(format, args...)
 }
 
 //-----------------------------------------------------------------------------
@@ -129,4 +145,17 @@ func Dial(ctx context.Context) (*grpc.ClientConn, error) {
 	}
 	Debugf("connection established")
 	return con, nil
+}
+
+//-----------------------------------------------------------------------------
+
+func DstDir() (string, error) {
+	var err error
+	if _cfg.dstDir == defDir {
+		_cfg.dstDir, err = os.Getwd()
+	}
+	if _cfg.debug && err == nil {
+		Debugf("target directory: %q", _cfg.dstDir)
+	}
+	return _cfg.dstDir, err
 }

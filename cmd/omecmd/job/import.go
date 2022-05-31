@@ -16,8 +16,8 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/app/dir"
 	"github.com/openmarketplaceengine/openmarketplaceengine/app/enc/geo"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cmd/omecmd/cfg"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/api/job/v1beta1"
-	typeV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/type/v1beta1"
+	rpc "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/job/v1beta1"
+	typ "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/type/v1beta1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/yaml.v2"
 )
@@ -32,7 +32,7 @@ const (
 func init() {
 	const flags = arg.FileMustExist | arg.FileSkipInvalid | arg.PathPrintError
 	v := arg.FileValidator(flags, fyaml, fjson)
-	app.Client().Args.Files("job", "Import job description from YAML or JSON `file(s)`", flags, Jobimp).Validator(v)
+	app.Client().Args.Files("jobimp", "Import job description from YAML or JSON `file(s)`", flags, Jobimp).Validator(v)
 }
 
 //-----------------------------------------------------------------------------
@@ -43,9 +43,9 @@ func Jobimp(ctx context.Context, files []string) error {
 		return err
 	}
 	defer cfg.SafeClose(con)
-	svc := v1beta1.NewJobServiceClient(con)
-	var req v1beta1.ImportJobRequest
-	var res *v1beta1.ImportJobResponse
+	svc := rpc.NewJobServiceClient(con)
+	var req rpc.ImportJobRequest
+	var res *rpc.ImportJobResponse
 	cfg.Debugf("importing %d job file(s)", len(files))
 	var job jobfile
 	var dec dir.DecodeFunc
@@ -85,20 +85,22 @@ func Jobimp(ctx context.Context, files []string) error {
 //-----------------------------------------------------------------------------
 
 var (
-	pickupLoc  typeV1beta1.Location
-	dropoffLoc typeV1beta1.Location
+	pickupLoc  typ.Location
+	dropoffLoc typ.Location
 	pickupDate timestamppb.Timestamp
 	created    timestamppb.Timestamp
 	updated    timestamppb.Timestamp
 )
 
-func updateRequest(r *v1beta1.ImportJobRequest, j *jobfile) {
-	r.Reset()
+func updateRequest(req *rpc.ImportJobRequest, j *jobfile) {
+	req.Reset()
+	req.Job = new(rpc.JobInfo)
 	updateTimestamp(&created, j.Created.Time)
 	updateTimestamp(&updated, j.Updated.Time)
 	updateTimestamp(&pickupDate, j.PickupDate.Time)
 	updateLocation(&pickupLoc, j.PickupGeo)
 	updateLocation(&dropoffLoc, j.DropoffGeo)
+	r := req.Job
 	r.Id = j.ID
 	r.WorkerId = j.WorkerID
 	r.Created = &created
@@ -120,7 +122,7 @@ func updateTimestamp(dst *timestamppb.Timestamp, src time.Time) {
 	dst.Nanos = int32(src.Nanosecond())
 }
 
-func updateLocation(dst *typeV1beta1.Location, src geo.LocationWKB) {
+func updateLocation(dst *typ.Location, src geo.LocationWKB) {
 	dst.Reset()
 	dst.Latitude = src.Latitude
 	dst.Longitude = src.Longitude

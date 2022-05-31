@@ -11,7 +11,7 @@ import (
 type (
 	// SUID represents opaque UUID string coming from external sources.
 	// Neither format, nor length known in advance.
-	SUID    = string
+	SUID    = dao.SUID
 	Time    = dao.Time
 	Context = dao.Context
 )

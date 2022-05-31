@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type JobServiceClient interface {
 	ImportJob(ctx context.Context, in *ImportJobRequest, opts ...grpc.CallOption) (*ImportJobResponse, error)
+	ExportJob(ctx context.Context, in *ExportJobRequest, opts ...grpc.CallOption) (*ExportJobResponse, error)
 }
 
 type jobServiceClient struct {
@@ -42,11 +43,21 @@ func (c *jobServiceClient) ImportJob(ctx context.Context, in *ImportJobRequest, 
 	return out, nil
 }
 
+func (c *jobServiceClient) ExportJob(ctx context.Context, in *ExportJobRequest, opts ...grpc.CallOption) (*ExportJobResponse, error) {
+	out := new(ExportJobResponse)
+	err := c.cc.Invoke(ctx, "/api.job.v1beta1.JobService/ExportJob", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // JobServiceServer is the server API for JobService service.
 // All implementations should embed UnimplementedJobServiceServer
 // for forward compatibility
 type JobServiceServer interface {
 	ImportJob(context.Context, *ImportJobRequest) (*ImportJobResponse, error)
+	ExportJob(context.Context, *ExportJobRequest) (*ExportJobResponse, error)
 }
 
 // UnimplementedJobServiceServer should be embedded to have forward compatible implementations.
@@ -55,6 +66,9 @@ type UnimplementedJobServiceServer struct {
 
 func (UnimplementedJobServiceServer) ImportJob(context.Context, *ImportJobRequest) (*ImportJobResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ImportJob not implemented")
+}
+func (UnimplementedJobServiceServer) ExportJob(context.Context, *ExportJobRequest) (*ExportJobResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ExportJob not implemented")
 }
 
 // UnsafeJobServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -86,6 +100,24 @@ func _JobService_ImportJob_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _JobService_ExportJob_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExportJobRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(JobServiceServer).ExportJob(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.job.v1beta1.JobService/ExportJob",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(JobServiceServer).ExportJob(ctx, req.(*ExportJobRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // JobService_ServiceDesc is the grpc.ServiceDesc for JobService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -96,6 +128,10 @@ var JobService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ImportJob",
 			Handler:    _JobService_ImportJob_Handler,
+		},
+		{
+			MethodName: "ExportJob",
+			Handler:    _JobService_ExportJob_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

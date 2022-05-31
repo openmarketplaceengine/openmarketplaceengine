@@ -7,16 +7,14 @@ package job
 import (
 	"time"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
-
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 )
 
 const table = "job"
 
 type Job struct {
-	ID          dom.SUID  `db:"id"`
-	WorkerID    dom.SUID  `db:"worker_id"`
+	ID          dao.SUID  `db:"id"`
+	WorkerID    dao.SUID  `db:"worker_id"`
 	Created     time.Time `db:"created"`
 	Updated     time.Time `db:"updated"`
 	State       string    `db:"state"`
@@ -31,7 +29,7 @@ type Job struct {
 	Category    string    `db:"category"`
 }
 
-func (j *Job) Upsert(ctx dom.Context) (dao.Result, dao.UpsertStatus, error) {
+func (j *Job) Upsert(ctx dao.Context) (dao.Result, dao.UpsertStatus, error) {
 	return dao.Upsert(ctx, j.insert, j.update)
 }
 
@@ -64,4 +62,16 @@ func (j *Job) setSQL(sql *dao.SQL) {
 		Set("dropoff_lon", j.DropoffLon).
 		Set("trip_type", j.TripType).
 		Set("category", j.Category)
+}
+
+func QueryOne(ctx dao.Context, jobID dao.SUID) (job *Job, has bool, err error) {
+	job = new(Job)
+	has, err = dao.From(table).
+		Bind(job).
+		Where("id = ?", jobID).
+		QueryOne(ctx)
+	if !has {
+		job = nil
+	}
+	return
 }

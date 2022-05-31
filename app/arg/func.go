@@ -48,6 +48,31 @@ func (f *FlagSet) String(name string, help string, call func(ctx Context, arg st
 
 //-----------------------------------------------------------------------------
 
+func (f *FlagSet) Rest(name string, help string, call func(ctx Context, args []string) error) *Flag {
+	checkNameCall(name, call == nil)
+	flag := f.Var(new(stringValue), name, help)
+	flag.fset = func(ctx Context, set *FlagSet, val string) error {
+		if len(val) > 0 {
+			return call(ctx, []string{val})
+		}
+		args := set.rest()
+		if !flag.hasOpt(argEmpty) {
+			if len(args) == 0 {
+				return fmt.Errorf("flag needs an argument: -%s", name)
+			}
+			for i := range args {
+				if len(args[i]) == 0 {
+					return fmt.Errorf("empty argument #%d for flag: -%s", i+1, name)
+				}
+			}
+		}
+		return call(ctx, args)
+	}
+	return flag
+}
+
+//-----------------------------------------------------------------------------
+
 func checkNameCall(name string, callIsNil bool) {
 	if len(name) == 0 {
 		panic("Empty argument name")

@@ -1,9 +1,8 @@
 package detector
 
 import (
+	"context"
 	"testing"
-
-	"golang.org/x/net/context"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"

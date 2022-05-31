@@ -15,13 +15,20 @@ type Location struct {
 }
 
 type LocationWKB struct {
-	Location
+	Latitude  float64
+	Longitude float64
 }
 
 //-----------------------------------------------------------------------------
 
 func (loc *Location) Reset() {
 	*loc = Location{}
+}
+
+//-----------------------------------------------------------------------------
+
+func (loc *LocationWKB) Reset() {
+	*loc = LocationWKB{}
 }
 
 //-----------------------------------------------------------------------------
@@ -33,6 +40,12 @@ func (loc Location) String() string {
 //-----------------------------------------------------------------------------
 
 func (loc Location) EqualsCoord(lat, lon float64) bool {
+	return loc.Latitude == lat && loc.Longitude == lon
+}
+
+//-----------------------------------------------------------------------------
+
+func (loc LocationWKB) EqualsCoord(lat, lon float64) bool {
 	return loc.Latitude == lat && loc.Longitude == lon
 }
 

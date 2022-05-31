@@ -9,41 +9,71 @@ import (
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom/job"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/api/job/v1beta1"
+	rpc "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/job/v1beta1"
+	typ "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/type/v1beta1"
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type controller struct {
-	v1beta1.UnimplementedJobServiceServer
+	rpc.UnimplementedJobServiceServer
 }
 
 func init() {
 	srv.Grpc.Register(func(s *grpc.Server) error {
-		srv.Grpc.Infof("registering: %s", v1beta1.JobService_ServiceDesc.ServiceName)
-		v1beta1.RegisterJobServiceServer(s, &controller{})
+		srv.Grpc.Infof("registering: %s", rpc.JobService_ServiceDesc.ServiceName)
+		rpc.RegisterJobServiceServer(s, &controller{})
 		return nil
 	})
 }
 
-func (s *controller) ImportJob(ctx context.Context, req *v1beta1.ImportJobRequest) (*v1beta1.ImportJobResponse, error) {
-	var act = v1beta1.JobAction_JOB_ACTION_CREATED
+//-----------------------------------------------------------------------------
+
+func (s *controller) ImportJob(ctx context.Context, req *rpc.ImportJobRequest) (*rpc.ImportJobResponse, error) {
+	var act = rpc.JobAction_JOB_ACTION_CREATED
 	var j job.Job
-	s.setJob(&j, req)
+	s.setJob(&j, req.Job)
 	_, ups, err := j.Upsert(ctx)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	if ups == dao.UpsertUpdated {
-		act = v1beta1.JobAction_JOB_ACTION_UPDATED
+		act = rpc.JobAction_JOB_ACTION_UPDATED
 	}
-	res := &v1beta1.ImportJobResponse{Action: act}
+	res := &rpc.ImportJobResponse{Action: act}
 	return res, nil
 }
 
-func (s *controller) setJob(job *job.Job, req *v1beta1.ImportJobRequest) {
+//-----------------------------------------------------------------------------
+
+func (s *controller) ExportJob(ctx context.Context, req *rpc.ExportJobRequest) (*rpc.ExportJobResponse, error) {
+	ids := req.Ids
+	cnt := len(ids)
+	if cnt == 0 {
+		return nil, status.Error(codes.InvalidArgument, "empty job ids array")
+	}
+	jobs := make([]*rpc.ExportJobItem, cnt)
+	for i := 0; i < cnt; i++ {
+		jobID := ids[i]
+		if len(jobID) == 0 {
+			jobs[i] = &rpc.ExportJobItem{Id: "", Job: nil}
+			continue
+		}
+		val, _, err := job.QueryOne(ctx, jobID)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "failed querying job %q: %v", jobID, err)
+		}
+		jobs[i] = &rpc.ExportJobItem{Id: jobID, Job: s.getJobInfo(val)}
+	}
+	return &rpc.ExportJobResponse{Jobs: jobs}, nil
+}
+
+//-----------------------------------------------------------------------------
+
+func (s *controller) setJob(job *job.Job, req *rpc.JobInfo) {
 	job.ID = req.Id
 	job.WorkerID = req.WorkerId
 	job.Created = req.Created.AsTime()
@@ -58,4 +88,26 @@ func (s *controller) setJob(job *job.Job, req *v1beta1.ImportJobRequest) {
 	job.DropoffLon = req.DropoffLoc.GetLongitude()
 	job.TripType = req.TripType
 	job.Category = req.Category
+}
+
+//-----------------------------------------------------------------------------
+
+func (s *controller) getJobInfo(job *job.Job) *rpc.JobInfo {
+	if job == nil {
+		return nil
+	}
+	inf := new(rpc.JobInfo)
+	inf.Id = job.ID
+	inf.WorkerId = job.WorkerID
+	inf.Created = timestamppb.New(job.Created)
+	inf.Updated = timestamppb.New(job.Updated)
+	inf.State = job.State
+	inf.PickupDate = timestamppb.New(job.PickupDate)
+	inf.PickupAddr = job.PickupAddr
+	inf.PickupLoc = &typ.Location{Latitude: job.PickupLat, Longitude: job.PickupLon}
+	inf.DropoffAddr = job.DropoffAddr
+	inf.DropoffLoc = &typ.Location{Latitude: job.DropoffLat, Longitude: job.DropoffLon}
+	inf.TripType = job.TripType
+	inf.Category = job.Category
+	return inf
 }
