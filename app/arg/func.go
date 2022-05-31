@@ -62,7 +62,7 @@ func (f *FlagSet) Rest(name string, help string, call func(ctx Context, args []s
 			}
 			for i := range args {
 				if len(args[i]) == 0 {
-					return fmt.Errorf("empty argument #%d for flag: -%s", i, name)
+					return fmt.Errorf("empty argument #%d for flag: -%s", i+1, name)
 				}
 			}
 		}
