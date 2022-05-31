@@ -45,6 +45,12 @@ func (loc Location) EqualsCoord(lat, lon float64) bool {
 
 //-----------------------------------------------------------------------------
 
+func (loc LocationWKB) EqualsCoord(lat, lon float64) bool {
+	return loc.Latitude == lat && loc.Longitude == lon
+}
+
+//-----------------------------------------------------------------------------
+
 func (loc *LocationWKB) UnmarshalText(text []byte) (err error) {
 	switch len(text) {
 	case 0:
