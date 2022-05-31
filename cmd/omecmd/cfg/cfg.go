@@ -55,7 +55,7 @@ func init() {
 	args.Dir("dir", "Destination directory `path` for the current command", 0, func(_ context.Context, path string) error {
 		_cfg.dstDir = path
 		return nil
-	}).DefVal(defDir)
+	}).DefVal(defDir).Option(true)
 }
 
 //-----------------------------------------------------------------------------
