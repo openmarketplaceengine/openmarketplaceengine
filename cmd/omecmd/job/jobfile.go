@@ -26,10 +26,10 @@ type jobfile struct {
 	PickupGeo     geo.LocationWKB `json:"pickup_location_geo" yaml:"pickup_location_geo"`
 	DropoffAddr   string          `json:"dropoff_location_readable" yaml:"dropoff_location_readable"`
 	DropoffGeo    geo.LocationWKB `json:"dropoff_location_geo" yaml:"dropoff_location_geo"`
-	CustomerName  string          `json:"customer_name" yaml:"customer_name"`
-	CustomerPhone string          `json:"customer_phone" yaml:"customer_phone"`
-	TripType      string          `json:"trip_type" yaml:"trip_type"`
-	Category      string          `json:"category" yaml:"category"`
+	CustomerName  string          `json:"customer_name" yaml:"customer_name,omitempty"`
+	CustomerPhone string          `json:"customer_phone" yaml:"customer_phone,omitempty"`
+	TripType      string          `json:"trip_type" yaml:"trip_type,omitempty"`
+	Category      string          `json:"category" yaml:"category,omitempty"`
 }
 
 //-----------------------------------------------------------------------------
