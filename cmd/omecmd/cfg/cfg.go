@@ -99,8 +99,16 @@ func Server(pathElem ...string) string {
 
 func Debugf(format string, args ...interface{}) {
 	if _cfg.debug {
+		format = "[DBG] " + format
 		log.Printf(format, args...)
 	}
+}
+
+//-----------------------------------------------------------------------------
+
+func Errorf(format string, args ...interface{}) {
+	format = "[ERR] " + format
+	log.Printf(format, args...)
 }
 
 //-----------------------------------------------------------------------------
