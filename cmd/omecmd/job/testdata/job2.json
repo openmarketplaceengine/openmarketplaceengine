@@ -1,0 +1,16 @@
+{
+  "id": "2",
+  "created_at": "2022-04-01T19:11:08.324669+00:00",
+  "state": "GO_TO_PICKUP",
+  "pickup_datetime": "2022-04-01T19:11:00+00:00",
+  "pickup_location_readable": "QU: 49th Pl & Maspeth Ave",
+  "pickup_location_geo": "0101000020E6100000FE0C6FD6E07A52C02A00C633685C4440",
+  "dropoff_location_readable": "BK: Rutland Rd & E 91st St",
+  "dropoff_location_geo": "0101000020E6100000A1754309697B52C073E26190AA544440",
+  "customer_name": "Jonny Depp",
+  "customer_phone": "+1 999 876 4512",
+  "worker_id": "Y8EZHvWtxSA=",
+  "updated_at": "2022-04-02T01:12:51.332716+00:00",
+  "trip_type": "Passenger",
+  "category": "AAR"
+}
