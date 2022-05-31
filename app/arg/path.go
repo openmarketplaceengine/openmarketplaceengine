@@ -72,7 +72,13 @@ func (f *FlagSet) Dir(name string, help string, flags PathFlag, call func(ctx Co
 			}
 			return err
 		}
-		inf, err := dir.Stat(val)
+		var err error
+		val, err = dir.Abs(val)
+		if err != nil {
+			return err
+		}
+		var inf dir.FileInfo
+		inf, err = dir.Stat(val)
 		if err != nil {
 			if os.IsNotExist(err) {
 				if flags.Has(DirCreate) {
