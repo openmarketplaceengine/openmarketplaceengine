@@ -15,13 +15,20 @@ type Location struct {
 }
 
 type LocationWKB struct {
-	Location
+	Latitude  float64
+	Longitude float64
 }
 
 //-----------------------------------------------------------------------------
 
 func (loc *Location) Reset() {
 	*loc = Location{}
+}
+
+//-----------------------------------------------------------------------------
+
+func (loc *LocationWKB) Reset() {
+	*loc = LocationWKB{}
 }
 
 //-----------------------------------------------------------------------------
