@@ -6,6 +6,7 @@ package job
 
 import (
 	"context"
+
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom/job"
 	rpc "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/job/v1beta1"
@@ -80,7 +81,6 @@ func (c *controller) ExportJob(ctx context.Context, req *rpc.ExportJobRequest) (
 }
 
 func (c *controller) GetAvailableJobs(ctx context.Context, req *rpc.GetAvailableJobsRequest) (*rpc.GetAvailableJobsResponse, error) {
-
 	// todo add validation using proto validation extension from Kevin
 
 	availableJobs, err := c.jobService.GetAvailableJobs(ctx, req.GetAreaKey(), req.GetWorkerId(), req.GetLangeLimit(), int(req.GetLimit()))

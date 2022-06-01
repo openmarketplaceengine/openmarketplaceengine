@@ -2,6 +2,10 @@ package job
 
 import (
 	"context"
+	"log"
+	"net"
+	"testing"
+
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
@@ -15,9 +19,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
-	"log"
-	"net"
-	"testing"
 )
 
 func TestController(t *testing.T) {
@@ -95,8 +96,8 @@ func testGetAvailableJobs(t *testing.T, client v1beta1.JobServiceClient, tracker
 	}
 
 	for _, j := range []*job.Job{job1, job2} {
-		_, _, err := j.Upsert(ctx)
-		require.NoError(t, err)
+		_, _, innerErr := j.Upsert(ctx)
+		require.NoError(t, innerErr)
 	}
 	areaKey := "test-tracker"
 	_, err = tracker.TrackLocation(ctx, areaKey, id, fromLon, fromLat)
@@ -112,5 +113,4 @@ func testGetAvailableJobs(t *testing.T, client v1beta1.JobServiceClient, tracker
 	res1, err := client.GetAvailableJobs(ctx, req1)
 	require.NoError(t, err)
 	require.Len(t, res1.Jobs, 2)
-
 }

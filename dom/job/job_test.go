@@ -3,12 +3,13 @@ package job
 import (
 	"context"
 	"fmt"
+	"testing"
+
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestJob(t *testing.T) {
@@ -84,8 +85,8 @@ func TestJob(t *testing.T) {
 		testQueryByPickupDistance(t, state, fromLat, fromLon)
 	})
 
-	t.Run("testJobInRangeSql", func(t *testing.T) {
-		testJobInRangeSql(t)
+	t.Run("testJobInRangeStmt", func(t *testing.T) {
+		testJobInRangeStmt(t)
 	})
 }
 
@@ -109,8 +110,8 @@ func testQueryByPickupDistance(t *testing.T, state string, fromLat float64, from
 	require.Len(t, jobs3, 1)
 }
 
-func testJobInRangeSql(t *testing.T) {
-	s0 := jobsInRangeSql(78.3232, 65.3234, "AVAILABLE", 4000, Mile, 20)
+func testJobInRangeStmt(t *testing.T) {
+	s0 := jobsInRangeStmt(78.3232, 65.3234, "AVAILABLE", 4000, Mile, 20)
 	require.NotContains(t, s0, "6371")
 	require.Contains(t, s0, "3959")
 	require.Contains(t, s0, "cos(radians(78.3232))")
@@ -119,8 +120,7 @@ func testJobInRangeSql(t *testing.T) {
 	require.Contains(t, s0, "t.range < 4000")
 	require.Contains(t, s0, "limit 20")
 
-	s1 := jobsInRangeSql(78.3232, 65.3234, "AVAILABLE", 4000, Km, 20)
+	s1 := jobsInRangeStmt(78.3232, 65.3234, "AVAILABLE", 4000, Km, 20)
 	require.NotContains(t, s1, "3959")
 	require.Contains(t, s1, "6371")
-
 }

@@ -2,6 +2,8 @@ package job
 
 import (
 	"context"
+	"testing"
+
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
@@ -10,7 +12,6 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
 	"github.com/openmarketplaceengine/openmarketplaceengine/svc/location"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestService(t *testing.T) {

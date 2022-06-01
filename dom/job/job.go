@@ -96,11 +96,11 @@ func QueryOne(ctx dao.Context, jobID dao.SUID) (job *Job, has bool, err error) {
 
 //QueryByPickupDistance is used to select jobs nearest to specified location within specified distance.
 //NB! This is MVP version, not suitable for production use.
-func QueryByPickupDistance(ctx dao.Context, fromLat float64, fromLon float64, state string, rangeLimit float64, distanceUnit DistanceUnit, limit int) (jobs []*AvailableJob, err error) {
-	stmt := jobsInRangeSql(fromLat, fromLon, state, rangeLimit, distanceUnit, limit)
+func QueryByPickupDistance(ctx dao.Context, fromLat float64, fromLon float64, state string, rangeLimit float64, distanceUnit DistanceUnit, limit int) ([]*AvailableJob, error) {
+	stmt := jobsInRangeStmt(fromLat, fromLon, state, rangeLimit, distanceUnit, limit)
 	s := dao.NewSQL(stmt)
-	err = s.QueryRows(ctx, func(rows *dao.Rows) error {
-		jobs = make([]*AvailableJob, 0, limit)
+	jobs := make([]*AvailableJob, 0, limit)
+	err := s.QueryRows(ctx, func(rows *dao.Rows) error {
 		for rows.Next() {
 			var j AvailableJob
 			var r float64
@@ -133,10 +133,13 @@ func QueryByPickupDistance(ctx dao.Context, fromLat float64, fromLon float64, st
 		}
 		return nil
 	})
-	return
+	if err != nil {
+		return nil, err
+	}
+	return jobs, nil
 }
 
-//jobsInRangeSql returns plain sql of the
+//jobsInRangeStmt returns plain sql of the
 //query taken from https://gis.stackexchange.com/questions/31628/find-features-within-given-coordinates-and-distance-using-mysql
 //that follows Math from https://www.movable-type.co.uk/scripts/latlong.html
 //
@@ -153,8 +156,8 @@ func QueryByPickupDistance(ctx dao.Context, fromLat float64, fromLon float64, st
 //order by distance
 //having distance < 30
 //limit 20;
-//To search by kilometers instead of miles, replace 3959 with 6371
-func jobsInRangeSql(latitude float64, longitude float64, state string, rangeLimit float64, unit DistanceUnit, limit int) string {
+//To search by kilometers instead of miles, replace 3959 with 6371.
+func jobsInRangeStmt(latitude float64, longitude float64, state string, rangeLimit float64, unit DistanceUnit, limit int) string {
 	u := 3959
 	if unit == Km {
 		u = 6371
