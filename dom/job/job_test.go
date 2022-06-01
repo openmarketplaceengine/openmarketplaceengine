@@ -116,7 +116,7 @@ func testJobInRangeSql(t *testing.T) {
 	require.Contains(t, s0, "cos(radians(78.3232))")
 	require.Contains(t, s0, "* cos(radians(pickup_lon) - radians(65.3234))")
 	require.Contains(t, s0, "+ sin(radians(78.3232)) * sin(radians(pickup_lat))")
-	require.Contains(t, s0, "t.distance < 4000")
+	require.Contains(t, s0, "t.range < 4000")
 	require.Contains(t, s0, "limit 20")
 
 	s1 := jobsInRangeSql(78.3232, 65.3234, "AVAILABLE", 4000, Km, 20)

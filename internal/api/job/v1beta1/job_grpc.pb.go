@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type JobServiceClient interface {
 	ImportJob(ctx context.Context, in *ImportJobRequest, opts ...grpc.CallOption) (*ImportJobResponse, error)
 	ExportJob(ctx context.Context, in *ExportJobRequest, opts ...grpc.CallOption) (*ExportJobResponse, error)
+	GetAvailableJobs(ctx context.Context, in *GetAvailableJobsRequest, opts ...grpc.CallOption) (*GetAvailableJobsResponse, error)
 }
 
 type jobServiceClient struct {
@@ -52,12 +53,22 @@ func (c *jobServiceClient) ExportJob(ctx context.Context, in *ExportJobRequest, 
 	return out, nil
 }
 
+func (c *jobServiceClient) GetAvailableJobs(ctx context.Context, in *GetAvailableJobsRequest, opts ...grpc.CallOption) (*GetAvailableJobsResponse, error) {
+	out := new(GetAvailableJobsResponse)
+	err := c.cc.Invoke(ctx, "/api.job.v1beta1.JobService/GetAvailableJobs", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // JobServiceServer is the server API for JobService service.
 // All implementations should embed UnimplementedJobServiceServer
 // for forward compatibility
 type JobServiceServer interface {
 	ImportJob(context.Context, *ImportJobRequest) (*ImportJobResponse, error)
 	ExportJob(context.Context, *ExportJobRequest) (*ExportJobResponse, error)
+	GetAvailableJobs(context.Context, *GetAvailableJobsRequest) (*GetAvailableJobsResponse, error)
 }
 
 // UnimplementedJobServiceServer should be embedded to have forward compatible implementations.
@@ -69,6 +80,9 @@ func (UnimplementedJobServiceServer) ImportJob(context.Context, *ImportJobReques
 }
 func (UnimplementedJobServiceServer) ExportJob(context.Context, *ExportJobRequest) (*ExportJobResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ExportJob not implemented")
+}
+func (UnimplementedJobServiceServer) GetAvailableJobs(context.Context, *GetAvailableJobsRequest) (*GetAvailableJobsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAvailableJobs not implemented")
 }
 
 // UnsafeJobServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -118,6 +132,24 @@ func _JobService_ExportJob_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _JobService_GetAvailableJobs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAvailableJobsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(JobServiceServer).GetAvailableJobs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.job.v1beta1.JobService/GetAvailableJobs",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(JobServiceServer).GetAvailableJobs(ctx, req.(*GetAvailableJobsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // JobService_ServiceDesc is the grpc.ServiceDesc for JobService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -132,6 +164,10 @@ var JobService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ExportJob",
 			Handler:    _JobService_ExportJob_Handler,
+		},
+		{
+			MethodName: "GetAvailableJobs",
+			Handler:    _JobService_GetAvailableJobs_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -102,6 +102,13 @@ func NewDetector(tollgates []*Tollgate, storage Storage) *Detector {
 	}
 }
 
+func NewDetectorNoOp() *Detector {
+	return &Detector{
+		tollgates: []*Tollgate{},
+		storage:   nil,
+	}
+}
+
 // DetectCrossing detects if subject Movement has travelled through the tollgate.
 func (d *Detector) DetectCrossing(ctx context.Context, workerID string, movement *Movement, handlers ...Handler) (*Crossing, error) {
 	for _, t := range d.tollgates {
