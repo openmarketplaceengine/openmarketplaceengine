@@ -58,11 +58,12 @@ jobs:
           OME_PGDB_ADDR: postgres://postgres:secret@postgres:5432/ome
 
       # Check to see if there were any protobuf changes
-      - uses: technote-space/get-diff-action@v6
+      - name: Check for protobuf changes
+        uses: technote-space/get-diff-action@v6
         id: git-diff
         with:
           PATTERNS: |
-            omeapi/**/*
+            api/**/*
 
       # Get JWT for our GitHub App.
       # This will be used only for the repository_dispatch in the next step.
