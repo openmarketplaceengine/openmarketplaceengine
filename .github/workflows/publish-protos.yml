@@ -32,7 +32,7 @@ jobs:
 
       # Run breaking change detection for `main` branch
       - uses: bufbuild/buf-breaking-action@v1
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         with:
           input: .
           against: 'https://github.com/openmarketplaceengine/openmarketplaceengine.git#branch=main,ref=HEAD~1'
