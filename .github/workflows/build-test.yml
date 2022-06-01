@@ -1,10 +1,10 @@
 name: Build & Test
 
 on:
+  pull_request: # Apply to all pull requests
   push:
     branches:
-      - main
-      - 'feat/**'
+      - main # Apply to all pushes to `main`
   workflow_dispatch:
     inputs:
       tags:
