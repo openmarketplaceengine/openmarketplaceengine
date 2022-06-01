@@ -38,14 +38,15 @@ type AvailableJob struct {
 type Distance struct {
 	FromLat float64
 	FromLon float64
-	Unit    DistanceUnit
+	Unit    RangeUnit
 	Range   float64
 }
 
-type DistanceUnit string
+type RangeUnit string
 
-const Km DistanceUnit = "km"
-const Mile DistanceUnit = "mile"
+const M RangeUnit = "m"
+const Km RangeUnit = "km"
+const Mile RangeUnit = "mile"
 
 func (j *Job) Upsert(ctx dao.Context) (dao.Result, dao.UpsertStatus, error) {
 	return dao.Upsert(ctx, j.insert, j.update)
@@ -94,10 +95,10 @@ func QueryOne(ctx dao.Context, jobID dao.SUID) (job *Job, has bool, err error) {
 	return
 }
 
-//QueryByPickupDistance is used to select jobs nearest to specified location within specified distance.
+//QueryByPickupDistance is used to select jobs nearest to specified location within specified range limit.
 //NB! This is MVP version, not suitable for production use.
-func QueryByPickupDistance(ctx dao.Context, fromLat float64, fromLon float64, state string, rangeLimit float64, distanceUnit DistanceUnit, limit int) ([]*AvailableJob, error) {
-	stmt := jobsInRangeStmt(fromLat, fromLon, state, rangeLimit, distanceUnit, limit)
+func QueryByPickupDistance(ctx dao.Context, fromLat float64, fromLon float64, state string, rangeLimit float64, rangeUnit RangeUnit, limit int) ([]*AvailableJob, error) {
+	stmt := jobsInRangeStmt(fromLat, fromLon, state, rangeLimit, rangeUnit, limit)
 	s := dao.NewSQL(stmt)
 	jobs := make([]*AvailableJob, 0, limit)
 	err := s.QueryRows(ctx, func(rows *dao.Rows) error {
@@ -126,7 +127,7 @@ func QueryByPickupDistance(ctx dao.Context, fromLat float64, fromLon float64, st
 			j.Distance = Distance{
 				FromLat: fromLat,
 				FromLon: fromLon,
-				Unit:    distanceUnit,
+				Unit:    rangeUnit,
 				Range:   r,
 			}
 			jobs = append(jobs, &j)
@@ -157,10 +158,14 @@ func QueryByPickupDistance(ctx dao.Context, fromLat float64, fromLon float64, st
 //having distance < 30
 //limit 20;
 //To search by kilometers instead of miles, replace 3959 with 6371.
-func jobsInRangeStmt(latitude float64, longitude float64, state string, rangeLimit float64, unit DistanceUnit, limit int) string {
-	u := 3959
-	if unit == Km {
+func jobsInRangeStmt(latitude float64, longitude float64, state string, rangeLimit float64, rangeUnit RangeUnit, limit int) string {
+	var u int
+	if rangeUnit == Km {
 		u = 6371
+	} else if rangeUnit == M {
+		u = 6371 * 1000
+	} else {
+		u = 3959
 	}
 
 	return fmt.Sprintf(`

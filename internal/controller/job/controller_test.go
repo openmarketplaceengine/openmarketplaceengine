@@ -106,7 +106,7 @@ func testGetAvailableJobs(t *testing.T, client v1beta1.JobServiceClient, tracker
 	req1 := &v1beta1.GetAvailableJobsRequest{
 		AreaKey:    areaKey,
 		WorkerId:   id,
-		LangeLimit: 10.0,
+		RangeLimit: 10000.0,
 		Limit:      100,
 	}
 

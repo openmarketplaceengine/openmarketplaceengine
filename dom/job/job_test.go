@@ -108,6 +108,18 @@ func testQueryByPickupDistance(t *testing.T, state string, fromLat float64, from
 	jobs3, err := QueryByPickupDistance(ctx, fromLat, fromLon, state, 0.5, Km, 100)
 	require.NoError(t, err)
 	require.Len(t, jobs3, 1)
+
+	jobs4, err := QueryByPickupDistance(ctx, fromLat, fromLon, state, 10000, M, 100)
+	require.NoError(t, err)
+	require.Len(t, jobs4, 5)
+
+	jobs5, err := QueryByPickupDistance(ctx, fromLat, fromLon, state, 500, M, 100)
+	require.NoError(t, err)
+	require.Len(t, jobs5, 1)
+
+	jobs6, err := QueryByPickupDistance(ctx, fromLat, fromLon, state, 20000, M, 100)
+	require.NoError(t, err)
+	require.Len(t, jobs6, 6)
 }
 
 func testJobInRangeStmt(t *testing.T) {
@@ -123,4 +135,8 @@ func testJobInRangeStmt(t *testing.T) {
 	s1 := jobsInRangeStmt(78.3232, 65.3234, "AVAILABLE", 4000, Km, 20)
 	require.NotContains(t, s1, "3959")
 	require.Contains(t, s1, "6371")
+
+	s2 := jobsInRangeStmt(78.3232, 65.3234, "AVAILABLE", 4000, M, 20)
+	require.NotContains(t, s2, "3959")
+	require.Contains(t, s2, "6371000")
 }

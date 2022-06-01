@@ -58,9 +58,12 @@ message ExportJobResponse {
 
 
 message GetAvailableJobsRequest {
+  // Any non-empty string representing geographic region
+  // i.e. san-fran, new-york, alaska, us, global, test, etc.
+  // Should be used consistently across all APIs.
   string area_key = 1;
   string worker_id = 2;
-  double lange_limit = 3;
+  double range_limit = 3;
   int32 limit = 4;
 }
 
