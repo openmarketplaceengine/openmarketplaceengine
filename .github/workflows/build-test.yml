@@ -62,7 +62,7 @@ jobs:
         id: git-diff
         with:
           PATTERNS: |
-            omeapi/**/*
+            api/**/*
 
       # Get JWT for our GitHub App.
       # This will be used only for the repository_dispatch in the next step.
