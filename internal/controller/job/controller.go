@@ -11,7 +11,10 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom/job"
 	rpc "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/job/v1beta1"
 	typ "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/type/v1beta1"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
+	svcJob "github.com/openmarketplaceengine/openmarketplaceengine/svc/job"
+	"github.com/openmarketplaceengine/openmarketplaceengine/svc/location"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -20,22 +23,28 @@ import (
 
 type controller struct {
 	rpc.UnimplementedJobServiceServer
+	jobService *svcJob.Service
 }
 
 func init() {
 	srv.Grpc.Register(func(s *grpc.Server) error {
 		srv.Grpc.Infof("registering: %s", rpc.JobService_ServiceDesc.ServiceName)
-		rpc.RegisterJobServiceServer(s, &controller{})
+
+		storeClient := dao.Reds.StoreClient
+		noOp := detector.NewDetectorNoOp()
+		storage := location.NewStorage(storeClient)
+		service := svcJob.NewService(location.NewTracker(storage, noOp))
+		rpc.RegisterJobServiceServer(s, &controller{jobService: service})
 		return nil
 	})
 }
 
 //-----------------------------------------------------------------------------
 
-func (s *controller) ImportJob(ctx context.Context, req *rpc.ImportJobRequest) (*rpc.ImportJobResponse, error) {
+func (c *controller) ImportJob(ctx context.Context, req *rpc.ImportJobRequest) (*rpc.ImportJobResponse, error) {
 	var act = rpc.JobAction_JOB_ACTION_CREATED
 	var j job.Job
-	s.setJob(&j, req.Job)
+	c.setJob(&j, req.Job)
 	_, ups, err := j.Upsert(ctx)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -49,7 +58,7 @@ func (s *controller) ImportJob(ctx context.Context, req *rpc.ImportJobRequest) (
 
 //-----------------------------------------------------------------------------
 
-func (s *controller) ExportJob(ctx context.Context, req *rpc.ExportJobRequest) (*rpc.ExportJobResponse, error) {
+func (c *controller) ExportJob(ctx context.Context, req *rpc.ExportJobRequest) (*rpc.ExportJobResponse, error) {
 	ids := req.Ids
 	cnt := len(ids)
 	if cnt == 0 {
@@ -66,14 +75,51 @@ func (s *controller) ExportJob(ctx context.Context, req *rpc.ExportJobRequest) (
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "failed querying job %q: %v", jobID, err)
 		}
-		jobs[i] = &rpc.ExportJobItem{Id: jobID, Job: s.getJobInfo(val)}
+		jobs[i] = &rpc.ExportJobItem{Id: jobID, Job: c.getJobInfo(val)}
 	}
 	return &rpc.ExportJobResponse{Jobs: jobs}, nil
 }
 
+func (c *controller) GetAvailableJobs(ctx context.Context, req *rpc.GetAvailableJobsRequest) (*rpc.GetAvailableJobsResponse, error) {
+	// todo add validation using proto validation extension from Kevin
+
+	availableJobs, err := c.jobService.GetAvailableJobs(ctx, req.GetAreaKey(), req.GetWorkerId(), req.GetRangeLimit(), job.M, int(req.GetLimit()))
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "get available jobs error: %v", err)
+	}
+
+	jobs := make([]*rpc.AvailableJob, 0)
+	for _, aj := range availableJobs {
+		j := &rpc.AvailableJob{
+			Job: &rpc.JobInfo{
+				Id:          aj.ID,
+				WorkerId:    aj.WorkerID,
+				Created:     timestamppb.New(aj.Created),
+				Updated:     timestamppb.New(aj.Updated),
+				State:       aj.State,
+				PickupDate:  timestamppb.New(aj.PickupDate),
+				PickupAddr:  aj.PickupAddr,
+				PickupLoc:   &typ.Location{Latitude: aj.PickupLat, Longitude: aj.PickupLon},
+				DropoffAddr: aj.DropoffAddr,
+				DropoffLoc:  &typ.Location{Latitude: aj.DropoffLat, Longitude: aj.DropoffLon},
+				TripType:    aj.TripType,
+				Category:    aj.Category,
+			},
+			Distance: &rpc.Distance{
+				FromLocation: &typ.Location{Latitude: aj.Distance.FromLat, Longitude: aj.Distance.FromLon},
+				Unit:         string(aj.Distance.Unit),
+				Range:        float32(aj.Distance.Range),
+			},
+		}
+		jobs = append(jobs, j)
+	}
+
+	return &rpc.GetAvailableJobsResponse{Jobs: jobs}, nil
+}
+
 //-----------------------------------------------------------------------------
 
-func (s *controller) setJob(job *job.Job, req *rpc.JobInfo) {
+func (c *controller) setJob(job *job.Job, req *rpc.JobInfo) {
 	job.ID = req.Id
 	job.WorkerID = req.WorkerId
 	job.Created = req.Created.AsTime()
@@ -92,7 +138,7 @@ func (s *controller) setJob(job *job.Job, req *rpc.JobInfo) {
 
 //-----------------------------------------------------------------------------
 
-func (s *controller) getJobInfo(job *job.Job) *rpc.JobInfo {
+func (c *controller) getJobInfo(job *job.Job) *rpc.JobInfo {
 	if job == nil {
 		return nil
 	}

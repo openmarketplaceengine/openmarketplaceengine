@@ -10,6 +10,7 @@ option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/inte
 service JobService {
   rpc ImportJob(ImportJobRequest) returns (ImportJobResponse) {}
   rpc ExportJob(ExportJobRequest) returns (ExportJobResponse) {}
+  rpc GetAvailableJobs(GetAvailableJobsRequest) returns (GetAvailableJobsResponse) {}
 }
 
 message JobInfo {
@@ -53,4 +54,30 @@ message ExportJobItem {
 
 message ExportJobResponse {
   repeated ExportJobItem jobs = 1;
+}
+
+
+message GetAvailableJobsRequest {
+  // Any non-empty string representing geographic region
+  // i.e. san-fran, new-york, alaska, us, global, test, etc.
+  // Should be used consistently across all APIs.
+  string area_key = 1;
+  string worker_id = 2;
+  double range_limit = 3;
+  int32 limit = 4;
+}
+
+message Distance {
+  api.type.v1beta1.Location from_location = 1;
+  string unit = 2;
+  float range = 3;
+}
+
+message AvailableJob {
+  JobInfo job = 1;
+  Distance distance = 2;
+}
+
+message GetAvailableJobsResponse {
+  repeated AvailableJob jobs = 1;
 }
