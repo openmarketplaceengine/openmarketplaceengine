@@ -84,12 +84,12 @@ func QueryOne(ctx dao.Context, jobID dao.SUID) (job *Job, has bool, err error) {
 
 //QueryByPickupDistance is used to select jobs nearest to specified lat/lon within precision in meters.
 // lat/lon - point to count distance from
-// precision - range precision in meters
+// radiusMeters - radius in meters
 // limit - rows limit
 // returns AvailableJob array.
-func QueryByPickupDistance(ctx dao.Context, lon float64, lat float64, state string, maxDistanceMeters int32, limit int32) ([]*AvailableJob, error) {
+func QueryByPickupDistance(ctx dao.Context, lon float64, lat float64, state string, radiusMeters int32, limit int32) ([]*AvailableJob, error) {
 	distance := fmt.Sprintf("st_distance(st_point(%v, %v, 4326)::geography, st_point(pickup_lon, pickup_lat, 4326)::geography) as distance", lon, lat)
-	within := fmt.Sprintf("st_dwithin(st_point(%v, %v, 4326)::geography, st_point(pickup_lon, pickup_lat, 4326)::geography, %v)", lon, lat, maxDistanceMeters)
+	within := fmt.Sprintf("st_dwithin(st_point(%v, %v, 4326)::geography, st_point(pickup_lon, pickup_lat, 4326)::geography, %v)", lon, lat, radiusMeters)
 	sql := dao.From(table).
 		Select("*").
 		Select(distance).

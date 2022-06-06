@@ -83,7 +83,7 @@ func (c *controller) ExportJob(ctx context.Context, req *rpc.ExportJobRequest) (
 func (c *controller) GetAvailableJobs(ctx context.Context, req *rpc.GetAvailableJobsRequest) (*rpc.GetAvailableJobsResponse, error) {
 	// todo add validation using proto validation extension from Kevin
 
-	availableJobs, err := c.jobService.GetAvailableJobs(ctx, req.GetAreaKey(), req.GetWorkerId(), req.GetMaxDistanceMeters(), req.GetLimit())
+	availableJobs, err := c.jobService.GetAvailableJobs(ctx, req.GetAreaKey(), req.GetWorkerId(), req.GetRadiusMeters(), req.GetLimit())
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "get available jobs error: %v", err)
 	}
