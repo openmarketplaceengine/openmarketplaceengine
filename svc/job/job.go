@@ -19,7 +19,7 @@ func NewService(tracker *location.Tracker) *Service {
 	}
 }
 
-func (s *Service) GetAvailableJobs(ctx context.Context, areaKey string, workerID string, rangeLimit float64, rangeUnit job.RangeUnit, limit int) ([]*job.AvailableJob, error) {
+func (s *Service) GetAvailableJobs(ctx context.Context, areaKey string, workerID string, precision int32, limit int32) ([]*job.AvailableJob, error) {
 	lastLocation := s.tracker.QueryLastLocation(ctx, areaKey, workerID)
 
 	if lastLocation == nil {
@@ -29,7 +29,7 @@ func (s *Service) GetAvailableJobs(ctx context.Context, areaKey string, workerID
 	fromLat := lastLocation.Latitude
 	fromLon := lastLocation.Longitude
 
-	jobs, err := job.QueryByPickupDistance(ctx, fromLat, fromLon, "AVAILABLE", rangeLimit, rangeUnit, limit)
+	jobs, err := job.QueryByPickupDistance(ctx, fromLat, fromLon, "AVAILABLE", precision, limit)
 
 	if err != nil {
 		return nil, fmt.Errorf("query by pickup distance error: %w", err)

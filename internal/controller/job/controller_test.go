@@ -104,10 +104,10 @@ func testGetAvailableJobs(t *testing.T, client v1beta1.JobServiceClient, tracker
 	require.NoError(t, err)
 
 	req1 := &v1beta1.GetAvailableJobsRequest{
-		AreaKey:    areaKey,
-		WorkerId:   id,
-		RangeLimit: 10000.0,
-		Limit:      100,
+		AreaKey:   areaKey,
+		WorkerId:  id,
+		Precision: 10000,
+		Limit:     100,
 	}
 
 	res1, err := client.GetAvailableJobs(ctx, req1)
