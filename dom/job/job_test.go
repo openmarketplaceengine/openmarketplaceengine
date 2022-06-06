@@ -89,15 +89,15 @@ func TestJob(t *testing.T) {
 func testQueryByPickupDistance(t *testing.T, state string, fromLat float64, fromLon float64) {
 	ctx := context.Background()
 
-	jobs0, err := QueryByPickupDistance(ctx, fromLat, fromLon, state, 10000, 100)
+	jobs0, err := QueryByPickupDistance(ctx, fromLon, fromLat, state, 10000, 100)
 	require.NoError(t, err)
 	require.Len(t, jobs0, 5)
 
-	jobs2, err := QueryByPickupDistance(ctx, fromLat, fromLon, state, 20000, 100)
+	jobs2, err := QueryByPickupDistance(ctx, fromLon, fromLat, state, 20000, 100)
 	require.NoError(t, err)
 	require.Len(t, jobs2, 6)
 
-	jobs3, err := QueryByPickupDistance(ctx, fromLat, fromLon, state, 500, 100)
+	jobs3, err := QueryByPickupDistance(ctx, fromLon, fromLat, state, 500, 100)
 	require.NoError(t, err)
 	require.Len(t, jobs3, 1)
 }

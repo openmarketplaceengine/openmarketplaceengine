@@ -63,13 +63,14 @@ message GetAvailableJobsRequest {
   // Should be used consistently across all APIs.
   string area_key = 1;
   string worker_id = 2;
-  int32 precision = 3;
+  int32 max_distance_meters = 3;
+  // Result set limit.
   int32 limit = 4;
 }
 
 message AvailableJob {
   JobInfo job = 1;
-  int32 distance = 2;
+  int32 distance_meters = 2;
 }
 
 message GetAvailableJobsResponse {

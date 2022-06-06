@@ -32,7 +32,7 @@ type Job struct {
 
 type AvailableJob struct {
 	Job
-	Distance int32
+	DistanceMeters int32
 }
 
 func (j *Job) Upsert(ctx dao.Context) (dao.Result, dao.UpsertStatus, error) {
@@ -87,9 +87,9 @@ func QueryOne(ctx dao.Context, jobID dao.SUID) (job *Job, has bool, err error) {
 // precision - range precision in meters
 // limit - rows limit
 // returns AvailableJob array.
-func QueryByPickupDistance(ctx dao.Context, lat float64, lon float64, state string, precision int32, limit int32) ([]*AvailableJob, error) {
-	distance := fmt.Sprintf("public.st_distance(public.st_point(%v, %v, 4326)::public.geography, public.st_point(pickup_lat, pickup_lon, 4326)::public.geography) as distance", lat, lon)
-	within := fmt.Sprintf("public.st_dwithin(public.st_point(%v, %v, 4326)::public.geography, public.st_point(pickup_lat, pickup_lon, 4326)::public.geography, %v)", lat, lon, precision)
+func QueryByPickupDistance(ctx dao.Context, lon float64, lat float64, state string, maxDistanceMeters int32, limit int32) ([]*AvailableJob, error) {
+	distance := fmt.Sprintf("st_distance(st_point(%v, %v, 4326)::geography, st_point(pickup_lon, pickup_lat, 4326)::geography) as distance", lon, lat)
+	within := fmt.Sprintf("st_dwithin(st_point(%v, %v, 4326)::geography, st_point(pickup_lon, pickup_lat, 4326)::geography, %v)", lon, lat, maxDistanceMeters)
 	sql := dao.From(table).
 		Select("*").
 		Select(distance).
@@ -103,7 +103,7 @@ func QueryByPickupDistance(ctx dao.Context, lat float64, lon float64, state stri
 	err := sql.QueryRows(ctx, func(rows *dao.Rows) error {
 		for rows.Next() {
 			var j AvailableJob
-			var r float64
+			var d float64
 			if err := rows.Scan(
 				&j.ID,
 				&j.WorkerID,
@@ -119,10 +119,11 @@ func QueryByPickupDistance(ctx dao.Context, lat float64, lon float64, state stri
 				&j.DropoffLon,
 				&j.TripType,
 				&j.Category,
-				&r,
+				&d,
 			); err != nil {
 				return err
 			}
+			j.DistanceMeters = int32(d)
 			ary = append(ary, &j)
 		}
 		return nil
