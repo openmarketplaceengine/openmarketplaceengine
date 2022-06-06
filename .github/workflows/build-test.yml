@@ -32,7 +32,7 @@ jobs:
           --health-retries 5
       # Label used to access the service container
       postgres:
-        image: postgres
+        image: postgis/postgis:12-3.2-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: secret
