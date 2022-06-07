@@ -84,59 +84,20 @@ func TestJob(t *testing.T) {
 	t.Run("testQueryByPickupDistance", func(t *testing.T) {
 		testQueryByPickupDistance(t, state, fromLat, fromLon)
 	})
-
-	t.Run("testJobInRangeStmt", func(t *testing.T) {
-		testJobInRangeStmt(t)
-	})
 }
 
 func testQueryByPickupDistance(t *testing.T, state string, fromLat float64, fromLon float64) {
 	ctx := context.Background()
 
-	jobs0, err := QueryByPickupDistance(ctx, fromLat, fromLon, state, 10, Km, 100)
+	jobs0, err := QueryByPickupDistance(ctx, fromLon, fromLat, state, 10000, 100)
 	require.NoError(t, err)
 	require.Len(t, jobs0, 5)
 
-	jobs1, err := QueryByPickupDistance(ctx, fromLat, fromLon, state, 4.5, Mile, 100)
-	require.NoError(t, err)
-	require.Len(t, jobs1, 5)
-
-	jobs2, err := QueryByPickupDistance(ctx, fromLat, fromLon, state, 20, Km, 100)
+	jobs2, err := QueryByPickupDistance(ctx, fromLon, fromLat, state, 20000, 100)
 	require.NoError(t, err)
 	require.Len(t, jobs2, 6)
 
-	jobs3, err := QueryByPickupDistance(ctx, fromLat, fromLon, state, 0.5, Km, 100)
+	jobs3, err := QueryByPickupDistance(ctx, fromLon, fromLat, state, 500, 100)
 	require.NoError(t, err)
 	require.Len(t, jobs3, 1)
-
-	jobs4, err := QueryByPickupDistance(ctx, fromLat, fromLon, state, 10000, M, 100)
-	require.NoError(t, err)
-	require.Len(t, jobs4, 5)
-
-	jobs5, err := QueryByPickupDistance(ctx, fromLat, fromLon, state, 500, M, 100)
-	require.NoError(t, err)
-	require.Len(t, jobs5, 1)
-
-	jobs6, err := QueryByPickupDistance(ctx, fromLat, fromLon, state, 20000, M, 100)
-	require.NoError(t, err)
-	require.Len(t, jobs6, 6)
-}
-
-func testJobInRangeStmt(t *testing.T) {
-	s0 := jobsInRangeStmt(78.3232, 65.3234, "AVAILABLE", 4000, Mile, 20)
-	require.NotContains(t, s0, "6371")
-	require.Contains(t, s0, "3959")
-	require.Contains(t, s0, "cos(radians(78.3232))")
-	require.Contains(t, s0, "* cos(radians(pickup_lon) - radians(65.3234))")
-	require.Contains(t, s0, "+ sin(radians(78.3232)) * sin(radians(pickup_lat))")
-	require.Contains(t, s0, "t.range < 4000")
-	require.Contains(t, s0, "limit 20")
-
-	s1 := jobsInRangeStmt(78.3232, 65.3234, "AVAILABLE", 4000, Km, 20)
-	require.NotContains(t, s1, "3959")
-	require.Contains(t, s1, "6371")
-
-	s2 := jobsInRangeStmt(78.3232, 65.3234, "AVAILABLE", 4000, M, 20)
-	require.NotContains(t, s2, "3959")
-	require.Contains(t, s2, "6371000")
 }

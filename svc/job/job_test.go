@@ -74,7 +74,7 @@ func testGetAvailableJobs(t *testing.T, tracker *location.Tracker, service *Serv
 	_, err := tracker.TrackLocation(ctx, areaKey, id, fromLon, fromLat)
 	require.NoError(t, err)
 
-	jobs0, err := service.GetAvailableJobs(ctx, areaKey, id, 10000.0, job.M, 100)
+	jobs0, err := service.GetAvailableJobs(ctx, areaKey, id, 10000.0, 100)
 	require.NoError(t, err)
 	require.Len(t, jobs0, 2)
 }
@@ -85,6 +85,6 @@ func testGetAvailableJobsNotTracked(t *testing.T, service *Service) {
 	id := "16eb5627-ff8e-4b35-916a-4d14191d8229"
 	areaKey := "test-tracker"
 
-	_, err := service.GetAvailableJobs(ctx, areaKey, id, 10000.0, job.M, 100)
+	_, err := service.GetAvailableJobs(ctx, areaKey, id, 10000.0, 100)
 	require.EqualError(t, err, "location of worker is not known")
 }

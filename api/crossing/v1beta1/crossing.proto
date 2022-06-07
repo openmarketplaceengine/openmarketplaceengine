@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package api.crossing.v1beta1;
 
-import "google/protobuf/timestamp.proto";
 import "api/type/v1beta1/crossing.proto";
 
 option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/crossing/v1beta1";

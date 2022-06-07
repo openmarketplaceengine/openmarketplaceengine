@@ -32,21 +32,8 @@ type Job struct {
 
 type AvailableJob struct {
 	Job
-	Distance Distance
+	DistanceMeters int32
 }
-
-type Distance struct {
-	FromLat float64
-	FromLon float64
-	Unit    RangeUnit
-	Range   float64
-}
-
-type RangeUnit string
-
-const M RangeUnit = "m"
-const Km RangeUnit = "km"
-const Mile RangeUnit = "mile"
 
 func (j *Job) Upsert(ctx dao.Context) (dao.Result, dao.UpsertStatus, error) {
 	return dao.Upsert(ctx, j.insert, j.update)
@@ -95,16 +82,28 @@ func QueryOne(ctx dao.Context, jobID dao.SUID) (job *Job, has bool, err error) {
 	return
 }
 
-//QueryByPickupDistance is used to select jobs nearest to specified location within specified range limit.
-//NB! This is MVP version, not suitable for production use.
-func QueryByPickupDistance(ctx dao.Context, fromLat float64, fromLon float64, state string, rangeLimit float64, rangeUnit RangeUnit, limit int) ([]*AvailableJob, error) {
-	stmt := jobsInRangeStmt(fromLat, fromLon, state, rangeLimit, rangeUnit, limit)
-	s := dao.NewSQL(stmt)
-	jobs := make([]*AvailableJob, 0, limit)
-	err := s.QueryRows(ctx, func(rows *dao.Rows) error {
+//QueryByPickupDistance is used to select jobs nearest to specified lat/lon within precision in meters.
+// lat/lon - point to count distance from
+// radiusMeters - radius in meters
+// limit - rows limit
+// returns AvailableJob array.
+func QueryByPickupDistance(ctx dao.Context, lon float64, lat float64, state string, radiusMeters int32, limit int32) ([]*AvailableJob, error) {
+	distance := fmt.Sprintf("st_distance(st_point(%v, %v, 4326)::geography, st_point(pickup_lon, pickup_lat, 4326)::geography) as distance", lon, lat)
+	within := fmt.Sprintf("st_dwithin(st_point(%v, %v, 4326)::geography, st_point(pickup_lon, pickup_lat, 4326)::geography, %v)", lon, lat, radiusMeters)
+	sql := dao.From(table).
+		Select("*").
+		Select(distance).
+		Where(within).
+		OrderBy("distance").
+		Limit(limit)
+	if state != "" {
+		sql.Where("state = ?", state)
+	}
+	ary := make([]*AvailableJob, 0, limit)
+	err := sql.QueryRows(ctx, func(rows *dao.Rows) error {
 		for rows.Next() {
 			var j AvailableJob
-			var r float64
+			var d float64
 			if err := rows.Scan(
 				&j.ID,
 				&j.WorkerID,
@@ -120,69 +119,19 @@ func QueryByPickupDistance(ctx dao.Context, fromLat float64, fromLon float64, st
 				&j.DropoffLon,
 				&j.TripType,
 				&j.Category,
-				&r,
+				&d,
 			); err != nil {
 				return err
 			}
-			j.Distance = Distance{
-				FromLat: fromLat,
-				FromLon: fromLon,
-				Unit:    rangeUnit,
-				Range:   r,
-			}
-			jobs = append(jobs, &j)
+			j.DistanceMeters = int32(d)
+			ary = append(ary, &j)
 		}
 		return nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	return jobs, nil
-}
-
-//jobsInRangeStmt returns plain sql of the
-//query taken from https://gis.stackexchange.com/questions/31628/find-features-within-given-coordinates-and-distance-using-mysql
-//that follows Math from https://www.movable-type.co.uk/scripts/latlong.html
-//
-//select id,
-//		(
-//		3959 * acos(
-//			   cos(radians(78.3232))
-//			   * cos(radians(pickup_lat))
-//			   * cos(radians(pickup_lon) - radians(65.3234))
-//		   + sin(radians(78.3232)) * sin(radians(pickup_lat))
-//		)
-//		) as distance
-//from job
-//order by distance
-//having distance < 30
-//limit 20;
-//To search by kilometers instead of miles, replace 3959 with 6371.
-func jobsInRangeStmt(latitude float64, longitude float64, state string, rangeLimit float64, rangeUnit RangeUnit, limit int) string {
-	var u int
-	if rangeUnit == Km {
-		u = 6371
-	} else if rangeUnit == M {
-		u = 6371 * 1000
-	} else {
-		u = 3959
-	}
-
-	return fmt.Sprintf(`
-	select t.*
-	from (select *,
-				 %v * acos(
-				 	cos(radians(%v))
-					 * cos(radians(pickup_lat))
-					 * cos(radians(pickup_lon) - radians(%v))
-					 + sin(radians(%v)) * sin(radians(pickup_lat))
-				) as range
-		  from job) as t
-	where t.state = '%s'
-	  and t.range < %v
-	order by t.range
-	limit %v
-	`, u, latitude, longitude, latitude, state, rangeLimit, limit)
+	return ary, nil
 }
 
 func DeleteAll(ctx dao.Context) error {
