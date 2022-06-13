@@ -4,6 +4,8 @@
 
 package job
 
+import "github.com/openmarketplaceengine/openmarketplaceengine/dao"
+
 type State int
 
 const (
@@ -76,4 +78,17 @@ func buildStateMap() map[string]State {
 		m[stateString[i]] = State(i)
 	}
 	return m
+}
+
+//-----------------------------------------------------------------------------
+// State DAO
+//-----------------------------------------------------------------------------
+
+func SetState(ctx dao.Context, jobID string, state State) (set bool, err error) {
+	sql := dao.Update(table).
+		Set("state", state.String()).
+		Where("id = ?", jobID)
+	err = dao.ExecTX(ctx, sql)
+	set = (err == nil) && (dao.RowsAffected(sql.Result()) > 0)
+	return
 }
