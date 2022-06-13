@@ -53,6 +53,29 @@ func testSetState(t *testing.T, ctx dom.Context, jobID string, state State, must
 }
 
 //-----------------------------------------------------------------------------
+// GetState
+//-----------------------------------------------------------------------------
+
+func TestGetState(t *testing.T) {
+	ctx := testJobState(t)
+	for i := 1; i < len(stateString); i++ {
+		testGetState(t, ctx, fmt.Sprint(i), State(i), true)
+	}
+	testGetState(t, ctx, dao.NewXid(), StateUnspecified, false)
+}
+
+func testGetState(t *testing.T, ctx dom.Context, jobID string, state State, mustGet bool) {
+	s, found, err := GetState(ctx, jobID)
+	require.NoError(t, err)
+	if !mustGet {
+		require.False(t, found)
+		return
+	}
+	require.True(t, found)
+	require.Equal(t, state, s)
+}
+
+//-----------------------------------------------------------------------------
 // Helpers
 //-----------------------------------------------------------------------------
 

@@ -92,3 +92,16 @@ func SetState(ctx dao.Context, jobID string, state State) (set bool, err error) 
 	set = (err == nil) && (dao.RowsAffected(sql.Result()) > 0)
 	return
 }
+
+//-----------------------------------------------------------------------------
+
+func GetState(ctx dao.Context, jobID string) (state State, found bool, err error) {
+	var s string
+	sql := dao.From(table)
+	sql.Select("state").To(&s)
+	sql.Where("id = ?", jobID)
+	if found, err = sql.QueryOne(ctx); found {
+		state, found = StateFromString(s)
+	}
+	return
+}
