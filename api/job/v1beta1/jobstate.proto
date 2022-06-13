@@ -41,15 +41,16 @@ enum JobState {
 }
 
 service JobStateService {
-  rpc GetJobState(JobStateRequest) returns (JobStateMessage) {}
-  rpc SetJobState(JobStateMessage) returns (JobStateMessage) {}
+  rpc GetJobState(JobStateRequest) returns (JobStateResponse) {}
+  rpc SetJobState(JobStateRequest) returns (JobStateResponse) {}
 }
 
 message JobStateRequest {
   string job_id = 1;
+  JobState state = 2;
 }
 
-message JobStateMessage {
+message JobStateResponse {
   string job_id = 1;
   JobState state = 2;
 }

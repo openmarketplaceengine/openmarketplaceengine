@@ -22,8 +22,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type JobStateServiceClient interface {
-	GetJobState(ctx context.Context, in *JobStateRequest, opts ...grpc.CallOption) (*JobStateMessage, error)
-	SetJobState(ctx context.Context, in *JobStateMessage, opts ...grpc.CallOption) (*JobStateMessage, error)
+	GetJobState(ctx context.Context, in *JobStateRequest, opts ...grpc.CallOption) (*JobStateResponse, error)
+	SetJobState(ctx context.Context, in *JobStateRequest, opts ...grpc.CallOption) (*JobStateResponse, error)
 }
 
 type jobStateServiceClient struct {
@@ -34,8 +34,8 @@ func NewJobStateServiceClient(cc grpc.ClientConnInterface) JobStateServiceClient
 	return &jobStateServiceClient{cc}
 }
 
-func (c *jobStateServiceClient) GetJobState(ctx context.Context, in *JobStateRequest, opts ...grpc.CallOption) (*JobStateMessage, error) {
-	out := new(JobStateMessage)
+func (c *jobStateServiceClient) GetJobState(ctx context.Context, in *JobStateRequest, opts ...grpc.CallOption) (*JobStateResponse, error) {
+	out := new(JobStateResponse)
 	err := c.cc.Invoke(ctx, "/api.job.v1beta1.JobStateService/GetJobState", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -43,8 +43,8 @@ func (c *jobStateServiceClient) GetJobState(ctx context.Context, in *JobStateReq
 	return out, nil
 }
 
-func (c *jobStateServiceClient) SetJobState(ctx context.Context, in *JobStateMessage, opts ...grpc.CallOption) (*JobStateMessage, error) {
-	out := new(JobStateMessage)
+func (c *jobStateServiceClient) SetJobState(ctx context.Context, in *JobStateRequest, opts ...grpc.CallOption) (*JobStateResponse, error) {
+	out := new(JobStateResponse)
 	err := c.cc.Invoke(ctx, "/api.job.v1beta1.JobStateService/SetJobState", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -56,18 +56,18 @@ func (c *jobStateServiceClient) SetJobState(ctx context.Context, in *JobStateMes
 // All implementations should embed UnimplementedJobStateServiceServer
 // for forward compatibility
 type JobStateServiceServer interface {
-	GetJobState(context.Context, *JobStateRequest) (*JobStateMessage, error)
-	SetJobState(context.Context, *JobStateMessage) (*JobStateMessage, error)
+	GetJobState(context.Context, *JobStateRequest) (*JobStateResponse, error)
+	SetJobState(context.Context, *JobStateRequest) (*JobStateResponse, error)
 }
 
 // UnimplementedJobStateServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedJobStateServiceServer struct {
 }
 
-func (UnimplementedJobStateServiceServer) GetJobState(context.Context, *JobStateRequest) (*JobStateMessage, error) {
+func (UnimplementedJobStateServiceServer) GetJobState(context.Context, *JobStateRequest) (*JobStateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetJobState not implemented")
 }
-func (UnimplementedJobStateServiceServer) SetJobState(context.Context, *JobStateMessage) (*JobStateMessage, error) {
+func (UnimplementedJobStateServiceServer) SetJobState(context.Context, *JobStateRequest) (*JobStateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetJobState not implemented")
 }
 
@@ -101,7 +101,7 @@ func _JobStateService_GetJobState_Handler(srv interface{}, ctx context.Context, 
 }
 
 func _JobStateService_SetJobState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(JobStateMessage)
+	in := new(JobStateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -113,7 +113,7 @@ func _JobStateService_SetJobState_Handler(srv interface{}, ctx context.Context, 
 		FullMethod: "/api.job.v1beta1.JobStateService/SetJobState",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(JobStateServiceServer).SetJobState(ctx, req.(*JobStateMessage))
+		return srv.(JobStateServiceServer).SetJobState(ctx, req.(*JobStateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
