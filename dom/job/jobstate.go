@@ -4,7 +4,11 @@
 
 package job
 
-import "github.com/openmarketplaceengine/openmarketplaceengine/dao"
+import (
+	"strings"
+
+	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
+)
 
 type State int
 
@@ -46,7 +50,14 @@ var stringState = buildStateMap()
 
 //-----------------------------------------------------------------------------
 
-func StateFromString(s string) (state State, found bool) {
+func StateFromString(s string, prefix ...string) (state State, found bool) {
+	if len(prefix) > 0 {
+		p := strings.Join(prefix, "")
+		if len(p) > 0 && strings.HasPrefix(s, p) {
+			s = s[len(p):]
+		}
+	}
+	s = strings.ToUpper(s)
 	state, found = stringState[s]
 	return
 }
