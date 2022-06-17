@@ -14,7 +14,7 @@ const (
 	WKBPointLen = 50
 )
 
-func DecodePointWKB(src string) (lat, lon float64, err error) {
+func DecodePointWKB(src string) (x, y float64, err error) {
 	const fename = "DecodePointWKB"
 	if len(src) != WKBPointLen {
 		return 0, 0, funcError{fename, ErrSrcLen}
@@ -33,7 +33,7 @@ func DecodePointWKB(src string) (lat, lon float64, err error) {
 	default:
 		return 0, 0, funcError{fename, ErrEndian}
 	}
-	lon = math.Float64frombits(ufunc(val[9:]))
-	lat = math.Float64frombits(ufunc(val[17:]))
+	x = math.Float64frombits(ufunc(val[9:]))
+	y = math.Float64frombits(ufunc(val[17:]))
 	return //nolint
 }

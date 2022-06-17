@@ -28,7 +28,7 @@ var wkbPoints = []struct {
 func TestDecodePointWKB(t *testing.T) {
 	for i := range wkbPoints {
 		v := &wkbPoints[i]
-		lat, lon, err := DecodePointWKB(v.src)
+		lon, lat, err := DecodePointWKB(v.src)
 		require.NoError(t, err)
 		require.Equal(t, v.lat, lat)
 		require.Equal(t, v.lon, lon)
