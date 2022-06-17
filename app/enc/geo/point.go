@@ -8,6 +8,7 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"math"
+	"unsafe"
 )
 
 const (
@@ -36,4 +37,22 @@ func DecodePointWKB(src string) (x, y float64, err error) {
 	x = math.Float64frombits(ufunc(val[9:]))
 	y = math.Float64frombits(ufunc(val[17:]))
 	return //nolint
+}
+
+//-----------------------------------------------------------------------------
+
+func EncodePointWKB(x, y float64) string {
+	var b = make([]byte, WKBPointLen)
+	off := WKBPointLen / 2
+	b[off] = 1
+	off++
+	binary.LittleEndian.PutUint32(b[off:], uint32(wkbPoint|wkbSRID))
+	off += 4
+	binary.LittleEndian.PutUint32(b[off:], DefSRID)
+	off += 4
+	binary.LittleEndian.PutUint64(b[off:], math.Float64bits(x))
+	off += 8
+	binary.LittleEndian.PutUint64(b[off:], math.Float64bits(y))
+	hexenc(b, b[WKBPointLen/2:])
+	return *(*string)(unsafe.Pointer(&b))
 }

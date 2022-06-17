@@ -34,3 +34,13 @@ func TestDecodePointWKB(t *testing.T) {
 		require.Equal(t, v.lon, lon)
 	}
 }
+
+//-----------------------------------------------------------------------------
+
+func TestEncodePointWKB(t *testing.T) {
+	for i := range wkbPoints {
+		v := &wkbPoints[i]
+		s := EncodePointWKB(v.lon, v.lat)
+		require.Equal(t, v.src, s)
+	}
+}
