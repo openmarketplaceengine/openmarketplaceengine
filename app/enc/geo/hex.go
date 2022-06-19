@@ -7,6 +7,7 @@ package geo
 import (
 	"encoding/binary"
 	"fmt"
+	"math"
 )
 
 //goland:noinspection SpellCheckingInspection
@@ -86,6 +87,16 @@ func hexdecU64(s string, littleEndian bool) (uint64, error) {
 		return binary.LittleEndian.Uint64(dst), nil
 	}
 	return binary.BigEndian.Uint64(dst), nil
+}
+
+//-----------------------------------------------------------------------------
+
+func hexdecF64(s string, littleEndian bool) (float64, error) {
+	u, err := hexdecU64(s, littleEndian)
+	if err != nil {
+		return 0, err
+	}
+	return math.Float64frombits(u), nil
 }
 
 //-----------------------------------------------------------------------------

@@ -7,6 +7,7 @@ package geo
 import (
 	"encoding/binary"
 	"encoding/hex"
+	"math"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -46,6 +47,18 @@ func TestHexDecUint64(t *testing.T) {
 		v, err := hexdecU64(s, true)
 		require.NoError(t, err)
 		require.Equal(t, i, v)
+	}
+}
+
+func TestHexDecFloat64(t *testing.T) {
+	b := make([]byte, 8)
+	for i := float64(0); i < 1000; i++ {
+		u := math.Float64bits(i)
+		binary.LittleEndian.PutUint64(b, u)
+		s := hex.EncodeToString(b)
+		f, err := hexdecF64(s, true)
+		require.NoError(t, err)
+		require.Equal(t, i, f)
 	}
 }
 
