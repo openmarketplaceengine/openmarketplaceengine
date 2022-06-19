@@ -55,7 +55,7 @@ func (loc *LocationWKB) UnmarshalText(text []byte) (err error) {
 	switch len(text) {
 	case 0:
 		loc.Reset()
-	case WKBPointLen:
+	case defPointLenWKB, minPointLenWKB:
 		src := *(*string)(unsafe.Pointer(&text))
 		loc.Longitude, loc.Latitude, err = DecodePointWKB(src)
 	default:

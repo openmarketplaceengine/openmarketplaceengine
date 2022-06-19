@@ -21,6 +21,7 @@ var wkbPoints = []struct {
 	{"0101000020E6100000A1754309697B52C073E26190AA544440", 40.6614552, -73.9282859},
 	{"0101000020E6100000000000000000F03F000000000000F03F", 1.0, 1.0},
 	{"0101000020E6100000000000000000F0BF000000000000F03F", 1.0, -1.0},
+	{"0101000000000000000000F03F000000000000F0BF", -1.0, 1.0},
 }
 
 //-----------------------------------------------------------------------------
@@ -40,7 +41,9 @@ func TestDecodePointWKB(t *testing.T) {
 func TestEncodePointWKB(t *testing.T) {
 	for i := range wkbPoints {
 		v := &wkbPoints[i]
-		s := EncodePointWKB(v.lon, v.lat)
-		require.Equal(t, v.src, s)
+		if len(v.src) == defPointLenWKB {
+			s := EncodePointWKB(v.lon, v.lat)
+			require.Equal(t, v.src, s)
+		}
 	}
 }

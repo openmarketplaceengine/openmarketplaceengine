@@ -6,44 +6,60 @@ package geo
 
 import (
 	"encoding/binary"
-	"encoding/hex"
+	"fmt"
 	"math"
 	"unsafe"
 )
 
 const (
-	WKBPointLen = 50
+	minPointLenWKB = 42
+	defPointLenWKB = 50
 )
 
-func DecodePointWKB(src string) (x, y float64, err error) {
+func DecodePointWKB(s string) (x, y float64, err error) {
 	const fename = "DecodePointWKB"
-	if len(src) != WKBPointLen {
+	if len(s) < minPointLenWKB {
 		return 0, 0, funcError{fename, ErrSrcLen}
 	}
-	var val []byte
-	val, err = hex.DecodeString(src)
-	if err != nil {
-		return 0, 0, funcError{fename, ErrHexDec}
-	}
-	var ufunc func([]byte) uint64
-	switch val[0] {
-	case 0:
-		ufunc = binary.BigEndian.Uint64
-	case 1:
-		ufunc = binary.LittleEndian.Uint64
-	default:
+	s1, s0 := s[1], s[0]
+	littleEndian := (s1 == '1' && s0 == '0')
+	if !littleEndian && s1 != '0' && s0 != '0' {
 		return 0, 0, funcError{fename, ErrEndian}
 	}
-	x = math.Float64frombits(ufunc(val[9:]))
-	y = math.Float64frombits(ufunc(val[17:]))
+	off := 2
+	var u32 uint32
+	u32, err = hexdecU32(s[off:], littleEndian)
+	if err != nil {
+		return 0, 0, funcError{fename, err}
+	}
+	typ := Type(u32)
+	off += 8
+	if !checkType(wkbPoint, typ) {
+		return 0, 0, funcError{fename, fmt.Errorf("invalid geo type: %q", typ)}
+	}
+	if (typ & wkbSRID) != 0 { // skip SRID
+		off += 8
+		if (off + 32) < len(s) {
+			return 0, 0, funcError{fename, ErrSrcLen}
+		}
+	}
+	x, err = hexdecF64(s[off:], littleEndian)
+	if err != nil {
+		return 0, 0, funcError{fename, err}
+	}
+	off += 16
+	y, err = hexdecF64(s[off:], littleEndian)
+	if err != nil {
+		err = funcError{fename, err}
+	}
 	return //nolint
 }
 
 //-----------------------------------------------------------------------------
 
 func EncodePointWKB(x, y float64) string {
-	var b = make([]byte, WKBPointLen)
-	off := WKBPointLen / 2
+	var b = make([]byte, defPointLenWKB)
+	off := defPointLenWKB / 2
 	b[off] = 1
 	off++
 	binary.LittleEndian.PutUint32(b[off:], uint32(wkbPoint|wkbSRID))
@@ -53,6 +69,6 @@ func EncodePointWKB(x, y float64) string {
 	binary.LittleEndian.PutUint64(b[off:], math.Float64bits(x))
 	off += 8
 	binary.LittleEndian.PutUint64(b[off:], math.Float64bits(y))
-	hexenc(b, b[WKBPointLen/2:])
+	hexenc(b, b[defPointLenWKB/2:])
 	return *(*string)(unsafe.Pointer(&b))
 }
