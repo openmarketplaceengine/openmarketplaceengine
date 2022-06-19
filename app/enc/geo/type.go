@@ -68,3 +68,11 @@ func (t Type) String() string {
 	}
 	return s
 }
+
+//-----------------------------------------------------------------------------
+
+func checkType(must Type, have Type) bool {
+	must &= ^wkbMask
+	have &= ^wkbMask
+	return (must == have)
+}
