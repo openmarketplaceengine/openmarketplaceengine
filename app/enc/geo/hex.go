@@ -4,7 +4,10 @@
 
 package geo
 
-import "fmt"
+import (
+	"encoding/binary"
+	"fmt"
+)
 
 //goland:noinspection SpellCheckingInspection
 const hextable = "0123456789ABCDEF"
@@ -23,7 +26,7 @@ func hexenc(dst, src []byte) int {
 // Decoding
 //-----------------------------------------------------------------------------
 
-func hexdec(dst []byte, src string) (int, error) {
+func hexdec(dst []byte, src string) (int, error) { //nolint:unparam
 	n := len(src)
 	if (n & 1) != 0 {
 		return 0, fmt.Errorf("hex input length %d is not even", n)
@@ -41,10 +44,48 @@ func hexdec(dst []byte, src string) (int, error) {
 		a--
 		b--
 		dst[i] = (a << 4) | b
-		i += 1
+		i++
 		j += 2
 	}
 	return i, nil
+}
+
+//-----------------------------------------------------------------------------
+
+func hexdecU32(s string, littleEndian bool) (uint32, error) {
+	const minLen = 8
+	if len(s) < minLen {
+		return 0, fmt.Errorf("hex to uint32 input length %d is too small", len(s))
+	}
+	var buf [minLen / 2]byte
+	dst := buf[:]
+	_, err := hexdec(dst, s[:minLen])
+	if err != nil {
+		return 0, err
+	}
+	if littleEndian {
+		return binary.LittleEndian.Uint32(dst), nil
+	}
+	return binary.BigEndian.Uint32(dst), nil
+}
+
+//-----------------------------------------------------------------------------
+
+func hexdecU64(s string, littleEndian bool) (uint64, error) {
+	const minLen = 16
+	if len(s) < minLen {
+		return 0, fmt.Errorf("hex to uint64 input length %d is too small", len(s))
+	}
+	var buf [minLen / 2]byte
+	dst := buf[:]
+	_, err := hexdec(dst, s[:minLen])
+	if err != nil {
+		return 0, err
+	}
+	if littleEndian {
+		return binary.LittleEndian.Uint64(dst), nil
+	}
+	return binary.BigEndian.Uint64(dst), nil
 }
 
 //-----------------------------------------------------------------------------
