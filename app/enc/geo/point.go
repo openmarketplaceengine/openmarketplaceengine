@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"math"
 	"unsafe"
+
+	"github.com/openmarketplaceengine/openmarketplaceengine/app/enc/hex"
 )
 
 const (
@@ -28,7 +30,7 @@ func DecodePointWKB(s string) (x, y float64, err error) {
 	}
 	off := 2
 	var u32 uint32
-	u32, err = hexdecU32(s[off:], littleEndian)
+	u32, err = hex.DecodeUint32(s[off:], littleEndian)
 	if err != nil {
 		return 0, 0, funcError{fename, err}
 	}
@@ -43,12 +45,12 @@ func DecodePointWKB(s string) (x, y float64, err error) {
 			return 0, 0, funcError{fename, ErrSrcLen}
 		}
 	}
-	x, err = hexdecF64(s[off:], littleEndian)
+	x, err = hex.DecodeFloat64(s[off:], littleEndian)
 	if err != nil {
 		return 0, 0, funcError{fename, err}
 	}
 	off += 16
-	y, err = hexdecF64(s[off:], littleEndian)
+	y, err = hex.DecodeFloat64(s[off:], littleEndian)
 	if err != nil {
 		err = funcError{fename, err}
 	}
@@ -69,6 +71,6 @@ func EncodePointWKB(x, y float64) string {
 	binary.LittleEndian.PutUint64(b[off:], math.Float64bits(x))
 	off += 8
 	binary.LittleEndian.PutUint64(b[off:], math.Float64bits(y))
-	hexenc(b, b[defPointLenWKB/2:])
+	hex.Encode(b, b[defPointLenWKB/2:], hex.UpperCase)
 	return *(*string)(unsafe.Pointer(&b))
 }
