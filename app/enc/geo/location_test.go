@@ -14,8 +14,8 @@ func TestLocationWKB_UnmarshalText(t *testing.T) {
 	var loc LocationWKB
 	for i := range wkbPoints {
 		p := &wkbPoints[i]
-		err := loc.UnmarshalText([]byte(p.src))
+		err := loc.UnmarshalText([]byte(p.s))
 		require.NoError(t, err)
-		require.True(t, loc.EqualsCoord(p.lat, p.lon))
+		require.True(t, loc.EqualsCoord(p.y, p.x))
 	}
 }

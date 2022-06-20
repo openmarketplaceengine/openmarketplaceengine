@@ -10,28 +10,26 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-//-----------------------------------------------------------------------------
-
-var wkbPoints = []struct {
-	src string
-	lat float64
-	lon float64
-}{
-	{"0101000020E6100000FE0C6FD6E07A52C02A00C633685C4440", 40.72193, -73.919973},
-	{"0101000020E6100000A1754309697B52C073E26190AA544440", 40.6614552, -73.9282859},
-	{"0101000020E6100000000000000000F03F000000000000F03F", 1.0, 1.0},
-	{"0101000020E6100000000000000000F0BF000000000000F03F", 1.0, -1.0},
-	{"0101000000000000000000F03F000000000000F0BF", -1.0, 1.0},
-}
-
-//-----------------------------------------------------------------------------
-
-var wktPoints = []struct {
+type pointTest struct {
 	s   string
 	x   float64
 	y   float64
 	err bool
-}{
+}
+
+//-----------------------------------------------------------------------------
+
+var wkbPoints = []pointTest{
+	{"0101000020E6100000FE0C6FD6E07A52C02A00C633685C4440", -73.919973, 40.72193, false},
+	{"0101000020E6100000A1754309697B52C073E26190AA544440", -73.9282859, 40.6614552, false},
+	{"0101000020E6100000000000000000F03F000000000000F03F", 1.0, 1.0, false},
+	{"0101000020E6100000000000000000F0BF000000000000F03F", -1.0, 1.0, false},
+	{"0101000000000000000000F03F000000000000F0BF", 1.0, -1.0, false},
+}
+
+//-----------------------------------------------------------------------------
+
+var wktPoints = []pointTest{
 	{"", 0, 0, true},
 	{"POINT", 0, 0, true},
 	{"SRID=4326;", 0, 0, true},
@@ -47,23 +45,17 @@ var wktPoints = []struct {
 //-----------------------------------------------------------------------------
 
 func TestDecodePointWKB(t *testing.T) {
-	for i := range wkbPoints {
-		v := &wkbPoints[i]
-		lon, lat, err := DecodePointWKB(v.src)
-		require.NoError(t, err)
-		require.Equal(t, v.lat, lat)
-		require.Equal(t, v.lon, lon)
-	}
+	testDecodePoint(t, wkbPoints, DecodePointWKB)
 }
 
 //-----------------------------------------------------------------------------
 
 func TestEncodePointWKB(t *testing.T) {
 	for i := range wkbPoints {
-		v := &wkbPoints[i]
-		if len(v.src) == defPointLenWKB {
-			s := EncodePointWKB(v.lon, v.lat)
-			require.Equal(t, v.src, s)
+		p := &wkbPoints[i]
+		if !p.err && len(p.s) == defPointLenWKB {
+			s := EncodePointWKB(p.x, p.y)
+			require.Equal(t, p.s, s)
 		}
 	}
 }
@@ -73,17 +65,7 @@ func TestEncodePointWKB(t *testing.T) {
 //-----------------------------------------------------------------------------
 
 func TestDecodePointWKT(t *testing.T) {
-	for i := range wktPoints {
-		p := &wktPoints[i]
-		x, y, err := DecodePointWKT(p.s)
-		if p.err {
-			require.Error(t, err)
-			continue
-		}
-		require.NoError(t, err)
-		require.Equal(t, p.x, x)
-		require.Equal(t, p.y, y)
-	}
+	testDecodePoint(t, wktPoints, DecodePointWKT)
 }
 
 //-----------------------------------------------------------------------------
@@ -91,16 +73,16 @@ func TestDecodePointWKT(t *testing.T) {
 //-----------------------------------------------------------------------------
 
 func TestDecodePoint(t *testing.T) {
-	for i := range wkbPoints {
-		v := &wkbPoints[i]
-		lon, lat, err := DecodePoint(v.src)
-		require.NoError(t, err)
-		require.Equal(t, v.lat, lat)
-		require.Equal(t, v.lon, lon)
-	}
-	for i := range wktPoints {
-		p := &wktPoints[i]
-		x, y, err := DecodePoint(p.s)
+	testDecodePoint(t, wkbPoints, DecodePoint)
+	testDecodePoint(t, wktPoints, DecodePoint)
+}
+
+//-----------------------------------------------------------------------------
+
+func testDecodePoint(t *testing.T, ary []pointTest, dec func(string) (float64, float64, error)) {
+	for i := range ary {
+		p := &ary[i]
+		x, y, err := dec(p.s)
 		if p.err {
 			require.Error(t, err)
 			continue
