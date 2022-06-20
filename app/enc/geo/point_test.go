@@ -26,6 +26,26 @@ var wkbPoints = []struct {
 
 //-----------------------------------------------------------------------------
 
+var wktPoints = []struct {
+	s   string
+	x   float64
+	y   float64
+	err bool
+}{
+	{"", 0, 0, true},
+	{"POINT", 0, 0, true},
+	{"SRID=4326;", 0, 0, true},
+	{"POINT(1.1 2.2)", 1.1, 2.2, false},
+	{"POINT  (  1.1   2.2  )", 1.1, 2.2, false},
+	{"SRID=4326;POINT(1 -1)", 1, -1, false},
+	{"SRID=4326;  POINT(1 -1)", 1, -1, false},
+	{"POINT Z (  1     2   3)", 1, 2, false},
+}
+
+//-----------------------------------------------------------------------------
+// WKB
+//-----------------------------------------------------------------------------
+
 func TestDecodePointWKB(t *testing.T) {
 	for i := range wkbPoints {
 		v := &wkbPoints[i]
@@ -45,5 +65,23 @@ func TestEncodePointWKB(t *testing.T) {
 			s := EncodePointWKB(v.lon, v.lat)
 			require.Equal(t, v.src, s)
 		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// WKT
+//-----------------------------------------------------------------------------
+
+func TestDecodePointWKT(t *testing.T) {
+	for i := range wktPoints {
+		p := &wktPoints[i]
+		x, y, err := DecodePointWKT(p.s)
+		if p.err {
+			require.Error(t, err)
+			continue
+		}
+		require.NoError(t, err)
+		require.Equal(t, p.x, x)
+		require.Equal(t, p.y, y)
 	}
 }

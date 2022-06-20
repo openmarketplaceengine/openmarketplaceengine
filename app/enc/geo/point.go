@@ -8,6 +8,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"math"
+	"strings"
 	"unsafe"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/app/enc/hex"
@@ -16,6 +17,12 @@ import (
 const (
 	minPointLenWKB = 42
 	defPointLenWKB = 50
+	minPointLenWKT = 10 // POINT(1 1)
+)
+
+const (
+	wktPointPrefix = "POINT"
+	wktSridPrefix  = "SRID="
 )
 
 func DecodePointWKB(s string) (x, y float64, err error) {
@@ -73,4 +80,56 @@ func EncodePointWKB(x, y float64) string {
 	binary.LittleEndian.PutUint64(b[off:], math.Float64bits(y))
 	hex.Encode(b, b[defPointLenWKB/2:], hex.UpperCase)
 	return *(*string)(unsafe.Pointer(&b))
+}
+
+//-----------------------------------------------------------------------------
+// Well-Known Text Format
+//-----------------------------------------------------------------------------
+
+type wktPointError string
+
+func (e wktPointError) Error() string {
+	return fmt.Sprintf("invalid POINT WKT format: %q", string(e))
+}
+
+//-----------------------------------------------------------------------------
+
+func DecodePointWKT(s string) (x, y float64, err error) {
+	const fename = "DecodePointWKT"
+	if len(s) < minPointLenWKT {
+		return 0, 0, funcError{fename, ErrSrcLen}
+	}
+	v := strings.ToUpper(s)
+	if !hasPrefix(v, wktPointPrefix) {
+		if !hasPrefix(v, wktSridPrefix) {
+			return 0, 0, wktPointError(s)
+		}
+		v = v[len(wktSridPrefix):]
+		if v = skipLeft(v, ';'); len(v) < minPointLenWKT || !hasPrefix(v, wktPointPrefix) {
+			return 0, 0, wktPointError(s)
+		}
+	}
+	return decodePointWKT(v)
+}
+
+func decodePointWKT(s string) (x, y float64, err error) {
+	v := s[len(wktPointPrefix):]
+	if v = skipLeft(v, '('); len(v) > 0 {
+		sx := readUntil(v, ' ', ' ')
+		var ok bool
+		if x, ok = parseFloat(sx); ok {
+			v = trimLeft(v[len(sx):])
+			sy := readUntil(v, ')', ' ')
+			if y, ok = parseFloat(sy); ok {
+				return
+			}
+		}
+	}
+	return 0, 0, wktPointError(s)
+}
+
+//-----------------------------------------------------------------------------
+
+func EncodePointWKT(x, y float64) string {
+	return fmt.Sprintf("POINT(%f %f)", x, y)
 }
