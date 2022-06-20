@@ -85,3 +85,28 @@ func TestDecodePointWKT(t *testing.T) {
 		require.Equal(t, p.y, y)
 	}
 }
+
+//-----------------------------------------------------------------------------
+// Any
+//-----------------------------------------------------------------------------
+
+func TestDecodePoint(t *testing.T) {
+	for i := range wkbPoints {
+		v := &wkbPoints[i]
+		lon, lat, err := DecodePoint(v.src)
+		require.NoError(t, err)
+		require.Equal(t, v.lat, lat)
+		require.Equal(t, v.lon, lon)
+	}
+	for i := range wktPoints {
+		p := &wktPoints[i]
+		x, y, err := DecodePoint(p.s)
+		if p.err {
+			require.Error(t, err)
+			continue
+		}
+		require.NoError(t, err)
+		require.Equal(t, p.x, x)
+		require.Equal(t, p.y, y)
+	}
+}

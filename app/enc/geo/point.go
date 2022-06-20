@@ -25,6 +25,35 @@ const (
 	wktSridPrefix  = "SRID="
 )
 
+//-----------------------------------------------------------------------------
+
+func DecodePoint(s string) (x, y float64, err error) {
+	n := len(s)
+	if n == defPointLenWKB || n == minPointLenWKB {
+		s1, s0 := s[1], s[0]
+		if s0 == '0' && (s1 == '1' || s1 == '0') {
+			return DecodePointWKB(s)
+		}
+	}
+	if n >= minPointLenWKT {
+		s = strings.ToUpper(s)
+		if hasPrefix(s, wktPointPrefix) {
+			return decodePointWKT(s)
+		}
+		if hasPrefix(s, wktSridPrefix) {
+			v := s[len(wktSridPrefix):]
+			if v = skipLeft(v, ';'); hasPrefix(v, wktPointPrefix) {
+				return decodePointWKT(s)
+			}
+		}
+	}
+	return 0, 0, fmt.Errorf("invalid geo point format: %q", s)
+}
+
+//-----------------------------------------------------------------------------
+// Well-Known Binary Format
+//-----------------------------------------------------------------------------
+
 func DecodePointWKB(s string) (x, y float64, err error) {
 	const fename = "DecodePointWKB"
 	if len(s) < minPointLenWKB {

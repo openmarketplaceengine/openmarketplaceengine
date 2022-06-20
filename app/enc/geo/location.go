@@ -52,14 +52,11 @@ func (loc LocationWKB) EqualsCoord(lat, lon float64) bool {
 //-----------------------------------------------------------------------------
 
 func (loc *LocationWKB) UnmarshalText(text []byte) (err error) {
-	switch len(text) {
-	case 0:
+	if len(text) == 0 {
 		loc.Reset()
-	case defPointLenWKB, minPointLenWKB:
-		src := *(*string)(unsafe.Pointer(&text))
-		loc.Longitude, loc.Latitude, err = DecodePointWKB(src)
-	default:
-		return ErrSrcLen
+		return
 	}
+	src := *(*string)(unsafe.Pointer(&text))
+	loc.Longitude, loc.Latitude, err = DecodePoint(src)
 	return
 }
