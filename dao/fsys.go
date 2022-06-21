@@ -3,6 +3,7 @@ package dao
 import (
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"path/filepath"
 	"unsafe"
 
@@ -12,6 +13,12 @@ import (
 // FS represents a subset of fs.ReadFileFS interface.
 type FS interface {
 	ReadFile(name string) ([]byte, error)
+}
+
+type fsysPath struct {
+	fsys fs.FS
+	path string
+	name string
 }
 
 //-----------------------------------------------------------------------------
@@ -142,4 +149,12 @@ func fullPath(path, name string) string {
 		return path + name
 	}
 	return path + "/" + name
+}
+
+//-----------------------------------------------------------------------------
+// file path
+//-----------------------------------------------------------------------------
+
+func (f *fsysPath) String() string {
+	return f.path
 }
