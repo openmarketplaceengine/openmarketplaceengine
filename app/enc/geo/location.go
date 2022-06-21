@@ -75,6 +75,18 @@ func (loc *LocationWKB) DecodeString(s string) (err error) {
 }
 
 //-----------------------------------------------------------------------------
+
+func (loc *LocationWKB) EncodeWKB() string {
+	return EncodePointWKB(loc.Longitude, loc.Latitude)
+}
+
+//-----------------------------------------------------------------------------
+
+func (loc *LocationWKB) EncodeWKT() string {
+	return EncodePointWKT(loc.Longitude, loc.Latitude)
+}
+
+//-----------------------------------------------------------------------------
 // SQL Interface
 //-----------------------------------------------------------------------------
 

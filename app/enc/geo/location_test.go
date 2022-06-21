@@ -49,3 +49,15 @@ func TestLocationWKB_Scan(t *testing.T) {
 		require.True(t, loc.EqualsCoord(p.y, p.x))
 	}
 }
+
+func TestLocationWKB_EncodeWKB(t *testing.T) {
+	var loc LocationWKB
+	for i := range wkbPoints {
+		p := &wkbPoints[i]
+		if p.err || len(p.s) != defPointLenWKB {
+			continue
+		}
+		require.NoError(t, loc.DecodeString(p.s))
+		require.Equal(t, p.s, loc.EncodeWKB())
+	}
+}
