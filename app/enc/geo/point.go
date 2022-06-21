@@ -30,8 +30,7 @@ const (
 func DecodePoint(s string) (x, y float64, err error) {
 	n := len(s)
 	if n == defPointLenWKB || n == minPointLenWKB {
-		s1, s0 := s[1], s[0]
-		if s0 == '0' && (s1 == '1' || s1 == '0') {
+		if checkEndian(s) {
 			return DecodePointWKB(s)
 		}
 	}
@@ -59,16 +58,14 @@ func DecodePointWKB(s string) (x, y float64, err error) {
 	if len(s) < minPointLenWKB {
 		return 0, 0, funcError{fename, ErrSrcLen}
 	}
-	s1, s0 := s[1], s[0]
-	littleEndian := (s1 == '1' && s0 == '0')
-	if !littleEndian && s1 != '0' && s0 != '0' {
+	littleEndian, ok := parseEndian(s)
+	if !ok {
 		return 0, 0, funcError{fename, ErrEndian}
 	}
 	off := 2
-	var typ Type
-	typ, err = decodeType(s[off:], littleEndian, wkbPoint)
-	if err != nil {
-		return 0, 0, funcError{fename, err}
+	typ, terr := decodeType(s[off:], littleEndian, wkbPoint)
+	if terr != nil {
+		return 0, 0, funcError{fename, terr}
 	}
 	off += 8
 	if (typ & wkbSRID) != 0 {

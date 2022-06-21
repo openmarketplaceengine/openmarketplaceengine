@@ -91,7 +91,21 @@ func decodeType(s string, littleEndian bool, require Type) (Type, error) {
 	}
 	typ := Type(u32)
 	if require > 0 && !checkType(require, typ) {
-		return typ, fmt.Errorf("invalid geo type: %q", typ)
+		return typ, fmt.Errorf("required geo type %q not match %q", require, typ)
 	}
 	return typ, nil
+}
+
+//-----------------------------------------------------------------------------
+
+func parseEndian(s string) (littleEndian bool, ok bool) {
+	s1, s0 := s[1], s[0]
+	littleEndian = (s0 == '0' && s1 == '1')
+	ok = littleEndian || (s0 == '0' && s1 == '0')
+	return
+}
+
+func checkEndian(s string) bool {
+	s1, s0 := s[1], s[0]
+	return s0 == '0' && (s1 == '1' || s1 == '0')
 }
