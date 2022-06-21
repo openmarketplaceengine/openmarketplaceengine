@@ -4,7 +4,12 @@
 
 package geo
 
-import "unsafe"
+import (
+	"fmt"
+	"unsafe"
+
+	"github.com/openmarketplaceengine/openmarketplaceengine/app/enc/hex"
+)
 
 type Type uint32
 type SRID uint32
@@ -75,4 +80,18 @@ func checkType(must Type, have Type) bool {
 	must &= ^wkbMask
 	have &= ^wkbMask
 	return (must == have)
+}
+
+//-----------------------------------------------------------------------------
+
+func decodeType(s string, littleEndian bool, require Type) (Type, error) {
+	u32, err := hex.DecodeUint32(s, littleEndian)
+	if err != nil {
+		return 0, err
+	}
+	typ := Type(u32)
+	if require > 0 && !checkType(require, typ) {
+		return typ, fmt.Errorf("invalid geo type: %q", typ)
+	}
+	return typ, nil
 }

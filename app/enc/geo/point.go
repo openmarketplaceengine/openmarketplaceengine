@@ -65,18 +65,14 @@ func DecodePointWKB(s string) (x, y float64, err error) {
 		return 0, 0, funcError{fename, ErrEndian}
 	}
 	off := 2
-	var u32 uint32
-	u32, err = hex.DecodeUint32(s[off:], littleEndian)
+	var typ Type
+	typ, err = decodeType(s[off:], littleEndian, wkbPoint)
 	if err != nil {
 		return 0, 0, funcError{fename, err}
 	}
-	typ := Type(u32)
 	off += 8
-	if !checkType(wkbPoint, typ) {
-		return 0, 0, funcError{fename, fmt.Errorf("invalid geo type: %q", typ)}
-	}
-	if (typ & wkbSRID) != 0 { // skip SRID
-		off += 8
+	if (typ & wkbSRID) != 0 {
+		off += 8 // skip SRID
 		if (off + 32) < len(s) {
 			return 0, 0, funcError{fename, ErrSrcLen}
 		}
