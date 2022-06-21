@@ -29,6 +29,7 @@ type PgdbConn struct {
 	log   log.Logger
 	drop  ListExec
 	auto  ListExec
+	upgr  upgradeManager
 }
 
 const (
@@ -144,6 +145,7 @@ func (p *PgdbConn) autoExec(ctx Context) error {
 func (p *PgdbConn) clearAutos() {
 	p.drop.Clear()
 	p.auto.Clear()
+	p.upgr.clear()
 }
 
 //-----------------------------------------------------------------------------

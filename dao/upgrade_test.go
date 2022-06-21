@@ -6,10 +6,14 @@ package dao
 
 import (
 	"context"
+	"embed"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
+
+//go:embed testdata/fsys/upgrade/*.upgrade.yaml
+var testUpfs embed.FS
 
 func TestUpgradeCRUD(t *testing.T) {
 	const ver = -1
@@ -46,4 +50,15 @@ func TestUpgradeCRUD(t *testing.T) {
 	require.False(t, has)
 
 	require.NoError(t, upgradeDelete(ctx, ver))
+}
+
+//-----------------------------------------------------------------------------
+
+func TestRegisterUpgrade(t *testing.T) {
+	RegisterUpgrade(testUpfs)
+	paths, err := Pgdb.upgr.readPath()
+	require.NoError(t, err)
+	require.Len(t, paths, 2)
+	require.Equal(t, "-01.upgrade.yaml", paths[0].name)
+	require.Equal(t, "-02.upgrade.yaml", paths[1].name)
 }
