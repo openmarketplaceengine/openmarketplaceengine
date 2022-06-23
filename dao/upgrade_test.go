@@ -15,6 +15,9 @@ import (
 //go:embed testdata/fsys/upgrade/*.upgrade.yaml
 var testUpfs embed.FS
 
+//go:embed testdata/fsys/upgrade/dummy.yaml
+var testUpfsDummy embed.FS
+
 func TestUpgradeCRUD(t *testing.T) {
 	const ver = -1
 
@@ -56,9 +59,15 @@ func TestUpgradeCRUD(t *testing.T) {
 
 func TestRegisterUpgrade(t *testing.T) {
 	RegisterUpgrade(testUpfs)
-	paths, err := Pgdb.upgr.readPath()
+	RegisterUpgrade(testUpfsDummy)
+	upgr := &Pgdb.upgr
+	err := upgr.readFsys()
 	require.NoError(t, err)
-	require.Len(t, paths, 2)
-	require.Equal(t, "-01.upgrade.yaml", paths[0].name)
-	require.Equal(t, "-02.upgrade.yaml", paths[1].name)
+	list := &upgr.list
+	if list.Len() < 3 {
+		t.Fatalf("Upgrade manager must have read minimum 3 scripts, but have %d", list.Len())
+	}
+	require.Equal(t, "-01.upgrade.yaml", list.Path(0).Name)
+	require.Equal(t, "-02.upgrade.yaml", list.Path(1).Name)
+	require.Equal(t, "dummy.yaml", list.Path(2).Name)
 }

@@ -7,8 +7,9 @@ package dao
 import (
 	"fmt"
 	"io/fs"
-	"strings"
 	"time"
+
+	"github.com/openmarketplaceengine/openmarketplaceengine/app/dir"
 )
 
 type Upgrade struct {
@@ -16,13 +17,14 @@ type Upgrade struct {
 	Enabled bool
 	Details string
 	Confirm string
-	fpath   *fsysPath //nolint
+	fpath   *dir.FsysPath //nolint
 	errtext string
 	success bool
 }
 
 type upgradeManager struct {
-	upfs []fs.FS
+	upfs []dir.FS
+	list dir.FsysList
 }
 
 const upgradeTable = "upgrade"
@@ -112,30 +114,14 @@ func (u *upgradeManager) clear() {
 
 //-----------------------------------------------------------------------------
 
-func (u *upgradeManager) readPath() ([]*fsysPath, error) {
+func (u *upgradeManager) readFsys() error {
 	if len(u.upfs) == 0 {
-		return nil, nil
+		return nil
 	}
-	paths := make([]*fsysPath, 0, 8)
+	u.list.Alloc(8)
 	var err error
 	for i := 0; i < len(u.upfs) && err == nil; i++ {
-		paths, err = u.readFsys(u.upfs[i], paths)
+		err = u.list.ListFext(u.upfs[i], ".yaml")
 	}
-	return paths, err
-}
-
-//-----------------------------------------------------------------------------
-
-func (u *upgradeManager) readFsys(fsys fs.FS, dest []*fsysPath) ([]*fsysPath, error) {
-	err := fs.WalkDir(fsys, ".", func(path string, d fs.DirEntry, err error) error {
-		if err == nil && d.Type().IsRegular() && strings.HasSuffix(d.Name(), ".yaml") {
-			dest = append(dest, &fsysPath{
-				fsys: fsys,
-				path: path,
-				name: d.Name(),
-			})
-		}
-		return err
-	})
-	return dest, err
+	return err
 }
