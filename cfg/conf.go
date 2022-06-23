@@ -26,21 +26,22 @@ const (
 
 // ServerConfig represents global OME server configuration.
 type ServerConfig struct {
-	Domain string     `env:"APP_DOMAIN" usage:"application’s primary domain"`
-	Appurl string     `env:"APP_URL" usage:"application’s primary domain in http format (e.g. https://my-domain.com)"`
-	Apiver string     `env:"API_VER" default:"v1" usage:"current API version"`
-	Http   HttpConfig //nolint
-	Grpc   GrpcConfig
-	Pgdb   PgdbConfig
-	Redis  RedisConfig
-	Log    LogConfig
-	flags  *flag.FlagSet   // command line arguments
-	field  []aconfig.Field // configured fields
-	files  []string        // configuration files
-	dump   func()
-	exit   bool // must exit
-	penv   bool // print environment flag
-	load   bool // config loaded flag
+	Domain       string     `env:"APP_DOMAIN" usage:"application’s primary domain"`
+	Appurl       string     `env:"APP_URL" usage:"application’s primary domain in http format (e.g. https://my-domain.com)"`
+	Apiver       string     `env:"API_VER" default:"v1" usage:"current API version"`
+	Http         HttpConfig //nolint
+	Grpc         GrpcConfig
+	Pgdb         PgdbConfig
+	Redis        RedisConfig
+	Log          LogConfig
+	GoogleAPIKey string          `env:"GOOGLE_API_KEY" default:"" usage:"google API key"`
+	flags        *flag.FlagSet   // command line arguments
+	field        []aconfig.Field // configured fields
+	files        []string        // configuration files
+	dump         func()
+	exit         bool // must exit
+	penv         bool // print environment flag
+	load         bool // config loaded flag
 }
 
 var _cfg ServerConfig

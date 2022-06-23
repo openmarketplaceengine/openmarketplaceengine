@@ -9,6 +9,8 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/svc/location"
 )
 
+const googleMatrixAPILimit = int32(25)
+
 type Service struct {
 	tracker *location.Tracker
 }
@@ -19,7 +21,7 @@ func NewService(tracker *location.Tracker) *Service {
 	}
 }
 
-func (s *Service) GetAvailableJobs(ctx context.Context, areaKey string, workerID string, radiusMeters int32, limit int32) ([]*job.AvailableJob, error) {
+func (s *Service) GetAvailableJobs(ctx context.Context, areaKey string, workerID string, radiusMeters int32) (*EstimatedJobs, error) {
 	lastLocation := s.tracker.QueryLastLocation(ctx, areaKey, workerID)
 
 	if lastLocation == nil {
@@ -29,11 +31,11 @@ func (s *Service) GetAvailableJobs(ctx context.Context, areaKey string, workerID
 	fromLat := lastLocation.Latitude
 	fromLon := lastLocation.Longitude
 
-	jobs, err := job.QueryByPickupDistance(ctx, fromLon, fromLat, "AVAILABLE", radiusMeters, limit)
+	jobs, err := job.QueryByPickupDistance(ctx, fromLon, fromLat, "AVAILABLE", radiusMeters, googleMatrixAPILimit)
 
 	if err != nil {
 		return nil, fmt.Errorf("query by pickup distance error: %w", err)
 	}
 
-	return jobs, nil
+	return PickupDistanceEstimatedJobs(lastLocation, jobs)
 }

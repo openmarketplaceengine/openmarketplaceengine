@@ -18,6 +18,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -83,29 +84,31 @@ func (c *controller) ExportJob(ctx context.Context, req *rpc.ExportJobRequest) (
 func (c *controller) GetAvailableJobs(ctx context.Context, req *rpc.GetAvailableJobsRequest) (*rpc.GetAvailableJobsResponse, error) {
 	// todo add validation using proto validation extension from Kevin
 
-	availableJobs, err := c.jobService.GetAvailableJobs(ctx, req.GetAreaKey(), req.GetWorkerId(), req.GetRadiusMeters(), req.GetLimit())
+	availableJobs, err := c.jobService.GetAvailableJobs(ctx, req.GetAreaKey(), req.GetWorkerId(), req.GetRadiusMeters())
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "get available jobs error: %v", err)
 	}
 
 	jobs := make([]*rpc.AvailableJob, 0)
-	for _, aj := range availableJobs {
+	for _, aj := range availableJobs.Jobs {
 		j := &rpc.AvailableJob{
 			Job: &rpc.JobInfo{
-				Id:          aj.ID,
-				WorkerId:    aj.WorkerID,
-				Created:     timestamppb.New(aj.Created),
-				Updated:     timestamppb.New(aj.Updated),
-				State:       aj.State,
-				PickupDate:  timestamppb.New(aj.PickupDate),
-				PickupAddr:  aj.PickupAddr,
-				PickupLoc:   &typ.Location{Latitude: aj.PickupLat, Longitude: aj.PickupLon},
-				DropoffAddr: aj.DropoffAddr,
-				DropoffLoc:  &typ.Location{Latitude: aj.DropoffLat, Longitude: aj.DropoffLon},
-				TripType:    aj.TripType,
-				Category:    aj.Category,
+				Id:          aj.Job.ID,
+				WorkerId:    aj.Job.WorkerID,
+				Created:     timestamppb.New(aj.Job.Created),
+				Updated:     timestamppb.New(aj.Job.Updated),
+				State:       aj.Job.State,
+				PickupDate:  timestamppb.New(aj.Job.PickupDate),
+				PickupAddr:  aj.Job.PickupAddr,
+				PickupLoc:   &typ.Location{Latitude: aj.Job.PickupLat, Longitude: aj.Job.PickupLon},
+				DropoffAddr: aj.Job.DropoffAddr,
+				DropoffLoc:  &typ.Location{Latitude: aj.Job.DropoffLat, Longitude: aj.Job.DropoffLon},
+				TripType:    aj.Job.TripType,
+				Category:    aj.Job.Category,
+				Distance:    int32(aj.Distance),
+				Duration:    durationpb.New(aj.Duration),
 			},
-			DistanceMeters: aj.DistanceMeters,
+			DistanceMeters: aj.Job.DistanceMeters,
 		}
 		jobs = append(jobs, j)
 	}
