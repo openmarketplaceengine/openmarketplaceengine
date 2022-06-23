@@ -56,6 +56,7 @@ jobs:
           OME_REDIS_STORE_ADDR: redis:6379
           OME_REDIS_PUBSUB_ADDR: redis:6379
           OME_PGDB_ADDR: postgres://postgres:secret@postgres:5432/ome
+          OME_GOOGLE_API_KEY: ${{ secrets.OME_GOOGLE_API_KEY }}
 
       # Check to see if there were any protobuf changes
       - name: Check for protobuf changes
