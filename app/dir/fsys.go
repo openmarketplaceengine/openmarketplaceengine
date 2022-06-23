@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/fs"
+	"strconv"
 	"strings"
 	"unsafe"
 
@@ -149,26 +150,23 @@ func (f *FsysList) ListFext(fsys fs.FS, fext string) error {
 
 func (f *FsysList) String() string {
 	if f.list == nil {
-		return "<nil>"
+		return "null"
 	}
 	switch n := len(f.list); n {
 	case 0:
 		return "[]"
 	case 1:
 		return fmt.Sprintf("[%q]", f.list[0].Path)
-	case 2:
-		return fmt.Sprintf("[%q %q]", f.list[0].Path, f.list[1].Path)
 	default:
-		var b strings.Builder
-		b.Grow(32)
-		b.WriteByte('[')
+		b := make([]byte, 0, 32)
+		b = append(b, '[', '\n', ' ', ' ')
 		for i := 0; i < n; i++ {
 			if i > 0 {
-				b.WriteByte(' ')
+				b = append(b, ',', '\n', ' ', ' ')
 			}
-			_, _ = fmt.Fprintf(&b, "%q", f.list[i].Path)
+			b = strconv.AppendQuote(b, f.list[i].Path)
 		}
-		b.WriteByte(']')
-		return b.String()
+		b = append(b, '\n', ']')
+		return *(*string)(unsafe.Pointer(&b))
 	}
 }
