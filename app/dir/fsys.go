@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/fs"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"unsafe"
@@ -37,7 +38,7 @@ var SkipDir = fs.SkipDir
 //-----------------------------------------------------------------------------
 
 func WalkDir(fsys FS, root string, fn func(path string, d Entry) error) error {
-	err := fs.WalkDir(fsys, root, func(path string, d fs.DirEntry, err error) error {
+	err := fs.WalkDir(fsys, root, func(path string, d Entry, err error) error {
 		if err == nil {
 			err = fn(path, d)
 		}
@@ -48,6 +49,21 @@ func WalkDir(fsys FS, root string, fn func(path string, d Entry) error) error {
 
 //-----------------------------------------------------------------------------
 // FsysPath
+//-----------------------------------------------------------------------------
+
+func (f *FsysPath) Reset(fsys FS, path string, entry Entry) *FsysPath {
+	f.Fsys = fsys
+	f.Path = path
+	if entry != nil {
+		f.Name = entry.Name()
+		f.Mode = entry.Type()
+	} else {
+		f.Name = filepath.Base(path)
+		f.Mode = 0
+	}
+	return f
+}
+
 //-----------------------------------------------------------------------------
 
 func (f *FsysPath) ReadFile() ([]byte, error) {
@@ -84,6 +100,32 @@ func (f *FsysPath) Decode(dst interface{}, dec func(buf []byte, dst interface{})
 		err = dec(buf, dst)
 	}
 	return err
+}
+
+//-----------------------------------------------------------------------------
+
+func (f *FsysPath) IntPrefix() (int, bool) {
+	i := 0
+	s := f.Name
+	n := len(s)
+	if n > 0 && s[0] == '-' {
+		i++
+	}
+loop:
+	for i < n {
+		switch s[i] {
+		case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
+			i++
+			continue loop
+		default:
+			break loop
+		}
+	}
+	if i == 0 {
+		return 0, false
+	}
+	v, err := strconv.Atoi(s[:i])
+	return v, err == nil
 }
 
 //-----------------------------------------------------------------------------
