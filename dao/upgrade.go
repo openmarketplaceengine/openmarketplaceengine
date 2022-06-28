@@ -14,7 +14,7 @@ import (
 
 type Upgrade struct {
 	Version int
-	Enabled bool
+	Disable bool
 	Details string
 	Confirm string
 	fpath   *dir.FsysPath //nolint
