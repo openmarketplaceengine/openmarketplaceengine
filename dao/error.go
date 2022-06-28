@@ -2,21 +2,28 @@ package dao
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/jackc/pgconn"
 )
 
+type ErrCode string
+
 const (
-	_uniqueViolation = "23505"
-	_undefinedTable  = "42P01"
+	ErrUniqueViolation ErrCode = "23505"
+	ErrUndefinedTable  ErrCode = "42P01"
 )
 
-func ErrUniqueViolation(err error) bool {
-	return matchError(err, _uniqueViolation)
-}
+//-----------------------------------------------------------------------------
 
-func ErrUndefinedTable(err error) bool {
-	return matchError(err, _undefinedTable)
+func (c ErrCode) Is(err error) bool {
+	for err != nil {
+		if pge, ok := err.(*pgconn.PgError); ok {
+			return pge.Code == string(c)
+		}
+		err = errors.Unwrap(err)
+	}
+	return false
 }
 
 //-----------------------------------------------------------------------------
@@ -35,22 +42,4 @@ func WrapNoRows(err error) error {
 		return sql.ErrNoRows
 	}
 	return err
-}
-
-//-----------------------------------------------------------------------------
-
-func matchError(err error, code string, more ...string) bool {
-	if pge, ok := err.(*pgconn.PgError); ok {
-		if pge.Code == code {
-			return true
-		}
-		if n := len(more); n > 0 {
-			for i := 0; i < n; i++ {
-				if pge.Code == more[i] {
-					return true
-				}
-			}
-		}
-	}
-	return false
 }

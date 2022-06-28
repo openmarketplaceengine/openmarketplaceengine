@@ -19,5 +19,5 @@ func TestErrUndefinedTable(t *testing.T) {
 	has, err := sql.QueryOne(context.Background())
 	require.False(t, has)
 	require.Error(t, err)
-	require.True(t, ErrUndefinedTable(err))
+	require.True(t, ErrUndefinedTable.Is(err))
 }

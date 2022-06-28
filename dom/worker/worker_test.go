@@ -57,7 +57,7 @@ func testWorkerInsertConstraint(t *testing.T) {
 	wrk := newWorker(randStatus())
 	require.NoError(t, wrk.Insert(cfg.Context()))
 	err := wrk.Insert(cfg.Context())
-	require.True(t, dao.ErrUniqueViolation(err))
+	require.True(t, dao.ErrUniqueViolation.Is(err))
 }
 
 func testGetWorker(t *testing.T) {
