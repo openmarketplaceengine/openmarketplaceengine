@@ -12,6 +12,7 @@ type ErrCode string
 const (
 	ErrUniqueViolation ErrCode = "23505"
 	ErrUndefinedTable  ErrCode = "42P01"
+	ErrUndefinedColumn ErrCode = "42703"
 )
 
 //-----------------------------------------------------------------------------
