@@ -8,10 +8,15 @@ import (
 
 const (
 	_uniqueViolation = "23505"
+	_undefinedTable  = "42P01"
 )
 
 func ErrUniqueViolation(err error) bool {
 	return matchError(err, _uniqueViolation)
+}
+
+func ErrUndefinedTable(err error) bool {
+	return matchError(err, _undefinedTable)
 }
 
 //-----------------------------------------------------------------------------
