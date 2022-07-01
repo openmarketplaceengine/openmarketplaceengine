@@ -81,18 +81,22 @@ func testGetAvailableJobs(t *testing.T, client v1beta1.JobServiceClient, tracker
 	fromLon := -74.143650
 
 	job1 := &job.Job{
-		ID:        uuid.NewString(),
-		WorkerID:  "",
-		State:     "AVAILABLE",
-		PickupLat: 40.636916,
-		PickupLon: -74.195995,
+		ID:         uuid.NewString(),
+		WorkerID:   "",
+		State:      "AVAILABLE",
+		PickupLat:  40.636916,
+		PickupLon:  -74.195995,
+		DropoffLat: 40.634408,
+		DropoffLon: -74.198356,
 	}
 	job2 := &job.Job{
-		ID:        uuid.NewString(),
-		WorkerID:  "",
-		State:     "AVAILABLE",
-		PickupLat: 40.634408,
-		PickupLon: -74.198356,
+		ID:         uuid.NewString(),
+		WorkerID:   "",
+		State:      "AVAILABLE",
+		PickupLat:  40.634408,
+		PickupLon:  -74.198356,
+		DropoffLat: 40.636916,
+		DropoffLon: -74.195995,
 	}
 
 	for _, j := range []*job.Job{job1, job2} {

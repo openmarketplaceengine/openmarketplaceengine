@@ -3,7 +3,6 @@ package job
 import (
 	"context"
 	"fmt"
-	"sort"
 	"testing"
 	"time"
 
@@ -25,18 +24,22 @@ func TestEstimatedJobs(t *testing.T) {
 
 	state := fmt.Sprintf("AVAILABLE-%s", workerID)
 	job1 := &job.Job{
-		ID:        uuid.NewString(),
-		WorkerID:  "",
-		State:     state,
-		PickupLat: 40.636916,
-		PickupLon: -74.195995,
+		ID:         uuid.NewString(),
+		WorkerID:   "",
+		State:      state,
+		PickupLat:  40.636916,
+		PickupLon:  -74.195995,
+		DropoffLat: 40.634408,
+		DropoffLon: -74.198356,
 	}
 	job2 := &job.Job{
-		ID:        uuid.NewString(),
-		WorkerID:  "",
-		State:     state,
-		PickupLat: 40.634408,
-		PickupLon: -74.198356,
+		ID:         uuid.NewString(),
+		WorkerID:   "",
+		State:      state,
+		PickupLat:  40.634408,
+		PickupLon:  -74.198356,
+		DropoffLat: 40.636916,
+		DropoffLon: -74.195995,
 	}
 
 	for _, j := range []*job.Job{job1, job2} {
@@ -52,19 +55,13 @@ func TestEstimatedJobs(t *testing.T) {
 	}
 	toJobs, err := job.QueryByPickupDistance(ctx, from.Longitude, from.Latitude, state, 10000, 25)
 	require.NoError(t, err)
-	jobs, err := PickupDistanceEstimatedJobs(from, toJobs)
+	jobs, err := estimatedJobs(ctx, from, toJobs)
 
 	require.NoError(t, err)
 	require.NotNil(t, jobs)
-	require.Equal(t, jobs.OriginAddress, "64 Innis St, Staten Island, NY 10302, USA")
 
-	require.Equal(t, len(jobs.Jobs), len(toJobs))
-	require.Len(t, jobs.Jobs, 2)
-	require.Equal(t, jobs.Jobs[0].Address, "JRP3+QJ New York, NY, USA")
-	require.Equal(t, jobs.Jobs[1].Address, "JRM2+QM New York, NY, USA")
-
-	sorted0 := sort.SliceIsSorted(jobs.Jobs, func(i, j int) bool {
-		return jobs.Jobs[i].Distance < jobs.Jobs[j].Distance
-	})
-	require.True(t, sorted0)
+	require.Equal(t, len(jobs), len(toJobs))
+	require.Len(t, jobs, 2)
+	require.Equal(t, jobs[0].PickupLocation.Address, "JRP3+QJ New York, NY, USA")
+	require.Equal(t, jobs[1].PickupLocation.Address, "JRM2+QM New York, NY, USA")
 }

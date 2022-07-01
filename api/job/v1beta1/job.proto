@@ -72,11 +72,26 @@ message GetAvailableJobsRequest {
   int32 limit = 4;
 }
 
-message AvailableJob {
-  JobInfo job = 1;
-  int32 distance_meters = 2;
+message Location {
+  double lat = 1;
+  double lng = 2;
+  string address = 3;
+}
+
+message Estimate {
+  int32 distance_meters = 1;
+  google.protobuf.Duration duration =2;
+}
+
+message EstimatedJob {
+  string id = 1;
+  Estimate worker_to_pickup_estimate = 2;
+  Estimate pickup_to_drop_off_estimate = 3;
+  Location worker_location = 4;
+  Location pickup_location = 5;
+  Location drop_off_location = 6;
 }
 
 message GetAvailableJobsResponse {
-  repeated AvailableJob jobs = 1;
+  repeated EstimatedJob jobs = 1;
 }

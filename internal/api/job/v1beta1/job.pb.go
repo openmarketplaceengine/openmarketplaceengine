@@ -542,17 +542,18 @@ func (x *GetAvailableJobsRequest) GetLimit() int32 {
 	return 0
 }
 
-type AvailableJob struct {
+type Location struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Job            *JobInfo `protobuf:"bytes,1,opt,name=job,proto3" json:"job,omitempty"`
-	DistanceMeters int32    `protobuf:"varint,2,opt,name=distance_meters,json=distanceMeters,proto3" json:"distance_meters,omitempty"`
+	Lat     float64 `protobuf:"fixed64,1,opt,name=lat,proto3" json:"lat,omitempty"`
+	Lng     float64 `protobuf:"fixed64,2,opt,name=lng,proto3" json:"lng,omitempty"`
+	Address string  `protobuf:"bytes,3,opt,name=address,proto3" json:"address,omitempty"`
 }
 
-func (x *AvailableJob) Reset() {
-	*x = AvailableJob{}
+func (x *Location) Reset() {
+	*x = Location{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_api_job_v1beta1_job_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -560,13 +561,13 @@ func (x *AvailableJob) Reset() {
 	}
 }
 
-func (x *AvailableJob) String() string {
+func (x *Location) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AvailableJob) ProtoMessage() {}
+func (*Location) ProtoMessage() {}
 
-func (x *AvailableJob) ProtoReflect() protoreflect.Message {
+func (x *Location) ProtoReflect() protoreflect.Message {
 	mi := &file_api_job_v1beta1_job_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -578,23 +579,172 @@ func (x *AvailableJob) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AvailableJob.ProtoReflect.Descriptor instead.
-func (*AvailableJob) Descriptor() ([]byte, []int) {
+// Deprecated: Use Location.ProtoReflect.Descriptor instead.
+func (*Location) Descriptor() ([]byte, []int) {
 	return file_api_job_v1beta1_job_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *AvailableJob) GetJob() *JobInfo {
+func (x *Location) GetLat() float64 {
 	if x != nil {
-		return x.Job
+		return x.Lat
 	}
-	return nil
+	return 0
 }
 
-func (x *AvailableJob) GetDistanceMeters() int32 {
+func (x *Location) GetLng() float64 {
+	if x != nil {
+		return x.Lng
+	}
+	return 0
+}
+
+func (x *Location) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+type Estimate struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	DistanceMeters int32                `protobuf:"varint,1,opt,name=distance_meters,json=distanceMeters,proto3" json:"distance_meters,omitempty"`
+	Duration       *durationpb.Duration `protobuf:"bytes,2,opt,name=duration,proto3" json:"duration,omitempty"`
+}
+
+func (x *Estimate) Reset() {
+	*x = Estimate{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_job_v1beta1_job_proto_msgTypes[8]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Estimate) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Estimate) ProtoMessage() {}
+
+func (x *Estimate) ProtoReflect() protoreflect.Message {
+	mi := &file_api_job_v1beta1_job_proto_msgTypes[8]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Estimate.ProtoReflect.Descriptor instead.
+func (*Estimate) Descriptor() ([]byte, []int) {
+	return file_api_job_v1beta1_job_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *Estimate) GetDistanceMeters() int32 {
 	if x != nil {
 		return x.DistanceMeters
 	}
 	return 0
+}
+
+func (x *Estimate) GetDuration() *durationpb.Duration {
+	if x != nil {
+		return x.Duration
+	}
+	return nil
+}
+
+type EstimatedJob struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id                      string    `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	WorkerToPickupEstimate  *Estimate `protobuf:"bytes,2,opt,name=worker_to_pickup_estimate,json=workerToPickupEstimate,proto3" json:"worker_to_pickup_estimate,omitempty"`
+	PickupToDropOffEstimate *Estimate `protobuf:"bytes,3,opt,name=pickup_to_drop_off_estimate,json=pickupToDropOffEstimate,proto3" json:"pickup_to_drop_off_estimate,omitempty"`
+	WorkerLocation          *Location `protobuf:"bytes,4,opt,name=worker_location,json=workerLocation,proto3" json:"worker_location,omitempty"`
+	PickupLocation          *Location `protobuf:"bytes,5,opt,name=pickup_location,json=pickupLocation,proto3" json:"pickup_location,omitempty"`
+	DropOffLocation         *Location `protobuf:"bytes,6,opt,name=drop_off_location,json=dropOffLocation,proto3" json:"drop_off_location,omitempty"`
+}
+
+func (x *EstimatedJob) Reset() {
+	*x = EstimatedJob{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_job_v1beta1_job_proto_msgTypes[9]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *EstimatedJob) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EstimatedJob) ProtoMessage() {}
+
+func (x *EstimatedJob) ProtoReflect() protoreflect.Message {
+	mi := &file_api_job_v1beta1_job_proto_msgTypes[9]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EstimatedJob.ProtoReflect.Descriptor instead.
+func (*EstimatedJob) Descriptor() ([]byte, []int) {
+	return file_api_job_v1beta1_job_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *EstimatedJob) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *EstimatedJob) GetWorkerToPickupEstimate() *Estimate {
+	if x != nil {
+		return x.WorkerToPickupEstimate
+	}
+	return nil
+}
+
+func (x *EstimatedJob) GetPickupToDropOffEstimate() *Estimate {
+	if x != nil {
+		return x.PickupToDropOffEstimate
+	}
+	return nil
+}
+
+func (x *EstimatedJob) GetWorkerLocation() *Location {
+	if x != nil {
+		return x.WorkerLocation
+	}
+	return nil
+}
+
+func (x *EstimatedJob) GetPickupLocation() *Location {
+	if x != nil {
+		return x.PickupLocation
+	}
+	return nil
+}
+
+func (x *EstimatedJob) GetDropOffLocation() *Location {
+	if x != nil {
+		return x.DropOffLocation
+	}
+	return nil
 }
 
 type GetAvailableJobsResponse struct {
@@ -602,13 +752,13 @@ type GetAvailableJobsResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Jobs []*AvailableJob `protobuf:"bytes,1,rep,name=jobs,proto3" json:"jobs,omitempty"`
+	Jobs []*EstimatedJob `protobuf:"bytes,1,rep,name=jobs,proto3" json:"jobs,omitempty"`
 }
 
 func (x *GetAvailableJobsResponse) Reset() {
 	*x = GetAvailableJobsResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_api_job_v1beta1_job_proto_msgTypes[8]
+		mi := &file_api_job_v1beta1_job_proto_msgTypes[10]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -621,7 +771,7 @@ func (x *GetAvailableJobsResponse) String() string {
 func (*GetAvailableJobsResponse) ProtoMessage() {}
 
 func (x *GetAvailableJobsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_job_v1beta1_job_proto_msgTypes[8]
+	mi := &file_api_job_v1beta1_job_proto_msgTypes[10]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -634,10 +784,10 @@ func (x *GetAvailableJobsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAvailableJobsResponse.ProtoReflect.Descriptor instead.
 func (*GetAvailableJobsResponse) Descriptor() ([]byte, []int) {
-	return file_api_job_v1beta1_job_proto_rawDescGZIP(), []int{8}
+	return file_api_job_v1beta1_job_proto_rawDescGZIP(), []int{10}
 }
 
-func (x *GetAvailableJobsResponse) GetJobs() []*AvailableJob {
+func (x *GetAvailableJobsResponse) GetJobs() []*EstimatedJob {
 	if x != nil {
 		return x.Jobs
 	}
@@ -721,17 +871,48 @@ var file_api_job_v1beta1_job_proto_rawDesc = []byte{
 	0x73, 0x5f, 0x6d, 0x65, 0x74, 0x65, 0x72, 0x73, 0x18, 0x03, 0x20, 0x01, 0x28, 0x05, 0x52, 0x0c,
 	0x72, 0x61, 0x64, 0x69, 0x75, 0x73, 0x4d, 0x65, 0x74, 0x65, 0x72, 0x73, 0x12, 0x14, 0x0a, 0x05,
 	0x6c, 0x69, 0x6d, 0x69, 0x74, 0x18, 0x04, 0x20, 0x01, 0x28, 0x05, 0x52, 0x05, 0x6c, 0x69, 0x6d,
-	0x69, 0x74, 0x22, 0x63, 0x0a, 0x0c, 0x41, 0x76, 0x61, 0x69, 0x6c, 0x61, 0x62, 0x6c, 0x65, 0x4a,
-	0x6f, 0x62, 0x12, 0x2a, 0x0a, 0x03, 0x6a, 0x6f, 0x62, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32,
-	0x18, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x6a, 0x6f, 0x62, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
-	0x31, 0x2e, 0x4a, 0x6f, 0x62, 0x49, 0x6e, 0x66, 0x6f, 0x52, 0x03, 0x6a, 0x6f, 0x62, 0x12, 0x27,
-	0x0a, 0x0f, 0x64, 0x69, 0x73, 0x74, 0x61, 0x6e, 0x63, 0x65, 0x5f, 0x6d, 0x65, 0x74, 0x65, 0x72,
-	0x73, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x0e, 0x64, 0x69, 0x73, 0x74, 0x61, 0x6e, 0x63,
-	0x65, 0x4d, 0x65, 0x74, 0x65, 0x72, 0x73, 0x22, 0x4d, 0x0a, 0x18, 0x47, 0x65, 0x74, 0x41, 0x76,
+	0x69, 0x74, 0x22, 0x48, 0x0a, 0x08, 0x4c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x10,
+	0x0a, 0x03, 0x6c, 0x61, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x01, 0x52, 0x03, 0x6c, 0x61, 0x74,
+	0x12, 0x10, 0x0a, 0x03, 0x6c, 0x6e, 0x67, 0x18, 0x02, 0x20, 0x01, 0x28, 0x01, 0x52, 0x03, 0x6c,
+	0x6e, 0x67, 0x12, 0x18, 0x0a, 0x07, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x18, 0x03, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x07, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x22, 0x6a, 0x0a, 0x08,
+	0x45, 0x73, 0x74, 0x69, 0x6d, 0x61, 0x74, 0x65, 0x12, 0x27, 0x0a, 0x0f, 0x64, 0x69, 0x73, 0x74,
+	0x61, 0x6e, 0x63, 0x65, 0x5f, 0x6d, 0x65, 0x74, 0x65, 0x72, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x05, 0x52, 0x0e, 0x64, 0x69, 0x73, 0x74, 0x61, 0x6e, 0x63, 0x65, 0x4d, 0x65, 0x74, 0x65, 0x72,
+	0x73, 0x12, 0x35, 0x0a, 0x08, 0x64, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20,
+	0x01, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x44, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x08,
+	0x64, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0x9c, 0x03, 0x0a, 0x0c, 0x45, 0x73, 0x74,
+	0x69, 0x6d, 0x61, 0x74, 0x65, 0x64, 0x4a, 0x6f, 0x62, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x12, 0x54, 0x0a, 0x19, 0x77, 0x6f, 0x72,
+	0x6b, 0x65, 0x72, 0x5f, 0x74, 0x6f, 0x5f, 0x70, 0x69, 0x63, 0x6b, 0x75, 0x70, 0x5f, 0x65, 0x73,
+	0x74, 0x69, 0x6d, 0x61, 0x74, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x61,
+	0x70, 0x69, 0x2e, 0x6a, 0x6f, 0x62, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x45,
+	0x73, 0x74, 0x69, 0x6d, 0x61, 0x74, 0x65, 0x52, 0x16, 0x77, 0x6f, 0x72, 0x6b, 0x65, 0x72, 0x54,
+	0x6f, 0x50, 0x69, 0x63, 0x6b, 0x75, 0x70, 0x45, 0x73, 0x74, 0x69, 0x6d, 0x61, 0x74, 0x65, 0x12,
+	0x57, 0x0a, 0x1b, 0x70, 0x69, 0x63, 0x6b, 0x75, 0x70, 0x5f, 0x74, 0x6f, 0x5f, 0x64, 0x72, 0x6f,
+	0x70, 0x5f, 0x6f, 0x66, 0x66, 0x5f, 0x65, 0x73, 0x74, 0x69, 0x6d, 0x61, 0x74, 0x65, 0x18, 0x03,
+	0x20, 0x01, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x6a, 0x6f, 0x62, 0x2e, 0x76,
+	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x45, 0x73, 0x74, 0x69, 0x6d, 0x61, 0x74, 0x65, 0x52,
+	0x17, 0x70, 0x69, 0x63, 0x6b, 0x75, 0x70, 0x54, 0x6f, 0x44, 0x72, 0x6f, 0x70, 0x4f, 0x66, 0x66,
+	0x45, 0x73, 0x74, 0x69, 0x6d, 0x61, 0x74, 0x65, 0x12, 0x42, 0x0a, 0x0f, 0x77, 0x6f, 0x72, 0x6b,
+	0x65, 0x72, 0x5f, 0x6c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x04, 0x20, 0x01, 0x28,
+	0x0b, 0x32, 0x19, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x6a, 0x6f, 0x62, 0x2e, 0x76, 0x31, 0x62, 0x65,
+	0x74, 0x61, 0x31, 0x2e, 0x4c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x0e, 0x77, 0x6f,
+	0x72, 0x6b, 0x65, 0x72, 0x4c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x42, 0x0a, 0x0f,
+	0x70, 0x69, 0x63, 0x6b, 0x75, 0x70, 0x5f, 0x6c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18,
+	0x05, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x6a, 0x6f, 0x62, 0x2e,
+	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e,
+	0x52, 0x0e, 0x70, 0x69, 0x63, 0x6b, 0x75, 0x70, 0x4c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e,
+	0x12, 0x45, 0x0a, 0x11, 0x64, 0x72, 0x6f, 0x70, 0x5f, 0x6f, 0x66, 0x66, 0x5f, 0x6c, 0x6f, 0x63,
+	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x06, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x61, 0x70,
+	0x69, 0x2e, 0x6a, 0x6f, 0x62, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4c, 0x6f,
+	0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x0f, 0x64, 0x72, 0x6f, 0x70, 0x4f, 0x66, 0x66, 0x4c,
+	0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0x4d, 0x0a, 0x18, 0x47, 0x65, 0x74, 0x41, 0x76,
 	0x61, 0x69, 0x6c, 0x61, 0x62, 0x6c, 0x65, 0x4a, 0x6f, 0x62, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f,
 	0x6e, 0x73, 0x65, 0x12, 0x31, 0x0a, 0x04, 0x6a, 0x6f, 0x62, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28,
 	0x0b, 0x32, 0x1d, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x6a, 0x6f, 0x62, 0x2e, 0x76, 0x31, 0x62, 0x65,
-	0x74, 0x61, 0x31, 0x2e, 0x41, 0x76, 0x61, 0x69, 0x6c, 0x61, 0x62, 0x6c, 0x65, 0x4a, 0x6f, 0x62,
+	0x74, 0x61, 0x31, 0x2e, 0x45, 0x73, 0x74, 0x69, 0x6d, 0x61, 0x74, 0x65, 0x64, 0x4a, 0x6f, 0x62,
 	0x52, 0x04, 0x6a, 0x6f, 0x62, 0x73, 0x2a, 0x57, 0x0a, 0x09, 0x4a, 0x6f, 0x62, 0x41, 0x63, 0x74,
 	0x69, 0x6f, 0x6e, 0x12, 0x1a, 0x0a, 0x16, 0x4a, 0x4f, 0x42, 0x5f, 0x41, 0x43, 0x54, 0x49, 0x4f,
 	0x4e, 0x5f, 0x55, 0x4e, 0x53, 0x50, 0x45, 0x43, 0x49, 0x46, 0x49, 0x45, 0x44, 0x10, 0x00, 0x12,
@@ -777,7 +958,7 @@ func file_api_job_v1beta1_job_proto_rawDescGZIP() []byte {
 }
 
 var file_api_job_v1beta1_job_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_api_job_v1beta1_job_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_api_job_v1beta1_job_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_api_job_v1beta1_job_proto_goTypes = []interface{}{
 	(JobAction)(0),                   // 0: api.job.v1beta1.JobAction
 	(*JobInfo)(nil),                  // 1: api.job.v1beta1.JobInfo
@@ -787,36 +968,43 @@ var file_api_job_v1beta1_job_proto_goTypes = []interface{}{
 	(*ExportJobItem)(nil),            // 5: api.job.v1beta1.ExportJobItem
 	(*ExportJobResponse)(nil),        // 6: api.job.v1beta1.ExportJobResponse
 	(*GetAvailableJobsRequest)(nil),  // 7: api.job.v1beta1.GetAvailableJobsRequest
-	(*AvailableJob)(nil),             // 8: api.job.v1beta1.AvailableJob
-	(*GetAvailableJobsResponse)(nil), // 9: api.job.v1beta1.GetAvailableJobsResponse
-	(*timestamppb.Timestamp)(nil),    // 10: google.protobuf.Timestamp
-	(*v1beta1.Location)(nil),         // 11: api.type.v1beta1.Location
-	(*durationpb.Duration)(nil),      // 12: google.protobuf.Duration
+	(*Location)(nil),                 // 8: api.job.v1beta1.Location
+	(*Estimate)(nil),                 // 9: api.job.v1beta1.Estimate
+	(*EstimatedJob)(nil),             // 10: api.job.v1beta1.EstimatedJob
+	(*GetAvailableJobsResponse)(nil), // 11: api.job.v1beta1.GetAvailableJobsResponse
+	(*timestamppb.Timestamp)(nil),    // 12: google.protobuf.Timestamp
+	(*v1beta1.Location)(nil),         // 13: api.type.v1beta1.Location
+	(*durationpb.Duration)(nil),      // 14: google.protobuf.Duration
 }
 var file_api_job_v1beta1_job_proto_depIdxs = []int32{
-	10, // 0: api.job.v1beta1.JobInfo.created:type_name -> google.protobuf.Timestamp
-	10, // 1: api.job.v1beta1.JobInfo.updated:type_name -> google.protobuf.Timestamp
-	10, // 2: api.job.v1beta1.JobInfo.pickup_date:type_name -> google.protobuf.Timestamp
-	11, // 3: api.job.v1beta1.JobInfo.pickup_loc:type_name -> api.type.v1beta1.Location
-	11, // 4: api.job.v1beta1.JobInfo.dropoff_loc:type_name -> api.type.v1beta1.Location
-	12, // 5: api.job.v1beta1.JobInfo.duration:type_name -> google.protobuf.Duration
+	12, // 0: api.job.v1beta1.JobInfo.created:type_name -> google.protobuf.Timestamp
+	12, // 1: api.job.v1beta1.JobInfo.updated:type_name -> google.protobuf.Timestamp
+	12, // 2: api.job.v1beta1.JobInfo.pickup_date:type_name -> google.protobuf.Timestamp
+	13, // 3: api.job.v1beta1.JobInfo.pickup_loc:type_name -> api.type.v1beta1.Location
+	13, // 4: api.job.v1beta1.JobInfo.dropoff_loc:type_name -> api.type.v1beta1.Location
+	14, // 5: api.job.v1beta1.JobInfo.duration:type_name -> google.protobuf.Duration
 	1,  // 6: api.job.v1beta1.ImportJobRequest.job:type_name -> api.job.v1beta1.JobInfo
 	0,  // 7: api.job.v1beta1.ImportJobResponse.action:type_name -> api.job.v1beta1.JobAction
 	1,  // 8: api.job.v1beta1.ExportJobItem.job:type_name -> api.job.v1beta1.JobInfo
 	5,  // 9: api.job.v1beta1.ExportJobResponse.jobs:type_name -> api.job.v1beta1.ExportJobItem
-	1,  // 10: api.job.v1beta1.AvailableJob.job:type_name -> api.job.v1beta1.JobInfo
-	8,  // 11: api.job.v1beta1.GetAvailableJobsResponse.jobs:type_name -> api.job.v1beta1.AvailableJob
-	2,  // 12: api.job.v1beta1.JobService.ImportJob:input_type -> api.job.v1beta1.ImportJobRequest
-	4,  // 13: api.job.v1beta1.JobService.ExportJob:input_type -> api.job.v1beta1.ExportJobRequest
-	7,  // 14: api.job.v1beta1.JobService.GetAvailableJobs:input_type -> api.job.v1beta1.GetAvailableJobsRequest
-	3,  // 15: api.job.v1beta1.JobService.ImportJob:output_type -> api.job.v1beta1.ImportJobResponse
-	6,  // 16: api.job.v1beta1.JobService.ExportJob:output_type -> api.job.v1beta1.ExportJobResponse
-	9,  // 17: api.job.v1beta1.JobService.GetAvailableJobs:output_type -> api.job.v1beta1.GetAvailableJobsResponse
-	15, // [15:18] is the sub-list for method output_type
-	12, // [12:15] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	14, // 10: api.job.v1beta1.Estimate.duration:type_name -> google.protobuf.Duration
+	9,  // 11: api.job.v1beta1.EstimatedJob.worker_to_pickup_estimate:type_name -> api.job.v1beta1.Estimate
+	9,  // 12: api.job.v1beta1.EstimatedJob.pickup_to_drop_off_estimate:type_name -> api.job.v1beta1.Estimate
+	8,  // 13: api.job.v1beta1.EstimatedJob.worker_location:type_name -> api.job.v1beta1.Location
+	8,  // 14: api.job.v1beta1.EstimatedJob.pickup_location:type_name -> api.job.v1beta1.Location
+	8,  // 15: api.job.v1beta1.EstimatedJob.drop_off_location:type_name -> api.job.v1beta1.Location
+	10, // 16: api.job.v1beta1.GetAvailableJobsResponse.jobs:type_name -> api.job.v1beta1.EstimatedJob
+	2,  // 17: api.job.v1beta1.JobService.ImportJob:input_type -> api.job.v1beta1.ImportJobRequest
+	4,  // 18: api.job.v1beta1.JobService.ExportJob:input_type -> api.job.v1beta1.ExportJobRequest
+	7,  // 19: api.job.v1beta1.JobService.GetAvailableJobs:input_type -> api.job.v1beta1.GetAvailableJobsRequest
+	3,  // 20: api.job.v1beta1.JobService.ImportJob:output_type -> api.job.v1beta1.ImportJobResponse
+	6,  // 21: api.job.v1beta1.JobService.ExportJob:output_type -> api.job.v1beta1.ExportJobResponse
+	11, // 22: api.job.v1beta1.JobService.GetAvailableJobs:output_type -> api.job.v1beta1.GetAvailableJobsResponse
+	20, // [20:23] is the sub-list for method output_type
+	17, // [17:20] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_api_job_v1beta1_job_proto_init() }
@@ -910,7 +1098,7 @@ func file_api_job_v1beta1_job_proto_init() {
 			}
 		}
 		file_api_job_v1beta1_job_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*AvailableJob); i {
+			switch v := v.(*Location); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -922,6 +1110,30 @@ func file_api_job_v1beta1_job_proto_init() {
 			}
 		}
 		file_api_job_v1beta1_job_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*Estimate); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_job_v1beta1_job_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*EstimatedJob); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_job_v1beta1_job_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*GetAvailableJobsResponse); i {
 			case 0:
 				return &v.state
@@ -940,7 +1152,7 @@ func file_api_job_v1beta1_job_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_api_job_v1beta1_job_proto_rawDesc,
 			NumEnums:      1,
-			NumMessages:   9,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
