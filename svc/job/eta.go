@@ -20,7 +20,7 @@ type Estimate struct {
 	Duration       time.Duration
 }
 
-type EstimatedJob struct {
+type Job struct {
 	ID              dao.SUID
 	WorkerToPickup  Estimate
 	PickupToDropOff Estimate
@@ -35,7 +35,7 @@ type Location struct {
 	Lng     float64
 }
 
-func estimatedJobs(ctx context.Context, workerLocation *location.LastLocation, jobs []*job.AvailableJob) ([]*EstimatedJob, error) {
+func estimateJobs(ctx context.Context, workerLocation *location.LastLocation, jobs []*job.AvailableJob) ([]*Job, error) {
 	if jobs == nil {
 		return nil, fmt.Errorf("jobs argument cannot be nil")
 	}
@@ -67,13 +67,13 @@ func estimatedJobs(ctx context.Context, workerLocation *location.LastLocation, j
 	workerIdx := len(m.Rows) - 1
 	workerRow := m.Rows[workerIdx]
 
-	var eJobs = make([]*EstimatedJob, len(jobs))
+	var eJobs = make([]*Job, len(jobs))
 	for i, row := range m.Rows {
 		if i == workerIdx {
 			break
 		}
 		for j, e := range row.Elements {
-			eJobs[j] = &EstimatedJob{
+			eJobs[j] = &Job{
 				ID: jobs[j].ID,
 				WorkerLocation: Location{
 					Address: m.OriginAddresses[workerIdx],

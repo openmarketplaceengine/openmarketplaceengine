@@ -9,6 +9,8 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/svc/location"
 )
 
+//Limit of initial available jobs query to accommodate google usage constraints.
+//https://developers.google.com/maps/documentation/distance-matrix/usage-and-billing#other-usage-limits
 const googleMatrixAPILimit = int32(25)
 
 type Service struct {
@@ -21,7 +23,7 @@ func NewService(tracker *location.Tracker) *Service {
 	}
 }
 
-func (s *Service) EstimatedJobs(ctx context.Context, areaKey string, workerID string, radiusMeters int32) ([]*EstimatedJob, error) {
+func (s *Service) GetEstimatedJobs(ctx context.Context, areaKey string, workerID string, radiusMeters int32) ([]*Job, error) {
 	workerLocation := s.tracker.QueryLastLocation(ctx, areaKey, workerID)
 
 	if workerLocation == nil {
@@ -37,5 +39,5 @@ func (s *Service) EstimatedJobs(ctx context.Context, areaKey string, workerID st
 		return nil, fmt.Errorf("query by pickup distance error: %w", err)
 	}
 
-	return estimatedJobs(ctx, workerLocation, jobs)
+	return estimateJobs(ctx, workerLocation, jobs)
 }
