@@ -2,8 +2,8 @@ syntax = "proto3";
 
 package api.location.v1beta1;
 
-import "api/type/v1beta1/crossing.proto";
 import "api/location/v1beta1/location_update.proto";
+import "api/type/v1beta1/crossing.proto";
 
 option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/location/v1beta1";
 

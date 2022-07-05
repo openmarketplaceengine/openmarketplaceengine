@@ -2,9 +2,9 @@ syntax = "proto3";
 
 package api.job.v1beta1;
 
-import "google/protobuf/timestamp.proto";
-import "google/protobuf/duration.proto";
 import "api/type/v1beta1/location.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/job/v1beta1";
 
@@ -27,8 +27,6 @@ message JobInfo {
   api.type.v1beta1.Location dropoff_loc = 10;
   string trip_type = 11;
   string category = 12;
-  int32 distance = 13;
-  google.protobuf.Duration duration = 14;
 }
 
 message ImportJobRequest {
@@ -45,7 +43,6 @@ message ImportJobResponse {
   JobAction action = 1;
 }
 
-
 message ExportJobRequest {
   repeated string ids = 1;
 }
@@ -58,7 +55,6 @@ message ExportJobItem {
 message ExportJobResponse {
   repeated ExportJobItem jobs = 1;
 }
-
 
 message GetAvailableJobsRequest {
   // Any non-empty string representing geographic region
@@ -80,7 +76,7 @@ message Location {
 
 message Estimate {
   int32 distance_meters = 1;
-  google.protobuf.Duration duration =2;
+  google.protobuf.Duration duration = 2;
 }
 
 message EstimatedJob {

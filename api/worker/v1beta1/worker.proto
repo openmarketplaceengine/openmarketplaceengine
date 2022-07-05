@@ -52,4 +52,3 @@ message ListWorkersResponse {
   repeated Worker workers = 1;
   string next_page_token = 2;
 }
-
