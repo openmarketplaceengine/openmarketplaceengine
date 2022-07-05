@@ -8,5 +8,5 @@ option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/inte
 
 message Movement {
   api.type.v1beta1.Location from = 1;
-  api.type.v1beta1.Location to = 2 ;
+  api.type.v1beta1.Location to = 2;
 }

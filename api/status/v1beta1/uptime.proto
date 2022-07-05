@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-import "google/protobuf/timestamp.proto";
-
 package api.status.v1beta1;
+
+import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/status/v1beta1";
 
@@ -10,8 +10,7 @@ service UptimeService {
   rpc GetUptime(GetUptimeRequest) returns (GetUptimeResponse) {}
 }
 
-message GetUptimeRequest {
-}
+message GetUptimeRequest {}
 
 message GetUptimeResponse {
   int64 uptime = 1;

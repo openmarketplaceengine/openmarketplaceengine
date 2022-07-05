@@ -11,6 +11,7 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/log"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 type RegFun = func(srv *grpc.Server) error
@@ -54,6 +55,7 @@ func (s *GrpcServer) Boot() (err error) {
 		return
 	}
 
+	reflection.Register(s.srv)
 	go s.serve()
 	return nil
 }

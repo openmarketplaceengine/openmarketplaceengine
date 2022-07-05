@@ -32,18 +32,22 @@ func TestService(t *testing.T) {
 	fromLon := -74.143650
 
 	job1 := &job.Job{
-		ID:        uuid.NewString(),
-		WorkerID:  "",
-		State:     "AVAILABLE",
-		PickupLat: 40.636916,
-		PickupLon: -74.195995,
+		ID:         uuid.NewString(),
+		WorkerID:   "",
+		State:      "AVAILABLE",
+		PickupLat:  40.636916,
+		PickupLon:  -74.195995,
+		DropoffLat: 40.634408,
+		DropoffLon: -74.198356,
 	}
 	job2 := &job.Job{
-		ID:        uuid.NewString(),
-		WorkerID:  "",
-		State:     "AVAILABLE",
-		PickupLat: 40.634408,
-		PickupLon: -74.198356,
+		ID:         uuid.NewString(),
+		WorkerID:   "",
+		State:      "AVAILABLE",
+		PickupLat:  40.634408,
+		PickupLon:  -74.198356,
+		DropoffLat: 40.636916,
+		DropoffLon: -74.195995,
 	}
 
 	for _, j := range []*job.Job{job1, job2} {
@@ -74,7 +78,7 @@ func testGetAvailableJobs(t *testing.T, tracker *location.Tracker, service *Serv
 	_, err := tracker.TrackLocation(ctx, areaKey, id, fromLon, fromLat)
 	require.NoError(t, err)
 
-	jobs0, err := service.GetAvailableJobs(ctx, areaKey, id, 10000.0, 100)
+	jobs0, err := service.GetEstimatedJobs(ctx, areaKey, id, 10000.0)
 	require.NoError(t, err)
 	require.Len(t, jobs0, 2)
 }
@@ -85,6 +89,6 @@ func testGetAvailableJobsNotTracked(t *testing.T, service *Service) {
 	id := "16eb5627-ff8e-4b35-916a-4d14191d8229"
 	areaKey := "test-tracker"
 
-	_, err := service.GetAvailableJobs(ctx, areaKey, id, 10000.0, 100)
+	_, err := service.GetEstimatedJobs(ctx, areaKey, id, 10000.0)
 	require.EqualError(t, err, "location of worker is not known")
 }

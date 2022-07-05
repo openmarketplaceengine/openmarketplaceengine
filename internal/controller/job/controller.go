@@ -18,6 +18,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -83,29 +84,38 @@ func (c *controller) ExportJob(ctx context.Context, req *rpc.ExportJobRequest) (
 func (c *controller) GetAvailableJobs(ctx context.Context, req *rpc.GetAvailableJobsRequest) (*rpc.GetAvailableJobsResponse, error) {
 	// todo add validation using proto validation extension from Kevin
 
-	availableJobs, err := c.jobService.GetAvailableJobs(ctx, req.GetAreaKey(), req.GetWorkerId(), req.GetRadiusMeters(), req.GetLimit())
+	estimatedJobs, err := c.jobService.GetEstimatedJobs(ctx, req.GetAreaKey(), req.GetWorkerId(), req.GetRadiusMeters())
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "get available jobs error: %v", err)
 	}
 
-	jobs := make([]*rpc.AvailableJob, 0)
-	for _, aj := range availableJobs {
-		j := &rpc.AvailableJob{
-			Job: &rpc.JobInfo{
-				Id:          aj.ID,
-				WorkerId:    aj.WorkerID,
-				Created:     timestamppb.New(aj.Created),
-				Updated:     timestamppb.New(aj.Updated),
-				State:       aj.State,
-				PickupDate:  timestamppb.New(aj.PickupDate),
-				PickupAddr:  aj.PickupAddr,
-				PickupLoc:   &typ.Location{Latitude: aj.PickupLat, Longitude: aj.PickupLon},
-				DropoffAddr: aj.DropoffAddr,
-				DropoffLoc:  &typ.Location{Latitude: aj.DropoffLat, Longitude: aj.DropoffLon},
-				TripType:    aj.TripType,
-				Category:    aj.Category,
+	jobs := make([]*rpc.EstimatedJob, 0)
+	for _, ej := range estimatedJobs {
+		j := &rpc.EstimatedJob{
+			Id: ej.ID,
+			WorkerToPickupEstimate: &rpc.Estimate{
+				DistanceMeters: int32(ej.WorkerToPickup.DistanceMeters),
+				Duration:       durationpb.New(ej.WorkerToPickup.Duration),
 			},
-			DistanceMeters: aj.DistanceMeters,
+			PickupToDropOffEstimate: &rpc.Estimate{
+				DistanceMeters: int32(ej.PickupToDropOff.DistanceMeters),
+				Duration:       durationpb.New(ej.PickupToDropOff.Duration),
+			},
+			WorkerLocation: &rpc.Location{
+				Lat:     ej.WorkerLocation.Lat,
+				Lng:     ej.WorkerLocation.Lng,
+				Address: ej.WorkerLocation.Address,
+			},
+			PickupLocation: &rpc.Location{
+				Lat:     ej.PickupLocation.Lat,
+				Lng:     ej.PickupLocation.Lng,
+				Address: ej.PickupLocation.Address,
+			},
+			DropOffLocation: &rpc.Location{
+				Lat:     ej.DropOffLocation.Lat,
+				Lng:     ej.DropOffLocation.Lng,
+				Address: ej.DropOffLocation.Address,
+			},
 		}
 		jobs = append(jobs, j)
 	}

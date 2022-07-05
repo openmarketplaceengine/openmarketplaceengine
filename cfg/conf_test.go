@@ -42,7 +42,9 @@ func TestServerConfig_LoadEnv(t *testing.T) {
 	t.Setenv("OME_GRPC_PORT", "90")
 	t.Setenv("OME_REDIS_STORE_POOL", "32")
 	t.Setenv("OME_REDIS_STORE_PASS", "SECRET")
+	t.Setenv("OME_GOOGLE_API_KEY", "SECRET")
 	loadConfig(t)
+	require.Equal(t, "SECRET", Server.GoogleAPIKey)
 }
 
 //-----------------------------------------------------------------------------
