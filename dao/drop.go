@@ -65,9 +65,29 @@ func (d *Drop) appendDrop(kind string, name []string, drop []string) []string {
 	return drop
 }
 
+//-----------------------------------------------------------------------------
+
 func MakeDrop(kind string, name string, cascade bool) string {
 	if cascade {
 		return fmt.Sprintf("drop %s if exists %q cascade", kind, name)
 	}
 	return fmt.Sprintf("drop %s if exists %q", kind, name)
+}
+
+//-----------------------------------------------------------------------------
+
+func DropTable(name string, cascade bool) Executable {
+	return SQLExec(MakeDrop("table", name, cascade))
+}
+
+//-----------------------------------------------------------------------------
+
+func DropIndex(name string, cascade bool) Executable {
+	return SQLExec(MakeDrop("index", name, cascade))
+}
+
+//-----------------------------------------------------------------------------
+
+func DropView(name string, cascade bool) Executable {
+	return SQLExec(MakeDrop("view", name, cascade))
 }
