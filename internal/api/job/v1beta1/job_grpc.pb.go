@@ -24,7 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type JobServiceClient interface {
 	ImportJob(ctx context.Context, in *ImportJobRequest, opts ...grpc.CallOption) (*ImportJobResponse, error)
 	ExportJob(ctx context.Context, in *ExportJobRequest, opts ...grpc.CallOption) (*ExportJobResponse, error)
-	GetAvailableJobs(ctx context.Context, in *GetAvailableJobsRequest, opts ...grpc.CallOption) (*GetAvailableJobsResponse, error)
+	GetJobs(ctx context.Context, in *GetJobsRequest, opts ...grpc.CallOption) (*GetJobsResponse, error)
 }
 
 type jobServiceClient struct {
@@ -53,9 +53,9 @@ func (c *jobServiceClient) ExportJob(ctx context.Context, in *ExportJobRequest, 
 	return out, nil
 }
 
-func (c *jobServiceClient) GetAvailableJobs(ctx context.Context, in *GetAvailableJobsRequest, opts ...grpc.CallOption) (*GetAvailableJobsResponse, error) {
-	out := new(GetAvailableJobsResponse)
-	err := c.cc.Invoke(ctx, "/api.job.v1beta1.JobService/GetAvailableJobs", in, out, opts...)
+func (c *jobServiceClient) GetJobs(ctx context.Context, in *GetJobsRequest, opts ...grpc.CallOption) (*GetJobsResponse, error) {
+	out := new(GetJobsResponse)
+	err := c.cc.Invoke(ctx, "/api.job.v1beta1.JobService/GetJobs", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +68,7 @@ func (c *jobServiceClient) GetAvailableJobs(ctx context.Context, in *GetAvailabl
 type JobServiceServer interface {
 	ImportJob(context.Context, *ImportJobRequest) (*ImportJobResponse, error)
 	ExportJob(context.Context, *ExportJobRequest) (*ExportJobResponse, error)
-	GetAvailableJobs(context.Context, *GetAvailableJobsRequest) (*GetAvailableJobsResponse, error)
+	GetJobs(context.Context, *GetJobsRequest) (*GetJobsResponse, error)
 }
 
 // UnimplementedJobServiceServer should be embedded to have forward compatible implementations.
@@ -81,8 +81,8 @@ func (UnimplementedJobServiceServer) ImportJob(context.Context, *ImportJobReques
 func (UnimplementedJobServiceServer) ExportJob(context.Context, *ExportJobRequest) (*ExportJobResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ExportJob not implemented")
 }
-func (UnimplementedJobServiceServer) GetAvailableJobs(context.Context, *GetAvailableJobsRequest) (*GetAvailableJobsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAvailableJobs not implemented")
+func (UnimplementedJobServiceServer) GetJobs(context.Context, *GetJobsRequest) (*GetJobsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetJobs not implemented")
 }
 
 // UnsafeJobServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -132,20 +132,20 @@ func _JobService_ExportJob_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _JobService_GetAvailableJobs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetAvailableJobsRequest)
+func _JobService_GetJobs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetJobsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(JobServiceServer).GetAvailableJobs(ctx, in)
+		return srv.(JobServiceServer).GetJobs(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.job.v1beta1.JobService/GetAvailableJobs",
+		FullMethod: "/api.job.v1beta1.JobService/GetJobs",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(JobServiceServer).GetAvailableJobs(ctx, req.(*GetAvailableJobsRequest))
+		return srv.(JobServiceServer).GetJobs(ctx, req.(*GetJobsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -166,8 +166,8 @@ var JobService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _JobService_ExportJob_Handler,
 		},
 		{
-			MethodName: "GetAvailableJobs",
-			Handler:    _JobService_GetAvailableJobs_Handler,
+			MethodName: "GetJobs",
+			Handler:    _JobService_GetJobs_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
