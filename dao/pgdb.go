@@ -22,10 +22,20 @@ type (
 	Context = context.Context
 )
 
+type LogOpt uint
+
+const (
+	LogErr LogOpt = 1 << iota
+	LogSQL
+	LogArg
+	LogAll = LogErr | LogSQL | LogArg
+)
+
 type PgdbConn struct {
 	state cfg.State64
 	cfg   *pgx.ConnConfig
 	sdb   *sql.DB
+	lopt  LogOpt
 	drop  ListExec
 	auto  ListExec
 	upgr  upgradeManager
@@ -190,6 +200,18 @@ func (p PgdbConn) abort() {
 	if p.sdb != nil {
 		_ = p.sdb.Close()
 	}
+}
+
+//-----------------------------------------------------------------------------
+
+func (p *PgdbConn) SetLogOpt(opt LogOpt) {
+	p.lopt = opt
+}
+
+//-----------------------------------------------------------------------------
+
+func (p *PgdbConn) LogOpt() LogOpt {
+	return p.lopt
 }
 
 //-----------------------------------------------------------------------------
