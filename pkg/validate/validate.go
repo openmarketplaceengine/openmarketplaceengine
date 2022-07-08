@@ -2,6 +2,7 @@ package validate
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -9,8 +10,19 @@ type Validator struct {
 	Errors []error
 }
 
-func wrapToValidationError(name string, value interface{}, e error) error {
-	return fmt.Errorf("ValidationError: %s=%v, %w", name, value, e)
+func (v *Validator) Error() error {
+	if len(v.Errors) == 0 {
+		return nil
+	}
+	var errs = make([]string, len(v.Errors))
+	for i, err := range v.Errors {
+		errs[i] = err.Error()
+	}
+	return fmt.Errorf("ValidationErrors:\n%s", strings.Join(errs, "\n"))
+}
+
+func wrapError(name string, value interface{}, e error) error {
+	return fmt.Errorf("%s=%v, %w", name, value, e)
 }
 
 func (v *Validator) ValidateString(name string, value string) *strWrap {
@@ -48,6 +60,6 @@ func (v *Validator) ValidateTime(name string, value time.Time) *timeWrap {
 func (v *Validator) Validate(name string, value interface{}, rule func(value interface{}) error) {
 	err := rule(value)
 	if err != nil {
-		v.Errors = append(v.Errors, wrapToValidationError(name, value, err))
+		v.Errors = append(v.Errors, wrapError(name, value, err))
 	}
 }

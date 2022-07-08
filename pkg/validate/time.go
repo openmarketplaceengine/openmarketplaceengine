@@ -13,7 +13,7 @@ type timeWrap struct {
 
 func (w *timeWrap) NotBefore(before time.Time) {
 	if w.value.Before(before) {
-		err := wrapToValidationError(w.name, w.value, fmt.Errorf("must not be in the past"))
+		err := wrapError(w.name, w.value, fmt.Errorf("must not be in the past"))
 		w.validator.Errors = append(w.validator.Errors, err)
 	}
 }
