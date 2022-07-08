@@ -26,7 +26,6 @@ type PgdbConn struct {
 	state cfg.State64
 	cfg   *pgx.ConnConfig
 	sdb   *sql.DB
-	log   log.Logger
 	drop  ListExec
 	auto  ListExec
 	upgr  upgradeManager
@@ -38,6 +37,7 @@ const (
 )
 
 var Pgdb = new(PgdbConn)
+var plog = log.Log()
 
 //-----------------------------------------------------------------------------
 
@@ -57,7 +57,7 @@ func (p *PgdbConn) Boot() (err error) {
 
 	defer p.state.BootOrFail(&err)
 
-	p.log = log.Named(pfxLog)
+	plog = log.Named(pfxLog)
 
 	pcfg := cfg.Pgdb()
 
@@ -180,37 +180,6 @@ func (p *PgdbConn) SwitchSchema(ctx Context, name string) error {
 
 //-----------------------------------------------------------------------------
 
-func (p *PgdbConn) Log(ctx context.Context, level pgx.LogLevel, msg string, data map[string]interface{}) {
-	if level == pgx.LogLevelNone || p.log == nil {
-		return
-	}
-	lev := matchLevel(level)
-	if !p.log.IsLevel(lev) {
-		return
-	}
-	if len(data) > 0 {
-		p.log.Levelf(lev, "%s\n%s", msg, log.YAML(data))
-		return
-	}
-	p.log.Levelf(lev, "%s", msg)
-}
-
-//-----------------------------------------------------------------------------
-
-func matchLevel(level pgx.LogLevel) log.Level {
-	switch level {
-	case pgx.LogLevelTrace, pgx.LogLevelDebug:
-		return log.LevelDebug
-	case pgx.LogLevelInfo:
-		return log.LevelInfo
-	case pgx.LogLevelWarn:
-		return log.LevelWarn
-	}
-	return log.LevelError
-}
-
-//-----------------------------------------------------------------------------
-
 func (p *PgdbConn) stateError() error {
 	return p.state.StateError(pfxErr)
 }
@@ -226,31 +195,27 @@ func (p PgdbConn) abort() {
 //-----------------------------------------------------------------------------
 
 func isdebug() bool {
-	return Pgdb.log != nil && Pgdb.log.IsDebug()
+	return plog.IsDebug()
 }
 
 //-----------------------------------------------------------------------------
 
 func debugf(format string, args ...interface{}) { //nolint:deadcode
 	if isdebug() {
-		Pgdb.log.Debugf(format, args...)
+		plog.Debugf(format, args...)
 	}
 }
 
 //-----------------------------------------------------------------------------
 
 func infof(format string, args ...interface{}) {
-	if Pgdb.log != nil {
-		Pgdb.log.Infof(format, args...)
-	}
+	plog.Infof(format, args...)
 }
 
 //-----------------------------------------------------------------------------
 
 func errorf(format string, args ...interface{}) {
-	if Pgdb.log != nil {
-		Pgdb.log.Errorf(format, args...)
-	}
+	plog.Errorf(format, args...)
 }
 
 //-----------------------------------------------------------------------------
@@ -289,7 +254,6 @@ func (p *PgdbConn) resetForTests(t Tester) {
 	p.state.SetUnused()
 	p.cfg = nil
 	p.sdb = nil
-	p.log = nil
 }
 
 //-----------------------------------------------------------------------------
