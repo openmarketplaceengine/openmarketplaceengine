@@ -11,6 +11,7 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom/job"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/validate"
 	"github.com/openmarketplaceengine/openmarketplaceengine/svc/location"
 	"googlemaps.github.io/maps"
 )
@@ -36,16 +37,18 @@ type Location struct {
 }
 
 func estimateJobs(ctx context.Context, workerLocation *location.LastLocation, jobs []*job.AvailableJob) ([]*Job, error) {
-	if jobs == nil {
-		return nil, fmt.Errorf("jobs argument cannot be nil")
-	}
 	if len(jobs) == 0 {
-		return nil, fmt.Errorf("jobs argument cannot be empty")
+		return []*Job{}, nil
 	}
 
 	client, err := maps.NewClient(maps.WithAPIKey(cfg.Server.GoogleAPIKey))
 	if err != nil {
 		return nil, fmt.Errorf("maps client create error: %w", err)
+	}
+
+	err = validateLatLng(jobs)
+	if err != nil {
+		return nil, err
 	}
 
 	origins, destinations := transform(jobs)
@@ -117,4 +120,15 @@ func transform(jobs []*job.AvailableJob) (origins []geoservices.LatLng, destinat
 		})
 	}
 	return
+}
+
+func validateLatLng(jobs []*job.AvailableJob) error {
+	v := validate.Validator{}
+	for _, j := range jobs {
+		v.ValidateFloat64(fmt.Sprintf("job(%s).pickup_lat", j.ID), j.PickupLat).Latitude()
+		v.ValidateFloat64(fmt.Sprintf("job(%s).pickup_lon", j.ID), j.PickupLon).Longitude()
+		v.ValidateFloat64(fmt.Sprintf("job(%s).dropoff_lat", j.ID), j.DropoffLat).Latitude()
+		v.ValidateFloat64(fmt.Sprintf("job(%s).dropoff_lon", j.ID), j.DropoffLon).Longitude()
+	}
+	return v.Error()
 }

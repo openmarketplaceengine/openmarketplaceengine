@@ -6,13 +6,12 @@ package job
 
 import (
 	"context"
-	"fmt"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom/job"
 	rpc "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/job/v1beta1"
 	typ "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/type/v1beta1"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/validate"
 	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/validate"
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
 	svcJob "github.com/openmarketplaceengine/openmarketplaceengine/svc/job"
 	"github.com/openmarketplaceengine/openmarketplaceengine/svc/location"
@@ -89,15 +88,8 @@ func (c *controller) GetJobs(ctx context.Context, req *rpc.GetJobsRequest) (*rpc
 	v.ValidateInt32("radius_meters", req.GetRadiusMeters()).GreaterThan(0)
 	v.ValidateInt32("limit", req.GetLimit()).LessThan(25)
 
-	errorInfo := v.ErrorInfo()
-	if errorInfo != nil {
-		st, err := status.New(codes.InvalidArgument, "bad request").
-			WithDetails(errorInfo)
-		if err != nil {
-			panic(fmt.Errorf("enrich grpc status with details error: %w", err))
-		}
-		err = st.Err()
-		return nil, err
+	if v.Error() != nil {
+		return nil, status.Errorf(codes.InvalidArgument, v.Error().Error())
 	}
 
 	estimatedJobs, err := c.jobService.GetEstimatedJobs(ctx, req.GetAreaKey(), req.GetWorkerId(), req.GetRadiusMeters())

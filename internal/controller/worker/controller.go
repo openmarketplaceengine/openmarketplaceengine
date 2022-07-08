@@ -6,7 +6,7 @@ import (
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom/worker"
 	v1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/worker/v1beta1"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/validate"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/validate"
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -30,14 +30,8 @@ func (c *controller) GetWorker(ctx context.Context, request *v1beta1.GetWorkerRe
 	var v validate.Validator
 	v.ValidateString("worker_id", workerID).NotEmpty()
 
-	errorInfo := v.ErrorInfo()
-	if errorInfo != nil {
-		st, err := status.New(codes.InvalidArgument, "bad request").
-			WithDetails(errorInfo)
-		if err != nil {
-			panic(fmt.Errorf("enrich grpc status with details error: %w", err))
-		}
-		return nil, st.Err()
+	if v.Error() != nil {
+		return nil, status.Errorf(codes.InvalidArgument, v.Error().Error())
 	}
 
 	wrk, has, err := worker.QueryOne(ctx, request.WorkerId)
@@ -73,14 +67,8 @@ func (c *controller) UpdateWorkerStatus(ctx context.Context, request *v1beta1.Up
 	v.ValidateString("worker_id", workerID).NotEmpty()
 	v.Validate("worker_status", workerStatus, ValidateStatus)
 
-	errorInfo := v.ErrorInfo()
-	if errorInfo != nil {
-		st, err := status.New(codes.InvalidArgument, "bad request").
-			WithDetails(errorInfo)
-		if err != nil {
-			panic(fmt.Errorf("enrich grpc status with details error: %w", err))
-		}
-		return nil, st.Err()
+	if v.Error() != nil {
+		return nil, status.Errorf(codes.InvalidArgument, v.Error().Error())
 	}
 	s := transformStatusFrom(workerStatus)
 	err := worker.UpdateWorkerStatus(ctx, workerID, *s)

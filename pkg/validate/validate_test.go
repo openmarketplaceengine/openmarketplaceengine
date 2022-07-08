@@ -1,10 +1,11 @@
 package validate
 
 import (
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestValidateString(t *testing.T) {
@@ -75,5 +76,4 @@ b=12345, length must be less than 3
 timestamp=0001-01-01 00:00:00 +0000 UTC, must not be in the past
 lng=1000, must be valid floats between -180 and 180
 lat=1000, must be valid floats between -90 and 90`)
-
 }
