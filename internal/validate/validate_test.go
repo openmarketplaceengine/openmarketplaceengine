@@ -1,6 +1,7 @@
 package validate
 
 import (
+	"github.com/stretchr/testify/assert"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -13,6 +14,24 @@ func TestValidateString(t *testing.T) {
 
 	err = String("test", "", IsNull)
 	require.NoError(t, err)
+}
+
+func TestValidateInt32F(t *testing.T) {
+	v := Validator{}
+	v.ValidateInt32("a", 13).GreaterThan(14)
+	v.ValidateInt32("a", 13).LessThan(10)
+
+	require.Len(t, v.Errors, 2)
+	assert.Equal(t, v.Errors[0].Error(), "13 must be greater than 14")
+	assert.Equal(t, v.Errors[1].Error(), "13 must be less than 10")
+}
+
+func TestValidateInt32(t *testing.T) {
+	v := Validator{}
+	v.ValidateInt32("a", 13).GreaterThan(10)
+	v.ValidateInt32("a", 13).LessThan(14)
+
+	require.Len(t, v.Errors, 0)
 }
 
 func TestValidateLon(t *testing.T) {
@@ -33,7 +52,8 @@ func TestValidateLat(t *testing.T) {
 
 func TestValidate(t *testing.T) {
 	v := Validator{}
-	v.ValidateString("worker_id", "", IsNotNull)
+	v.ValidateString("a", "").NotEmpty()
+	v.ValidateString("b", "12345").LenLessThan(3)
 	v.ValidateTimestamp("timestamp", &timestamppb.Timestamp{
 		Seconds: -1,
 		Nanos:   0,
@@ -41,5 +61,5 @@ func TestValidate(t *testing.T) {
 	v.ValidateLongitude("longitude", 1000.00)
 	v.ValidateLatitude("latitude", 1000.00)
 
-	require.Len(t, v.Errors, 4)
+	require.Len(t, v.Errors, 5)
 }

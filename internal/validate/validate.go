@@ -88,10 +88,37 @@ type Validator struct {
 	Errors []error
 }
 
-func (v *Validator) ValidateString(name string, value string, rule func(value string) error) {
-	err := String(name, value, rule)
-	if err != nil {
-		v.Errors = append(v.Errors, err)
+type stringWrap struct {
+	validator *Validator
+	name      string
+	value     string
+}
+
+func (w *stringWrap) NotEmpty() {
+	if len(w.value) == 0 {
+		w.validator.Errors = append(w.validator.Errors, ValidationError{
+			Name:  w.name,
+			Value: w.value,
+			Err:   fmt.Errorf("must not be empty"),
+		})
+	}
+}
+
+func (w *stringWrap) LenLessThan(limit int) {
+	if len(w.value) > limit {
+		w.validator.Errors = append(w.validator.Errors, ValidationError{
+			Name:  w.name,
+			Value: w.value,
+			Err:   fmt.Errorf("length must be less than %v", limit),
+		})
+	}
+}
+
+func (v *Validator) ValidateString(name string, value string) *stringWrap {
+	return &stringWrap{
+		validator: v,
+		name:      name,
+		value:     value,
 	}
 }
 
@@ -99,6 +126,40 @@ func (v *Validator) ValidateFloat64(name string, value float64, rule func(value 
 	err := Float64(name, value, rule)
 	if err != nil {
 		v.Errors = append(v.Errors, err)
+	}
+}
+
+type int32Wrap struct {
+	validator *Validator
+	name      string
+	value     int32
+}
+
+func (w *int32Wrap) GreaterThan(v int32) {
+	if w.value < v {
+		w.validator.Errors = append(w.validator.Errors, ValidationError{
+			Name:  w.name,
+			Value: w.value,
+			Err:   fmt.Errorf("%v must be greater than %v", w.value, v),
+		})
+	}
+}
+
+func (w *int32Wrap) LessThan(v int32) {
+	if w.value > v {
+		w.validator.Errors = append(w.validator.Errors, ValidationError{
+			Name:  w.name,
+			Value: w.value,
+			Err:   fmt.Errorf("%v must be less than %v", w.value, v),
+		})
+	}
+}
+
+func (v *Validator) ValidateInt32(name string, value int32) *int32Wrap {
+	return &int32Wrap{
+		validator: v,
+		name:      name,
+		value:     value,
 	}
 }
 
@@ -148,7 +209,7 @@ func (v *Validator) ErrorInfo() *errdetails.ErrorInfo {
 	for _, err := range v.Errors {
 		vErr, ok := err.(ValidationError)
 		if !ok {
-			data[vErr.Name] = fmt.Errorf("ValidationError type check failed on error: %w", err).Error()
+			data[vErr.Name] = fmt.Errorf("ValidationError: %w", err).Error()
 		} else {
 			data[vErr.Name] = vErr.Error()
 		}

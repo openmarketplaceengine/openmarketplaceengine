@@ -28,7 +28,7 @@ func init() {
 func (c *controller) GetWorker(ctx context.Context, request *v1beta1.GetWorkerRequest) (*v1beta1.GetWorkerResponse, error) {
 	workerID := request.GetWorkerId()
 	var v validate.Validator
-	v.ValidateString("worker_id", workerID, validate.IsNotNull)
+	v.ValidateString("worker_id", workerID).NotEmpty()
 
 	errorInfo := v.ErrorInfo()
 	if errorInfo != nil {
@@ -70,7 +70,7 @@ func (c *controller) UpdateWorkerStatus(ctx context.Context, request *v1beta1.Up
 	workerID := request.GetWorkerId()
 	workerStatus := request.GetStatus()
 	var v validate.Validator
-	v.ValidateString("worker_id", workerID, validate.IsNotNull)
+	v.ValidateString("worker_id", workerID).NotEmpty()
 	v.Validate("worker_status", workerStatus, ValidateStatus)
 
 	errorInfo := v.ErrorInfo()
@@ -101,7 +101,7 @@ func (c *controller) ListWorkers(ctx context.Context, request *v1beta1.ListWorke
 	pageToken := request.GetPageToken()
 	st := request.GetStatus()
 	var v validate.Validator
-	v.ValidateString("page_token", pageToken, validate.IsNotNull)
+	v.ValidateString("page_token", pageToken).NotEmpty()
 	v.Validate("page_size", pageSize, ValidatePageSize)
 
 	var s *worker.Status

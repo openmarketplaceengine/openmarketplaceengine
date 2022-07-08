@@ -6,11 +6,12 @@ package job
 
 import (
 	"context"
-
+	"fmt"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom/job"
 	rpc "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/job/v1beta1"
 	typ "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/type/v1beta1"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/validate"
 	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
 	svcJob "github.com/openmarketplaceengine/openmarketplaceengine/svc/job"
@@ -81,12 +82,31 @@ func (c *controller) ExportJob(ctx context.Context, req *rpc.ExportJobRequest) (
 	return &rpc.ExportJobResponse{Jobs: jobs}, nil
 }
 
-func (c *controller) GetAvailableJobs(ctx context.Context, req *rpc.GetAvailableJobsRequest) (*rpc.GetAvailableJobsResponse, error) {
-	// todo add validation using proto validation extension from Kevin
+func (c *controller) GetJobs(ctx context.Context, req *rpc.GetJobsRequest) (*rpc.GetJobsResponse, error) {
+	var v validate.Validator
+	v.ValidateString("worker_id", req.GetWorkerId()).NotEmpty()
+	v.ValidateString("area_key", req.GetAreaKey()).NotEmpty()
+	v.ValidateInt32("radius_meters", req.GetRadiusMeters()).GreaterThan(0)
+	v.ValidateInt32("limit", req.GetLimit()).LessThan(25)
+
+	errorInfo := v.ErrorInfo()
+	if errorInfo != nil {
+		st, err := status.New(codes.InvalidArgument, "bad request").
+			WithDetails(errorInfo)
+		if err != nil {
+			panic(fmt.Errorf("enrich grpc status with details error: %w", err))
+		}
+		err = st.Err()
+		return nil, err
+	}
 
 	estimatedJobs, err := c.jobService.GetEstimatedJobs(ctx, req.GetAreaKey(), req.GetWorkerId(), req.GetRadiusMeters())
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "get available jobs error: %v", err)
+		return nil, status.Errorf(codes.Internal, "get jobs error: %v", err)
+	}
+
+	if len(estimatedJobs) == 0 {
+		return nil, status.Errorf(codes.NotFound, "no jobs found")
 	}
 
 	jobs := make([]*rpc.EstimatedJob, 0)
@@ -120,7 +140,7 @@ func (c *controller) GetAvailableJobs(ctx context.Context, req *rpc.GetAvailable
 		jobs = append(jobs, j)
 	}
 
-	return &rpc.GetAvailableJobsResponse{Jobs: jobs}, nil
+	return &rpc.GetJobsResponse{Jobs: jobs}, nil
 }
 
 //-----------------------------------------------------------------------------
