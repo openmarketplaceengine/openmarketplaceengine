@@ -22,15 +22,6 @@ type (
 	Context = context.Context
 )
 
-type LogOpt uint
-
-const (
-	LogErr LogOpt = 1 << iota
-	LogSQL
-	LogArg
-	LogAll = LogErr | LogSQL | LogArg
-)
-
 type PgdbConn struct {
 	state cfg.State64
 	cfg   *pgx.ConnConfig
@@ -66,6 +57,8 @@ func (p *PgdbConn) Boot() (err error) {
 	defer p.clearAutos()
 
 	defer p.state.BootOrFail(&err)
+
+	p.lopt = GetEnvLogOpt()
 
 	plog = log.Named(pfxLog)
 
