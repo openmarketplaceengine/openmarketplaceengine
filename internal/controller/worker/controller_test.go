@@ -95,7 +95,9 @@ func testUpdateWorkerStateBadRequest(t *testing.T, client workerV1beta1.WorkerSe
 	},
 	)
 	require.Error(t, err)
-	require.Contains(t, err.Error(), "bad request")
+	require.Equal(t,
+		`rpc error: code = InvalidArgument desc = ValidationErrors:
+worker_status=WORKER_STATUS_UNSPECIFIED, illegal status: WORKER_STATUS_UNSPECIFIED`, err.Error())
 
 	_, err = client.UpdateWorkerStatus(ctx, &workerV1beta1.UpdateWorkerStatusRequest{
 		WorkerId: w.ID,

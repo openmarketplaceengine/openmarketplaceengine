@@ -143,7 +143,11 @@ func testUpdateLocationBadRequest(t *testing.T, client locationV1beta1.LocationS
 	},
 	)
 	require.Error(t, err)
-	require.EqualError(t, err, "rpc error: code = InvalidArgument desc = bad request")
+
+	require.Equal(t,
+		`rpc error: code = InvalidArgument desc = ValidationErrors:
+value_location_longitude=1200, must be valid floats between -180 and 180
+value_location_latitude=1300, must be valid floats between -90 and 90`, err.Error())
 
 	_, err = client.UpdateLocation(context.Background(), &locationV1beta1.UpdateLocationRequest{
 		Value: &locationV1beta1.LocationUpdate{
@@ -159,13 +163,17 @@ func testUpdateLocationBadRequest(t *testing.T, client locationV1beta1.LocationS
 	},
 	)
 	require.Error(t, err)
-	require.EqualError(t, err, "rpc error: code = InvalidArgument desc = bad request")
+	require.Equal(t,
+		`rpc error: code = InvalidArgument desc = ValidationErrors:
+area_key=, must not be empty`, err.Error())
 
 	_, err = client.GetLocation(context.Background(), &locationV1beta1.GetLocationRequest{
 		WorkerId: id,
 	})
 	require.Error(t, err)
-	require.EqualError(t, err, "rpc error: code = InvalidArgument desc = bad request")
+	require.Equal(t,
+		`rpc error: code = InvalidArgument desc = ValidationErrors:
+area_key=, must not be empty`, err.Error())
 
 	_, err = client.GetLocation(context.Background(), &locationV1beta1.GetLocationRequest{
 		WorkerId: id,

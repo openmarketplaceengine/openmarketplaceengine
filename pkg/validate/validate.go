@@ -25,32 +25,32 @@ func wrapError(name string, value interface{}, e error) error {
 	return fmt.Errorf("%s=%v, %w", name, value, e)
 }
 
-func (v *Validator) ValidateString(name string, value string) *strWrap {
-	return &strWrap{
+func (v *Validator) ValidateString(name string, value string) *StrWrap {
+	return &StrWrap{
 		validator: v,
 		name:      name,
 		value:     value,
 	}
 }
 
-func (v *Validator) ValidateFloat64(name string, value float64) *float64Wrap {
-	return &float64Wrap{
+func (v *Validator) ValidateFloat64(name string, value float64) *Float64Wrap {
+	return &Float64Wrap{
 		validator: v,
 		name:      name,
 		value:     value,
 	}
 }
 
-func (v *Validator) ValidateInt32(name string, value int32) *int32Wrap {
-	return &int32Wrap{
+func (v *Validator) ValidateInt32(name string, value int32) *Int32Wrap {
+	return &Int32Wrap{
 		validator: v,
 		name:      name,
 		value:     value,
 	}
 }
 
-func (v *Validator) ValidateTime(name string, value time.Time) *timeWrap {
-	return &timeWrap{
+func (v *Validator) ValidateTime(name string, value time.Time) *TimeWrap {
+	return &TimeWrap{
 		validator: v,
 		name:      name,
 		value:     value,
