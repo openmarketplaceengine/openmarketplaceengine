@@ -61,8 +61,9 @@ func (opt EnvOpt) GetBool() bool {
 }
 
 func (opt EnvOpt) SetBool(value bool) bool {
+	s := "0"
 	if value {
-		return opt.Set("1") == nil
+		s = "1"
 	}
-	return opt.Del() == nil
+	return opt.Set(s) == nil
 }
