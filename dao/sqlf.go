@@ -226,3 +226,10 @@ func Coalesce(column string, ifnull string) string {
 	}
 	return fmt.Sprintf("COALESCE(%s, %s)", column, ifnull)
 }
+
+func MakeTimestamptz(year, month, day, hour, min, sec int) string {
+	return fmt.Sprintf(
+		"make_timestamptz(%d, %d, %d, %d, %d, %d, 'UTC')",
+		year, month, day, hour, min, sec,
+	)
+}

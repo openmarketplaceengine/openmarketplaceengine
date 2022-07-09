@@ -7,6 +7,7 @@ package dao
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -32,12 +33,7 @@ func initQueryTestTable(t *testing.T) Context {
 	ctx := context.Background()
 	err := ExecDB(ctx, CreateTable(queryTestTable, "id int primary key not null", "name text"))
 	require.NoError(t, err)
-	t.Cleanup(func() {
-		err := ExecDB(ctx, DropTable(queryTestTable, true))
-		if err != nil {
-			t.Error(err)
-		}
-	})
+	dropTestTable(t, ctx, queryTestTable)
 	fillQueryTestTable(t, ctx)
 	return ctx
 }
@@ -51,4 +47,48 @@ func fillQueryTestTable(t *testing.T, ctx Context) {
 		Insert(queryTestTable).Set("id", 3).Set("name", "three"),
 	)
 	require.NoError(t, err)
+}
+
+//-----------------------------------------------------------------------------
+
+func TestCoalesce(t *testing.T) {
+	const cstable = "coalesce_test"
+	WillTest(t, "test")
+	ctx := context.Background()
+	err := ExecDB(ctx, CreateTable(cstable,
+		"id int primary key not null",
+		"num int",
+		"str text",
+		"tme timestamptz",
+	))
+	require.NoError(t, err)
+	dropTestTable(t, ctx, cstable)
+	ins1 := Insert(cstable).Set("id", 0)
+	ins2 := Insert(cstable).Set("id", 1).Set("num", 1).Set("str", "one").Set("tme", time.Now())
+	require.NoError(t, ExecTX(ctx, ins1, ins2))
+	var num int
+	var str string
+	var tme = time.Now()
+	require.False(t, tme.IsZero())
+	sql := From(cstable)
+	sql.Select(Coalesce("num", "0")).To(&num)
+	sql.Select(Coalesce("str", "")).To(&str)
+	sql.Select(Coalesce("tme", MakeTimestamptz(1, 1, 1, 0, 0, 0))).To(&tme)
+	sql.Where("id = ?", 0)
+	Pgdb.SetLogOpt(LogSQL | LogErr)
+	_, err = sql.QueryOne(ctx)
+	Pgdb.SetLogOpt(LogErr)
+	require.NoError(t, err)
+	require.True(t, tme.IsZero(), "timestamp is not zero")
+}
+
+//-----------------------------------------------------------------------------
+
+func dropTestTable(t *testing.T, ctx Context, tableName string) {
+	t.Cleanup(func() {
+		err := ExecDB(ctx, DropTable(tableName, true))
+		if err != nil {
+			t.Error(err)
+		}
+	})
 }
