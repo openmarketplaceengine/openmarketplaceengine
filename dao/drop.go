@@ -29,16 +29,19 @@ func (d *Drop) Result() Result {
 
 //-----------------------------------------------------------------------------
 
-func (d *Drop) AppendIndex(index ...string) {
+func (d *Drop) AppendIndex(index ...string) *Drop {
 	d.Index = append(d.Index, index...)
+	return d
 }
 
-func (d *Drop) AppendTable(table ...string) {
+func (d *Drop) AppendTable(table ...string) *Drop {
 	d.Table = append(d.Table, table...)
+	return d
 }
 
-func (d *Drop) AppendView(view ...string) {
+func (d *Drop) AppendView(view ...string) *Drop {
 	d.View = append(d.View, view...)
+	return d
 }
 
 //-----------------------------------------------------------------------------
