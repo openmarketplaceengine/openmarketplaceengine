@@ -58,6 +58,10 @@ func (p *PgdbConn) Boot() (err error) {
 
 	defer p.state.BootOrFail(&err)
 
+	if !EnvLogErr.Has() {
+		EnvLogErr.SetBool(true)
+	}
+
 	p.lopt = GetEnvLogOpt()
 
 	plog = log.Named(pfxLog)
