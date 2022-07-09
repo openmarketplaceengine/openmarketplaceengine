@@ -4,6 +4,11 @@
 
 package dao
 
+import (
+	"encoding/json"
+	"unsafe"
+)
+
 //-----------------------------------------------------------------------------
 
 type loggingExecutor struct {
@@ -11,9 +16,11 @@ type loggingExecutor struct {
 	opt LogOpt
 }
 
+const _argsIndent = "                                     "
+
 func (e *loggingExecutor) logSQL(verb string, query string, args []interface{}) {
 	if len(args) > 0 {
-		debugf("[%s] %s\n[ARGS] %#v", verb, query, args)
+		debugf("[%s] %s\n%s[ARGS] %s", verb, query, _argsIndent, jsonArgs(args))
 		return
 	}
 	debugf("[%s] %s", verb, query)
@@ -21,7 +28,7 @@ func (e *loggingExecutor) logSQL(verb string, query string, args []interface{}) 
 
 func (e *loggingExecutor) logErr(verb string, query string, args []interface{}, err error) {
 	if len(args) > 0 {
-		errorf("%v\n[%s] %s\n[ARGS] %#v", err, verb, query, args)
+		errorf("%v\n[%s] %s\n%s[ARGS] %s", err, verb, query, _argsIndent, jsonArgs(args))
 		return
 	}
 	errorf("%v\n[%s] %s", err, verb, query)
@@ -57,4 +64,14 @@ func (e *loggingExecutor) QueryRowContext(ctx Context, query string, args ...int
 		e.logSQL(verb, query, args)
 	}
 	return e.exe.QueryRowContext(ctx, query, args...)
+}
+
+//-----------------------------------------------------------------------------
+
+func jsonArgs(args []interface{}) string {
+	buf, err := json.Marshal(args)
+	if err != nil {
+		return "ARGS JSON ERROR: " + err.Error()
+	}
+	return *(*string)(unsafe.Pointer(&buf))
 }
