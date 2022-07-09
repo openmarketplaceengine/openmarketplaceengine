@@ -18,8 +18,16 @@ var testFsys embed.FS
 
 func TestFsysExec(t *testing.T) {
 	WillTest(t, "test")
+	ctx := cfg.Context()
 	fse := NewFsysExec(testFsys, testFsysPath, "index.yaml")
-	require.NoError(t, ExecTX(cfg.Context(), fse))
+	t.Cleanup(func() {
+		var drop Drop
+		err := ExecTX(ctx, drop.AppendTable("fsys_1", "fsys_2", "fsys_3"))
+		if err != nil {
+			t.Error(err)
+		}
+	})
+	require.NoError(t, ExecTX(ctx, fse))
 }
 
 //-----------------------------------------------------------------------------
