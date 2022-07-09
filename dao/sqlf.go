@@ -6,6 +6,7 @@ package dao
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/leporo/sqlf"
@@ -213,4 +214,15 @@ func (s *SQL) QueryRows(ctx Context, rowsFunc func(rows *Rows) error) error {
 		}
 		return rows.Close()
 	})
+}
+
+//-----------------------------------------------------------------------------
+// SQL Functions
+//-----------------------------------------------------------------------------
+
+func Coalesce(column string, ifnull string) string {
+	if len(ifnull) == 0 {
+		ifnull = "''"
+	}
+	return fmt.Sprintf("COALESCE(%s, %s)", column, ifnull)
 }

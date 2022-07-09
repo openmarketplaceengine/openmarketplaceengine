@@ -57,13 +57,13 @@ func upgradeSelect(ctx Context, version int) (found bool, err error) {
 	var errmsg string
 	sql := From(upgradeTable)
 	sql.Select("status").To(&status)
-	sql.Select("COALESCE(errmsg, '')").To(&errmsg)
+	sql.Select(Coalesce("errmsg", "")).To(&errmsg)
 	sql.Where("id = ?", version)
 	found, err = sql.QueryOne(ctx)
 	if err != nil || !found || status != 0 {
 		return
 	}
-	return false, fmt.Errorf("Upgrade from version %d failed: %s", version, errmsg)
+	return false, fmt.Errorf("Upgrade to version %d failed: %s", version, errmsg)
 }
 
 //-----------------------------------------------------------------------------
