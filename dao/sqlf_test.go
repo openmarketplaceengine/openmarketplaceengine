@@ -15,8 +15,8 @@ const queryTestTable = "query_test"
 
 func TestQueryOne(t *testing.T) {
 	WillTest(t, "test")
-	ctx := initQueryTestTable(t)
 	Pgdb.SetLogOpt(LogSQL | LogErr)
+	ctx := initQueryTestTable(t)
 	var count int
 	sql := From(queryTestTable).Select("count(*)").To(&count).Where("id > ?", 0)
 	has, err := sql.QueryOne(ctx)
@@ -30,7 +30,7 @@ func TestQueryOne(t *testing.T) {
 
 func initQueryTestTable(t *testing.T) Context {
 	ctx := context.Background()
-	err := ExecDB(ctx, SQLExecf("create table if not exists %q (id int primary key not null, name text)", queryTestTable))
+	err := ExecDB(ctx, CreateTable(queryTestTable, "id int primary key not null", "name text"))
 	require.NoError(t, err)
 	t.Cleanup(func() {
 		err := ExecDB(ctx, DropTable(queryTestTable, true))
