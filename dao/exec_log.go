@@ -28,10 +28,10 @@ func (e *loggingExecutor) logSQL(verb string, query string, args []interface{}) 
 
 func (e *loggingExecutor) logErr(verb string, query string, args []interface{}, err error) {
 	if len(args) > 0 {
-		errorf("%v\n[%s] %s\n%s[ARGS] %s", err, verb, query, _argsIndent, jsonArgs(args))
+		errorf("%v\n%s[%s] %s\n%s[ARGS] %s", err, _argsIndent, verb, query, _argsIndent, jsonArgs(args))
 		return
 	}
-	errorf("%v\n[%s] %s", err, verb, query)
+	errorf("%v\n%s[%s] %s", err, _argsIndent, verb, query)
 }
 
 func (e *loggingExecutor) ExecContext(ctx Context, query string, args ...interface{}) (Result, error) {
@@ -47,7 +47,7 @@ func (e *loggingExecutor) ExecContext(ctx Context, query string, args ...interfa
 }
 
 func (e *loggingExecutor) QueryContext(ctx Context, query string, args ...interface{}) (*Rows, error) {
-	const verb = "QUERY"
+	const verb = "STMT"
 	if e.opt.LogSQL() {
 		e.logSQL(verb, query, args)
 	}
@@ -59,7 +59,7 @@ func (e *loggingExecutor) QueryContext(ctx Context, query string, args ...interf
 }
 
 func (e *loggingExecutor) QueryRowContext(ctx Context, query string, args ...interface{}) *Row {
-	const verb = "QUERY"
+	const verb = "STMT"
 	if e.opt.LogSQL() {
 		e.logSQL(verb, query, args)
 	}
