@@ -39,8 +39,9 @@ type Executable interface {
 // ExecDB runs executables with sql.DB.
 func ExecDB(ctx Context, execs ...Executable) error {
 	return WithConn(ctx, func(ctx Context, con *sql.Conn) (err error) {
+		exe := loggingExecutor{con, Pgdb.LogOpt()}
 		for i := 0; i < len(execs) && err == nil; i++ {
-			err = execs[i].Execute(ctx, con)
+			err = execs[i].Execute(ctx, &exe)
 		}
 		return
 	})
@@ -49,8 +50,9 @@ func ExecDB(ctx Context, execs ...Executable) error {
 // ExecTX runs executables with sql.Tx.
 func ExecTX(ctx Context, execs ...Executable) error {
 	return WithTran(ctx, &txExecOpts, func(ctx Context, tx *sql.Tx) (err error) {
+		exe := loggingExecutor{tx, Pgdb.LogOpt()}
 		for i := 0; i < len(execs) && err == nil; i++ {
-			err = execs[i].Execute(ctx, tx)
+			err = execs[i].Execute(ctx, &exe)
 		}
 		return
 	})
