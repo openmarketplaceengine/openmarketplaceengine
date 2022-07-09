@@ -13,18 +13,18 @@ type loggingExecutor struct {
 
 func (e *loggingExecutor) logSQL(verb string, query string, args []interface{}) {
 	if len(args) > 0 {
-		infof("[%s] %s\n[ARGS] %#v", verb, query, args)
+		debugf("[%s] %s\n[ARGS] %#v", verb, query, args)
 		return
 	}
-	infof("[%s] %s", verb, query)
+	debugf("[%s] %s", verb, query)
 }
 
 func (e *loggingExecutor) logErr(verb string, query string, args []interface{}, err error) {
 	if len(args) > 0 {
-		errorf("%v\n%[s] %s\n[ARGS] %#v", err, verb, query, args)
+		errorf("%v\n[%s] %s\n[ARGS] %#v", err, verb, query, args)
 		return
 	}
-	errorf("%v\n%[s] %s", err, verb, query)
+	errorf("%v\n[%s] %s", err, verb, query)
 }
 
 func (e *loggingExecutor) ExecContext(ctx Context, query string, args ...interface{}) (Result, error) {
