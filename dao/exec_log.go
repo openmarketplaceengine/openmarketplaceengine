@@ -29,11 +29,11 @@ func (e *loggingExecutor) logErr(verb string, query string, args []interface{}, 
 
 func (e *loggingExecutor) ExecContext(ctx Context, query string, args ...interface{}) (Result, error) {
 	const verb = "EXEC"
-	if (e.opt & LogSQL) != 0 {
+	if e.opt.LogSQL() {
 		e.logSQL(verb, query, args)
 	}
 	res, err := e.exe.ExecContext(ctx, query, args...)
-	if (err != nil) && ((e.opt & LogErr) != 0) {
+	if err != nil && e.opt.LogErr() {
 		e.logErr(verb, query, args, err)
 	}
 	return res, err
@@ -41,11 +41,11 @@ func (e *loggingExecutor) ExecContext(ctx Context, query string, args ...interfa
 
 func (e *loggingExecutor) QueryContext(ctx Context, query string, args ...interface{}) (*Rows, error) {
 	const verb = "QUERY"
-	if (e.opt & LogSQL) != 0 {
+	if e.opt.LogSQL() {
 		e.logSQL(verb, query, args)
 	}
 	rows, err := e.exe.QueryContext(ctx, query, args...)
-	if (err != nil) && ((e.opt & LogErr) != 0) {
+	if err != nil && e.opt.LogErr() {
 		e.logErr(verb, query, args, err)
 	}
 	return rows, err
@@ -53,7 +53,7 @@ func (e *loggingExecutor) QueryContext(ctx Context, query string, args ...interf
 
 func (e *loggingExecutor) QueryRowContext(ctx Context, query string, args ...interface{}) *Row {
 	const verb = "QUERY"
-	if (e.opt & LogSQL) != 0 {
+	if e.opt.LogSQL() {
 		e.logSQL(verb, query, args)
 	}
 	return e.exe.QueryRowContext(ctx, query, args...)
