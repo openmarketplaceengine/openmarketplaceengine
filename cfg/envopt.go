@@ -42,6 +42,11 @@ func (opt EnvOpt) Del() error {
 	return os.Unsetenv(opt.Key())
 }
 
+func (opt EnvOpt) Has() bool {
+	_, ok := os.LookupEnv(opt.Key())
+	return ok
+}
+
 //-----------------------------------------------------------------------------
 // Bool
 //-----------------------------------------------------------------------------
