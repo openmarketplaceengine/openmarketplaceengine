@@ -18,9 +18,10 @@ func TestRenameTable(t *testing.T) {
 	)
 	WillTest(t, "test")
 	var exec ListExec
-	exec.Append(SQLExecf("create table if not exists %s (id text)", oldName))
+	exec.Append(CreateTable(oldName, "id text"))
 	exec.Append(RenameTable(oldName, newName))
 	exec.Append(DropTable(newName, true))
+	Pgdb.SetLogOpt(LogAll)
 	err := ExecTX(context.Background(), &exec)
 	require.NoError(t, err)
 }

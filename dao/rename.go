@@ -5,5 +5,5 @@
 package dao
 
 func RenameTable(oldName string, newName string) Executable {
-	return SQLExecf("alter table if exists %q rename to %q", oldName, newName)
+	return SQLExecf("alter table if exists %s rename to %s", oldName, newName)
 }
