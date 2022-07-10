@@ -180,8 +180,8 @@ func Invalid() bool {
 
 func (p *PgdbConn) SwitchSchema(ctx Context, name string) error {
 	return ExecDB(ctx,
-		SQLExecf("CREATE SCHEMA IF NOT EXISTS %q", name),
-		SQLExecf("SET search_path TO %q, public", name),
+		SQLExecf("CREATE SCHEMA IF NOT EXISTS %s", name),
+		SQLExecf("SET search_path TO %s, public", name),
 	)
 }
 

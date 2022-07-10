@@ -72,9 +72,9 @@ func (d *Drop) appendDrop(kind string, name []string, drop []string) []string {
 
 func MakeDrop(kind string, name string, cascade bool) string {
 	if cascade {
-		return fmt.Sprintf("drop %s if exists %q cascade", kind, name)
+		return fmt.Sprintf("drop %s if exists %s cascade", kind, name)
 	}
-	return fmt.Sprintf("drop %s if exists %q", kind, name)
+	return fmt.Sprintf("drop %s if exists %s", kind, name)
 }
 
 //-----------------------------------------------------------------------------

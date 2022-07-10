@@ -23,15 +23,17 @@ func TestDrop(t *testing.T) {
 	var exec ListExec
 	var drop Drop
 
-	exec.Append(SQLExecf("create table if not exists %q (id int)", tname))
-	exec.Append(SQLExecf("create index if not exists %q on %q (id)", iname, tname))
-	exec.Append(SQLExecf("create or replace view %q as select * from %q", vname, tname))
+	exec.Append(SQLExecf("create table if not exists %s (id int)", tname))
+	exec.Append(SQLExecf("create index if not exists %s on %s (id)", iname, tname))
+	exec.Append(SQLExecf("create or replace view %s as select * from %s", vname, tname))
 
 	drop.AppendView(vname)
 	drop.AppendIndex(iname)
 	drop.AppendTable(tname)
 
 	exec.Append(&drop)
+
+	Pgdb.SetLogOpt(LogAll)
 
 	err := ExecTX(context.Background(), &exec)
 
