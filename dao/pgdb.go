@@ -193,7 +193,7 @@ func (p *PgdbConn) stateError() error {
 
 //-----------------------------------------------------------------------------
 
-func (p PgdbConn) abort() {
+func (p *PgdbConn) abort() {
 	if p.sdb != nil {
 		_ = p.sdb.Close()
 	}
