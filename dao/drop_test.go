@@ -23,7 +23,7 @@ func TestDrop(t *testing.T) {
 	var exec ListExec
 	var drop Drop
 
-	exec.Append(SQLExecf("create table if not exists %s (id int)", tname))
+	exec.Append(CreateTable(tname, "id int"))
 	exec.Append(SQLExecf("create index if not exists %s on %s (id)", iname, tname))
 	exec.Append(SQLExecf("create or replace view %s as select * from %s", vname, tname))
 
