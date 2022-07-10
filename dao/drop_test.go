@@ -5,7 +5,6 @@
 package dao
 
 import (
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -18,7 +17,7 @@ func TestDrop(t *testing.T) {
 		vname = "drop_view"
 	)
 
-	WillTest(t, "test")
+	ctx := WillTest(t, "test")
 
 	var exec ListExec
 	var drop Drop
@@ -35,7 +34,7 @@ func TestDrop(t *testing.T) {
 
 	Pgdb.SetLogOpt(LogAll)
 
-	err := ExecTX(context.Background(), &exec)
+	err := ExecTX(ctx, &exec)
 
 	require.NoError(t, err)
 }

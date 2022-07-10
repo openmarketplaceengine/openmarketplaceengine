@@ -5,7 +5,6 @@
 package dao
 
 import (
-	"context"
 	"testing"
 	"time"
 
@@ -15,11 +14,10 @@ import (
 const queryTestTable = "query_test"
 
 func TestQueryOne(t *testing.T) {
-	WillTest(t, "test")
-	Pgdb.SetLogOpt(LogSQL | LogErr)
 	ctx := initQueryTestTable(t)
 	var count int
 	sql := From(queryTestTable).Select("count(*)").To(&count).Where("id > ?", 0)
+	Pgdb.SetLogOpt(LogAll)
 	has, err := sql.QueryOne(ctx)
 	Pgdb.SetLogOpt(LogErr)
 	require.NoError(t, err)
@@ -30,7 +28,7 @@ func TestQueryOne(t *testing.T) {
 //-----------------------------------------------------------------------------
 
 func initQueryTestTable(t *testing.T) Context {
-	ctx := context.Background()
+	ctx := WillTest(t, "test")
 	err := ExecDB(ctx, CreateTable(queryTestTable, "id int primary key not null", "name text"))
 	require.NoError(t, err)
 	dropTestTable(t, ctx, queryTestTable)
@@ -53,8 +51,7 @@ func fillQueryTestTable(t *testing.T, ctx Context) {
 
 func TestCoalesce(t *testing.T) {
 	const cstable = "coalesce_test"
-	WillTest(t, "test")
-	ctx := context.Background()
+	ctx := WillTest(t, "test")
 	err := ExecDB(ctx, CreateTable(cstable,
 		"id int primary key not null",
 		"num int",

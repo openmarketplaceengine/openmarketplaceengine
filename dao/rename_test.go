@@ -5,7 +5,6 @@
 package dao
 
 import (
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -16,12 +15,12 @@ func TestRenameTable(t *testing.T) {
 		oldName = "rename_old"
 		newName = "rename_new"
 	)
-	WillTest(t, "test")
+	ctx := WillTest(t, "test")
 	var exec ListExec
 	exec.Append(CreateTable(oldName, "id text"))
 	exec.Append(RenameTable(oldName, newName))
 	exec.Append(DropTable(newName, true))
 	Pgdb.SetLogOpt(LogAll)
-	err := ExecTX(context.Background(), &exec)
+	err := ExecTX(ctx, &exec)
 	require.NoError(t, err)
 }

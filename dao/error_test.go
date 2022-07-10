@@ -5,7 +5,6 @@
 package dao
 
 import (
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -14,9 +13,9 @@ import (
 //-----------------------------------------------------------------------------
 
 func TestErrUndefinedTable(t *testing.T) {
-	WillTest(t, "test")
+	ctx := WillTest(t, "test")
 	sql := From("undefined").Select("count(*)")
-	has, err := sql.QueryOne(context.Background())
+	has, err := sql.QueryOne(ctx)
 	require.False(t, has)
 	require.Error(t, err)
 	require.True(t, ErrUndefinedTable.Is(err))

@@ -5,7 +5,6 @@
 package dao
 
 import (
-	"context"
 	"embed"
 	"testing"
 
@@ -21,9 +20,7 @@ var testUpfsDummy embed.FS
 func TestUpgradeCRUD(t *testing.T) {
 	const ver = -1
 
-	WillTest(t, "test")
-
-	ctx := context.Background()
+	ctx := WillTest(t, "test")
 
 	require.NoError(t, upgradeDelete(ctx, ver))
 

@@ -4,7 +4,6 @@ import (
 	"embed"
 	"testing"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/stretchr/testify/require"
 )
 
@@ -17,8 +16,7 @@ var testFsys embed.FS
 //-----------------------------------------------------------------------------
 
 func TestFsysExec(t *testing.T) {
-	WillTest(t, "test")
-	ctx := cfg.Context()
+	ctx := WillTest(t, "test")
 	fse := NewFsysExec(testFsys, testFsysPath, "index.yaml")
 	t.Cleanup(func() {
 		var drop Drop
