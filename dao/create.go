@@ -11,12 +11,12 @@ func CreateTable(name string, cols ...string) Executable {
 	sb.Grow(128)
 	sb.WriteString("create table if not exists ")
 	sb.WriteString(name)
-	sb.WriteString(" (\n")
+	sb.WriteString("\n(\n")
 	for i := 0; i < len(cols); i++ {
 		if i > 0 {
 			sb.WriteString(",\n")
 		}
-		sb.WriteString("  ")
+		sb.WriteString("    ")
 		sb.WriteString(cols[i])
 	}
 	sb.WriteString("\n)")
