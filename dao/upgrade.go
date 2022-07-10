@@ -38,16 +38,14 @@ func RegisterUpgrade(fs fs.FS) {
 //-----------------------------------------------------------------------------
 
 func upgradeTableCreate(ctx Context) error {
-	const upgradeSchema = SQLExec(
-		`create table if not exists upgrade(
-	    id     integer not null primary key,
-	    info   text,
-	    stamp  timestamptz,
-	    status integer,
-	    errmsg text
-		)`)
-	debugf("creating %q table", upgradeTable)
-	return ExecDB(ctx, upgradeSchema)
+	sql := CreateTable(upgradeTable,
+		"id     integer not null primary key",
+		"info   text not null",
+		"stamp  timestamptz not null",
+		"status integer not null",
+		"errmsg text",
+	)
+	return ExecDB(ctx, sql)
 }
 
 //-----------------------------------------------------------------------------
