@@ -58,11 +58,11 @@ func (p *PgdbConn) Boot() (err error) {
 
 	defer p.state.BootOrFail(&err)
 
-	if !EnvLogErr.Has() {
-		EnvLogErr.SetBool(true)
-	}
-
 	p.lopt = GetEnvLogOpt()
+
+	if !EnvLogErr.Has() {
+		p.lopt |= LogErr
+	}
 
 	plog = log.Named(pfxLog)
 
@@ -201,8 +201,10 @@ func (p PgdbConn) abort() {
 
 //-----------------------------------------------------------------------------
 
-func (p *PgdbConn) SetLogOpt(opt LogOpt) {
+func (p *PgdbConn) SetLogOpt(opt LogOpt) (old LogOpt) {
+	old = p.lopt
 	p.lopt = opt
+	return
 }
 
 //-----------------------------------------------------------------------------

@@ -16,6 +16,7 @@ type (
 const (
 	LogErr LogOpt = 1 << iota
 	LogSQL
+	LogAll = LogErr | LogSQL
 )
 
 const (
