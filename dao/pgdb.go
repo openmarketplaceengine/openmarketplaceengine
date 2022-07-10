@@ -252,17 +252,6 @@ func logerr(err error, prefix ...string) {
 }
 
 //-----------------------------------------------------------------------------
-// Testing
-//-----------------------------------------------------------------------------
-
-type Tester interface {
-	Fatalf(format string, args ...interface{})
-	Errorf(format string, args ...interface{})
-	Cleanup(f func())
-	SkipNow()
-}
-
-//-----------------------------------------------------------------------------
 
 func (p *PgdbConn) resetForTests(t Tester) {
 	if Running() {
@@ -275,43 +264,4 @@ func (p *PgdbConn) resetForTests(t Tester) {
 	p.state.SetUnused()
 	p.cfg = nil
 	p.sdb = nil
-}
-
-//-----------------------------------------------------------------------------
-
-func SkipTest() bool {
-	_, ok := cfg.GetEnv(cfg.EnvPgdbAddr)
-	return !ok
-}
-
-//-----------------------------------------------------------------------------
-
-func WillTest(t Tester, schema string) {
-	defer Pgdb.clearAutos()
-	if SkipTest() {
-		t.SkipNow()
-		return
-	}
-	Pgdb.resetForTests(t)
-	if len(schema) > 0 {
-		err := cfg.SetEnv(cfg.EnvPgdbSchema, schema)
-		if err != nil {
-			t.Fatalf("setenv %q=%q failed: %s", cfg.EnvPgdbSchema, schema, err)
-		}
-	}
-	err := cfg.Load()
-	if err != nil {
-		t.Fatalf("config load failed: %s", err)
-	}
-	err = log.Init(log.DevelConfig().WithTrace(false).WithCaller(false))
-	if err != nil {
-		t.Fatalf("log init failed: %s", err)
-	}
-	err = Pgdb.Boot()
-	if err != nil {
-		log.Fatalf("%s", err)
-	}
-	t.Cleanup(func() {
-		Pgdb.resetForTests(t)
-	})
 }
