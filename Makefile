@@ -108,11 +108,11 @@ lint: ## Run linter
 	golangci-lint run
 
 gen-proto:
-	buf breaking idl --against '.git#branch=main,subdir=idl'
-	buf lint idl
-	buf format idl -w
-	buf mod update idl
-	buf generate idl
+	buf breaking --against '.git#branch=main'
+	buf lint
+	buf format -w
+	buf mod update api
+	buf generate
 
 buf-lint: ## Run buf linter
 	@echo "==> Running buf linter"
