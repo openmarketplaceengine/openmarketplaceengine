@@ -1,4 +1,6 @@
 version: v1
+deps:
+  - buf.build/envoyproxy/protoc-gen-validate:4694024279bdac52b77e22dc87808bd0fd732b69
 breaking:
   use:
     - FILE

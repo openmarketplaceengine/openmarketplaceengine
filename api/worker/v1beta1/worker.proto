@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package api.worker.v1beta1;
 
+import "validate/validate.proto";
+
 option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/worker/v1beta1";
 
 service WorkerService {
@@ -20,7 +22,9 @@ enum WorkerStatus {
 }
 
 message GetWorkerRequest {
-  string worker_id = 1;
+  string worker_id = 1 [(validate.rules).string = {
+    max_len: 36,
+  }];
 }
 
 message GetWorkerResponse {
@@ -28,8 +32,15 @@ message GetWorkerResponse {
 }
 
 message UpdateWorkerStatusRequest {
-  string worker_id = 1;
-  WorkerStatus status = 2;
+  string worker_id = 1 [(validate.rules).string = {
+    max_len: 36,
+  }];
+  WorkerStatus status = 2 [(validate.rules).enum = {
+    defined_only: true,
+    not_in: [
+      0
+    ],
+  }];
 }
 
 message UpdateWorkerStatusResponse {

@@ -12,7 +12,6 @@ import (
 	rpc "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/job/v1beta1"
 	typ "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/type/v1beta1"
 	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
-	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/validate"
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
 	svcJob "github.com/openmarketplaceengine/openmarketplaceengine/svc/job"
 	"github.com/openmarketplaceengine/openmarketplaceengine/svc/location"
@@ -44,6 +43,12 @@ func init() {
 //-----------------------------------------------------------------------------
 
 func (c *controller) ImportJob(ctx context.Context, req *rpc.ImportJobRequest) (*rpc.ImportJobResponse, error) {
+	err := req.ValidateAll()
+
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, err.Error())
+	}
+
 	var act = rpc.JobAction_JOB_ACTION_CREATED
 	var j job.Job
 	c.setJob(&j, req.Job)
@@ -61,6 +66,12 @@ func (c *controller) ImportJob(ctx context.Context, req *rpc.ImportJobRequest) (
 //-----------------------------------------------------------------------------
 
 func (c *controller) ExportJob(ctx context.Context, req *rpc.ExportJobRequest) (*rpc.ExportJobResponse, error) {
+	err := req.ValidateAll()
+
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, err.Error())
+	}
+
 	ids := req.Ids
 	cnt := len(ids)
 	if cnt == 0 {
@@ -82,15 +93,11 @@ func (c *controller) ExportJob(ctx context.Context, req *rpc.ExportJobRequest) (
 	return &rpc.ExportJobResponse{Jobs: jobs}, nil
 }
 
-func (c *controller) GetJobs(ctx context.Context, req *rpc.GetJobsRequest) (*rpc.GetJobsResponse, error) {
-	var v validate.Validator
-	v.ValidateString("worker_id", req.GetWorkerId()).NotEmpty()
-	v.ValidateString("area_key", req.GetAreaKey()).NotEmpty()
-	v.ValidateInt32("radius_meters", req.GetRadiusMeters()).GreaterThan(0)
-	v.ValidateInt32("limit", req.GetLimit()).LessThan(25)
+func (c *controller) GetAvailableJobs(ctx context.Context, req *rpc.GetAvailableJobsRequest) (*rpc.GetAvailableJobsResponse, error) {
+	err := req.ValidateAll()
 
-	if v.Error() != nil {
-		return nil, status.Errorf(codes.InvalidArgument, v.Error().Error())
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, err.Error())
 	}
 
 	estimatedJobs, err := c.jobService.GetEstimatedJobs(ctx, req.GetAreaKey(), req.GetWorkerId(), req.GetRadiusMeters())
@@ -133,7 +140,7 @@ func (c *controller) GetJobs(ctx context.Context, req *rpc.GetJobsRequest) (*rpc
 		jobs = append(jobs, j)
 	}
 
-	return &rpc.GetJobsResponse{Jobs: jobs}, nil
+	return &rpc.GetAvailableJobsResponse{Jobs: jobs}, nil
 }
 
 //-----------------------------------------------------------------------------

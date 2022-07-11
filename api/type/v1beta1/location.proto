@@ -2,9 +2,17 @@ syntax = "proto3";
 
 package api.type.v1beta1;
 
+import "validate/validate.proto";
+
 option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/type/v1beta1";
 
 message Location {
-  double latitude = 1;
-  double longitude = 2;
+  double latitude = 1 [(validate.rules).double = {
+    gte: -90,
+    lte: 90
+  }];
+  double longitude = 2 [(validate.rules).double = {
+    gte: -180,
+    lte: 180
+  }];
 }
