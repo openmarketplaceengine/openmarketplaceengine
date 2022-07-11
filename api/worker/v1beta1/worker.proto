@@ -23,8 +23,7 @@ enum WorkerStatus {
 
 message GetWorkerRequest {
   string worker_id = 1 [(validate.rules).string = {
-    max_len: 20,
-    ignore_empty: true,
+    max_len: 36,
   }];
 }
 
@@ -34,11 +33,13 @@ message GetWorkerResponse {
 
 message UpdateWorkerStatusRequest {
   string worker_id = 1 [(validate.rules).string = {
-    max_len: 20,
-    ignore_empty: true,
+    max_len: 36,
   }];
   WorkerStatus status = 2 [(validate.rules).enum = {
     defined_only: true,
+    not_in: [
+      0
+    ],
   }];
 }
 

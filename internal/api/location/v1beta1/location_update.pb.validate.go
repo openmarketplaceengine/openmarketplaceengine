@@ -57,19 +57,15 @@ func (m *LocationUpdate) validate(all bool) error {
 
 	var errors []error
 
-	if m.GetWorkerId() != "" {
-
-		if utf8.RuneCountInString(m.GetWorkerId()) > 20 {
-			err := LocationUpdateValidationError{
-				field:  "WorkerId",
-				reason: "value length must be at most 20 runes",
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
+	if utf8.RuneCountInString(m.GetWorkerId()) > 36 {
+		err := LocationUpdateValidationError{
+			field:  "WorkerId",
+			reason: "value length must be at most 36 runes",
 		}
-
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
 	if all {

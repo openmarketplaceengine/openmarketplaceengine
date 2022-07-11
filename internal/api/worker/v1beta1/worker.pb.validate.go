@@ -57,19 +57,15 @@ func (m *GetWorkerRequest) validate(all bool) error {
 
 	var errors []error
 
-	if m.GetWorkerId() != "" {
-
-		if utf8.RuneCountInString(m.GetWorkerId()) > 20 {
-			err := GetWorkerRequestValidationError{
-				field:  "WorkerId",
-				reason: "value length must be at most 20 runes",
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
+	if utf8.RuneCountInString(m.GetWorkerId()) > 36 {
+		err := GetWorkerRequestValidationError{
+			field:  "WorkerId",
+			reason: "value length must be at most 36 runes",
 		}
-
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
 	if len(errors) > 0 {
@@ -303,19 +299,26 @@ func (m *UpdateWorkerStatusRequest) validate(all bool) error {
 
 	var errors []error
 
-	if m.GetWorkerId() != "" {
-
-		if utf8.RuneCountInString(m.GetWorkerId()) > 20 {
-			err := UpdateWorkerStatusRequestValidationError{
-				field:  "WorkerId",
-				reason: "value length must be at most 20 runes",
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
+	if utf8.RuneCountInString(m.GetWorkerId()) > 36 {
+		err := UpdateWorkerStatusRequestValidationError{
+			field:  "WorkerId",
+			reason: "value length must be at most 36 runes",
 		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
+	if _, ok := _UpdateWorkerStatusRequest_Status_NotInLookup[m.GetStatus()]; ok {
+		err := UpdateWorkerStatusRequestValidationError{
+			field:  "Status",
+			reason: "value must not be in list [0]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
 	if _, ok := WorkerStatus_name[int32(m.GetStatus())]; !ok {
@@ -408,6 +411,10 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = UpdateWorkerStatusRequestValidationError{}
+
+var _UpdateWorkerStatusRequest_Status_NotInLookup = map[WorkerStatus]struct{}{
+	0: {},
+}
 
 // Validate checks the field values on UpdateWorkerStatusResponse with the
 // rules defined in the proto definition for this message. If any rules are

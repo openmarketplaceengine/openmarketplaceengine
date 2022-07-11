@@ -17,8 +17,7 @@ service LocationService {
 
 message UpdateLocationRequest {
   string area_key = 1 [(validate.rules).string = {
-    min_len: 3,
-    ignore_empty: true,
+    min_len: 1,
   }];
   api.location.v1beta1.LocationUpdate value = 2;
   bool validate_only = 3;
@@ -32,8 +31,8 @@ message UpdateLocationResponse {
 }
 
 message GetLocationRequest {
-  string area_key = 1;
-  string worker_id = 2;
+  string area_key = 1 [(validate.rules).string.min_len = 1];
+  string worker_id = 2 [(validate.rules).string.max_len = 36];
 }
 
 message GetLocationResponse {

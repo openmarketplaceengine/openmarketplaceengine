@@ -914,34 +914,26 @@ func (m *GetAvailableJobsRequest) validate(all bool) error {
 
 	var errors []error
 
-	if m.GetAreaKey() != "" {
-
-		if utf8.RuneCountInString(m.GetAreaKey()) < 3 {
-			err := GetAvailableJobsRequestValidationError{
-				field:  "AreaKey",
-				reason: "value length must be at least 3 runes",
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
+	if utf8.RuneCountInString(m.GetAreaKey()) < 1 {
+		err := GetAvailableJobsRequestValidationError{
+			field:  "AreaKey",
+			reason: "value length must be at least 1 runes",
 		}
-
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
-	if m.GetWorkerId() != "" {
-
-		if utf8.RuneCountInString(m.GetWorkerId()) > 20 {
-			err := GetAvailableJobsRequestValidationError{
-				field:  "WorkerId",
-				reason: "value length must be at most 20 runes",
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
+	if utf8.RuneCountInString(m.GetWorkerId()) > 36 {
+		err := GetAvailableJobsRequestValidationError{
+			field:  "WorkerId",
+			reason: "value length must be at most 36 runes",
 		}
-
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
 	if m.GetRadiusMeters() <= 0 {

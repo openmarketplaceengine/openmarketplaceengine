@@ -10,8 +10,7 @@ option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/inte
 
 message LocationUpdate {
   string worker_id = 1 [(validate.rules).string = {
-    max_len: 20,
-    ignore_empty: true,
+    max_len: 36,
   }];
   api.type.v1beta1.Location location = 2;
   google.protobuf.Timestamp update_time = 3 [(validate.rules).timestamp.required = true];

@@ -57,19 +57,15 @@ func (m *UpdateLocationRequest) validate(all bool) error {
 
 	var errors []error
 
-	if m.GetAreaKey() != "" {
-
-		if utf8.RuneCountInString(m.GetAreaKey()) < 3 {
-			err := UpdateLocationRequestValidationError{
-				field:  "AreaKey",
-				reason: "value length must be at least 3 runes",
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
+	if utf8.RuneCountInString(m.GetAreaKey()) < 1 {
+		err := UpdateLocationRequestValidationError{
+			field:  "AreaKey",
+			reason: "value length must be at least 1 runes",
 		}
-
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 	}
 
 	if all {
@@ -369,9 +365,27 @@ func (m *GetLocationRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for AreaKey
+	if utf8.RuneCountInString(m.GetAreaKey()) < 1 {
+		err := GetLocationRequestValidationError{
+			field:  "AreaKey",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for WorkerId
+	if utf8.RuneCountInString(m.GetWorkerId()) > 36 {
+		err := GetLocationRequestValidationError{
+			field:  "WorkerId",
+			reason: "value length must be at most 36 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GetLocationRequestMultiError(errors)

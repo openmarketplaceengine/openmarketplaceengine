@@ -62,12 +62,10 @@ message GetAvailableJobsRequest {
   // i.e. san-fran, new-york, alaska, us, global, test, etc.
   // Should be used consistently across all APIs.
   string area_key = 1 [(validate.rules).string = {
-    min_len: 3,
-    ignore_empty: true,
+    min_len: 1,
   }];
   string worker_id = 2 [(validate.rules).string = {
-    max_len: 20,
-    ignore_empty: true,
+    max_len: 36,
   }];
   // Radius in meters to look for jobs relative to current worker position.
   int32 radius_meters = 3 [(validate.rules).int32.gt = 0];
