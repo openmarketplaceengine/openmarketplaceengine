@@ -18,7 +18,7 @@ func Upsert(ctx Context, insert, update func() Executable) (Result, UpsertStatus
 	if err == nil {
 		return sql.Result(), UpsertCreated, nil
 	}
-	if !ErrUniqueViolation(err) {
+	if !ErrUniqueViolation.Is(err) {
 		return nil, UpsertUnknown, err
 	}
 	sql = update()

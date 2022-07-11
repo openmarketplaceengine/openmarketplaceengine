@@ -4,11 +4,10 @@ import (
 	"embed"
 	"testing"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/stretchr/testify/require"
 )
 
-const fsysPath = "testdata/fsys/"
+const testFsysPath = "testdata/fsys/"
 
 //go:embed testdata/fsys/*.yaml
 //go:embed testdata/fsys/*.sql
@@ -17,16 +16,23 @@ var testFsys embed.FS
 //-----------------------------------------------------------------------------
 
 func TestFsysExec(t *testing.T) {
-	WillTest(t, "test")
-	fse := NewFsysExec(testFsys, fsysPath, "index.yaml")
-	require.NoError(t, ExecTX(cfg.Context(), fse))
+	ctx := WillTest(t, "test")
+	fse := NewFsysExec(testFsys, testFsysPath, "index.yaml")
+	t.Cleanup(func() {
+		var drop Drop
+		err := ExecTX(ctx, drop.AppendTable("fsys_1", "fsys_2", "fsys_3"))
+		if err != nil {
+			t.Error(err)
+		}
+	})
+	require.NoError(t, ExecTX(ctx, fse))
 }
 
 //-----------------------------------------------------------------------------
 
 func TestFsysIndex(t *testing.T) {
 	expect := []string{"table1.sql", "table2.sql", "table3.sql"}
-	fse := NewFsysExec(testFsys, fsysPath, "index.yaml")
+	fse := NewFsysExec(testFsys, testFsysPath, "index.yaml")
 	ary, err := fse.Names()
 	require.NoError(t, err)
 	require.Equal(t, expect, ary)

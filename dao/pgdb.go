@@ -26,9 +26,10 @@ type PgdbConn struct {
 	state cfg.State64
 	cfg   *pgx.ConnConfig
 	sdb   *sql.DB
-	log   log.Logger
+	lopt  LogOpt
 	drop  ListExec
 	auto  ListExec
+	upgr  upgradeManager
 }
 
 const (
@@ -37,6 +38,7 @@ const (
 )
 
 var Pgdb = new(PgdbConn)
+var plog = log.Log()
 
 //-----------------------------------------------------------------------------
 
@@ -56,7 +58,13 @@ func (p *PgdbConn) Boot() (err error) {
 
 	defer p.state.BootOrFail(&err)
 
-	p.log = log.Named(pfxLog)
+	p.lopt = GetEnvLogOpt()
+
+	if !EnvLogErr.Has() {
+		p.lopt |= LogErr
+	}
+
+	plog = log.Named(pfxLog)
 
 	pcfg := cfg.Pgdb()
 
@@ -116,9 +124,12 @@ func (p *PgdbConn) Boot() (err error) {
 		infof("using schema %q", schema)
 	}
 
-	err = p.autoExec(ctx)
+	if err = p.upgr.start(ctx); err != nil {
+		p.abort()
+		return
+	}
 
-	if err != nil {
+	if err = p.autoExec(ctx); err != nil {
 		p.abort()
 		return
 	}
@@ -141,6 +152,7 @@ func (p *PgdbConn) autoExec(ctx Context) error {
 func (p *PgdbConn) clearAutos() {
 	p.drop.Clear()
 	p.auto.Clear()
+	p.upgr.clear()
 }
 
 //-----------------------------------------------------------------------------
@@ -168,40 +180,9 @@ func Invalid() bool {
 
 func (p *PgdbConn) SwitchSchema(ctx Context, name string) error {
 	return ExecDB(ctx,
-		SQLExecf("CREATE SCHEMA IF NOT EXISTS %q", name),
-		SQLExecf("SET search_path TO %q, public", name),
+		SQLExecf("CREATE SCHEMA IF NOT EXISTS %s", name),
+		SQLExecf("SET search_path TO %s, public", name),
 	)
-}
-
-//-----------------------------------------------------------------------------
-
-func (p *PgdbConn) Log(ctx context.Context, level pgx.LogLevel, msg string, data map[string]interface{}) {
-	if level == pgx.LogLevelNone || p.log == nil {
-		return
-	}
-	lev := matchLevel(level)
-	if !p.log.IsLevel(lev) {
-		return
-	}
-	if len(data) > 0 {
-		p.log.Levelf(lev, "%s\n%s", msg, log.YAML(data))
-		return
-	}
-	p.log.Levelf(lev, "%s", msg)
-}
-
-//-----------------------------------------------------------------------------
-
-func matchLevel(level pgx.LogLevel) log.Level {
-	switch level {
-	case pgx.LogLevelTrace, pgx.LogLevelDebug:
-		return log.LevelDebug
-	case pgx.LogLevelInfo:
-		return log.LevelInfo
-	case pgx.LogLevelWarn:
-		return log.LevelWarn
-	}
-	return log.LevelError
 }
 
 //-----------------------------------------------------------------------------
@@ -212,7 +193,7 @@ func (p *PgdbConn) stateError() error {
 
 //-----------------------------------------------------------------------------
 
-func (p PgdbConn) abort() {
+func (p *PgdbConn) abort() {
 	if p.sdb != nil {
 		_ = p.sdb.Close()
 	}
@@ -220,32 +201,42 @@ func (p PgdbConn) abort() {
 
 //-----------------------------------------------------------------------------
 
+func (p *PgdbConn) SetLogOpt(opt LogOpt) (old LogOpt) {
+	old = p.lopt
+	p.lopt = opt
+	return
+}
+
+//-----------------------------------------------------------------------------
+
+func (p *PgdbConn) LogOpt() LogOpt {
+	return p.lopt
+}
+
+//-----------------------------------------------------------------------------
+
 func isdebug() bool {
-	return Pgdb.log != nil && Pgdb.log.IsDebug()
+	return plog.IsDebug()
 }
 
 //-----------------------------------------------------------------------------
 
 func debugf(format string, args ...interface{}) { //nolint:deadcode
 	if isdebug() {
-		Pgdb.log.Debugf(format, args...)
+		plog.Debugf(format, args...)
 	}
 }
 
 //-----------------------------------------------------------------------------
 
 func infof(format string, args ...interface{}) {
-	if Pgdb.log != nil {
-		Pgdb.log.Infof(format, args...)
-	}
+	plog.Infof(format, args...)
 }
 
 //-----------------------------------------------------------------------------
 
 func errorf(format string, args ...interface{}) {
-	if Pgdb.log != nil {
-		Pgdb.log.Errorf(format, args...)
-	}
+	plog.Errorf(format, args...)
 }
 
 //-----------------------------------------------------------------------------
@@ -261,17 +252,6 @@ func logerr(err error, prefix ...string) {
 }
 
 //-----------------------------------------------------------------------------
-// Testing
-//-----------------------------------------------------------------------------
-
-type Tester interface {
-	Fatalf(format string, args ...interface{})
-	Errorf(format string, args ...interface{})
-	Cleanup(f func())
-	SkipNow()
-}
-
-//-----------------------------------------------------------------------------
 
 func (p *PgdbConn) resetForTests(t Tester) {
 	if Running() {
@@ -284,44 +264,4 @@ func (p *PgdbConn) resetForTests(t Tester) {
 	p.state.SetUnused()
 	p.cfg = nil
 	p.sdb = nil
-	p.log = nil
-}
-
-//-----------------------------------------------------------------------------
-
-func SkipTest() bool {
-	_, ok := cfg.GetEnv(cfg.EnvPgdbAddr)
-	return !ok
-}
-
-//-----------------------------------------------------------------------------
-
-func WillTest(t Tester, schema string) {
-	defer Pgdb.clearAutos()
-	if SkipTest() {
-		t.SkipNow()
-		return
-	}
-	Pgdb.resetForTests(t)
-	if len(schema) > 0 {
-		err := cfg.SetEnv(cfg.EnvPgdbSchema, schema)
-		if err != nil {
-			t.Fatalf("setenv %q=%q failed: %s", cfg.EnvPgdbSchema, schema, err)
-		}
-	}
-	err := cfg.Load()
-	if err != nil {
-		t.Fatalf("config load failed: %s", err)
-	}
-	err = log.Init(log.DevelConfig().WithTrace(false).WithCaller(false))
-	if err != nil {
-		t.Fatalf("log init failed: %s", err)
-	}
-	err = Pgdb.Boot()
-	if err != nil {
-		log.Fatalf("%s", err)
-	}
-	t.Cleanup(func() {
-		Pgdb.resetForTests(t)
-	})
 }

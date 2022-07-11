@@ -6,6 +6,7 @@ package dao
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/leporo/sqlf"
@@ -168,17 +169,25 @@ func (s *SQL) Offset(offset interface{}) *SQL {
 //-----------------------------------------------------------------------------
 
 func (s *SQL) QueryOne(ctx Context) (bool, error) {
-	err := WithConn(ctx, func(ctx Context, con *sql.Conn) error {
-		return s.stmt.QueryRowAndClose(ctx, con)
+	has := false
+	err := s.QueryRows(ctx, func(rows *Rows) error {
+		if rows.Next() {
+			has = true
+			if dest := s.stmt.Dest(); len(dest) > 0 {
+				return rows.Scan(dest...)
+			}
+		}
+		return nil
 	})
-	return err == nil, SkipNoRows(err)
+	return has, err
 }
 
 //-----------------------------------------------------------------------------
 
 func (s *SQL) QueryEach(ctx Context, eachFunc func(rows *Rows)) error {
 	return WithConn(ctx, func(ctx Context, con *sql.Conn) error {
-		return s.stmt.QueryAndClose(ctx, con, eachFunc)
+		exe := loggingExecutor{con, Pgdb.LogOpt()}
+		return s.stmt.QueryAndClose(ctx, &exe, eachFunc)
 	})
 }
 
@@ -186,20 +195,41 @@ func (s *SQL) QueryEach(ctx Context, eachFunc func(rows *Rows)) error {
 
 func (s *SQL) QueryRows(ctx Context, rowsFunc func(rows *Rows) error) error {
 	return WithConn(ctx, func(ctx Context, con *sql.Conn) error {
-		rows, err := con.QueryContext(ctx, s.stmt.String(), s.stmt.Args()...)
-		s.stmt.Close()
+		exe := loggingExecutor{con, Pgdb.LogOpt()}
+		rows, err := exe.QueryContext(ctx, s.stmt.String(), s.stmt.Args()...)
 		if err != nil {
+			s.stmt.Close()
 			return err
 		}
 		err = rowsFunc(rows)
+		s.stmt.Close()
 		if err != nil {
 			_ = rows.Close()
 			return err
 		}
-		err = rows.Close()
+		err = rows.Err()
 		if err != nil {
+			_ = rows.Close()
 			return err
 		}
-		return rows.Err()
+		return rows.Close()
 	})
+}
+
+//-----------------------------------------------------------------------------
+// SQL Functions
+//-----------------------------------------------------------------------------
+
+func Coalesce(column string, ifnull string) string {
+	if len(ifnull) == 0 {
+		ifnull = "''"
+	}
+	return fmt.Sprintf("COALESCE(%s, %s)", column, ifnull)
+}
+
+func MakeTimestamptz(year, month, day, hour, min, sec int) string {
+	return fmt.Sprintf(
+		"make_timestamptz(%d, %d, %d, %d, %d, %d, 'UTC')",
+		year, month, day, hour, min, sec,
+	)
 }
