@@ -892,50 +892,94 @@ var _ interface {
 	ErrorName() string
 } = ExportJobResponseValidationError{}
 
-// Validate checks the field values on GetJobsRequest with the rules defined in
-// the proto definition for this message. If any rules are violated, the first
-// error encountered is returned, or nil if there are no violations.
-func (m *GetJobsRequest) Validate() error {
+// Validate checks the field values on GetAvailableJobsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetAvailableJobsRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on GetJobsRequest with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in GetJobsRequestMultiError,
-// or nil if none found.
-func (m *GetJobsRequest) ValidateAll() error {
+// ValidateAll checks the field values on GetAvailableJobsRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetAvailableJobsRequestMultiError, or nil if none found.
+func (m *GetAvailableJobsRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *GetJobsRequest) validate(all bool) error {
+func (m *GetAvailableJobsRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
-	// no validation rules for AreaKey
+	if m.GetAreaKey() != "" {
 
-	// no validation rules for WorkerId
+		if utf8.RuneCountInString(m.GetAreaKey()) < 3 {
+			err := GetAvailableJobsRequestValidationError{
+				field:  "AreaKey",
+				reason: "value length must be at least 3 runes",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 
-	// no validation rules for RadiusMeters
+	}
 
-	// no validation rules for Limit
+	if m.GetWorkerId() != "" {
+
+		if utf8.RuneCountInString(m.GetWorkerId()) > 20 {
+			err := GetAvailableJobsRequestValidationError{
+				field:  "WorkerId",
+				reason: "value length must be at most 20 runes",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
+
+	if m.GetRadiusMeters() <= 0 {
+		err := GetAvailableJobsRequestValidationError{
+			field:  "RadiusMeters",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if m.GetLimit() > 25 {
+		err := GetAvailableJobsRequestValidationError{
+			field:  "Limit",
+			reason: "value must be less than or equal to 25",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
-		return GetJobsRequestMultiError(errors)
+		return GetAvailableJobsRequestMultiError(errors)
 	}
 
 	return nil
 }
 
-// GetJobsRequestMultiError is an error wrapping multiple validation errors
-// returned by GetJobsRequest.ValidateAll() if the designated constraints
-// aren't met.
-type GetJobsRequestMultiError []error
+// GetAvailableJobsRequestMultiError is an error wrapping multiple validation
+// errors returned by GetAvailableJobsRequest.ValidateAll() if the designated
+// constraints aren't met.
+type GetAvailableJobsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m GetJobsRequestMultiError) Error() string {
+func (m GetAvailableJobsRequestMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -944,11 +988,11 @@ func (m GetJobsRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m GetJobsRequestMultiError) AllErrors() []error { return m }
+func (m GetAvailableJobsRequestMultiError) AllErrors() []error { return m }
 
-// GetJobsRequestValidationError is the validation error returned by
-// GetJobsRequest.Validate if the designated constraints aren't met.
-type GetJobsRequestValidationError struct {
+// GetAvailableJobsRequestValidationError is the validation error returned by
+// GetAvailableJobsRequest.Validate if the designated constraints aren't met.
+type GetAvailableJobsRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -956,22 +1000,24 @@ type GetJobsRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e GetJobsRequestValidationError) Field() string { return e.field }
+func (e GetAvailableJobsRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e GetJobsRequestValidationError) Reason() string { return e.reason }
+func (e GetAvailableJobsRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e GetJobsRequestValidationError) Cause() error { return e.cause }
+func (e GetAvailableJobsRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e GetJobsRequestValidationError) Key() bool { return e.key }
+func (e GetAvailableJobsRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e GetJobsRequestValidationError) ErrorName() string { return "GetJobsRequestValidationError" }
+func (e GetAvailableJobsRequestValidationError) ErrorName() string {
+	return "GetAvailableJobsRequestValidationError"
+}
 
 // Error satisfies the builtin error interface
-func (e GetJobsRequestValidationError) Error() string {
+func (e GetAvailableJobsRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -983,14 +1029,14 @@ func (e GetJobsRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sGetJobsRequest.%s: %s%s",
+		"invalid %sGetAvailableJobsRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = GetJobsRequestValidationError{}
+var _ error = GetAvailableJobsRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -998,7 +1044,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = GetJobsRequestValidationError{}
+} = GetAvailableJobsRequestValidationError{}
 
 // Validate checks the field values on Location with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
@@ -1481,22 +1527,22 @@ var _ interface {
 	ErrorName() string
 } = EstimatedJobValidationError{}
 
-// Validate checks the field values on GetJobsResponse with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// first error encountered is returned, or nil if there are no violations.
-func (m *GetJobsResponse) Validate() error {
+// Validate checks the field values on GetAvailableJobsResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetAvailableJobsResponse) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on GetJobsResponse with the rules
-// defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on GetAvailableJobsResponse with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// GetJobsResponseMultiError, or nil if none found.
-func (m *GetJobsResponse) ValidateAll() error {
+// GetAvailableJobsResponseMultiError, or nil if none found.
+func (m *GetAvailableJobsResponse) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *GetJobsResponse) validate(all bool) error {
+func (m *GetAvailableJobsResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -1510,7 +1556,7 @@ func (m *GetJobsResponse) validate(all bool) error {
 			switch v := interface{}(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, GetJobsResponseValidationError{
+					errors = append(errors, GetAvailableJobsResponseValidationError{
 						field:  fmt.Sprintf("Jobs[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -1518,7 +1564,7 @@ func (m *GetJobsResponse) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, GetJobsResponseValidationError{
+					errors = append(errors, GetAvailableJobsResponseValidationError{
 						field:  fmt.Sprintf("Jobs[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -1527,7 +1573,7 @@ func (m *GetJobsResponse) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return GetJobsResponseValidationError{
+				return GetAvailableJobsResponseValidationError{
 					field:  fmt.Sprintf("Jobs[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -1538,19 +1584,19 @@ func (m *GetJobsResponse) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return GetJobsResponseMultiError(errors)
+		return GetAvailableJobsResponseMultiError(errors)
 	}
 
 	return nil
 }
 
-// GetJobsResponseMultiError is an error wrapping multiple validation errors
-// returned by GetJobsResponse.ValidateAll() if the designated constraints
-// aren't met.
-type GetJobsResponseMultiError []error
+// GetAvailableJobsResponseMultiError is an error wrapping multiple validation
+// errors returned by GetAvailableJobsResponse.ValidateAll() if the designated
+// constraints aren't met.
+type GetAvailableJobsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m GetJobsResponseMultiError) Error() string {
+func (m GetAvailableJobsResponseMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1559,11 +1605,11 @@ func (m GetJobsResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m GetJobsResponseMultiError) AllErrors() []error { return m }
+func (m GetAvailableJobsResponseMultiError) AllErrors() []error { return m }
 
-// GetJobsResponseValidationError is the validation error returned by
-// GetJobsResponse.Validate if the designated constraints aren't met.
-type GetJobsResponseValidationError struct {
+// GetAvailableJobsResponseValidationError is the validation error returned by
+// GetAvailableJobsResponse.Validate if the designated constraints aren't met.
+type GetAvailableJobsResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1571,22 +1617,24 @@ type GetJobsResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e GetJobsResponseValidationError) Field() string { return e.field }
+func (e GetAvailableJobsResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e GetJobsResponseValidationError) Reason() string { return e.reason }
+func (e GetAvailableJobsResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e GetJobsResponseValidationError) Cause() error { return e.cause }
+func (e GetAvailableJobsResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e GetJobsResponseValidationError) Key() bool { return e.key }
+func (e GetAvailableJobsResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e GetJobsResponseValidationError) ErrorName() string { return "GetJobsResponseValidationError" }
+func (e GetAvailableJobsResponseValidationError) ErrorName() string {
+	return "GetAvailableJobsResponseValidationError"
+}
 
 // Error satisfies the builtin error interface
-func (e GetJobsResponseValidationError) Error() string {
+func (e GetAvailableJobsResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1598,14 +1646,14 @@ func (e GetJobsResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sGetJobsResponse.%s: %s%s",
+		"invalid %sGetAvailableJobsResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = GetJobsResponseValidationError{}
+var _ error = GetAvailableJobsResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -1613,4 +1661,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = GetJobsResponseValidationError{}
+} = GetAvailableJobsResponseValidationError{}
