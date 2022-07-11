@@ -29,19 +29,25 @@ func init() {
 	})
 }
 
-func (c *controller) ListCrossings(ctx context.Context, request *v1beta1.ListCrossingsRequest) (*v1beta1.ListCrossingsResponse, error) {
+func (c *controller) ListCrossings(ctx context.Context, req *v1beta1.ListCrossingsRequest) (*v1beta1.ListCrossingsResponse, error) {
+	err := req.ValidateAll()
+
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, err.Error())
+	}
+
 	wheres := make([]crossing.Where, 0)
-	if request.TollgateId != "" {
+	if req.TollgateId != "" {
 		wheres = append(wheres, crossing.Where{
 			Expr: "tollgate_id = ?",
-			Args: []interface{}{request.TollgateId},
+			Args: []interface{}{req.TollgateId},
 		})
 	}
 
-	if request.WorkerId != "" {
+	if req.WorkerId != "" {
 		wheres = append(wheres, crossing.Where{
 			Expr: "worker_id = ?",
-			Args: []interface{}{request.WorkerId},
+			Args: []interface{}{req.WorkerId},
 		})
 	}
 
@@ -49,7 +55,7 @@ func (c *controller) ListCrossings(ctx context.Context, request *v1beta1.ListCro
 	crossings, err := crossing.QueryBy(ctx, wheres, orderBy, 100)
 	if err != nil {
 		st := status.Newf(codes.Internal, "query tollgate crossing error: %s", err)
-		st, err = st.WithDetails(request)
+		st, err = st.WithDetails(req)
 		if err != nil {
 			panic(fmt.Errorf("enrich grpc status with details error: %w", err))
 		}

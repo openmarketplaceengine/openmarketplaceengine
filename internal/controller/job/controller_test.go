@@ -107,14 +107,14 @@ func testGetAvailableJobs(t *testing.T, client v1beta1.JobServiceClient, tracker
 	_, err = tracker.TrackLocation(ctx, areaKey, id, fromLon, fromLat)
 	require.NoError(t, err)
 
-	req1 := &v1beta1.GetJobsRequest{
+	req1 := &v1beta1.GetAvailableJobsRequest{
 		AreaKey:      areaKey,
 		WorkerId:     id,
 		RadiusMeters: 10000,
 		Limit:        24,
 	}
 
-	res1, err := client.GetJobs(ctx, req1)
+	res1, err := client.GetAvailableJobs(ctx, req1)
 	require.NoError(t, err)
 	require.Len(t, res1.Jobs, 2)
 }

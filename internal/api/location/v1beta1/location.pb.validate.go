@@ -57,7 +57,20 @@ func (m *UpdateLocationRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for AreaKey
+	if m.GetAreaKey() != "" {
+
+		if utf8.RuneCountInString(m.GetAreaKey()) < 3 {
+			err := UpdateLocationRequestValidationError{
+				field:  "AreaKey",
+				reason: "value length must be at least 3 runes",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
 
 	if all {
 		switch v := interface{}(m.GetValue()).(type) {

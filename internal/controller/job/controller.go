@@ -43,6 +43,12 @@ func init() {
 //-----------------------------------------------------------------------------
 
 func (c *controller) ImportJob(ctx context.Context, req *rpc.ImportJobRequest) (*rpc.ImportJobResponse, error) {
+	err := req.ValidateAll()
+
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, err.Error())
+	}
+
 	var act = rpc.JobAction_JOB_ACTION_CREATED
 	var j job.Job
 	c.setJob(&j, req.Job)
@@ -60,6 +66,12 @@ func (c *controller) ImportJob(ctx context.Context, req *rpc.ImportJobRequest) (
 //-----------------------------------------------------------------------------
 
 func (c *controller) ExportJob(ctx context.Context, req *rpc.ExportJobRequest) (*rpc.ExportJobResponse, error) {
+	err := req.ValidateAll()
+
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, err.Error())
+	}
+
 	ids := req.Ids
 	cnt := len(ids)
 	if cnt == 0 {

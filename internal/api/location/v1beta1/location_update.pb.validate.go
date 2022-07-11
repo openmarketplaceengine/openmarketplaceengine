@@ -57,7 +57,20 @@ func (m *LocationUpdate) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for WorkerId
+	if m.GetWorkerId() != "" {
+
+		if utf8.RuneCountInString(m.GetWorkerId()) > 20 {
+			err := LocationUpdateValidationError{
+				field:  "WorkerId",
+				reason: "value length must be at most 20 runes",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
 
 	if all {
 		switch v := interface{}(m.GetLocation()).(type) {
@@ -88,33 +101,15 @@ func (m *LocationUpdate) validate(all bool) error {
 		}
 	}
 
-	if all {
-		switch v := interface{}(m.GetUpdateTime()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, LocationUpdateValidationError{
-					field:  "UpdateTime",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, LocationUpdateValidationError{
-					field:  "UpdateTime",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
+	if m.GetUpdateTime() == nil {
+		err := LocationUpdateValidationError{
+			field:  "UpdateTime",
+			reason: "value is required",
 		}
-	} else if v, ok := interface{}(m.GetUpdateTime()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return LocationUpdateValidationError{
-				field:  "UpdateTime",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
+		if !all {
+			return err
 		}
+		errors = append(errors, err)
 	}
 
 	if len(errors) > 0 {

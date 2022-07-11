@@ -57,7 +57,20 @@ func (m *GetWorkerRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for WorkerId
+	if m.GetWorkerId() != "" {
+
+		if utf8.RuneCountInString(m.GetWorkerId()) > 20 {
+			err := GetWorkerRequestValidationError{
+				field:  "WorkerId",
+				reason: "value length must be at most 20 runes",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
 
 	if len(errors) > 0 {
 		return GetWorkerRequestMultiError(errors)
@@ -290,9 +303,31 @@ func (m *UpdateWorkerStatusRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for WorkerId
+	if m.GetWorkerId() != "" {
 
-	// no validation rules for Status
+		if utf8.RuneCountInString(m.GetWorkerId()) > 20 {
+			err := UpdateWorkerStatusRequestValidationError{
+				field:  "WorkerId",
+				reason: "value length must be at most 20 runes",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
+
+	if _, ok := WorkerStatus_name[int32(m.GetStatus())]; !ok {
+		err := UpdateWorkerStatusRequestValidationError{
+			field:  "Status",
+			reason: "value must be one of the defined enum values",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return UpdateWorkerStatusRequestMultiError(errors)

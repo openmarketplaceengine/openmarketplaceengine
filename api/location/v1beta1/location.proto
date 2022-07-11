@@ -6,6 +6,7 @@ import "api/location/v1beta1/location_update.proto";
 import "api/type/v1beta1/crossing.proto";
 import "api/type/v1beta1/location.proto";
 import "google/protobuf/timestamp.proto";
+import "validate/validate.proto";
 
 option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/location/v1beta1";
 
@@ -15,7 +16,10 @@ service LocationService {
 }
 
 message UpdateLocationRequest {
-  string area_key = 1;
+  string area_key = 1 [(validate.rules).string = {
+    min_len: 3,
+    ignore_empty: true,
+  }];
   api.location.v1beta1.LocationUpdate value = 2;
   bool validate_only = 3;
 }
