@@ -37,43 +37,6 @@ func RegisterUpgrade(fs fs.FS) {
 
 //-----------------------------------------------------------------------------
 
-func upgradeTableCreate(ctx Context) error {
-	sql := CreateTable(upgradeTable,
-		"id     integer not null primary key",
-		"info   text not null",
-		"stamp  timestamptz not null",
-		"status integer not null",
-		"errmsg text",
-	)
-	return ExecDB(ctx, sql)
-}
-
-//-----------------------------------------------------------------------------
-
-func upgradeSelect(ctx Context, version int) (found bool, err error) {
-	var status int
-	var errmsg string
-	sql := From(upgradeTable)
-	sql.Select("status").To(&status)
-	sql.Select(Coalesce("errmsg", "")).To(&errmsg)
-	sql.Where("id = ?", version)
-	found, err = sql.QueryOne(ctx)
-	if err != nil || !found || status != 0 {
-		return
-	}
-	return false, fmt.Errorf("Upgrade to version %d failed: %s", version, errmsg)
-}
-
-//-----------------------------------------------------------------------------
-
-func upgradeDelete(ctx Context, version int) error {
-	sql := Delete(upgradeTable)
-	sql.Where("id = ?", version)
-	return ExecTX(ctx, sql)
-}
-
-//-----------------------------------------------------------------------------
-
 func (u *Upgrade) Insert(ctx Context) error {
 	return ExecTX(ctx, u.insert())
 }
@@ -122,4 +85,48 @@ func (u *upgradeManager) readFsys() error {
 		err = u.list.ListFext(u.upfs[i], ".yaml")
 	}
 	return err
+}
+
+//-----------------------------------------------------------------------------
+
+func (u *upgradeManager) start(ctx Context) error {
+	err := u.upgradeTableCreate(ctx)
+	return err
+}
+
+//-----------------------------------------------------------------------------
+
+func (u *upgradeManager) upgradeTableCreate(ctx Context) error {
+	sql := CreateTable(upgradeTable,
+		"id     integer not null primary key",
+		"info   text not null",
+		"stamp  timestamptz not null",
+		"status integer not null",
+		"errmsg text",
+	)
+	return ExecDB(ctx, sql)
+}
+
+//-----------------------------------------------------------------------------
+
+func (u *upgradeManager) upgradeSelect(ctx Context, version int) (found bool, err error) {
+	var status int
+	var errmsg string
+	sql := From(upgradeTable)
+	sql.Select("status").To(&status)
+	sql.Select(Coalesce("errmsg", "")).To(&errmsg)
+	sql.Where("id = ?", version)
+	found, err = sql.QueryOne(ctx)
+	if err != nil || !found || status != 0 {
+		return
+	}
+	return false, fmt.Errorf("Upgrade to version %d failed: %s", version, errmsg)
+}
+
+//-----------------------------------------------------------------------------
+
+func (u *upgradeManager) upgradeDelete(ctx Context, version int) error {
+	sql := Delete(upgradeTable)
+	sql.Where("id = ?", version)
+	return ExecTX(ctx, sql)
 }

@@ -124,7 +124,7 @@ func (p *PgdbConn) Boot() (err error) {
 		infof("using schema %q", schema)
 	}
 
-	if err = upgradeTableCreate(ctx); err != nil {
+	if err = p.upgr.start(ctx); err != nil {
 		p.abort()
 		return
 	}

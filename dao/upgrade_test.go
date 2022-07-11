@@ -22,9 +22,11 @@ func TestUpgradeCRUD(t *testing.T) {
 
 	ctx := WillTest(t, "test")
 
-	require.NoError(t, upgradeDelete(ctx, ver))
+	upm := &Pgdb.upgr
 
-	has, err := upgradeSelect(ctx, ver)
+	require.NoError(t, upm.upgradeDelete(ctx, ver))
+
+	has, err := upm.upgradeSelect(ctx, ver)
 	require.NoError(t, err)
 	require.False(t, has)
 
@@ -35,21 +37,21 @@ func TestUpgradeCRUD(t *testing.T) {
 	upg.success = true
 	require.NoError(t, upg.Insert(ctx))
 
-	has, err = upgradeSelect(ctx, ver)
+	has, err = upm.upgradeSelect(ctx, ver)
 	require.NoError(t, err)
 	require.True(t, has)
 
-	require.NoError(t, upgradeDelete(ctx, ver))
+	require.NoError(t, upm.upgradeDelete(ctx, ver))
 
 	upg.success = false
 	upg.errtext = "test error message"
 	require.NoError(t, upg.Insert(ctx))
 
-	has, err = upgradeSelect(ctx, ver)
+	has, err = upm.upgradeSelect(ctx, ver)
 	require.Error(t, err)
 	require.False(t, has)
 
-	require.NoError(t, upgradeDelete(ctx, ver))
+	require.NoError(t, upm.upgradeDelete(ctx, ver))
 }
 
 //-----------------------------------------------------------------------------
