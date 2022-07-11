@@ -32,12 +32,18 @@ func init() {
 	})
 }
 
-func (c *controller) GetTollgate(ctx context.Context, request *v1beta1.GetTollgateRequest) (*v1beta1.GetTollgateResponse, error) {
-	toll, err := tollgate.QueryOne(ctx, request.TollgateId)
+func (c *controller) GetTollgate(ctx context.Context, req *v1beta1.GetTollgateRequest) (*v1beta1.GetTollgateResponse, error) {
+	err := req.ValidateAll()
+
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, err.Error())
+	}
+
+	toll, err := tollgate.QueryOne(ctx, req.TollgateId)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			st := status.New(codes.NotFound, "Tollgate not found")
-			st, innerErr := st.WithDetails(request)
+			st, innerErr := st.WithDetails(req)
 			if innerErr != nil {
 				panic(fmt.Errorf("enrich grpc status with details error: %w", innerErr))
 			}
@@ -50,7 +56,13 @@ func (c *controller) GetTollgate(ctx context.Context, request *v1beta1.GetTollga
 	}, nil
 }
 
-func (c *controller) ListTollgates(ctx context.Context, request *v1beta1.ListTollgatesRequest) (*v1beta1.ListTollgatesResponse, error) {
+func (c *controller) ListTollgates(ctx context.Context, req *v1beta1.ListTollgatesRequest) (*v1beta1.ListTollgatesResponse, error) {
+	err := req.ValidateAll()
+
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, err.Error())
+	}
+
 	all, err := tollgate.QueryAll(ctx, 100)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "QueryAll error: %s", err)

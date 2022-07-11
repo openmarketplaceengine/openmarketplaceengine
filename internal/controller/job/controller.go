@@ -43,6 +43,12 @@ func init() {
 //-----------------------------------------------------------------------------
 
 func (c *controller) ImportJob(ctx context.Context, req *rpc.ImportJobRequest) (*rpc.ImportJobResponse, error) {
+	err := req.ValidateAll()
+
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, err.Error())
+	}
+
 	var act = rpc.JobAction_JOB_ACTION_CREATED
 	var j job.Job
 	c.setJob(&j, req.Job)
@@ -60,6 +66,12 @@ func (c *controller) ImportJob(ctx context.Context, req *rpc.ImportJobRequest) (
 //-----------------------------------------------------------------------------
 
 func (c *controller) ExportJob(ctx context.Context, req *rpc.ExportJobRequest) (*rpc.ExportJobResponse, error) {
+	err := req.ValidateAll()
+
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, err.Error())
+	}
+
 	ids := req.Ids
 	cnt := len(ids)
 	if cnt == 0 {
@@ -82,11 +94,19 @@ func (c *controller) ExportJob(ctx context.Context, req *rpc.ExportJobRequest) (
 }
 
 func (c *controller) GetAvailableJobs(ctx context.Context, req *rpc.GetAvailableJobsRequest) (*rpc.GetAvailableJobsResponse, error) {
-	// todo add validation using proto validation extension from Kevin
+	err := req.ValidateAll()
+
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, err.Error())
+	}
 
 	estimatedJobs, err := c.jobService.GetEstimatedJobs(ctx, req.GetAreaKey(), req.GetWorkerId(), req.GetRadiusMeters())
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "get available jobs error: %v", err)
+		return nil, status.Errorf(codes.Internal, "get jobs error: %v", err)
+	}
+
+	if len(estimatedJobs) == 0 {
+		return nil, status.Errorf(codes.NotFound, "no jobs found")
 	}
 
 	jobs := make([]*rpc.EstimatedJob, 0)

@@ -8,7 +8,6 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom/tollgate"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/validate"
 	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
 	"github.com/openmarketplaceengine/openmarketplaceengine/svc/location"
@@ -80,34 +79,24 @@ func transformTollgates(tollgates []*tollgate.Tollgate) (result []*detector.Toll
 	return
 }
 
-func (c *controller) UpdateLocation(ctx context.Context, request *locationV1beta1.UpdateLocationRequest) (*locationV1beta1.UpdateLocationResponse, error) {
-	areaKey := request.GetAreaKey()
-	value := request.GetValue()
+func (c *controller) UpdateLocation(ctx context.Context, req *locationV1beta1.UpdateLocationRequest) (*locationV1beta1.UpdateLocationResponse, error) {
+	err := req.ValidateAll()
+
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, err.Error())
+	}
+
+	areaKey := req.GetAreaKey()
+	value := req.GetValue()
 	workerID := value.GetWorkerId()
 	loc := value.GetLocation()
 	updateTime := value.GetUpdateTime()
-	var v validate.Validator
-	v.ValidateString("area_key", areaKey, validate.IsNotNull)
-	v.ValidateString("value_worker_id", workerID, validate.IsNotNull)
-	v.ValidateFloat64("value_location_longitude", loc.GetLongitude(), validate.IsLongitude)
-	v.ValidateFloat64("value_location_latitude", loc.GetLatitude(), validate.IsLatitude)
-	v.ValidateTimestamp("value_update_time", updateTime)
-
-	errorInfo := v.ErrorInfo()
-	if errorInfo != nil {
-		st, err := status.New(codes.InvalidArgument, "bad request").
-			WithDetails(errorInfo)
-		if err != nil {
-			panic(fmt.Errorf("enrich grpc status with details error: %w", err))
-		}
-		return nil, st.Err()
-	}
 
 	x, err := c.tracker.TrackLocation(ctx, areaKey, workerID, loc.GetLongitude(), loc.GetLatitude())
 
 	if err != nil {
 		st := status.Newf(codes.Internal, "update location or detect tollgate error: %v", err)
-		st, err = st.WithDetails(request)
+		st, err = st.WithDetails(req)
 		if err != nil {
 			panic(fmt.Errorf("enrich grpc status with details error: %w", err))
 		}
@@ -145,22 +134,15 @@ func transform(c *detector.Crossing) *v1beta1.Crossing {
 	}
 }
 
-func (c *controller) GetLocation(ctx context.Context, request *locationV1beta1.GetLocationRequest) (*locationV1beta1.GetLocationResponse, error) {
-	workerID := request.GetWorkerId()
-	areaKey := request.GetAreaKey()
-	var v validate.Validator
-	v.ValidateString("worker_id", workerID, validate.IsNotNull)
-	v.ValidateString("area_key", areaKey, validate.IsNotNull)
+func (c *controller) GetLocation(ctx context.Context, req *locationV1beta1.GetLocationRequest) (*locationV1beta1.GetLocationResponse, error) {
+	err := req.ValidateAll()
 
-	errorInfo := v.ErrorInfo()
-	if errorInfo != nil {
-		st, err := status.New(codes.InvalidArgument, "bad request").
-			WithDetails(errorInfo)
-		if err != nil {
-			panic(fmt.Errorf("enrich grpc status with details error: %w", err))
-		}
-		return nil, st.Err()
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, err.Error())
 	}
+
+	workerID := req.GetWorkerId()
+	areaKey := req.GetAreaKey()
 
 	l := c.tracker.QueryLastLocation(ctx, areaKey, workerID)
 	if l != nil {
@@ -174,10 +156,5 @@ func (c *controller) GetLocation(ctx context.Context, request *locationV1beta1.G
 			LastSeenTime: timestamppb.New(l.LastSeenTime),
 		}, nil
 	}
-	st := status.Newf(codes.NotFound, "location not found")
-	st, err := st.WithDetails(request)
-	if err != nil {
-		panic(fmt.Errorf("enrich grpc status with details error: %w", err))
-	}
-	return nil, st.Err()
+	return nil, status.Errorf(codes.NotFound, "location not found")
 }

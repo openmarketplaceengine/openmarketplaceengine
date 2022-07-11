@@ -143,7 +143,9 @@ func testUpdateLocationBadRequest(t *testing.T, client locationV1beta1.LocationS
 	},
 	)
 	require.Error(t, err)
-	require.EqualError(t, err, "rpc error: code = InvalidArgument desc = bad request")
+
+	require.Equal(t,
+		`rpc error: code = InvalidArgument desc = invalid UpdateLocationRequest.Value: embedded message failed validation | caused by: invalid LocationUpdate.Location: embedded message failed validation | caused by: invalid Location.Latitude: value must be inside range [-90, 90]; invalid Location.Longitude: value must be inside range [-180, 180]`, err.Error())
 
 	_, err = client.UpdateLocation(context.Background(), &locationV1beta1.UpdateLocationRequest{
 		Value: &locationV1beta1.LocationUpdate{
@@ -159,13 +161,15 @@ func testUpdateLocationBadRequest(t *testing.T, client locationV1beta1.LocationS
 	},
 	)
 	require.Error(t, err)
-	require.EqualError(t, err, "rpc error: code = InvalidArgument desc = bad request")
+	require.Equal(t,
+		`rpc error: code = InvalidArgument desc = invalid UpdateLocationRequest.AreaKey: value length must be at least 1 runes`, err.Error())
 
 	_, err = client.GetLocation(context.Background(), &locationV1beta1.GetLocationRequest{
 		WorkerId: id,
 	})
 	require.Error(t, err)
-	require.EqualError(t, err, "rpc error: code = InvalidArgument desc = bad request")
+	require.Equal(t,
+		`rpc error: code = InvalidArgument desc = invalid GetLocationRequest.AreaKey: value length must be at least 1 runes`, err.Error())
 
 	_, err = client.GetLocation(context.Background(), &locationV1beta1.GetLocationRequest{
 		WorkerId: id,
@@ -213,7 +217,7 @@ func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceCl
 	s := location.NewStorage(dao.Reds.StoreClient)
 	ctx := context.Background()
 	id := uuid.NewString()
-	err := s.ForgetLocation(ctx, "a", id)
+	err := s.ForgetLocation(ctx, "abc", id)
 	require.NoError(t, err)
 	from := &locationV1beta1.UpdateLocationRequest{
 

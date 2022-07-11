@@ -5,8 +5,7 @@ import (
 	"fmt"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom/worker"
-	v1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/worker/v1beta1"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/validate"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/api/worker/v1beta1"
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -25,26 +24,18 @@ func init() {
 	})
 }
 
-func (c *controller) GetWorker(ctx context.Context, request *v1beta1.GetWorkerRequest) (*v1beta1.GetWorkerResponse, error) {
-	workerID := request.GetWorkerId()
-	var v validate.Validator
-	v.ValidateString("worker_id", workerID, validate.IsNotNull)
+func (c *controller) GetWorker(ctx context.Context, req *v1beta1.GetWorkerRequest) (*v1beta1.GetWorkerResponse, error) {
+	err := req.ValidateAll()
 
-	errorInfo := v.ErrorInfo()
-	if errorInfo != nil {
-		st, err := status.New(codes.InvalidArgument, "bad request").
-			WithDetails(errorInfo)
-		if err != nil {
-			panic(fmt.Errorf("enrich grpc status with details error: %w", err))
-		}
-		return nil, st.Err()
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, err.Error())
 	}
 
-	wrk, has, err := worker.QueryOne(ctx, request.WorkerId)
+	wrk, has, err := worker.QueryOne(ctx, req.WorkerId)
 
 	if err != nil {
 		st := status.Newf(codes.Internal, "get worker error: %s", err)
-		st, err = st.WithDetails(request)
+		st, err = st.WithDetails(req)
 		if err != nil {
 			panic(fmt.Errorf("enrich grpc status with details error: %w", err))
 		}
@@ -53,7 +44,7 @@ func (c *controller) GetWorker(ctx context.Context, request *v1beta1.GetWorkerRe
 
 	if !has {
 		st := status.Newf(codes.NotFound, "worker not found")
-		st, err := st.WithDetails(request)
+		st, err := st.WithDetails(req)
 		if err != nil {
 			panic(fmt.Errorf("enrich grpc status with details error: %w", err))
 		}
@@ -66,24 +57,18 @@ func (c *controller) GetWorker(ctx context.Context, request *v1beta1.GetWorkerRe
 	}, nil
 }
 
-func (c *controller) UpdateWorkerStatus(ctx context.Context, request *v1beta1.UpdateWorkerStatusRequest) (*v1beta1.UpdateWorkerStatusResponse, error) {
-	workerID := request.GetWorkerId()
-	workerStatus := request.GetStatus()
-	var v validate.Validator
-	v.ValidateString("worker_id", workerID, validate.IsNotNull)
-	v.Validate("worker_status", workerStatus, ValidateStatus)
+func (c *controller) UpdateWorkerStatus(ctx context.Context, req *v1beta1.UpdateWorkerStatusRequest) (*v1beta1.UpdateWorkerStatusResponse, error) {
+	err := req.ValidateAll()
 
-	errorInfo := v.ErrorInfo()
-	if errorInfo != nil {
-		st, err := status.New(codes.InvalidArgument, "bad request").
-			WithDetails(errorInfo)
-		if err != nil {
-			panic(fmt.Errorf("enrich grpc status with details error: %w", err))
-		}
-		return nil, st.Err()
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, err.Error())
 	}
+
+	workerID := req.GetWorkerId()
+	workerStatus := req.GetStatus()
+
 	s := transformStatusFrom(workerStatus)
-	err := worker.UpdateWorkerStatus(ctx, workerID, *s)
+	err = worker.UpdateWorkerStatus(ctx, workerID, *s)
 
 	if err != nil {
 		st := status.Newf(codes.Internal, "update worker status error: %s", err)
@@ -96,13 +81,15 @@ func (c *controller) UpdateWorkerStatus(ctx context.Context, request *v1beta1.Up
 	}, nil
 }
 
-func (c *controller) ListWorkers(ctx context.Context, request *v1beta1.ListWorkersRequest) (*v1beta1.ListWorkersResponse, error) {
-	pageSize := request.GetPageSize()
-	pageToken := request.GetPageToken()
-	st := request.GetStatus()
-	var v validate.Validator
-	v.ValidateString("page_token", pageToken, validate.IsNotNull)
-	v.Validate("page_size", pageSize, ValidatePageSize)
+func (c *controller) ListWorkers(ctx context.Context, req *v1beta1.ListWorkersRequest) (*v1beta1.ListWorkersResponse, error) {
+	err := req.ValidateAll()
+
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, err.Error())
+	}
+
+	pageSize := req.GetPageSize()
+	st := req.GetStatus()
 
 	var s *worker.Status
 	if st != v1beta1.WorkerStatus_WORKER_STATUS_UNSPECIFIED {
@@ -160,22 +147,4 @@ func transformStatusFrom(sta v1beta1.WorkerStatus) *worker.Status {
 		return nil
 	}
 	return &s
-}
-
-// ValidateStatus should not allow UNSPECIFIED status to pass through, as
-// controller API is explicit about status payload.
-func ValidateStatus(value interface{}) error {
-	v, ok := value.(v1beta1.WorkerStatus)
-	if !ok || v == 0 {
-		return fmt.Errorf("illegal status: %v", value)
-	}
-	return nil
-}
-
-func ValidatePageSize(value interface{}) error {
-	v, ok := value.(int32)
-	if ok && v > 0 {
-		return nil
-	}
-	return fmt.Errorf("illegal page_size: %v", value)
 }

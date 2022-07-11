@@ -107,6 +107,13 @@ lint: ## Run linter
 	@echo "==> Running linter"
 	golangci-lint run
 
+gen-proto:
+	buf breaking --against '.git#branch=main'
+	buf lint
+	buf format -w
+	buf mod update api
+	buf generate
+
 buf-lint: ## Run buf linter
 	@echo "==> Running buf linter"
 	buf lint
