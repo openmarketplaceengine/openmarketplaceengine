@@ -51,16 +51,8 @@ PACKAGES=$(shell go list ./...)
 PACKAGES_WITH_TESTS = $(shell go list -f '{{if len .XTestGoFiles}}{{.ImportPath}}{{end}}' ./... \
 							&& go list -f '{{if len .TestGoFiles}}{{.ImportPath}}{{end}}' ./...)
 
-checkstyle: ## Run quick checkstyle (govet + goimports (fail on errors))
-	@echo "==> Running govet"
-	go vet $(PACKAGES) || exit 1
-	@echo "==> Running goimports"
-	goimports -l -w .
-	@echo "==> SUCCESS";
-
 .PHONY: test
 test: echo-env ## Run tests
-	@echo "==> Testing"
 	@for package in $(PACKAGES_WITH_TESTS); do \
 		echo "==> Testing ==> $$package" ; \
 		go test $$package -test.v || exit 1; \
@@ -68,7 +60,6 @@ test: echo-env ## Run tests
 	@echo "==> SUCCESS"
 
 test-cover: echo-env ## Run tests with -covermode
-	@echo "==> Cover Testing"
 	rm -fv cover.out;
 	rm -fv cprofile.out
 	rm -fv cover.out.original;
@@ -85,9 +76,8 @@ test-cover: echo-env ## Run tests with -covermode
 	@echo "==> SUCCESS"
 
 test-race: echo-env ## Run tests with -race
-	@echo "==> Testing race conditions"
 	@for package in $(PACKAGES_WITH_TESTS); do \
-		echo "==> Testing ==> $$package" ; \
+		echo "==> Testing race ==> $$package" ; \
 		go test -race -run=. -test.timeout=4000s $$package || exit 1; \
 	done
 
