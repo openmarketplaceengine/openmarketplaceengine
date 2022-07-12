@@ -104,7 +104,6 @@ lint_install: ## Install linter
 	golangci-lint --version
 
 lint: ## Run linter
-	@echo "==> Running linter"
 	golangci-lint run
 
 buf-gen: ## Run buf lint format generate
