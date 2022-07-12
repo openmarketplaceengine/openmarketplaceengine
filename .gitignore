@@ -3,3 +3,6 @@
 build
 cover.*
 node_modules
+
+validate
+internal/validate

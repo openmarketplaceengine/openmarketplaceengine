@@ -107,19 +107,12 @@ lint: ## Run linter
 	@echo "==> Running linter"
 	golangci-lint run
 
-gen-proto:
-	buf breaking --against '.git#branch=main'
-	buf lint
+buf-gen: ## Run buf lint format generate
+	# Not tracking breaking changes just yet, uncomment after first major release.
+	# buf breaking --against '.git#branch=main'
+	buf lint --exclude-path validate/validate.proto
 	buf format -w
 	buf mod update api
-	buf generate
-
-buf-lint: ## Run buf linter
-	@echo "==> Running buf linter"
-	buf lint
-
-buf-gen: ## Run buf generate
-	@echo "==> Running buf generate"
 	buf generate
 
 buf-ls: ## Run buf list
