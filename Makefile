@@ -97,6 +97,7 @@ lint: ## Run linter
 	golangci-lint run
 
 buf-gen: ## Run buf lint format generate
+	buf export buf.build/envoyproxy/protoc-gen-validate -o .
 	# Not tracking breaking changes just yet, uncomment after first major release.
 	# buf breaking --against '.git#branch=main'
 	buf lint --exclude-path validate/validate.proto
