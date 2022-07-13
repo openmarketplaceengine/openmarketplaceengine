@@ -48,6 +48,7 @@ func (t *Tollgate) insert() dao.Executable {
 		Set("b_boxes", t.BBoxes).
 		Set("gate_line", t.GateLine).
 		Set("created", t.Created)
+	sql.IgnoreConflict()
 	return sql
 }
 
