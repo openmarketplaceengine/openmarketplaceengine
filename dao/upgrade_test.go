@@ -65,3 +65,11 @@ func TestRegisterUpgrade(t *testing.T) {
 	require.Equal(t, "-02.upgrade.yaml", list.Path(1).Name)
 	require.Equal(t, "dummy.yaml", list.Path(2).Name)
 }
+
+//-----------------------------------------------------------------------------
+
+func TestUpgrade(t *testing.T) {
+	RegisterUpgrade(testUpfs)
+	ctx := WillTest(t, "test")
+	_ = ctx
+}

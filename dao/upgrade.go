@@ -13,10 +13,9 @@ import (
 
 type Upgrade struct {
 	Version int
-	Disable bool
 	Details string
 	Confirm string
-	fpath   *dir.FsysPath //nolint
+	Disable bool
 }
 
 type upgradeManager struct {
@@ -80,9 +79,37 @@ func (u *upgradeManager) readFsys() error {
 
 //-----------------------------------------------------------------------------
 
-func (u *upgradeManager) start(ctx Context) error {
-	err := u.upgradeTableCreate(ctx)
-	return err
+func (u *upgradeManager) start(ctx Context) (err error) {
+	if err = u.upgradeTableCreate(ctx); err != nil {
+		return
+	}
+	if err = u.readFsys(); err != nil {
+		return
+	}
+	n := u.list.Len()
+	if n == 0 {
+		debugf("upgrade scripts not registered")
+		return
+	}
+	for i := 0; i < n && err == nil; i++ {
+		err = u.readFile(u.list.Path(i))
+	}
+	return
+}
+
+//-----------------------------------------------------------------------------
+
+func (u *upgradeManager) readFile(fpath *dir.FsysPath) (err error) {
+	var upg Upgrade
+	debugf("%s: processing upgrade", fpath.Name)
+	if err = fpath.ReadYAML(&upg); err != nil {
+		return
+	}
+	if upg.Disable {
+		debugf("%s: upgrade is disabled", fpath.Name)
+		return
+	}
+	return
 }
 
 //-----------------------------------------------------------------------------
