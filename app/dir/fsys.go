@@ -121,7 +121,7 @@ loop:
 			break loop
 		}
 	}
-	if i == 0 {
+	if i == 0 || (i == 1 && s[0] == '-') {
 		return 0, false
 	}
 	v, err := strconv.Atoi(s[:i])
