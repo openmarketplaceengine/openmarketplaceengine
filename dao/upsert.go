@@ -14,7 +14,7 @@ const (
 
 func Upsert(ctx Context, insert, update func() Executable) (Result, UpsertStatus, error) {
 	sql := insert()
-	err := ExecTX(ctx, sql)
+	err := ExecTX(SkipErrorsContext(ctx, ErrUniqueViolation), sql)
 	if err == nil && RowsAffected(sql.Result()) > 0 {
 		return sql.Result(), UpsertCreated, nil
 	}
