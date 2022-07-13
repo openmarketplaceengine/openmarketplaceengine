@@ -40,7 +40,7 @@ func (e *loggingExecutor) ExecContext(ctx Context, query string, args ...interfa
 		e.logSQL(verb, query, args)
 	}
 	res, err := e.exe.ExecContext(ctx, query, args...)
-	if err != nil && e.opt.LogErr() {
+	if err != nil && e.opt.LogErr() && !ShouldSkipError(ctx, err) {
 		e.logErr(verb, query, args, err)
 	}
 	return res, err
@@ -52,7 +52,7 @@ func (e *loggingExecutor) QueryContext(ctx Context, query string, args ...interf
 		e.logSQL(verb, query, args)
 	}
 	rows, err := e.exe.QueryContext(ctx, query, args...)
-	if err != nil && e.opt.LogErr() {
+	if err != nil && e.opt.LogErr() && !ShouldSkipError(ctx, err) {
 		e.logErr(verb, query, args, err)
 	}
 	return rows, err
