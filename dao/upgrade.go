@@ -5,7 +5,6 @@
 package dao
 
 import (
-	"fmt"
 	"io/fs"
 	"time"
 
@@ -18,8 +17,6 @@ type Upgrade struct {
 	Details string
 	Confirm string
 	fpath   *dir.FsysPath //nolint
-	errtext string
-	success bool
 }
 
 type upgradeManager struct {
@@ -48,12 +45,6 @@ func (u *Upgrade) insert() Executable {
 	sql.Set("id", u.Version)
 	sql.Set("info", u.Details)
 	sql.Set("stamp", time.Now())
-	if u.success {
-		sql.Set("status", 1)
-	} else {
-		sql.Set("status", 0)
-		sql.Set("errmsg", u.errtext)
-	}
 	return sql
 }
 
@@ -97,30 +88,26 @@ func (u *upgradeManager) start(ctx Context) error {
 //-----------------------------------------------------------------------------
 
 func (u *upgradeManager) upgradeTableCreate(ctx Context) error {
-	sql := CreateTable(upgradeTable,
+	var exe ListExec
+	// TODO: remove in the next PR
+	exe.Append(DropColumn(upgradeTable, "status"))
+	exe.Append(DropColumn(upgradeTable, "errmsg"))
+	exe.Append(CreateTable(upgradeTable,
 		"id     integer not null primary key",
 		"info   text not null",
 		"stamp  timestamptz not null",
-		"status integer not null",
-		"errmsg text",
-	)
-	return ExecDB(ctx, sql)
+	))
+	return ExecDB(ctx, &exe)
 }
 
 //-----------------------------------------------------------------------------
 
-func (u *upgradeManager) upgradeSelect(ctx Context, version int) (found bool, err error) {
-	var status int
-	var errmsg string
+func (u *upgradeManager) upgradeSelect(ctx Context, version int) (found bool, stamp time.Time, err error) {
 	sql := From(upgradeTable)
-	sql.Select("status").To(&status)
-	sql.Select(Coalesce("errmsg", "")).To(&errmsg)
+	sql.Select("stamp").To(&stamp)
 	sql.Where("id = ?", version)
 	found, err = sql.QueryOne(ctx)
-	if err != nil || !found || status != 0 {
-		return
-	}
-	return false, fmt.Errorf("Upgrade to version %d failed: %s", version, errmsg)
+	return
 }
 
 //-----------------------------------------------------------------------------

@@ -26,32 +26,27 @@ func TestUpgradeCRUD(t *testing.T) {
 
 	require.NoError(t, upm.upgradeDelete(ctx, ver))
 
-	has, err := upm.upgradeSelect(ctx, ver)
+	has, stamp, err := upm.upgradeSelect(ctx, ver)
 	require.NoError(t, err)
 	require.False(t, has)
+	require.True(t, stamp.IsZero())
 
 	var upg Upgrade
 
 	upg.Version = -1
 	upg.Details = "Upgrade CRUD testing"
-	upg.success = true
 	require.NoError(t, upg.Insert(ctx))
 
-	has, err = upm.upgradeSelect(ctx, ver)
+	has, stamp, err = upm.upgradeSelect(ctx, ver)
 	require.NoError(t, err)
 	require.True(t, has)
+	require.False(t, stamp.IsZero())
 
 	require.NoError(t, upm.upgradeDelete(ctx, ver))
 
-	upg.success = false
-	upg.errtext = "test error message"
-	require.NoError(t, upg.Insert(ctx))
-
-	has, err = upm.upgradeSelect(ctx, ver)
-	require.Error(t, err)
+	has, _, err = upm.upgradeSelect(ctx, ver)
+	require.NoError(t, err)
 	require.False(t, has)
-
-	require.NoError(t, upm.upgradeDelete(ctx, ver))
 }
 
 //-----------------------------------------------------------------------------
