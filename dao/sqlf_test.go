@@ -27,6 +27,15 @@ func TestQueryOne(t *testing.T) {
 
 //-----------------------------------------------------------------------------
 
+func TestSQL_IgnoreConflict(t *testing.T) {
+	ctx := initQueryTestTable(t)
+	sql := Insert(queryTestTable).Set("id", 1).IgnoreConflict()
+	err := ExecTX(ctx, sql)
+	require.NoError(t, err)
+}
+
+//-----------------------------------------------------------------------------
+
 func initQueryTestTable(t *testing.T) Context {
 	ctx := WillTest(t, "test")
 	err := ExecDB(ctx, CreateTable(queryTestTable, "id int primary key not null", "name text"))
