@@ -15,10 +15,10 @@ const (
 func Upsert(ctx Context, insert, update func() Executable) (Result, UpsertStatus, error) {
 	sql := insert()
 	err := ExecTX(ctx, sql)
-	if err == nil {
+	if err == nil && RowsAffected(sql.Result()) > 0 {
 		return sql.Result(), UpsertCreated, nil
 	}
-	if !ErrUniqueViolation.Is(err) {
+	if err != nil && !ErrUniqueViolation.Is(err) {
 		return nil, UpsertUnknown, err
 	}
 	sql = update()
