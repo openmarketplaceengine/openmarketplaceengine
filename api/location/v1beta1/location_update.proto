@@ -3,8 +3,8 @@ syntax = "proto3";
 package api.location.v1beta1;
 
 import "api/type/v1beta1/location.proto";
+import "api/validate/validate.proto";
 import "google/protobuf/timestamp.proto";
-import "validate/validate.proto";
 
 option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/location/v1beta1";
 

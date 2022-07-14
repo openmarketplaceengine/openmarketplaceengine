@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package api.worker.v1beta1;
 
-import "validate/validate.proto";
+import "api/validate/validate.proto";
 
 option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/worker/v1beta1";
 

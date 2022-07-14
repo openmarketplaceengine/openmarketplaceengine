@@ -97,12 +97,17 @@ lint: ## Run linter
 	golangci-lint run
 
 buf-gen: ## Run buf lint format generate
-	buf export buf.build/envoyproxy/protoc-gen-validate -o .
+	rm -rf api/{google,grafeas,validate} || true
+	buf mod update api
+	buf export buf.build/envoyproxy/protoc-gen-validate -o api
+
+	# Proto files and types from google and grafeas
+	# buf export buf.build/googleapis/googleapis -o api
+
 	# Not tracking breaking changes just yet, uncomment after first major release.
 	# buf breaking --against '.git#branch=main'
-	buf lint --exclude-path validate/validate.proto
+	buf lint --exclude-path api/validate/validate.proto
 	buf format -w
-	buf mod update api
 	buf generate
 
 buf-ls: ## Run buf list
