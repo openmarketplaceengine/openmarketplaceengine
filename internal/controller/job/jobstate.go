@@ -8,7 +8,7 @@ import (
 	"context"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom/job"
-	rpc "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/job/v1beta1"
+	rpc "github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/job/v1beta1"
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"

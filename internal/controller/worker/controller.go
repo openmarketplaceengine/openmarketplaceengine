@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom/worker"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/api/worker/v1beta1"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/worker/v1beta1"
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"

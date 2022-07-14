@@ -7,7 +7,7 @@ import (
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom/tollgate"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/api/tollgate/v1beta1"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/tollgate/v1beta1"
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
 	svcTollgate "github.com/openmarketplaceengine/openmarketplaceengine/svc/tollgate"
 	"google.golang.org/grpc"

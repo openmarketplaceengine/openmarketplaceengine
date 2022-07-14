@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package api.job.v1beta1;
+
+option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/job/v1beta1";
+
+/**
+  bronx/api/src/enums/job_states.ts
+  JOB_STATES = {
+    AVAILABLE: "AVAILABLE",
+    GO_TO_PICKUP: "GO_TO_PICKUP",
+    NEAR_PICKUP: "NEAR_PICKUP",
+    AWAITING_PICKUP: "AWAITING_PICKUP",
+    ON_TRIP: "ON_TRIP",
+    NEAR_DESTINATION: "NEAR_DESTINATION",
+    AT_DESTINATION: "AT_DESTINATION",
+    COMPLETE: "COMPLETE",
+    COMPLETE_EARLY: "COMPLETE_EARLY",
+    CANCELED: "CANCELED",
+    CANCELED_BY_DRIVER: "CANCELED_BY_DRIVER",
+    CANCELED_BY_RIDER: "CANCELED_BY_RIDER",
+    RIDER_NO_SHOW: "RIDER_NO_SHOW",
+  };
+ */
+
+enum JobState {
+  JOB_STATE_UNSPECIFIED = 0;
+  JOB_STATE_AVAILABLE = 1;
+  JOB_STATE_GO_TO_PICKUP = 2;
+  JOB_STATE_NEAR_PICKUP = 3;
+  JOB_STATE_AWAITING_PICKUP = 4;
+  JOB_STATE_ON_TRIP = 5;
+  JOB_STATE_NEAR_DESTINATION = 6;
+  JOB_STATE_AT_DESTINATION = 7;
+  JOB_STATE_COMPLETE = 8;
+  JOB_STATE_COMPLETE_EARLY = 9;
+  JOB_STATE_CANCELED = 10;
+  JOB_STATE_CANCELED_BY_DRIVER = 11;
+  JOB_STATE_CANCELED_BY_RIDER = 12;
+  JOB_STATE_RIDER_NO_SHOW = 13;
+}
+
+service JobStateService {
+  rpc GetJobState(GetJobStateRequest) returns (GetJobStateResponse) {}
+  rpc UpdateJobState(UpdateJobStateRequest) returns (UpdateJobStateResponse) {}
+}
+
+message GetJobStateRequest {
+  string job_id = 1;
+  JobState state = 2;
+}
+
+message UpdateJobStateRequest {
+  string job_id = 1;
+  JobState state = 2;
+}
+
+message GetJobStateResponse {
+  string job_id = 1;
+  JobState state = 2;
+}
+
+message UpdateJobStateResponse {
+  string job_id = 1;
+  JobState state = 2;
+}

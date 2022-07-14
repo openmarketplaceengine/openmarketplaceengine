@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package api.crossing.v1beta1;
+
+import "api/type/v1beta1/crossing.proto";
+
+option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/crossing/v1beta1";
+
+service CrossingService {
+  rpc ListCrossings(ListCrossingsRequest) returns (ListCrossingsResponse) {}
+}
+
+message ListCrossingsRequest {
+  string tollgate_id = 1;
+  string worker_id = 2;
+  int32 page_size = 3;
+  string page_token = 4;
+}
+
+message ListCrossingsResponse {
+  repeated api.type.v1beta1.Crossing crossings = 1;
+  string next_page_token = 2;
+}

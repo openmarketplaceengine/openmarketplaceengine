@@ -11,7 +11,7 @@ import (
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/app"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cmd/omecmd/cfg"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/api/status/v1beta1"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/status/v1beta1"
 )
 
 func init() {

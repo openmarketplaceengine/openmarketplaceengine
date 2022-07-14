@@ -11,7 +11,7 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom/job"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/api/job/v1beta1"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/job/v1beta1"
 	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
 	svcJob "github.com/openmarketplaceengine/openmarketplaceengine/svc/job"
 	"github.com/openmarketplaceengine/openmarketplaceengine/svc/location"
