@@ -18,9 +18,12 @@ type Upgrade struct {
 	Disable bool
 }
 
+type vermap = map[int]time.Time
+
 type upgradeManager struct {
 	upfs []dir.FS
 	list dir.FsysList
+	vmap vermap // version map
 }
 
 const upgradeTable = "upgrade"
@@ -61,6 +64,7 @@ func (u *upgradeManager) registerUpgrade(fs fs.FS) {
 
 func (u *upgradeManager) clear() {
 	u.upfs = nil
+	u.vmap = nil
 }
 
 //-----------------------------------------------------------------------------
@@ -89,6 +93,9 @@ func (u *upgradeManager) start(ctx Context) (err error) {
 	n := u.list.Len()
 	if n == 0 {
 		debugf("upgrade scripts not registered")
+		return
+	}
+	if u.vmap, err = u.loadVmap(ctx); err != nil {
 		return
 	}
 	for i := 0; i < n && err == nil; i++ {
@@ -143,4 +150,26 @@ func (u *upgradeManager) upgradeDelete(ctx Context, version int) error {
 	sql := Delete(upgradeTable)
 	sql.Where("id = ?", version)
 	return ExecTX(ctx, sql)
+}
+
+//-----------------------------------------------------------------------------
+
+func (u *upgradeManager) loadVmap(ctx Context) (vermap, error) {
+	vmap := make(vermap)
+	sql := From(upgradeTable).Select("id").Select("stamp")
+	err := sql.QueryRows(ctx, func(rows *Rows) error {
+		var ver int
+		var stamp time.Time
+		for rows.Next() {
+			if serr := rows.Scan(&ver, &stamp); serr != nil {
+				return serr
+			}
+			vmap[ver] = stamp
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return vmap, nil
 }

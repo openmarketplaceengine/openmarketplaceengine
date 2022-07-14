@@ -73,3 +73,12 @@ func TestUpgrade(t *testing.T) {
 	ctx := WillTest(t, "test")
 	_ = ctx
 }
+
+//-----------------------------------------------------------------------------
+
+func TestUpgradeVermap(t *testing.T) {
+	ctx := WillTest(t, "test")
+	upm := &Pgdb.upgr
+	_, err := upm.loadVmap(ctx)
+	require.NoError(t, err)
+}
