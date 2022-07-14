@@ -98,6 +98,7 @@ lint: ## Run linter
 
 buf-gen: ## Run buf lint format generate
 	rm -rf api/{google,grafeas,validate} || true
+	rm -rf internal/api/{google,grafeas,validate} || true
 	buf mod update api
 	buf export buf.build/envoyproxy/protoc-gen-validate -o api
 
