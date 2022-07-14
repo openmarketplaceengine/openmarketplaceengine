@@ -70,16 +70,15 @@ func (u *upgradeManager) clear() {
 
 //-----------------------------------------------------------------------------
 
-func (u *upgradeManager) readFsys() error {
+func (u *upgradeManager) readFsys() (err error) {
 	if len(u.upfs) == 0 {
-		return nil
+		return
 	}
 	u.list.Alloc(8)
-	var err error
 	for i := 0; i < len(u.upfs) && err == nil; i++ {
 		err = u.list.ListFext(u.upfs[i], ".yaml")
 	}
-	return err
+	return
 }
 
 //-----------------------------------------------------------------------------
