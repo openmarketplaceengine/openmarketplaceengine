@@ -4,11 +4,6 @@
 
 package dao
 
-import (
-	"fmt"
-	"strings"
-)
-
 type UpsertStatus int
 
 const (
@@ -60,8 +55,11 @@ func UpsertAtomic(table string) *AtomicUpsert {
 //-----------------------------------------------------------------------------
 
 func (u *AtomicUpsert) Key(col string, val interface{}) *AtomicUpsert {
-	u.key.col = col
 	u.key.val = val
+	if u.key.col != col {
+		u.key.col = col
+		u.sql = ""
+	}
 	return u
 }
 
@@ -69,6 +67,7 @@ func (u *AtomicUpsert) Key(col string, val interface{}) *AtomicUpsert {
 
 func (u *AtomicUpsert) Set(col string, val interface{}) *AtomicUpsert {
 	u.col = append(u.col, colval{col, val})
+	u.sql = ""
 	return u
 }
 
@@ -82,35 +81,36 @@ func (u *AtomicUpsert) Put(col string, val interface{}) *AtomicUpsert {
 		}
 	}
 	u.col = append(u.col, colval{col, val})
+	u.sql = ""
 	return u
 }
 
 //-----------------------------------------------------------------------------
 
 func (u *AtomicUpsert) build() string {
-	var b strings.Builder
-	b.WriteString("INSERT INTO ")
-	b.WriteString(u.tbl)
-	b.WriteString(" (")
-	b.WriteString(u.key.col)
+	var b StrBuf
+	b.Alloc(256)
+	b.PutStr("INSERT INTO ")
+	b.PutStr(u.tbl)
+	b.PutStr(" (")
+	b.PutStr(u.key.col)
 	n := len(u.col)
 	for i := 0; i < n; i++ {
-		b.WriteString(", ")
-		b.WriteString(u.col[i].col)
+		b.PutStr(", ")
+		b.PutStr(u.col[i].col)
 	}
-	b.WriteString(") VALUES ($1")
+	b.PutStr(") VALUES ($1")
 	for i := 0; i < n; i++ {
-		b.WriteString(", ")
-		_, _ = fmt.Fprintf(&b, "$%d", (i + 2))
+		b.PutStr(", $").PutInt(i + 2)
 	}
-	b.WriteString(") ON CONFLICT (")
-	b.WriteString(u.key.col)
-	b.WriteString(") DO UPDATE SET ")
+	b.PutStr(") ON CONFLICT (")
+	b.PutStr(u.key.col)
+	b.PutStr(") DO UPDATE SET ")
 	for i := 0; i < n; i++ {
 		if i > 0 {
-			b.WriteString(", ")
+			b.PutStr(", ")
 		}
-		_, _ = fmt.Fprintf(&b, "%s = $%d", u.col[i].col, (i + 2))
+		b.PutStr(u.col[i].col).PutStr(" = $").PutInt(i + 2)
 	}
 	return b.String()
 }
