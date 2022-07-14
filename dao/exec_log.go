@@ -16,7 +16,7 @@ type loggingExecutor struct {
 	opt LogOpt
 }
 
-type flog = func(format string, args ...interface{})
+type Flog = func(format string, args ...interface{})
 
 func (e *loggingExecutor) ExecContext(ctx Context, query string, args ...interface{}) (Result, error) {
 	const verb = "EXEC"
@@ -62,7 +62,7 @@ func jsonArgs(args []interface{}) string {
 
 const _argsIndent = "                                     "
 
-func logSQL(flog flog, verb string, query string, args []interface{}) {
+func logSQL(flog Flog, verb string, query string, args []interface{}) {
 	if len(args) > 0 {
 		flog("[%s] %s\n%s[ARGS] %s", verb, query, _argsIndent, jsonArgs(args))
 		return
@@ -70,10 +70,44 @@ func logSQL(flog flog, verb string, query string, args []interface{}) {
 	flog("[%s] %s", verb, query)
 }
 
-func logErr(flog flog, verb string, query string, args []interface{}, err error) {
+func logErr(flog Flog, verb string, query string, args []interface{}, err error) {
 	if len(args) > 0 {
 		flog("%v\n%s[%s] %s\n%s[ARGS] %s", err, _argsIndent, verb, query, _argsIndent, jsonArgs(args))
 		return
 	}
 	flog("%v\n%s[%s] %s", err, _argsIndent, verb, query)
+}
+
+//-----------------------------------------------------------------------------
+
+type flogExec struct {
+	flog Flog
+}
+
+func (e *flogExec) ExecContext(ctx Context, query string, args ...interface{}) (Result, error) {
+	logSQL(e.flog, "EXEC", query, args)
+	return nil, nil
+}
+
+func (e *flogExec) QueryContext(ctx Context, query string, args ...interface{}) (*Rows, error) {
+	logSQL(e.flog, "STMT", query, args)
+	return nil, nil
+}
+
+func (e *flogExec) QueryRowContext(ctx Context, query string, args ...interface{}) *Row {
+	logSQL(e.flog, "STMT", query, args)
+	return nil
+}
+
+//-----------------------------------------------------------------------------
+
+func ExecFlog(ctx Context, flog Flog, execs ...Executable) (err error) {
+	if flog == nil {
+		flog = debugf
+	}
+	exe := flogExec{flog}
+	for i := 0; i < len(execs) && err == nil; i++ {
+		err = execs[i].Execute(ctx, &exe)
+	}
+	return
 }
