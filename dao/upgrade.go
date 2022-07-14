@@ -65,6 +65,7 @@ func (u *upgradeManager) registerUpgrade(fs fs.FS) {
 func (u *upgradeManager) clear() {
 	u.upfs = nil
 	u.vmap = nil
+	u.list.Clear()
 }
 
 //-----------------------------------------------------------------------------
