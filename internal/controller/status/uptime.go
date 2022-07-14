@@ -8,7 +8,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/api/status/v1beta1"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/status/v1beta1"
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/timestamppb"

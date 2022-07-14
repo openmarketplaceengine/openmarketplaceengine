@@ -12,7 +12,7 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/api/tollgate/v1beta1"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/tollgate/v1beta1"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

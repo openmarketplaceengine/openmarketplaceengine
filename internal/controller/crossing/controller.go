@@ -12,8 +12,8 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
 	"google.golang.org/grpc"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/api/crossing/v1beta1"
-	typeV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/type/v1beta1"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/crossing/v1beta1"
+	typeV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/type/v1beta1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

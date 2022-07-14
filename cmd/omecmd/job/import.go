@@ -16,8 +16,8 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/app/dir"
 	"github.com/openmarketplaceengine/openmarketplaceengine/app/enc/geo"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cmd/omecmd/cfg"
-	rpc "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/job/v1beta1"
-	typ "github.com/openmarketplaceengine/openmarketplaceengine/internal/api/type/v1beta1"
+	rpc "github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/job/v1beta1"
+	typ "github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/type/v1beta1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/yaml.v2"
 )
