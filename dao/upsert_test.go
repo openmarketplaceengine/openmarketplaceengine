@@ -5,6 +5,8 @@
 package dao
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -48,4 +50,57 @@ func TestAtomicUpsert(t *testing.T) {
 	require.True(t, has)
 	require.Equal(t, "upsert", info)
 	Pgdb.SetLogOpt(logopt)
+}
+
+//-----------------------------------------------------------------------------
+// Upsert statement building benchmarks
+//-----------------------------------------------------------------------------
+
+func benchUpsertBuild(b *testing.B, f func() string) {
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		if s := f(); len(s) == 0 {
+			b.Fatal("empty string")
+		}
+	}
+}
+
+func BenchmarkUpsertBuild(b *testing.B) {
+	ups := UpsertAtomic("upsert_atomic")
+	ups.Key("id", 1).Set("info", "info").Set("stamp", time.Now()).Set("test", nil)
+	b.Run("Std", func(b *testing.B) {
+		benchUpsertBuild(b, ups.buildStd)
+	})
+	b.Run("Buf", func(b *testing.B) {
+		benchUpsertBuild(b, ups.build)
+	})
+}
+
+func (u *AtomicUpsert) buildStd() string {
+	var b strings.Builder
+	b.Grow(256)
+	b.WriteString("INSERT INTO ")
+	b.WriteString(u.tbl)
+	b.WriteString(" (")
+	b.WriteString(u.key.col)
+	n := len(u.col)
+	for i := 0; i < n; i++ {
+		b.WriteString(", ")
+		b.WriteString(u.col[i].col)
+	}
+	b.WriteString(") VALUES ($1")
+	for i := 0; i < n; i++ {
+		b.WriteString(", ")
+		_, _ = fmt.Fprintf(&b, "$%d", (i + 2))
+	}
+	b.WriteString(") ON CONFLICT (")
+	b.WriteString(u.key.col)
+	b.WriteString(") DO UPDATE SET ")
+	for i := 0; i < n; i++ {
+		if i > 0 {
+			b.WriteString(", ")
+		}
+		_, _ = fmt.Fprintf(&b, "%s = $%d", u.col[i].col, (i + 2))
+	}
+	return b.String()
 }
