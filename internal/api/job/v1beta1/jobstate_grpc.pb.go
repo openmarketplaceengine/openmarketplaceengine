@@ -22,8 +22,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type JobStateServiceClient interface {
-	GetJobState(ctx context.Context, in *JobStateRequest, opts ...grpc.CallOption) (*JobStateResponse, error)
-	SetJobState(ctx context.Context, in *JobStateRequest, opts ...grpc.CallOption) (*JobStateResponse, error)
+	GetJobState(ctx context.Context, in *GetJobStateRequest, opts ...grpc.CallOption) (*GetJobStateResponse, error)
+	UpdateJobState(ctx context.Context, in *UpdateJobStateRequest, opts ...grpc.CallOption) (*UpdateJobStateResponse, error)
 }
 
 type jobStateServiceClient struct {
@@ -34,8 +34,8 @@ func NewJobStateServiceClient(cc grpc.ClientConnInterface) JobStateServiceClient
 	return &jobStateServiceClient{cc}
 }
 
-func (c *jobStateServiceClient) GetJobState(ctx context.Context, in *JobStateRequest, opts ...grpc.CallOption) (*JobStateResponse, error) {
-	out := new(JobStateResponse)
+func (c *jobStateServiceClient) GetJobState(ctx context.Context, in *GetJobStateRequest, opts ...grpc.CallOption) (*GetJobStateResponse, error) {
+	out := new(GetJobStateResponse)
 	err := c.cc.Invoke(ctx, "/api.job.v1beta1.JobStateService/GetJobState", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -43,9 +43,9 @@ func (c *jobStateServiceClient) GetJobState(ctx context.Context, in *JobStateReq
 	return out, nil
 }
 
-func (c *jobStateServiceClient) SetJobState(ctx context.Context, in *JobStateRequest, opts ...grpc.CallOption) (*JobStateResponse, error) {
-	out := new(JobStateResponse)
-	err := c.cc.Invoke(ctx, "/api.job.v1beta1.JobStateService/SetJobState", in, out, opts...)
+func (c *jobStateServiceClient) UpdateJobState(ctx context.Context, in *UpdateJobStateRequest, opts ...grpc.CallOption) (*UpdateJobStateResponse, error) {
+	out := new(UpdateJobStateResponse)
+	err := c.cc.Invoke(ctx, "/api.job.v1beta1.JobStateService/UpdateJobState", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -56,19 +56,19 @@ func (c *jobStateServiceClient) SetJobState(ctx context.Context, in *JobStateReq
 // All implementations should embed UnimplementedJobStateServiceServer
 // for forward compatibility
 type JobStateServiceServer interface {
-	GetJobState(context.Context, *JobStateRequest) (*JobStateResponse, error)
-	SetJobState(context.Context, *JobStateRequest) (*JobStateResponse, error)
+	GetJobState(context.Context, *GetJobStateRequest) (*GetJobStateResponse, error)
+	UpdateJobState(context.Context, *UpdateJobStateRequest) (*UpdateJobStateResponse, error)
 }
 
 // UnimplementedJobStateServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedJobStateServiceServer struct {
 }
 
-func (UnimplementedJobStateServiceServer) GetJobState(context.Context, *JobStateRequest) (*JobStateResponse, error) {
+func (UnimplementedJobStateServiceServer) GetJobState(context.Context, *GetJobStateRequest) (*GetJobStateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetJobState not implemented")
 }
-func (UnimplementedJobStateServiceServer) SetJobState(context.Context, *JobStateRequest) (*JobStateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetJobState not implemented")
+func (UnimplementedJobStateServiceServer) UpdateJobState(context.Context, *UpdateJobStateRequest) (*UpdateJobStateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateJobState not implemented")
 }
 
 // UnsafeJobStateServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -83,7 +83,7 @@ func RegisterJobStateServiceServer(s grpc.ServiceRegistrar, srv JobStateServiceS
 }
 
 func _JobStateService_GetJobState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(JobStateRequest)
+	in := new(GetJobStateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -95,25 +95,25 @@ func _JobStateService_GetJobState_Handler(srv interface{}, ctx context.Context, 
 		FullMethod: "/api.job.v1beta1.JobStateService/GetJobState",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(JobStateServiceServer).GetJobState(ctx, req.(*JobStateRequest))
+		return srv.(JobStateServiceServer).GetJobState(ctx, req.(*GetJobStateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _JobStateService_SetJobState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(JobStateRequest)
+func _JobStateService_UpdateJobState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateJobStateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(JobStateServiceServer).SetJobState(ctx, in)
+		return srv.(JobStateServiceServer).UpdateJobState(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.job.v1beta1.JobStateService/SetJobState",
+		FullMethod: "/api.job.v1beta1.JobStateService/UpdateJobState",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(JobStateServiceServer).SetJobState(ctx, req.(*JobStateRequest))
+		return srv.(JobStateServiceServer).UpdateJobState(ctx, req.(*UpdateJobStateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -130,8 +130,8 @@ var JobStateService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _JobStateService_GetJobState_Handler,
 		},
 		{
-			MethodName: "SetJobState",
-			Handler:    _JobStateService_SetJobState_Handler,
+			MethodName: "UpdateJobState",
+			Handler:    _JobStateService_UpdateJobState_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

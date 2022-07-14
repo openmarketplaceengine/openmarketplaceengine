@@ -31,7 +31,7 @@ func init() {
 
 //-----------------------------------------------------------------------------
 
-func (s *jobStateServer) GetJobState(ctx context.Context, req *rpc.JobStateRequest) (*rpc.JobStateResponse, error) {
+func (s *jobStateServer) GetJobState(ctx context.Context, req *rpc.GetJobStateRequest) (*rpc.GetJobStateResponse, error) {
 	state, found, err := job.GetState(ctx, req.JobId)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "%v", err)
@@ -39,7 +39,7 @@ func (s *jobStateServer) GetJobState(ctx context.Context, req *rpc.JobStateReque
 	if !found {
 		return nil, status.Errorf(codes.NotFound, "job not found: %q", req.JobId)
 	}
-	res := &rpc.JobStateResponse{
+	res := &rpc.GetJobStateResponse{
 		JobId: req.JobId,
 		State: rpc.JobState(state),
 	}
@@ -48,7 +48,7 @@ func (s *jobStateServer) GetJobState(ctx context.Context, req *rpc.JobStateReque
 
 //-----------------------------------------------------------------------------
 
-func (s *jobStateServer) SetJobState(ctx context.Context, req *rpc.JobStateRequest) (*rpc.JobStateResponse, error) {
+func (s *jobStateServer) UpdateJobState(ctx context.Context, req *rpc.UpdateJobStateRequest) (*rpc.UpdateJobStateResponse, error) {
 	state, found := job.StateFromNumber(int(req.State))
 	if !found || state == 0 {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid job state argument: %q", req.State.String())
@@ -60,7 +60,7 @@ func (s *jobStateServer) SetJobState(ctx context.Context, req *rpc.JobStateReque
 	if !set {
 		return nil, status.Errorf(codes.NotFound, "job not found: %q", req.JobId)
 	}
-	res := &rpc.JobStateResponse{
+	res := &rpc.UpdateJobStateResponse{
 		JobId: req.JobId,
 		State: rpc.JobState(state),
 	}

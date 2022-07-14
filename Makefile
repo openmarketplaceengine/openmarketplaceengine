@@ -51,16 +51,8 @@ PACKAGES=$(shell go list ./...)
 PACKAGES_WITH_TESTS = $(shell go list -f '{{if len .XTestGoFiles}}{{.ImportPath}}{{end}}' ./... \
 							&& go list -f '{{if len .TestGoFiles}}{{.ImportPath}}{{end}}' ./...)
 
-checkstyle: ## Run quick checkstyle (govet + goimports (fail on errors))
-	@echo "==> Running govet"
-	go vet $(PACKAGES) || exit 1
-	@echo "==> Running goimports"
-	goimports -l -w .
-	@echo "==> SUCCESS";
-
 .PHONY: test
 test: echo-env ## Run tests
-	@echo "==> Testing"
 	@for package in $(PACKAGES_WITH_TESTS); do \
 		echo "==> Testing ==> $$package" ; \
 		go test $$package -test.v || exit 1; \
@@ -68,7 +60,6 @@ test: echo-env ## Run tests
 	@echo "==> SUCCESS"
 
 test-cover: echo-env ## Run tests with -covermode
-	@echo "==> Cover Testing"
 	rm -fv cover.out;
 	rm -fv cprofile.out
 	rm -fv cover.out.original;
@@ -85,9 +76,8 @@ test-cover: echo-env ## Run tests with -covermode
 	@echo "==> SUCCESS"
 
 test-race: echo-env ## Run tests with -race
-	@echo "==> Testing race conditions"
 	@for package in $(PACKAGES_WITH_TESTS); do \
-		echo "==> Testing ==> $$package" ; \
+		echo "==> Testing race ==> $$package" ; \
 		go test -race -run=. -test.timeout=4000s $$package || exit 1; \
 	done
 
@@ -104,22 +94,21 @@ lint_install: ## Install linter
 	golangci-lint --version
 
 lint: ## Run linter
-	@echo "==> Running linter"
 	golangci-lint run
 
-gen-proto:
-	buf breaking --against '.git#branch=main'
-	buf lint
-	buf format -w
+buf-gen: ## Run buf lint format generate
+	rm -rf api/{google,grafeas,validate} || true
+	rm -rf internal/api/{google,grafeas,validate} || true
 	buf mod update api
-	buf generate
+	buf export buf.build/envoyproxy/protoc-gen-validate -o api
 
-buf-lint: ## Run buf linter
-	@echo "==> Running buf linter"
-	buf lint
+	# Proto files and types from google and grafeas
+	# buf export buf.build/googleapis/googleapis -o api
 
-buf-gen: ## Run buf generate
-	@echo "==> Running buf generate"
+	# Not tracking breaking changes just yet, uncomment after first major release.
+	# buf breaking --against '.git#branch=main'
+	buf lint --exclude-path api/validate/validate.proto
+	buf format -w
 	buf generate
 
 buf-ls: ## Run buf list

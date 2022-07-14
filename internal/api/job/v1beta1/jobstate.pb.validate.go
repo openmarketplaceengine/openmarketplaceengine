@@ -35,22 +35,22 @@ var (
 	_ = sort.Sort
 )
 
-// Validate checks the field values on JobStateRequest with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// first error encountered is returned, or nil if there are no violations.
-func (m *JobStateRequest) Validate() error {
+// Validate checks the field values on GetJobStateRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetJobStateRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on JobStateRequest with the rules
+// ValidateAll checks the field values on GetJobStateRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// JobStateRequestMultiError, or nil if none found.
-func (m *JobStateRequest) ValidateAll() error {
+// GetJobStateRequestMultiError, or nil if none found.
+func (m *GetJobStateRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *JobStateRequest) validate(all bool) error {
+func (m *GetJobStateRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -62,19 +62,19 @@ func (m *JobStateRequest) validate(all bool) error {
 	// no validation rules for State
 
 	if len(errors) > 0 {
-		return JobStateRequestMultiError(errors)
+		return GetJobStateRequestMultiError(errors)
 	}
 
 	return nil
 }
 
-// JobStateRequestMultiError is an error wrapping multiple validation errors
-// returned by JobStateRequest.ValidateAll() if the designated constraints
+// GetJobStateRequestMultiError is an error wrapping multiple validation errors
+// returned by GetJobStateRequest.ValidateAll() if the designated constraints
 // aren't met.
-type JobStateRequestMultiError []error
+type GetJobStateRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m JobStateRequestMultiError) Error() string {
+func (m GetJobStateRequestMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -83,11 +83,11 @@ func (m JobStateRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m JobStateRequestMultiError) AllErrors() []error { return m }
+func (m GetJobStateRequestMultiError) AllErrors() []error { return m }
 
-// JobStateRequestValidationError is the validation error returned by
-// JobStateRequest.Validate if the designated constraints aren't met.
-type JobStateRequestValidationError struct {
+// GetJobStateRequestValidationError is the validation error returned by
+// GetJobStateRequest.Validate if the designated constraints aren't met.
+type GetJobStateRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -95,22 +95,24 @@ type JobStateRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e JobStateRequestValidationError) Field() string { return e.field }
+func (e GetJobStateRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e JobStateRequestValidationError) Reason() string { return e.reason }
+func (e GetJobStateRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e JobStateRequestValidationError) Cause() error { return e.cause }
+func (e GetJobStateRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e JobStateRequestValidationError) Key() bool { return e.key }
+func (e GetJobStateRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e JobStateRequestValidationError) ErrorName() string { return "JobStateRequestValidationError" }
+func (e GetJobStateRequestValidationError) ErrorName() string {
+	return "GetJobStateRequestValidationError"
+}
 
 // Error satisfies the builtin error interface
-func (e JobStateRequestValidationError) Error() string {
+func (e GetJobStateRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -122,14 +124,14 @@ func (e JobStateRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sJobStateRequest.%s: %s%s",
+		"invalid %sGetJobStateRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = JobStateRequestValidationError{}
+var _ error = GetJobStateRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -137,24 +139,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = JobStateRequestValidationError{}
+} = GetJobStateRequestValidationError{}
 
-// Validate checks the field values on JobStateResponse with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// first error encountered is returned, or nil if there are no violations.
-func (m *JobStateResponse) Validate() error {
+// Validate checks the field values on UpdateJobStateRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UpdateJobStateRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on JobStateResponse with the rules
+// ValidateAll checks the field values on UpdateJobStateRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// JobStateResponseMultiError, or nil if none found.
-func (m *JobStateResponse) ValidateAll() error {
+// UpdateJobStateRequestMultiError, or nil if none found.
+func (m *UpdateJobStateRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *JobStateResponse) validate(all bool) error {
+func (m *UpdateJobStateRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -166,19 +168,19 @@ func (m *JobStateResponse) validate(all bool) error {
 	// no validation rules for State
 
 	if len(errors) > 0 {
-		return JobStateResponseMultiError(errors)
+		return UpdateJobStateRequestMultiError(errors)
 	}
 
 	return nil
 }
 
-// JobStateResponseMultiError is an error wrapping multiple validation errors
-// returned by JobStateResponse.ValidateAll() if the designated constraints
-// aren't met.
-type JobStateResponseMultiError []error
+// UpdateJobStateRequestMultiError is an error wrapping multiple validation
+// errors returned by UpdateJobStateRequest.ValidateAll() if the designated
+// constraints aren't met.
+type UpdateJobStateRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m JobStateResponseMultiError) Error() string {
+func (m UpdateJobStateRequestMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -187,11 +189,11 @@ func (m JobStateResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m JobStateResponseMultiError) AllErrors() []error { return m }
+func (m UpdateJobStateRequestMultiError) AllErrors() []error { return m }
 
-// JobStateResponseValidationError is the validation error returned by
-// JobStateResponse.Validate if the designated constraints aren't met.
-type JobStateResponseValidationError struct {
+// UpdateJobStateRequestValidationError is the validation error returned by
+// UpdateJobStateRequest.Validate if the designated constraints aren't met.
+type UpdateJobStateRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -199,22 +201,24 @@ type JobStateResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e JobStateResponseValidationError) Field() string { return e.field }
+func (e UpdateJobStateRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e JobStateResponseValidationError) Reason() string { return e.reason }
+func (e UpdateJobStateRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e JobStateResponseValidationError) Cause() error { return e.cause }
+func (e UpdateJobStateRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e JobStateResponseValidationError) Key() bool { return e.key }
+func (e UpdateJobStateRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e JobStateResponseValidationError) ErrorName() string { return "JobStateResponseValidationError" }
+func (e UpdateJobStateRequestValidationError) ErrorName() string {
+	return "UpdateJobStateRequestValidationError"
+}
 
 // Error satisfies the builtin error interface
-func (e JobStateResponseValidationError) Error() string {
+func (e UpdateJobStateRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -226,14 +230,14 @@ func (e JobStateResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sJobStateResponse.%s: %s%s",
+		"invalid %sUpdateJobStateRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = JobStateResponseValidationError{}
+var _ error = UpdateJobStateRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -241,4 +245,216 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = JobStateResponseValidationError{}
+} = UpdateJobStateRequestValidationError{}
+
+// Validate checks the field values on GetJobStateResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetJobStateResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetJobStateResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetJobStateResponseMultiError, or nil if none found.
+func (m *GetJobStateResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetJobStateResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for JobId
+
+	// no validation rules for State
+
+	if len(errors) > 0 {
+		return GetJobStateResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetJobStateResponseMultiError is an error wrapping multiple validation
+// errors returned by GetJobStateResponse.ValidateAll() if the designated
+// constraints aren't met.
+type GetJobStateResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetJobStateResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetJobStateResponseMultiError) AllErrors() []error { return m }
+
+// GetJobStateResponseValidationError is the validation error returned by
+// GetJobStateResponse.Validate if the designated constraints aren't met.
+type GetJobStateResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetJobStateResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetJobStateResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetJobStateResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetJobStateResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetJobStateResponseValidationError) ErrorName() string {
+	return "GetJobStateResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetJobStateResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetJobStateResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetJobStateResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetJobStateResponseValidationError{}
+
+// Validate checks the field values on UpdateJobStateResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UpdateJobStateResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UpdateJobStateResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UpdateJobStateResponseMultiError, or nil if none found.
+func (m *UpdateJobStateResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UpdateJobStateResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for JobId
+
+	// no validation rules for State
+
+	if len(errors) > 0 {
+		return UpdateJobStateResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// UpdateJobStateResponseMultiError is an error wrapping multiple validation
+// errors returned by UpdateJobStateResponse.ValidateAll() if the designated
+// constraints aren't met.
+type UpdateJobStateResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UpdateJobStateResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UpdateJobStateResponseMultiError) AllErrors() []error { return m }
+
+// UpdateJobStateResponseValidationError is the validation error returned by
+// UpdateJobStateResponse.Validate if the designated constraints aren't met.
+type UpdateJobStateResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UpdateJobStateResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UpdateJobStateResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UpdateJobStateResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UpdateJobStateResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UpdateJobStateResponseValidationError) ErrorName() string {
+	return "UpdateJobStateResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UpdateJobStateResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUpdateJobStateResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UpdateJobStateResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UpdateJobStateResponseValidationError{}
