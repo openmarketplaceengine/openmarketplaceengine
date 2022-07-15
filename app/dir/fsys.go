@@ -121,7 +121,7 @@ loop:
 			break loop
 		}
 	}
-	if i == 0 {
+	if i == 0 || (i == 1 && s[0] == '-') {
 		return 0, false
 	}
 	v, err := strconv.Atoi(s[:i])
@@ -139,7 +139,21 @@ func (f *FsysPath) String() string {
 //-----------------------------------------------------------------------------
 
 func (f *FsysList) Alloc(size int) {
-	f.list = make([]*FsysPath, 0, size)
+	f.Clear()
+	if cap(f.list) < size {
+		f.list = make([]*FsysPath, 0, size)
+	}
+}
+
+//-----------------------------------------------------------------------------
+
+func (f *FsysList) Clear() {
+	if n := len(f.list); n > 0 {
+		for i := 0; i < n; i++ {
+			f.list[i] = nil
+		}
+		f.list = f.list[:0]
+	}
 }
 
 //-----------------------------------------------------------------------------

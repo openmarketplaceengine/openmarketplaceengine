@@ -94,3 +94,9 @@ func DropIndex(name string, cascade bool) Executable {
 func DropView(name string, cascade bool) Executable {
 	return SQLExec(MakeDrop("view", name, cascade))
 }
+
+//-----------------------------------------------------------------------------
+
+func DropColumn(table string, column string) Executable {
+	return SQLExecf("alter table if exists %s drop column if exists %s cascade", table, column)
+}

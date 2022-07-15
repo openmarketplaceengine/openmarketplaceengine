@@ -27,6 +27,28 @@ func TestQueryOne(t *testing.T) {
 
 //-----------------------------------------------------------------------------
 
+func TestSQL_IgnoreConflict(t *testing.T) {
+	ctx := initQueryTestTable(t)
+	sql := Insert(queryTestTable).Set("id", 1).IgnoreConflict()
+	err := ExecTX(ctx, sql)
+	require.NoError(t, err)
+}
+
+//-----------------------------------------------------------------------------
+
+func TestSQL_Count(t *testing.T) {
+	ctx := initQueryTestTable(t)
+	var cnt int
+	sql := From(queryTestTable).Count("id").To(&cnt)
+	Pgdb.SetLogOpt(LogAll)
+	_, err := sql.QueryOne(ctx)
+	Pgdb.SetLogOpt(LogErr)
+	require.NoError(t, err)
+	require.Equal(t, 3, cnt)
+}
+
+//-----------------------------------------------------------------------------
+
 func initQueryTestTable(t *testing.T) Context {
 	ctx := WillTest(t, "test")
 	err := ExecDB(ctx, CreateTable(queryTestTable, "id int primary key not null", "name text"))

@@ -38,3 +38,16 @@ func TestDrop(t *testing.T) {
 
 	require.NoError(t, err)
 }
+
+func TestDropColumn(t *testing.T) {
+	const table = "drop_column_test"
+	ctx := WillTest(t, "test")
+	var exe ListExec
+	exe.Append(CreateTable(table, "c1 int", "c2 int", "c3 int"))
+	exe.Append(DropColumn(table, "c1"))
+	exe.Append(DropColumn(table, "c2"))
+	exe.Append(DropColumn(table, "c3"))
+	exe.Append(DropTable(table, true))
+	err := ExecTX(ctx, &exe)
+	require.NoError(t, err)
+}

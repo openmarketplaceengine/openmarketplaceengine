@@ -5,8 +5,10 @@
 package dao
 
 import (
+	"context"
 	"testing"
 
+	"github.com/jackc/pgconn"
 	"github.com/stretchr/testify/require"
 )
 
@@ -19,4 +21,14 @@ func TestErrUndefinedTable(t *testing.T) {
 	require.False(t, has)
 	require.Error(t, err)
 	require.True(t, ErrUndefinedTable.Is(err))
+}
+
+//-----------------------------------------------------------------------------
+
+func TestShouldSkipError(t *testing.T) {
+	ctx := context.Background()
+	err := &pgconn.PgError{Code: string(ErrUniqueViolation)}
+	require.False(t, ShouldSkipError(ctx, err))
+	ctx = SkipErrorsContext(ctx, ErrUndefinedTable, ErrUniqueViolation)
+	require.True(t, ShouldSkipError(ctx, err))
 }
