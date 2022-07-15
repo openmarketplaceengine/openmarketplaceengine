@@ -133,6 +133,13 @@ func (s *SQL) Select(expr string, args ...interface{}) *SQL {
 
 //-----------------------------------------------------------------------------
 
+func (s *SQL) Count(expr string, args ...interface{}) *SQL {
+	s.stmt.Select(fmt.Sprintf("COUNT(%s)", expr), args...)
+	return s
+}
+
+//-----------------------------------------------------------------------------
+
 func (s *SQL) To(dest ...interface{}) *SQL {
 	s.stmt.To(dest...)
 	return s
