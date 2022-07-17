@@ -63,8 +63,8 @@ func TestStorage(t *testing.T) {
 	t.Run("testRangeLocationsLastSeen", func(t *testing.T) {
 		testRangeLocationsLastSeen(ctx, t, storage)
 	})
-	t.Run("testLastLocation", func(t *testing.T) {
-		testLastLocation(ctx, t, storage)
+	t.Run("testWorkerLocation", func(t *testing.T) {
+		testWorkerLocation(ctx, t, storage)
 	})
 }
 
@@ -139,7 +139,7 @@ func testRangeLocationsLastSeen(ctx context.Context, t *testing.T, storage *Stor
 	require.Less(t, loc.LastSeenTime.UnixNano(), time.Now().UnixNano())
 }
 
-func testLastLocation(ctx context.Context, t *testing.T, storage *Storage) {
+func testWorkerLocation(ctx context.Context, t *testing.T, storage *Storage) {
 	workerID := uuid.NewString()
 
 	start := time.Now()
@@ -153,7 +153,7 @@ func testLastLocation(ctx context.Context, t *testing.T, storage *Storage) {
 	require.NoError(t, err)
 
 	time.Sleep(5 * time.Millisecond)
-	loc := storage.LastLocation(ctx, areaKey, workerID)
+	loc := storage.WorkerLocation(ctx, areaKey, workerID)
 
 	require.Less(t, loc.LastSeenTime.UnixNano(), time.Now().UnixNano())
 	require.Greater(t, loc.LastSeenTime.UnixNano(), start.UnixNano())

@@ -59,7 +59,7 @@ func (s *Storage) Update(ctx context.Context, areaKey string, l *Location, t tim
 	return nil
 }
 
-func (s *Storage) LastLocation(ctx context.Context, areaKey string, workerID string) *LastLocation {
+func (s *Storage) WorkerLocation(ctx context.Context, areaKey string, workerID string) *WorkerLocation {
 	v := s.client.GeoPos(ctx, areaKey, workerID).Val()
 
 	updateTimeKey := updateTimeKey(areaKey)
@@ -68,7 +68,7 @@ func (s *Storage) LastLocation(ctx context.Context, areaKey string, workerID str
 	lastSeen := time.UnixMilli(int64(score))
 	// At the moment we expect max one element
 	if len(v) > 0 && v[0] != nil {
-		return &LastLocation{
+		return &WorkerLocation{
 			WorkerID:     workerID,
 			Longitude:    util.Round6(v[0].Longitude),
 			Latitude:     util.Round6(v[0].Latitude),

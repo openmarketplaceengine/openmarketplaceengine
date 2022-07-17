@@ -141,7 +141,7 @@ func (c *controller) GetLocation(ctx context.Context, req *locationV1beta1.GetLo
 	workerID := req.GetWorkerId()
 	areaKey := req.GetAreaKey()
 
-	l := c.tracker.QueryLastLocation(ctx, areaKey, workerID)
+	l := c.tracker.GetLocation(ctx, areaKey, workerID)
 	if l != nil {
 		return &locationV1beta1.GetLocationResponse{
 			AreaKey:  areaKey,

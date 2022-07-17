@@ -36,7 +36,7 @@ type Location struct {
 	Lng     float64
 }
 
-func estimateJobs(ctx context.Context, workerLocation *location.LastLocation, jobs []*job.AvailableJob) ([]*Job, error) {
+func estimateJobs(ctx context.Context, workerLocation *location.WorkerLocation, jobs []*job.AvailableJob) ([]*Job, error) {
 	if len(jobs) == 0 {
 		return []*Job{}, nil
 	}

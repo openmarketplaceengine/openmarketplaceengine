@@ -47,7 +47,7 @@ func TestEstimatedJobs(t *testing.T) {
 		require.NoError(t, err)
 	}
 
-	from := &location.LastLocation{
+	from := &location.WorkerLocation{
 		WorkerID:     workerID,
 		Longitude:    -74.143650,
 		Latitude:     40.633650,
