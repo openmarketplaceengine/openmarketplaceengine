@@ -21,7 +21,7 @@ type Estimate struct {
 	Duration       time.Duration
 }
 
-type Job struct {
+type EstimatedJob struct {
 	ID              dao.SUID
 	WorkerToPickup  Estimate
 	PickupToDropOff Estimate
@@ -36,9 +36,9 @@ type Location struct {
 	Lng     float64
 }
 
-func estimateJobs(ctx context.Context, workerLocation *location.LastLocation, jobs []*job.AvailableJob) ([]*Job, error) {
+func EstimateJobs(ctx context.Context, workerLocation *location.WorkerLocation, jobs []*job.AvailableJob) ([]*EstimatedJob, error) {
 	if len(jobs) == 0 {
-		return []*Job{}, nil
+		return []*EstimatedJob{}, nil
 	}
 
 	client, err := maps.NewClient(maps.WithAPIKey(cfg.Server.GoogleAPIKey))
@@ -70,13 +70,13 @@ func estimateJobs(ctx context.Context, workerLocation *location.LastLocation, jo
 	workerIdx := len(m.Rows) - 1
 	workerRow := m.Rows[workerIdx]
 
-	var eJobs = make([]*Job, len(jobs))
+	var eJobs = make([]*EstimatedJob, len(jobs))
 	for i, row := range m.Rows {
 		if i == workerIdx {
 			break
 		}
 		for j, e := range row.Elements {
-			eJobs[j] = &Job{
+			eJobs[j] = &EstimatedJob{
 				ID: jobs[j].ID,
 				WorkerLocation: Location{
 					Address: m.OriginAddresses[workerIdx],

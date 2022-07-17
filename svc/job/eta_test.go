@@ -47,7 +47,7 @@ func TestEstimatedJobs(t *testing.T) {
 		require.NoError(t, err)
 	}
 
-	from := &location.LastLocation{
+	from := &location.WorkerLocation{
 		WorkerID:     workerID,
 		Longitude:    -74.143650,
 		Latitude:     40.633650,
@@ -55,7 +55,7 @@ func TestEstimatedJobs(t *testing.T) {
 	}
 	toJobs, err := job.QueryByPickupDistance(ctx, from.Longitude, from.Latitude, state, 10000, 25)
 	require.NoError(t, err)
-	jobs, err := estimateJobs(ctx, from, toJobs)
+	jobs, err := EstimateJobs(ctx, from, toJobs)
 
 	require.NoError(t, err)
 	require.NotNil(t, jobs)

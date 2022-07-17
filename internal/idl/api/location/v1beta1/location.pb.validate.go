@@ -35,6 +35,9 @@ var (
 	_ = sort.Sort
 )
 
+// define the regex for a UUID once up-front
+var _location_uuidPattern = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+
 // Validate checks the field values on UpdateLocationRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -68,12 +71,24 @@ func (m *UpdateLocationRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
+	if err := m._validateUuid(m.GetWorkerId()); err != nil {
+		err = UpdateLocationRequestValidationError{
+			field:  "WorkerId",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
 	if all {
-		switch v := interface{}(m.GetValue()).(type) {
+		switch v := interface{}(m.GetLocation()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, UpdateLocationRequestValidationError{
-					field:  "Value",
+					field:  "Location",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -81,26 +96,32 @@ func (m *UpdateLocationRequest) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, UpdateLocationRequestValidationError{
-					field:  "Value",
+					field:  "Location",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetValue()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetLocation()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UpdateLocationRequestValidationError{
-				field:  "Value",
+				field:  "Location",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
 		}
 	}
 
-	// no validation rules for ValidateOnly
-
 	if len(errors) > 0 {
 		return UpdateLocationRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *UpdateLocationRequest) _validateUuid(uuid string) error {
+	if matched := _location_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -234,35 +255,6 @@ func (m *UpdateLocationResponse) validate(all bool) error {
 		}
 	}
 
-	if all {
-		switch v := interface{}(m.GetUpdateTime()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, UpdateLocationResponseValidationError{
-					field:  "UpdateTime",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, UpdateLocationResponseValidationError{
-					field:  "UpdateTime",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetUpdateTime()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return UpdateLocationResponseValidationError{
-				field:  "UpdateTime",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
 	if len(errors) > 0 {
 		return UpdateLocationResponseMultiError(errors)
 	}
@@ -376,10 +368,11 @@ func (m *GetLocationRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetWorkerId()) > 36 {
-		err := GetLocationRequestValidationError{
+	if err := m._validateUuid(m.GetWorkerId()); err != nil {
+		err = GetLocationRequestValidationError{
 			field:  "WorkerId",
-			reason: "value length must be at most 36 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -389,6 +382,14 @@ func (m *GetLocationRequest) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetLocationRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetLocationRequest) _validateUuid(uuid string) error {
+	if matched := _location_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
