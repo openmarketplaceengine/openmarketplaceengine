@@ -23,21 +23,31 @@ func NewService(tracker *location.Tracker) *Service {
 	}
 }
 
-func (s *Service) GetEstimatedJobs(ctx context.Context, areaKey string, workerID string, radiusMeters int32) ([]*Job, error) {
-	workerLocation := s.tracker.QueryLastLocation(ctx, areaKey, workerID)
+func (s *Service) GetEstimatedJobs(ctx context.Context, areaKey string, workerID string, radiusMeters int32) ([]*EstimatedJob, error) {
+
+	workerLocation, jobs, err := s.QueryByPickupDistance(ctx, areaKey, workerID, radiusMeters, googleMatrixAPILimit)
+	if err != nil {
+		return nil, err
+	}
+
+	return EstimateJobs(ctx, workerLocation, jobs)
+}
+
+func (s *Service) QueryByPickupDistance(ctx context.Context, areaKey string, workerID string, radiusMeters int32, limit int32) (*location.WorkerLocation, []*job.AvailableJob, error) {
+	workerLocation := s.tracker.GetLocation(ctx, areaKey, workerID)
 
 	if workerLocation == nil {
-		return nil, errors.New("location of worker is not known")
+		return nil, nil, errors.New("location of worker is not known")
 	}
 
 	fromLat := workerLocation.Latitude
 	fromLon := workerLocation.Longitude
 
-	jobs, err := job.QueryByPickupDistance(ctx, fromLon, fromLat, "AVAILABLE", radiusMeters, googleMatrixAPILimit)
+	jobs, err := job.QueryByPickupDistance(ctx, fromLon, fromLat, "AVAILABLE", radiusMeters, limit)
 
 	if err != nil {
-		return nil, fmt.Errorf("query by pickup distance error: %w", err)
+		return nil, nil, fmt.Errorf("query by pickup distance error: %w", err)
 	}
 
-	return estimateJobs(ctx, workerLocation, jobs)
+	return workerLocation, jobs, nil
 }
