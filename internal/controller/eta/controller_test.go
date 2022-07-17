@@ -2,7 +2,6 @@ package eta
 
 import (
 	"context"
-	"github.com/stretchr/testify/assert"
 	"log"
 	"net"
 	"testing"
@@ -16,6 +15,7 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
 	svcJob "github.com/openmarketplaceengine/openmarketplaceengine/svc/job"
 	"github.com/openmarketplaceengine/openmarketplaceengine/svc/location"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -126,7 +126,6 @@ func testGetEstimatedJobsPickupToDropOff(t *testing.T, client v1beta1.EstimatedJ
 }
 
 func testToChunks(t *testing.T) {
-
 	jobs := []*job.AvailableJob{
 		{Job: job.Job{ID: uuid.NewString()}},
 		{Job: job.Job{ID: uuid.NewString()}},

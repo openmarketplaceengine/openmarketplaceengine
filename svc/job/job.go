@@ -24,7 +24,6 @@ func NewService(tracker *location.Tracker) *Service {
 }
 
 func (s *Service) GetEstimatedJobs(ctx context.Context, areaKey string, workerID string, radiusMeters int32) ([]*EstimatedJob, error) {
-
 	workerLocation, jobs, err := s.QueryByPickupDistance(ctx, areaKey, workerID, radiusMeters, googleMatrixAPILimit)
 	if err != nil {
 		return nil, err

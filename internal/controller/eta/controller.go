@@ -7,11 +7,12 @@ package eta
 import (
 	"context"
 	"fmt"
+	"sync/atomic"
+
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom/job"
 	rpc "github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/eta/v1beta1"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/protobuf/types/known/durationpb"
-	"sync/atomic"
 
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
@@ -45,7 +46,6 @@ func init() {
 //-----------------------------------------------------------------------------
 
 func (c *controller) GetEstimatedJobs(ctx context.Context, req *rpc.GetEstimatedJobsRequest) (*rpc.GetEstimatedJobsResponse, error) {
-
 	if c.nWorkers < 1 {
 		return nil, status.Errorf(codes.InvalidArgument, "at least one worker required")
 	}
@@ -95,16 +95,14 @@ func (c *controller) GetEstimatedJobs(ctx context.Context, req *rpc.GetEstimated
 			}()
 
 			for ch := range chunk {
-
 				estimatedChunk, err := svcJob.EstimateJobs(ctx, workerLocation, ch)
 				if err != nil {
 					return fmt.Errorf("EstimateJobs error: %w", err)
-				} else {
-					select {
-					case <-ctx.Done():
-						return ctx.Err()
-					case estimatedJobs <- estimatedChunk:
-					}
+				}
+				select {
+				case <-ctx.Done():
+					return ctx.Err()
+				case estimatedJobs <- estimatedChunk:
 				}
 			}
 			return nil
