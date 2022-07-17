@@ -87,10 +87,8 @@ func (c *controller) UpdateLocation(ctx context.Context, req *locationV1beta1.Up
 	}
 
 	areaKey := req.GetAreaKey()
-	value := req.GetValue()
-	workerID := value.GetWorkerId()
-	loc := value.GetLocation()
-	updateTime := value.GetUpdateTime()
+	workerID := req.GetWorkerId()
+	loc := req.GetLocation()
 
 	x, err := c.tracker.TrackLocation(ctx, areaKey, workerID, loc.GetLongitude(), loc.GetLatitude())
 
@@ -103,10 +101,9 @@ func (c *controller) UpdateLocation(ctx context.Context, req *locationV1beta1.Up
 		return nil, st.Err()
 	}
 	return &locationV1beta1.UpdateLocationResponse{
-		AreaKey:    areaKey,
-		WorkerId:   workerID,
-		Crossing:   transform(x),
-		UpdateTime: updateTime,
+		AreaKey:  areaKey,
+		WorkerId: workerID,
+		Crossing: transform(x),
 	}, nil
 }
 
