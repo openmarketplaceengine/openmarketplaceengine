@@ -21,7 +21,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const tollgateID = "tollgate-123"
@@ -102,27 +101,23 @@ func dialer(t *testing.T) func(context.Context, string) (net.Conn, error) {
 func testUpdateLocation(t *testing.T, client locationV1beta1.LocationServiceClient) {
 	id := uuid.NewString()
 	request := &locationV1beta1.UpdateLocationRequest{
-		Value: &locationV1beta1.LocationUpdate{
-			WorkerId: id,
-			Location: &typeV1beta1.Location{
-				Longitude: 12.000001966953278,
-				Latitude:  13.000001966953278,
-			},
-			UpdateTime: timestamppb.Now(),
+		WorkerId: id,
+		Location: &typeV1beta1.Location{
+			Longitude: 12.000001966953278,
+			Latitude:  13.000001966953278,
 		},
-		AreaKey:      "a",
-		ValidateOnly: false,
+		AreaKey: "a",
 	}
 	response, err := client.UpdateLocation(context.Background(), request)
 	require.NoError(t, err)
-	require.Equal(t, request.GetValue().WorkerId, response.WorkerId)
+	require.Equal(t, request.GetWorkerId(), response.WorkerId)
 
 	l, err := client.GetLocation(context.Background(), &locationV1beta1.GetLocationRequest{
 		WorkerId: id,
 		AreaKey:  "a",
 	})
 	require.NoError(t, err)
-	require.Equal(t, request.GetValue().GetWorkerId(), l.WorkerId)
+	require.Equal(t, request.GetWorkerId(), l.WorkerId)
 	require.Equal(t, request.GetAreaKey(), "a")
 }
 
@@ -130,34 +125,26 @@ func testUpdateLocationBadRequest(t *testing.T, client locationV1beta1.LocationS
 	id := uuid.NewString()
 
 	_, err := client.UpdateLocation(context.Background(), &locationV1beta1.UpdateLocationRequest{
-		Value: &locationV1beta1.LocationUpdate{
-			WorkerId: id,
-			Location: &typeV1beta1.Location{
-				Longitude: 1200,
-				Latitude:  1300,
-			},
-			UpdateTime: timestamppb.Now(),
+		WorkerId: id,
+		Location: &typeV1beta1.Location{
+			Longitude: 1200,
+			Latitude:  1300,
 		},
-		AreaKey:      "a",
-		ValidateOnly: false,
+		AreaKey: "a",
 	},
 	)
 	require.Error(t, err)
 
 	require.Equal(t,
-		`rpc error: code = InvalidArgument desc = invalid UpdateLocationRequest.Value: embedded message failed validation | caused by: invalid LocationUpdate.Location: embedded message failed validation | caused by: invalid Location.Latitude: value must be inside range [-90, 90]; invalid Location.Longitude: value must be inside range [-180, 180]`, err.Error())
+		`rpc error: code = InvalidArgument desc = invalid UpdateLocationRequest.Location: embedded message failed validation | caused by: invalid Location.Latitude: value must be inside range [-90, 90]; invalid Location.Longitude: value must be inside range [-180, 180]`, err.Error())
 
 	_, err = client.UpdateLocation(context.Background(), &locationV1beta1.UpdateLocationRequest{
-		Value: &locationV1beta1.LocationUpdate{
-			WorkerId: id,
-			Location: &typeV1beta1.Location{
-				Longitude: 12,
-				Latitude:  13,
-			},
-			UpdateTime: timestamppb.Now(),
+		WorkerId: id,
+		Location: &typeV1beta1.Location{
+			Longitude: 12,
+			Latitude:  13,
 		},
-		AreaKey:      "",
-		ValidateOnly: false,
+		AreaKey: "",
 	},
 	)
 	require.Error(t, err)
@@ -193,16 +180,12 @@ func testQueryLocation(t *testing.T, client locationV1beta1.LocationServiceClien
 	require.Contains(t, err.Error(), "NotFound")
 
 	response, err := client.UpdateLocation(ctx, &locationV1beta1.UpdateLocationRequest{
-		Value: &locationV1beta1.LocationUpdate{
-			WorkerId: id,
-			Location: &typeV1beta1.Location{
-				Longitude: 12.000001966953278,
-				Latitude:  13.000001966953278,
-			},
-			UpdateTime: timestamppb.Now(),
+		WorkerId: id,
+		Location: &typeV1beta1.Location{
+			Longitude: 12.000001966953278,
+			Latitude:  13.000001966953278,
 		},
-		AreaKey:      "a",
-		ValidateOnly: false,
+		AreaKey: "a",
 	},
 	)
 	require.NoError(t, err)
@@ -221,29 +204,21 @@ func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceCl
 	require.NoError(t, err)
 	from := &locationV1beta1.UpdateLocationRequest{
 
-		Value: &locationV1beta1.LocationUpdate{
-			WorkerId: id,
-			Location: &typeV1beta1.Location{
-				Longitude: -74.195995,
-				Latitude:  40.636916,
-			},
-			UpdateTime: timestamppb.Now(),
+		WorkerId: id,
+		Location: &typeV1beta1.Location{
+			Longitude: -74.195995,
+			Latitude:  40.636916,
 		},
-		AreaKey:      "a",
-		ValidateOnly: false,
+		AreaKey: "a",
 	}
 	to := &locationV1beta1.UpdateLocationRequest{
 
-		Value: &locationV1beta1.LocationUpdate{
-			WorkerId: id,
-			Location: &typeV1beta1.Location{
-				Longitude: -74.198356,
-				Latitude:  40.634408,
-			},
-			UpdateTime: timestamppb.Now(),
+		WorkerId: id,
+		Location: &typeV1beta1.Location{
+			Longitude: -74.198356,
+			Latitude:  40.634408,
 		},
-		AreaKey:      "a",
-		ValidateOnly: false,
+		AreaKey: "a",
 	}
 
 	sync := make(chan string)
@@ -262,20 +237,20 @@ func testTollgateCrossing(t *testing.T, client locationV1beta1.LocationServiceCl
 
 	response1, err := client.UpdateLocation(ctx, from)
 	require.NoError(t, err)
-	require.Equal(t, from.GetValue().WorkerId, response1.WorkerId)
+	require.Equal(t, from.GetWorkerId(), response1.WorkerId)
 	require.Nil(t, response1.Crossing)
 
 	response2, err := client.UpdateLocation(ctx, to)
 	require.NoError(t, err)
-	require.Equal(t, from.GetValue().WorkerId, response2.WorkerId)
+	require.Equal(t, from.GetWorkerId(), response2.WorkerId)
 	require.NotNil(t, response2.Crossing)
 
 	c := <-crossings
 	require.Equal(t, tollgateID, c.TollgateID)
 	require.Equal(t, detector.Direction("SW"), c.Direction)
 	require.Equal(t, id, c.WorkerID)
-	require.InDelta(t, to.GetValue().GetLocation().GetLatitude(), c.Movement.To.Latitude, 0.003)
-	require.InDelta(t, to.GetValue().GetLocation().GetLongitude(), c.Movement.To.Longitude, 0.003)
+	require.InDelta(t, to.GetLocation().GetLatitude(), c.Movement.To.Latitude, 0.003)
+	require.InDelta(t, to.GetLocation().GetLongitude(), c.Movement.To.Longitude, 0.003)
 }
 
 func crossingChannel(tollgateID string) string {

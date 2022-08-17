@@ -15,8 +15,8 @@ type RangeLocation struct {
 	LastSeenTime time.Time
 }
 
-// LastLocation represents geographic coordinates of principal with LastSeenTime.
-type LastLocation struct {
+// WorkerLocation represents geographic coordinates of worker with LastSeenTime.
+type WorkerLocation struct {
 	WorkerID     string
 	Longitude    float64
 	Latitude     float64
