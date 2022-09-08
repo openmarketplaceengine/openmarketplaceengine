@@ -56,7 +56,7 @@ func TestStore(t *testing.T) {
 func testStore(t *testing.T, store *JobStore) {
 	ctx := context.Background()
 
-	err := store.Store(ctx, areaKey, jobs)
+	err := store.StoreMany(ctx, areaKey, jobs)
 	require.NoError(t, err)
 
 	retrieved, err := store.GetAll(ctx, areaKey, jobs[0].ID, jobs[1].ID)

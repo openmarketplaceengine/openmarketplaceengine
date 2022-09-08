@@ -41,7 +41,7 @@ func (s *JobStore) GetAll(ctx context.Context, areaKey string, members ...string
 	v, err := s.client.HMGet(ctx, k, members...).Result()
 
 	if err != nil {
-		return nil, fmt.Errorf("hgetall error: %w", err)
+		return nil, fmt.Errorf("get all error: %w", err)
 	}
 
 	l := len(v)
@@ -63,13 +63,36 @@ func (s *JobStore) GetAll(ctx context.Context, areaKey string, members ...string
 	return result, nil
 }
 
-func (s *JobStore) Store(ctx context.Context, areaKey string, members []*Job) error {
-	values := toValues(members)
+func (s *JobStore) StoreMany(ctx context.Context, areaKey string, members []*Job) error {
+	values := toValues(members...)
 	k := key(areaKey)
 	err := s.client.HSet(ctx, k, values...).Err()
 
 	if err != nil {
-		return fmt.Errorf("hset error: %w", err)
+		return fmt.Errorf("store many error: %w", err)
+	}
+
+	return nil
+}
+
+func (s *JobStore) StoreOne(ctx context.Context, areaKey string, job *Job) error {
+	values := toValues(job)
+	k := key(areaKey)
+	err := s.client.HSet(ctx, k, values...).Err()
+
+	if err != nil {
+		return fmt.Errorf("store one error: %w", err)
+	}
+
+	return nil
+}
+
+func (s *JobStore) RemoveOne(ctx context.Context, areaKey string, id string) error {
+	k := key(areaKey)
+	err := s.client.HDel(ctx, k, id).Err()
+
+	if err != nil {
+		return fmt.Errorf("remove one error: %w", err)
 	}
 
 	return nil
@@ -79,9 +102,9 @@ func key(areaKey string) string {
 	return fmt.Sprintf("%s-%s", areaKey, "jobs")
 }
 
-func toValues(estimates []*Job) []interface{} {
+func toValues(jobs ...*Job) []interface{} {
 	res := make([]interface{}, 0)
-	for _, e := range estimates {
+	for _, e := range jobs {
 		res = append(res, e.ID)
 		res = append(res, e)
 	}
