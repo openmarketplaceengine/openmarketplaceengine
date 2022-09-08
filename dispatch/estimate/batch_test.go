@@ -1,9 +1,7 @@
-package eta
+package estimate
 
 import (
 	"testing"
-
-	"github.com/openmarketplaceengine/openmarketplaceengine/dispatch/job"
 
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
@@ -18,8 +16,8 @@ func TestService(t *testing.T) {
 
 	s := NewBatchService(apiKey, 3, 10)
 
-	t.Run("testGetEstimatedJobsPickupToDropOff", func(t *testing.T) {
-		testGetEstimatedJobsPickupToDropOff(t, s)
+	t.Run("testGetEstimatePickupToDropOff", func(t *testing.T) {
+		testGetEstimatePickupToDropOff(t, s)
 	})
 
 	t.Run("testToChunks", func(t *testing.T) {
@@ -27,43 +25,43 @@ func TestService(t *testing.T) {
 	})
 }
 
-func testGetEstimatedJobsPickupToDropOff(t *testing.T, batchService *BatchService) {
+func testGetEstimatePickupToDropOff(t *testing.T, batchService *BatchService) {
 	ctx := cfg.Context()
 
-	from := job.LatLon{
+	from := LatLon{
 		Lat: 40.633650,
 		Lon: -74.143650,
 	}
 
-	job1 := &job.Job{
+	d1 := &Request{
 		ID: uuid.NewString(),
-		Pickup: job.LatLon{
+		PickUp: LatLon{
 			Lat: 40.636916,
 			Lon: -74.195995,
 		},
-		DropOff: job.LatLon{
+		DropOff: LatLon{
 			Lat: 40.634408,
 			Lon: -74.198356,
 		},
 	}
-	job2 := &job.Job{
+	d2 := &Request{
 		ID: uuid.NewString(),
-		Pickup: job.LatLon{
+		PickUp: LatLon{
 			Lat: 40.634408,
 			Lon: -74.198356,
 		},
-		DropOff: job.LatLon{Lat: 40.636916,
+		DropOff: LatLon{Lat: 40.636916,
 			Lon: -74.195995,
 		},
 	}
 
-	res1, err := batchService.GetEstimatedJobs(ctx, from, []*job.Job{job1, job2})
+	res1, err := batchService.GetEstimates(ctx, from, []*Request{d1, d2})
 	require.NoError(t, err)
 	require.Len(t, res1, 2)
 }
 
 func testToChunks(t *testing.T) {
-	jobs := []*job.Job{
+	requests := []*Request{
 		{ID: uuid.NewString()},
 		{ID: uuid.NewString()},
 		{ID: uuid.NewString()},
@@ -78,15 +76,15 @@ func testToChunks(t *testing.T) {
 		{ID: uuid.NewString()},
 	}
 
-	chunks := toChunks(jobs, 5)
+	chunks := toChunks(requests, 5)
 	assert.Len(t, chunks, 3)
 	assert.Len(t, chunks[0], 5)
 	assert.Len(t, chunks[1], 5)
 	assert.Len(t, chunks[2], 2)
-	assert.Len(t, toChunks(jobs, 12), 1)
-	assert.Len(t, toChunks(jobs, 20), 1)
+	assert.Len(t, toChunks(requests, 12), 1)
+	assert.Len(t, toChunks(requests, 20), 1)
 
-	assert.Len(t, toChunks([]*job.Job{}, 5), 0)
-	assert.Len(t, toChunks([]*job.Job{}, 0), 0)
-	assert.Len(t, toChunks([]*job.Job{}, 1), 0)
+	assert.Len(t, toChunks([]*Request{}, 5), 0)
+	assert.Len(t, toChunks([]*Request{}, 0), 0)
+	assert.Len(t, toChunks([]*Request{}, 1), 0)
 }

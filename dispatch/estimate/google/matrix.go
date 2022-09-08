@@ -2,13 +2,16 @@ package google
 
 import (
 	"time"
-
-	"github.com/openmarketplaceengine/openmarketplaceengine/dispatch/job"
 )
 
+type LatLon struct {
+	Lat float64
+	Lon float64
+}
+
 type MatrixPointsInput struct {
-	Origins      []job.LatLon
-	Destinations []job.LatLon
+	Origins      []LatLon
+	Destinations []LatLon
 }
 
 type MatrixPlacesInput struct {

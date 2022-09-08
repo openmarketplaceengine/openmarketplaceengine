@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/dispatch/job"
 	"github.com/stretchr/testify/require"
 	"googlemaps.github.io/maps"
 )
@@ -28,11 +27,11 @@ func TestGetMatrix(t *testing.T) {
 }
 
 func testGetMatrix(t *testing.T) {
-	a := job.LatLon{
+	a := LatLon{
 		Lat: 40.791680675548136,
 		Lon: -73.9650115649754,
 	}
-	b := job.LatLon{
+	b := LatLon{
 		Lat: 40.76866089218841,
 		Lon: -73.98145413365043,
 	}
@@ -41,8 +40,8 @@ func testGetMatrix(t *testing.T) {
 	client, err := maps.NewClient(maps.WithAPIKey(apiKey))
 	require.NoError(t, err)
 	matrix, err := Matrix(ctx, client, MatrixPointsInput{
-		Origins:      []job.LatLon{a},
-		Destinations: []job.LatLon{b},
+		Origins:      []LatLon{a},
+		Destinations: []LatLon{b},
 	})
 	require.NoError(t, err)
 	require.Len(t, matrix.Rows, 1)

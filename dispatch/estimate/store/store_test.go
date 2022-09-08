@@ -1,39 +1,38 @@
-package etastore
+package store
 
 import (
 	"context"
-	"testing"
-
-	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
-	"github.com/openmarketplaceengine/openmarketplaceengine/dispatch/job"
-
 	"github.com/google/uuid"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dispatch/estimate"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dispatch/geohash"
 	"github.com/stretchr/testify/require"
+	"testing"
 )
 
-var jobs = []*job.EstimatedJob{
+var estimates = []*estimate.Estimate{
 	{
 		ID: uuid.NewString(),
-		ToPickup: job.Estimate{
+		ToPickup: estimate.Eta{
 			DistanceMeters: 1,
 			Duration:       1,
 		},
-		PickupToDropOff: job.Estimate{
+		PickupToDropOff: estimate.Eta{
 			DistanceMeters: 2,
 			Duration:       2,
 		},
-		WorkerLocation: job.Location{
+		From: estimate.Location{
 			Address: "a",
 			Lat:     0,
 			Lon:     0,
 		},
-		Pickup: job.Location{
+		PickUp: estimate.Location{
 			Address: "b",
 			Lat:     0,
 			Lon:     0,
 		},
-		DropOff: job.Location{
+		DropOff: estimate.Location{
 			Address: "c",
 			Lat:     0,
 			Lon:     0,
@@ -41,25 +40,25 @@ var jobs = []*job.EstimatedJob{
 	},
 	{
 		ID: uuid.NewString(),
-		ToPickup: job.Estimate{
+		ToPickup: estimate.Eta{
 			DistanceMeters: 1,
 			Duration:       1,
 		},
-		PickupToDropOff: job.Estimate{
+		PickupToDropOff: estimate.Eta{
 			DistanceMeters: 2,
 			Duration:       2,
 		},
-		WorkerLocation: job.Location{
+		From: estimate.Location{
 			Address: "a",
 			Lat:     0,
 			Lon:     0,
 		},
-		Pickup: job.Location{
+		PickUp: estimate.Location{
 			Address: "b",
 			Lat:     0,
 			Lon:     0,
 		},
-		DropOff: job.Location{
+		DropOff: estimate.Location{
 			Address: "c",
 			Lat:     0,
 			Lon:     0,
@@ -67,7 +66,7 @@ var jobs = []*job.EstimatedJob{
 	},
 }
 
-func TestEtaStore(t *testing.T) {
+func TestStore(t *testing.T) {
 	err := cfg.Load()
 	require.NoError(t, err)
 
@@ -77,30 +76,30 @@ func TestEtaStore(t *testing.T) {
 
 	client := dao.Reds.StoreClient
 
-	store := NewEtaStore(client)
+	store := NewEstimateStore(client)
 
 	t.Run("testStore", func(t *testing.T) {
 		testStore(t, store)
 	})
 }
 
-func testStore(t *testing.T, store *EtaStore) {
+func testStore(t *testing.T, store *EstimateStore) {
 	ctx := context.Background()
 
-	ll0 := job.LatLon{
+	ll0 := estimate.LatLon{
 		Lat: 40.636916,
 		Lon: -74.195995,
 	}
-	_ = job.LatLon{
+	_ = estimate.LatLon{
 		Lat: 40.634408,
 		Lon: -74.198356,
 	}
 
-	hash := job.ToGeoHash(ll0)
-	err := store.Store(ctx, hash, jobs)
+	hash := geohash.ToGeoHash(ll0.Lat, ll0.Lon, geohash.Precision800)
+	err := store.Store(ctx, hash, Radius2000m, estimates)
 	require.NoError(t, err)
 
-	estimatedJobs, err := store.Get(ctx, hash)
+	retrieved, err := store.GetAll(ctx, hash, Radius2000m)
 	require.NoError(t, err)
-	require.NotNil(t, estimatedJobs)
+	require.NotNil(t, retrieved)
 }

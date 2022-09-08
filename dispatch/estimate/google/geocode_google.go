@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	"github.com/codingsince1985/geo-golang"
-	"github.com/openmarketplaceengine/openmarketplaceengine/dispatch/job"
 	"googlemaps.github.io/maps"
 )
 
@@ -19,7 +18,7 @@ func NewGeocoder(client *maps.Client) *Geocoder {
 	return &Geocoder{client: client}
 }
 
-func (g *Geocoder) ReverseGeocode(ctx context.Context, location job.LatLon) (*ReverseGeocodeOutput, error) {
+func (g *Geocoder) ReverseGeocode(ctx context.Context, location LatLon) (*ReverseGeocodeOutput, error) {
 	results, err := g.client.ReverseGeocode(ctx, &maps.GeocodingRequest{
 		LatLng: &maps.LatLng{
 			Lat: location.Lat,

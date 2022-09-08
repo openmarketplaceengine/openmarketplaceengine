@@ -8,7 +8,6 @@ import (
 	"sync/atomic"
 
 	"github.com/codingsince1985/geo-golang"
-	"github.com/openmarketplaceengine/openmarketplaceengine/dispatch/job"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -23,7 +22,7 @@ type ReverseGeocodeOutput struct {
 }
 
 type ReverseGeocoder interface {
-	ReverseGeocode(ctx context.Context, location job.LatLon) (*ReverseGeocodeOutput, error)
+	ReverseGeocode(ctx context.Context, location LatLon) (*ReverseGeocodeOutput, error)
 }
 
 // BatchReverseGeocode reverse-geocodes a list of geographic coordinates.
@@ -36,12 +35,12 @@ type ReverseGeocoder interface {
 func BatchReverseGeocode(
 	ctx context.Context,
 	reverseGeocoder ReverseGeocoder,
-	locations []job.LatLon,
+	locations []LatLon,
 	parallelizationFactor int,
 ) ([]*ReverseGeocodeOutput, error) {
 	g, ctx := errgroup.WithContext(ctx)
 
-	locationsChan := make(chan job.LatLon)
+	locationsChan := make(chan LatLon)
 
 	// Step 1: Produce
 	g.Go(func() error {
@@ -57,7 +56,7 @@ func BatchReverseGeocode(
 	})
 
 	type Result struct {
-		LatLng           job.LatLon
+		LatLng           LatLon
 		GeocodingResults *ReverseGeocodeOutput
 	}
 	results := make(chan Result)
@@ -81,7 +80,7 @@ func BatchReverseGeocode(
 				}
 
 				result := Result{
-					LatLng: job.LatLon{
+					LatLng: LatLon{
 						Lat: location.Lat,
 						Lon: location.Lon,
 					},
