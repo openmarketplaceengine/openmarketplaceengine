@@ -36,9 +36,9 @@ func NewJobStore(client *redis.Client) *JobStore {
 	}
 }
 
-func (s *JobStore) GetAll(ctx context.Context, areaKey string, members ...string) ([]*Job, error) {
+func (s *JobStore) GetByIds(ctx context.Context, areaKey string, ids ...string) ([]*Job, error) {
 	k := key(areaKey)
-	v, err := s.client.HMGet(ctx, k, members...).Result()
+	v, err := s.client.HMGet(ctx, k, ids...).Result()
 
 	if err != nil {
 		return nil, fmt.Errorf("get all error: %w", err)
@@ -63,8 +63,47 @@ func (s *JobStore) GetAll(ctx context.Context, areaKey string, members ...string
 	return result, nil
 }
 
-func (s *JobStore) StoreMany(ctx context.Context, areaKey string, members []*Job) error {
-	values := toValues(members...)
+func (s *JobStore) GetAll(ctx context.Context, areaKey string) ([]*Job, error) {
+	k := key(areaKey)
+	v, err := s.client.HGetAll(ctx, k).Result()
+
+	if err != nil {
+		return nil, fmt.Errorf("get all error: %w", err)
+	}
+
+	l := len(v)
+	if l == 0 {
+		return nil, nil
+	}
+
+	result := make([]*Job, l)
+	i := 0
+	for _, v := range v {
+		var m Job
+		err := json.Unmarshal([]byte(v), &m)
+		if err != nil {
+			return nil, fmt.Errorf("unmarshal error: %w", err)
+		}
+		result[i] = &m
+		i++
+	}
+
+	return result, nil
+}
+
+func (s *JobStore) DeleteAll(ctx context.Context, areaKey string) (int64, error) {
+	k := key(areaKey)
+	v, err := s.client.Del(ctx, k).Result()
+
+	if err != nil {
+		return 0, fmt.Errorf("delete error: %w", err)
+	}
+
+	return v, nil
+}
+
+func (s *JobStore) StoreMany(ctx context.Context, areaKey string, jobs []*Job) error {
+	values := toValues(jobs...)
 	k := key(areaKey)
 	err := s.client.HSet(ctx, k, values...).Err()
 

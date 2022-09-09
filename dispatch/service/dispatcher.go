@@ -1,4 +1,4 @@
-package dispatch
+package service
 
 import (
 	"context"
@@ -35,7 +35,7 @@ func GetEstimates(ctx context.Context, areaKey string, from geoqueue.LatLon, rad
 		return all, nil
 	}
 
-	jobs, err := jobStore.GetAll(ctx, areaKey, toIds(nearByMembers)...)
+	jobs, err := jobStore.GetByIds(ctx, areaKey, toIds(nearByMembers)...)
 	if err != nil {
 		return nil, fmt.Errorf("get estimates error: %w", err)
 	}

@@ -47,9 +47,15 @@ func TestStore(t *testing.T) {
 	client := dao.Reds.StoreClient
 
 	store := NewJobStore(client)
+	_, err = store.DeleteAll(context.Background(), areaKey)
+	require.NoError(t, err)
 
 	t.Run("testStore", func(t *testing.T) {
 		testStore(t, store)
+	})
+
+	t.Run("testGetAll", func(t *testing.T) {
+		testGetAll(t, store)
 	})
 }
 
@@ -59,8 +65,20 @@ func testStore(t *testing.T, store *JobStore) {
 	err := store.StoreMany(ctx, areaKey, jobs)
 	require.NoError(t, err)
 
-	retrieved, err := store.GetAll(ctx, areaKey, jobs[0].ID, jobs[1].ID)
+	retrieved, err := store.GetByIds(ctx, areaKey, jobs[0].ID, jobs[1].ID)
 	require.NoError(t, err)
 	require.NotNil(t, retrieved)
 	require.Equal(t, jobs, retrieved)
+}
+
+func testGetAll(t *testing.T, store *JobStore) {
+	ctx := context.Background()
+
+	err := store.StoreMany(ctx, areaKey, jobs)
+	require.NoError(t, err)
+
+	retrieved, err := store.GetAll(ctx, areaKey)
+	require.NoError(t, err)
+	require.NotNil(t, retrieved)
+	require.GreaterOrEqual(t, len(retrieved), len(jobs))
 }

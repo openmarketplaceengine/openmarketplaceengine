@@ -2,15 +2,15 @@ package main
 
 import (
 	"fmt"
-	"os"
-
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dispatch"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
 	_ "github.com/openmarketplaceengine/openmarketplaceengine/internal/controller" // gRPC services registration
 	"github.com/openmarketplaceengine/openmarketplaceengine/log"
 	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
 	"github.com/openmarketplaceengine/openmarketplaceengine/stat"
+	"os"
 )
 
 var boot cfg.BootList
@@ -20,6 +20,7 @@ func init() {
 	boot.Use("PGDB", dao.Pgdb)
 	boot.Use("REDS", dao.Reds)
 	boot.Add("STAT", stat.Boot, nil)
+	boot.Add("DISP", dispatch.Boot, nil)
 	boot.Use("GRPC", srv.Grpc)
 	boot.Use("HTTP", srv.Http)
 }
