@@ -25,5 +25,5 @@ var EstimatesApiCallDuration = prometheus.NewHistogram(prometheus.HistogramOpts{
 	Name:        "estimates_api_call_duration",
 	Help:        "",
 	ConstLabels: nil,
-	Buckets:     []float64{100, 200, 300, 500, 1000, 2000},
+	Buckets:     []float64{50, 100, 150, 200, 300, 500, 700},
 })

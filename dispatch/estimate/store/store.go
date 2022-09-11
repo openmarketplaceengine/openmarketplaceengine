@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-redis/redis/v8"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dispatch/estimate"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dispatch/geohash"
 )
 
 const (
@@ -33,12 +34,7 @@ func (s *EstimateStore) GetAll(ctx context.Context, geoHash string, radiusMeters
 		return nil, fmt.Errorf("hgetall error: %w", err)
 	}
 
-	l := len(estimates)
-	if l == 0 {
-		return nil, nil
-	}
-
-	result := make([]*estimate.Estimate, l)
+	result := make([]*estimate.Estimate, 0)
 
 	for k, v := range estimates {
 		var e estimate.Estimate
@@ -50,6 +46,37 @@ func (s *EstimateStore) GetAll(ctx context.Context, geoHash string, radiusMeters
 	}
 
 	return result, nil
+}
+
+func (s *EstimateStore) GetAll2(ctx context.Context, geoHashes []string, radiusMeters int) ([]*estimate.Estimate, error) {
+	result := make([]*estimate.Estimate, 0)
+	for _, hash := range geoHashes {
+		k := key(hash, radiusMeters)
+		estimates, err := s.client.HGetAll(ctx, k).Result()
+		if err != nil {
+			return nil, fmt.Errorf("hgetall error: %w", err)
+		}
+		for k, v := range estimates {
+			var e estimate.Estimate
+			err := e.UnmarshalBinary([]byte(v))
+			if err != nil {
+				return nil, fmt.Errorf("unmarshal geohash %s of %s error: %w", geoHashes, k, err)
+			}
+			result = append(result, &e)
+		}
+	}
+	return result, nil
+}
+
+func (s *EstimateStore) Contains(ctx context.Context, geoHash string, radiusMeters int, id string) (bool, error) {
+	k := key(geoHash, radiusMeters)
+	isMember, err := s.client.HExists(ctx, k, id).Result()
+
+	if err != nil {
+		return false, fmt.Errorf("sismember error: %w", err)
+	}
+
+	return isMember, nil
 }
 
 func (s *EstimateStore) Store(ctx context.Context, geoHash string, radiusMeters int, estimates []*estimate.Estimate) error {
@@ -64,8 +91,21 @@ func (s *EstimateStore) Store(ctx context.Context, geoHash string, radiusMeters 
 	return nil
 }
 
+func (s *EstimateStore) StoreEach(ctx context.Context, radiusMeters int, estimates []*estimate.Estimate) error {
+	for _, e := range estimates {
+		h := geohash.ToGeoHash(e.PickUp.Lat, e.PickUp.Lon, geohash.Precision100)
+		k := key(h, radiusMeters)
+		err := s.client.HSet(ctx, k, e.ID, e).Err()
+		if err != nil {
+			return fmt.Errorf("hset error: %w", err)
+		}
+	}
+
+	return nil
+}
+
 func key(geoHash string, radiusMeters int) string {
-	return fmt.Sprintf("%s-%v", geoHash, radiusMeters)
+	return fmt.Sprintf("%s-%v-estimates", geoHash, radiusMeters)
 }
 
 func toValues(estimates []*estimate.Estimate) []interface{} {

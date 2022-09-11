@@ -37,32 +37,55 @@ func (s *Service) GetEstimates(ctx context.Context, areaKey string, from geoqueu
 		return nil, fmt.Errorf("peek many error: %w", err)
 	}
 
-	geoHash := geohash.ToGeoHash(from.Lat, from.Lon, geohash.Precision100)
-	all, err := s.estimateStore.GetAll(ctx, geoHash, radiusMeters)
+	var missingIds []string
+	var geoHashes = make(map[string]interface{}, 0)
+
+	for _, member := range nearByMembers {
+		h := geohash.ToGeoHash(member.PickUp.Lat, member.PickUp.Lon, geohash.Precision100)
+		geoHashes[h] = struct{}{}
+		contains, err := s.estimateStore.Contains(ctx, h, radiusMeters, member.ID)
+		if err != nil {
+			return nil, fmt.Errorf("contains error: %w", err)
+		}
+		if !contains {
+			missingIds = append(missingIds, member.ID)
+		}
+	}
+
+	if len(missingIds) > 0 {
+		missingJobs, err := s.jobStore.GetByIds(ctx, areaKey, missingIds...)
+		if err != nil {
+			return nil, fmt.Errorf("get jobs error: %w", err)
+		}
+
+		estimates, err := estimate.Estimates(ctx, apiKey, estimate.LatLon{
+			Lat: from.Lat,
+			Lon: from.Lon,
+		}, transform(missingJobs))
+
+		if err != nil {
+			return nil, fmt.Errorf("get estimates error: %w", err)
+		}
+
+		err = s.estimateStore.StoreEach(ctx, radiusMeters, estimates)
+		if err != nil {
+			return nil, fmt.Errorf("store estimates error: %w", err)
+		}
+	}
+
+	all, err := s.estimateStore.GetAll2(ctx, mapKeys(geoHashes), radiusMeters)
 	if err != nil {
 		return nil, fmt.Errorf("get all error: %w", err)
 	}
+	return all, nil
+}
 
-	//todo some way to detect no need to call google
-	if len(all) == len(nearByMembers) {
-		return all, nil
+func mapKeys(m map[string]interface{}) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
 	}
-
-	jobs, err := s.jobStore.GetByIds(ctx, areaKey, toIds(nearByMembers)...)
-	if err != nil {
-		return nil, fmt.Errorf("get estimates error: %w", err)
-	}
-
-	estimates, err := estimate.Estimates(ctx, apiKey, estimate.LatLon{
-		Lat: from.Lat,
-		Lon: from.Lon,
-	}, transform(jobs))
-
-	if err != nil {
-		return nil, fmt.Errorf("get estimates error: %w", err)
-	}
-
-	return estimates, nil
+	return keys
 }
 
 func transform(jobs []*jobstore.Job) []*estimate.Request {
