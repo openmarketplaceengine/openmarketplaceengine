@@ -29,10 +29,11 @@ func Boot() error {
 	srv.Http.Post("/jobs", c.PostJobs)
 
 	loc := demand.NewController(demand.NewService())
-	srv.Http.Get("/demand", loc.GetDemands)
-	srv.Http.Get("/demand/{id}", loc.GetDemand)
-	srv.Http.Delete("/demand/{id}", loc.DeleteDemand)
-	srv.Http.Post("/demand", loc.PostDemand)
+	srv.Http.Get("/demand", loc.GetEstimates)
+	srv.Http.Get("/demand/{id}", loc.GetJob)
+	srv.Http.Delete("/demand/{id}", loc.DeleteOne)
+	srv.Http.Delete("/demand", loc.DeleteMany)
+	srv.Http.Post("/demand", loc.PostJobs)
 
 	state.SetRunning()
 	return nil

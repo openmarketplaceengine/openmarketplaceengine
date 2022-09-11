@@ -18,7 +18,8 @@ type JobsPayload struct {
 }
 
 type JobsResponse struct {
-	Jobs []*jobstore.Job `json:"jobs"`
+	Count int             `json:"count"`
+	Jobs  []*jobstore.Job `json:"jobs"`
 }
 
 func (p *JobsResponse) Decode(b *bytes.Buffer) error {
@@ -42,7 +43,8 @@ func (c *Controller) GetJobs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	render.JSON(w, r, JobsResponse{
-		Jobs: jobs,
+		Count: len(jobs),
+		Jobs:  jobs,
 	})
 }
 
@@ -60,7 +62,8 @@ func (c *Controller) PostJobs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	render.JSON(w, r, JobsResponse{
-		Jobs: payload.Jobs,
+		Count: len(payload.Jobs),
+		Jobs:  payload.Jobs,
 	})
 }
 

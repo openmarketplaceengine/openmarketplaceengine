@@ -17,18 +17,26 @@ import (
 
 const areaKey = "ny"
 
-type Demand struct {
+type Job struct {
 	ID      string `json:"id" validate:"required"`
 	PickUp  LatLon `json:"pickUp" validate:"required"`
 	DropOff LatLon `json:"dropOff" validate:"required"`
 }
 
-type Status struct {
-	Status string  `json:"status"`
-	Demand *Demand `json:"demand"`
+type Jobs struct {
+	Jobs []Job `json:"jobs" validate:"required,dive"`
 }
 
-func (p *Status) Decode(b *bytes.Buffer) error {
+type JobIds struct {
+	Ids []string `json:"jobIds" validate:"required"`
+}
+
+type CrudStatus struct {
+	Status string `json:"status"`
+	Jobs   []Job  `json:"jobs"`
+}
+
+func (p *CrudStatus) Decode(b *bytes.Buffer) error {
 	if err := json.NewDecoder(b).Decode(&p); err != nil {
 		return fmt.Errorf("decoding bytes error: %w", err)
 	}
@@ -48,12 +56,13 @@ type params struct {
 	lon          float64
 }
 
-type Demands struct {
-	ID     string               `json:"id"`
-	Demand []*estimate.Estimate `json:"demand"`
+type Estimates struct {
+	ID        string               `json:"id"`
+	Count     int                  `json:"count"`
+	Estimates []*estimate.Estimate `json:"estimates"`
 }
 
-func (p *Demands) Decode(b *bytes.Buffer) error {
+func (p *Estimates) Decode(b *bytes.Buffer) error {
 	if err := json.NewDecoder(b).Decode(&p); err != nil {
 		return fmt.Errorf("decoding bytes error: %w", err)
 	}
@@ -62,21 +71,21 @@ func (p *Demands) Decode(b *bytes.Buffer) error {
 }
 
 type Controller struct {
-	demandService *Service
+	service *Service
 }
 
-func NewController(demandService *Service) *Controller {
-	return &Controller{demandService: demandService}
+func NewController(service *Service) *Controller {
+	return &Controller{service: service}
 }
 
-func (c *Controller) GetDemands(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) GetEstimates(w http.ResponseWriter, r *http.Request) {
 
 	p := requireParams(w, r)
 	if p == nil {
 		return
 	}
 
-	res, err := c.demandService.GetEstimates(r.Context(), areaKey, geoqueue.LatLon{
+	res, err := c.service.GetEstimates(r.Context(), areaKey, geoqueue.LatLon{
 		Lat: p.lat,
 		Lon: p.lon,
 	}, p.radiusMeters)
@@ -85,20 +94,21 @@ func (c *Controller) GetDemands(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
-	render.JSON(w, r, Demands{
-		ID:     p.id,
-		Demand: res,
+	render.JSON(w, r, Estimates{
+		ID:        p.id,
+		Count:     len(res),
+		Estimates: res,
 	})
 }
 
-func (c *Controller) GetDemand(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) GetJob(w http.ResponseWriter, r *http.Request) {
 
 	id := requireId(w, r)
 	if id == "" {
 		return
 	}
 
-	res, err := c.demandService.GetDemand(r.Context(), areaKey, id)
+	res, err := c.service.GetJob(r.Context(), areaKey, id)
 	if err != nil {
 		htp.Render500(w, r, err)
 
@@ -107,22 +117,41 @@ func (c *Controller) GetDemand(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, res)
 }
 
-func (c *Controller) DeleteDemand(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) DeleteOne(w http.ResponseWriter, r *http.Request) {
 
 	id := requireId(w, r)
 	if id == "" {
 		return
 	}
 
-	err := c.demandService.DeleteDemand(r.Context(), areaKey, id)
+	err := c.service.DeleteJobs(r.Context(), areaKey, id)
 	if err != nil {
 		htp.Render500(w, r, err)
 
 		return
 	}
-	render.JSON(w, r, Status{
+	render.JSON(w, r, CrudStatus{
 		Status: "deleted",
-		Demand: nil,
+		Jobs:   nil,
+	})
+}
+
+func (c *Controller) DeleteMany(w http.ResponseWriter, r *http.Request) {
+
+	ids := requireValidJobIds(w, r)
+	if ids == nil {
+		return
+	}
+
+	err := c.service.DeleteJobs(r.Context(), areaKey, ids.Ids...)
+	if err != nil {
+		htp.Render500(w, r, err)
+
+		return
+	}
+	render.JSON(w, r, CrudStatus{
+		Status: "deleted",
+		Jobs:   nil,
 	})
 }
 
@@ -143,37 +172,39 @@ func requireId(w http.ResponseWriter, r *http.Request) string {
 	return idParam
 }
 
-func (c *Controller) PostDemand(w http.ResponseWriter, r *http.Request) {
-	payload := requireValidDemandPayload(w, r)
+func (c *Controller) PostJobs(w http.ResponseWriter, r *http.Request) {
+	payload := requireValidJobs(w, r)
 	if payload == nil {
 		return
 	}
 
-	err := c.demandService.AddDemand(r.Context(), areaKey, payload)
-	if err != nil {
-		htp.Render500(w, r, err)
+	for _, job := range payload.Jobs {
+		err := c.service.AddJob(r.Context(), areaKey, &job)
+		if err != nil {
+			htp.Render500(w, r, err)
 
-		return
+			return
+		}
 	}
-	render.JSON(w, r, Status{
+	render.JSON(w, r, CrudStatus{
 		Status: "created",
-		Demand: payload,
+		Jobs:   payload.Jobs,
 	})
 }
 
-func requireValidDemandPayload(w http.ResponseWriter, r *http.Request) *Demand {
-	var payload Demand
+func requireValidJobs(w http.ResponseWriter, r *http.Request) *Jobs {
+	var jobs Jobs
 	defer r.Body.Close()
-	err := json.NewDecoder(r.Body).Decode(&payload)
+	err := json.NewDecoder(r.Body).Decode(&jobs)
 	if err != nil {
 		htp.Render400(w, r,
 			[]validate.Error{{
 				Field:   "",
 				Value:   "",
-				Message: fmt.Sprintf("bad payload %T", Demand{}),
+				Message: fmt.Sprintf("bad payload %T", Jobs{}),
 				Details: fmt.Sprintf("decode payload error: %s", err),
 			}},
-			Demand{
+			Job{
 				ID: "",
 				PickUp: LatLon{
 					Lat: 37.656177,
@@ -188,9 +219,9 @@ func requireValidDemandPayload(w http.ResponseWriter, r *http.Request) *Demand {
 		return nil
 	}
 
-	errors := validate.Struct(payload, "Demand.")
+	errors := validate.Struct(jobs, "Jobs.")
 	if errors != nil {
-		htp.Render400(w, r, errors, Demand{
+		htp.Render400(w, r, errors, Job{
 			ID: "",
 			PickUp: LatLon{
 				Lat: 37.656177,
@@ -204,7 +235,40 @@ func requireValidDemandPayload(w http.ResponseWriter, r *http.Request) *Demand {
 
 		return nil
 	}
-	return &payload
+	return &jobs
+}
+
+func requireValidJobIds(w http.ResponseWriter, r *http.Request) *JobIds {
+	var ids JobIds
+	defer r.Body.Close()
+	err := json.NewDecoder(r.Body).Decode(&ids)
+	if err != nil {
+		htp.Render400(w, r,
+			[]validate.Error{{
+				Field:   "",
+				Value:   "",
+				Message: fmt.Sprintf("bad payload %T", JobIds{}),
+				Details: fmt.Sprintf("decode payload error: %s", err),
+			}},
+			JobIds{
+				Ids: []string{"job1"},
+			},
+		)
+
+		return nil
+	}
+
+	errors := validate.Struct(ids, "JobIds.")
+	if errors != nil {
+		htp.Render400(w, r, errors,
+			JobIds{
+				Ids: []string{"job1"},
+			},
+		)
+
+		return nil
+	}
+	return &ids
 }
 
 func requireParams(w http.ResponseWriter, r *http.Request) *params {

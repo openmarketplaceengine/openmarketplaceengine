@@ -129,9 +129,9 @@ func (s *JobStore) StoreOne(ctx context.Context, areaKey string, job *Job) error
 	return nil
 }
 
-func (s *JobStore) RemoveOne(ctx context.Context, areaKey string, id string) error {
+func (s *JobStore) Remove(ctx context.Context, areaKey string, ids ...string) error {
 	k := key(areaKey)
-	err := s.client.HDel(ctx, k, id).Err()
+	err := s.client.HDel(ctx, k, ids...).Err()
 
 	if err != nil {
 		return fmt.Errorf("remove one error: %w", err)

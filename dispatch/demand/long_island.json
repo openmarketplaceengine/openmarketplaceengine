@@ -42,5 +42,49 @@
       "lat": 40.674234,
       "lon": -73.725378
     }
+  },
+  {
+    "id": "hicksville-2-river-head",
+    "pickUp": {
+      "lat": 40.790631,
+      "lon": -73.534741
+    },
+    "dropOff": {
+      "lat": 40.904901,
+      "lon": -72.743725
+    }
+  },
+  {
+    "id": "hicksville-2-west-babylon",
+    "pickUp": {
+      "lat": 40.790631,
+      "lon": -73.534741
+    },
+    "dropOff": {
+      "lat": 40.731495,
+      "lon": -73.35459
+    }
+  },
+  {
+    "id": "greatNeck-2-river-head",
+    "pickUp": {
+      "lat": 40.786626,
+      "lon": -73.718512
+    },
+    "dropOff": {
+      "lat": 40.904901,
+      "lon": -72.743725
+    }
+  },
+  {
+    "id": "greatNeck-2-west-babylon",
+    "pickUp": {
+      "lat": 40.786626,
+      "lon": -73.718512
+    },
+    "dropOff": {
+      "lat": 40.731495,
+      "lon": -73.35459
+    }
   }
 ]

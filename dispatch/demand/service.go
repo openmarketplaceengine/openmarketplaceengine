@@ -92,28 +92,28 @@ func toIds(members []*geoqueue.Member) []string {
 	return res
 }
 
-func (s *Service) AddDemand(ctx context.Context, areaKey string, demand *Demand) error {
-	job := &jobstore.Job{
-		ID: demand.ID,
+func (s *Service) AddJob(ctx context.Context, areaKey string, job *Job) error {
+	j := &jobstore.Job{
+		ID: job.ID,
 		PickUp: jobstore.LatLon{
-			Lat: demand.PickUp.Lat,
-			Lon: demand.PickUp.Lon,
+			Lat: job.PickUp.Lat,
+			Lon: job.PickUp.Lon,
 		},
 		DropOff: jobstore.LatLon{
-			Lat: demand.DropOff.Lat,
-			Lon: demand.DropOff.Lon,
+			Lat: job.DropOff.Lat,
+			Lon: job.DropOff.Lon,
 		},
 	}
-	err := s.jobStore.StoreOne(ctx, areaKey, job)
+	err := s.jobStore.StoreOne(ctx, areaKey, j)
 	if err != nil {
 		return err
 	}
 
 	err = s.geoQueue.Enqueue(ctx, areaKey, geoqueue.Member{
-		ID: job.ID,
+		ID: j.ID,
 		PickUp: geoqueue.LatLon{
-			Lat: job.PickUp.Lat,
-			Lon: job.PickUp.Lon,
+			Lat: j.PickUp.Lat,
+			Lon: j.PickUp.Lon,
 		},
 	})
 
@@ -124,22 +124,23 @@ func (s *Service) AddDemand(ctx context.Context, areaKey string, demand *Demand)
 	return nil
 }
 
-func (s *Service) DeleteDemand(ctx context.Context, areaKey string, id string) error {
-	err := s.jobStore.RemoveOne(ctx, areaKey, id)
-	if err != nil {
-		return err
+func (s *Service) DeleteJobs(ctx context.Context, areaKey string, ids ...string) error {
+
+	for _, id := range ids {
+
+		err := s.jobStore.Remove(ctx, areaKey, id)
+		if err != nil {
+			return err
+		}
+		_, err = s.geoQueue.Dequeue(ctx, areaKey, id)
+		if err != nil {
+			return err
+		}
 	}
-
-	_, err = s.geoQueue.Dequeue(ctx, areaKey, id)
-
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
-func (s *Service) GetDemand(ctx context.Context, areaKey string, id string) (*Demand, error) {
+func (s *Service) GetJob(ctx context.Context, areaKey string, id string) (*Job, error) {
 	jobs, err := s.jobStore.GetByIds(ctx, areaKey, id)
 	if err != nil {
 		return nil, err
@@ -155,7 +156,7 @@ func (s *Service) GetDemand(ctx context.Context, areaKey string, id string) (*De
 		return nil, err
 	}
 
-	return &Demand{
+	return &Job{
 		ID: id,
 		PickUp: LatLon{
 			Lat: m.PickUp.Lat,

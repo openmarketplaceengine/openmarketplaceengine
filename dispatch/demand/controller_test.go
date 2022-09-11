@@ -28,7 +28,7 @@ func TestController(t *testing.T) {
 	}
 
 	c := Controller{
-		demandService: NewService(),
+		service: NewService(),
 	}
 
 	t.Run("testGetDemand200", func(t *testing.T) {
@@ -58,11 +58,11 @@ func testGetDemand200(t *testing.T, c Controller) {
 	}
 
 	rr0 := makeGetDemand(t, c, p, http.StatusOK)
-	var response Demands
+	var response Estimates
 	err := response.Decode(rr0.Body)
 	require.NoError(t, err)
 	require.Equal(t, p.id, response.ID)
-	require.GreaterOrEqual(t, len(response.Demand), 0)
+	require.GreaterOrEqual(t, len(response.Estimates), 0)
 }
 
 func testGetDemand400(t *testing.T, c Controller) {
@@ -84,40 +84,49 @@ func testGetDemand400(t *testing.T, c Controller) {
 
 func testPostDemand200(t *testing.T, c Controller) {
 
-	demand := Demand{
-		ID: "job-123",
-		PickUp: LatLon{
-			Lat: 37.656177,
-			Lon: -122.473048,
-		},
-		DropOff: LatLon{
-			Lat: 37.656177,
-			Lon: -122.473048,
+	jobs := Jobs{
+		Jobs: []Job{
+			{
+				ID: "job-123",
+				PickUp: LatLon{
+					Lat: 37.656177,
+					Lon: -122.473048,
+				},
+				DropOff: LatLon{
+					Lat: 37.656177,
+					Lon: -122.473048,
+				},
+			},
 		},
 	}
 
-	rr0 := makePostDemand(t, c, demand, http.StatusOK)
-	var response Status
+	rr0 := makePostJobs(t, c, jobs, http.StatusOK)
+	var response CrudStatus
 	err := response.Decode(rr0.Body)
 	require.NoError(t, err)
-	require.Equal(t, demand.ID, response.Demand.ID)
+	require.Len(t, response.Jobs, 1)
+	require.Equal(t, jobs.Jobs[0].ID, response.Jobs[0].ID)
 }
 
 func testPostDemand400(t *testing.T, c Controller) {
 
-	p := Demand{
-		ID: "",
-		PickUp: LatLon{
-			Lat: 0,
-			Lon: 0,
-		},
-		DropOff: LatLon{
-			Lat: 0,
-			Lon: 0,
+	p := Jobs{
+		Jobs: []Job{
+			{
+				ID: "",
+				PickUp: LatLon{
+					Lat: 0,
+					Lon: 0,
+				},
+				DropOff: LatLon{
+					Lat: 0,
+					Lon: 0,
+				},
+			},
 		},
 	}
 
-	rr := makePostDemand(t, c, p, http.StatusBadRequest)
+	rr := makePostJobs(t, c, p, http.StatusBadRequest)
 	var errs htp.ValidationErrors
 	err := errs.Decode(rr.Body)
 	require.NoError(t, err)
@@ -141,11 +150,11 @@ func makeGetDemand(t *testing.T, c Controller, p params, expectStatus int) *http
 		Keys:   []string{},
 		Values: []string{},
 	}
-	return makeRequest(t, c.GetDemands, r, routeParams, expectStatus)
+	return makeRequest(t, c.GetEstimates, r, routeParams, expectStatus)
 }
 
-func makePostDemand(t *testing.T, c Controller, demand Demand, expectStatus int) *httptest.ResponseRecorder {
-	body, _ := json.Marshal(demand)
+func makePostJobs(t *testing.T, c Controller, jobs Jobs, expectStatus int) *httptest.ResponseRecorder {
+	body, _ := json.Marshal(jobs)
 
 	r, err := http.NewRequest("POST", "/demand", bytes.NewReader(body))
 	require.NoError(t, err)
@@ -153,7 +162,7 @@ func makePostDemand(t *testing.T, c Controller, demand Demand, expectStatus int)
 		Keys:   []string{},
 		Values: []string{},
 	}
-	return makeRequest(t, c.PostDemand, r, routeParams, expectStatus)
+	return makeRequest(t, c.PostJobs, r, routeParams, expectStatus)
 }
 
 func makeRequest(t *testing.T, handlerFunc func(http.ResponseWriter, *http.Request), r *http.Request, params chi.RouteParams, expectStatus int) *httptest.ResponseRecorder {

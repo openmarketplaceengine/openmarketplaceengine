@@ -8,7 +8,7 @@ import (
 )
 
 func TestLocations(t *testing.T) {
-	bytes, err := json.Marshal(longIslandDemands)
+	bytes, err := json.Marshal(greatNeckJobs)
 	require.NoError(t, err)
 	fmt.Println(string(bytes))
 }
