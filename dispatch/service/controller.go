@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/render"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dispatch/htp"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dispatch/jobstore"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dispatch/validate"
 	"net/http"
 )
 
@@ -69,7 +70,7 @@ func requireValidAddJobsPayload(w http.ResponseWriter, r *http.Request) *JobsPay
 	err := json.NewDecoder(r.Body).Decode(&payload)
 	if err != nil {
 		htp.Render400(w, r,
-			[]htp.Error{{
+			[]validate.Error{{
 				Field:   "",
 				Value:   "",
 				Message: fmt.Sprintf("bad payload %T", JobsPayload{}),

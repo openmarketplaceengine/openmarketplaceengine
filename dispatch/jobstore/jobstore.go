@@ -49,15 +49,18 @@ func (s *JobStore) GetByIds(ctx context.Context, areaKey string, ids ...string) 
 		return nil, nil
 	}
 
-	result := make([]*Job, l)
+	result := make([]*Job, 0)
 
-	for i, v := range v {
+	for _, v := range v {
+		if v == nil {
+			continue
+		}
 		var m Job
 		err := json.Unmarshal([]byte(v.(string)), &m)
 		if err != nil {
 			return nil, fmt.Errorf("unmarshal error: %w", err)
 		}
-		result[i] = &m
+		result = append(result, &m)
 	}
 
 	return result, nil

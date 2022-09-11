@@ -4,18 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dispatch/validate"
 )
 
-type Error struct {
-	Field   string `json:"field"`
-	Value   string `json:"value"`
-	Message string `json:"message"`
-	Details string `json:"details"`
-}
-
 type ValidationErrors struct {
-	Errors  []Error     `json:"errors"`
-	Example interface{} `json:"example"`
+	Errors  []validate.Error `json:"errors"`
+	Example interface{}      `json:"example"`
 }
 
 func (errs *ValidationErrors) Decode(b *bytes.Buffer) error {
