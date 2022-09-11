@@ -1,0 +1,46 @@
+[
+  {
+    "id": "long-beach-2-river-head",
+    "pickUp": {
+      "lat": 40.588773,
+      "lon": -73.664954
+    },
+    "dropOff": {
+      "lat": 40.904901,
+      "lon": -72.743725
+    }
+  },
+  {
+    "id": "long-beach-2-west-babylon",
+    "pickUp": {
+      "lat": 40.588773,
+      "lon": -73.664954
+    },
+    "dropOff": {
+      "lat": 40.731495,
+      "lon": -73.35459
+    }
+  },
+  {
+    "id": "long-beach-2-garden-city",
+    "pickUp": {
+      "lat": 40.588773,
+      "lon": -73.664954
+    },
+    "dropOff": {
+      "lat": 40.733576,
+      "lon": -73.631995
+    }
+  },
+  {
+    "id": "long-beach-2-valley-stream",
+    "pickUp": {
+      "lat": 40.588773,
+      "lon": -73.664954
+    },
+    "dropOff": {
+      "lat": 40.674234,
+      "lon": -73.725378
+    }
+  }
+]
