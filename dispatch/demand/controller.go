@@ -9,10 +9,12 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/dispatch/estimate"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dispatch/geoqueue"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dispatch/htp"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dispatch/metrics"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dispatch/validate"
 	"net/http"
 	"net/url"
 	"strconv"
+	"time"
 )
 
 const areaKey = "ny"
@@ -79,6 +81,11 @@ func NewController(service *Service) *Controller {
 }
 
 func (c *Controller) GetEstimates(w http.ResponseWriter, r *http.Request) {
+	defer func(begin time.Time) {
+		milliseconds := time.Since(begin).Milliseconds()
+		value := float64(milliseconds)
+		metrics.EstimatesApiCallDuration.Observe(value)
+	}(time.Now())
 
 	p := requireParams(w, r)
 	if p == nil {

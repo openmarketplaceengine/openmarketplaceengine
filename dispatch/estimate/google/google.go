@@ -2,11 +2,20 @@ package google
 
 import (
 	"context"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dispatch/metrics"
+	"time"
 
 	"googlemaps.github.io/maps"
 )
 
 func Matrix(ctx context.Context, c *maps.Client, input MatrixPointsInput) (*MatrixOutput, error) {
+	defer func(begin time.Time) {
+		metrics.MatrixApiHits.Inc()
+		milliseconds := time.Since(begin).Milliseconds()
+		value := float64(milliseconds)
+		metrics.MatrixApiCallDuration.Observe(value)
+	}(time.Now())
+
 	// Batch reverse-geocode all locations
 	geocoder := NewGeocoder(c)
 	parallelizationFactor := 10
@@ -41,6 +50,13 @@ func Matrix(ctx context.Context, c *maps.Client, input MatrixPointsInput) (*Matr
 }
 
 func MatrixFromPlaces(ctx context.Context, c *maps.Client, input MatrixPlacesInput) (*MatrixOutput, error) {
+	defer func(begin time.Time) {
+		metrics.MatrixApiHits.Inc()
+		milliseconds := time.Since(begin).Milliseconds()
+		value := float64(milliseconds)
+		metrics.MatrixApiCallDuration.Observe(value)
+	}(time.Now())
+
 	// nolint:prealloc
 	var origins []string
 	for _, placeID := range input.Origins {
