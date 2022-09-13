@@ -1,0 +1,5 @@
+version: 2
+disable: true
+details: 'Migration to PostGIS types for latitude/longitude'
+confirm: 'select pickup_lat, pickup_lon from job limit 1'
+
