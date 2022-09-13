@@ -4,7 +4,7 @@ import "github.com/twpayne/go-polyline"
 
 // ToPolyline will return coordinates google polyline encoded
 // see https://developers.google.com/maps/documentation/utilities/polylineutility
-// Output example: _p~iF~ps|U_ulLnnqC_mqNvxq`@
+// Output example: _p~iF~ps|U_ulLnnqC_mqNvxq`@.
 func ToPolyline(lngLats []LngLat) string {
 	var coords = make([][]float64, len(lngLats))
 	for i, c := range lngLats {

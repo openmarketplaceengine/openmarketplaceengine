@@ -3,7 +3,7 @@ package table
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -39,7 +39,7 @@ type Request struct {
 // Values are given in meters. Can be null if no route between i and j can be found.
 //
 // Sources - array of Waypoint objects describing all sources in order
-// Destinations -  array of Waypoint objects describing all destinations in order
+// Destinations -  array of Waypoint objects describing all destinations in order.
 type Response struct {
 	Code         string          `json:"code"`
 	Distances    [][]float64     `json:"distances"`
@@ -52,10 +52,9 @@ type Response struct {
 // i.e. For worker to get ranked routes to available jobs.
 // http request goes to http://project-osrm.org/docs/v5.23.0/api/#table-service endpoint.
 func Table(c *http.Client, request Request) (*Response, error) {
-
 	coords := "polyline(" + url.PathEscape(osrm.ToPolyline(request.Coordinates)) + ")"
 
-	opts := options.UrlEncode(map[string]interface{}{
+	opts := options.URLEncode(map[string]interface{}{
 		"sources":      request.Origins,
 		"destinations": request.Destinations,
 		"annotations":  request.Annotations,
@@ -63,8 +62,12 @@ func Table(c *http.Client, request Request) (*Response, error) {
 	uri := fmt.Sprintf("https://router.project-osrm.org/table/v1/driving/%s?%s", coords, opts)
 
 	res, err := c.Get(uri)
-	defer res.Body.Close()
-	bytes, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	defer safeClose(res.Body)
+	var bytes []byte
+	bytes, err = io.ReadAll(res.Body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read body: %w", err)
 	}
@@ -80,4 +83,10 @@ func Table(c *http.Client, request Request) (*Response, error) {
 	}
 
 	return &response, nil
+}
+
+func safeClose(c io.Closer) {
+	if c != nil {
+		_ = c.Close()
+	}
 }

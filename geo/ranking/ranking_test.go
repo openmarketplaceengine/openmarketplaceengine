@@ -27,8 +27,8 @@ func TestRank(t *testing.T) {
 			buildOrigins: func() map[geo.LatLng]string {
 				n := 100
 				out := make(map[geo.LatLng]string, n)
-				southWest := geo.LatLng{40.67374692754084, -74.01655691637214}
-				northEast := geo.LatLng{40.74272240069717, -73.93601257175355}
+				southWest := geo.NewLoc(40.67374692754084, -74.01655691637214)
+				northEast := geo.NewLoc(40.74272240069717, -73.93601257175355)
 				for i := 0; i < n; i++ {
 					rp := randPoint(southWest, northEast)
 					out[rp] = fmt.Sprintf("%d", i)
@@ -36,7 +36,7 @@ func TestRank(t *testing.T) {
 				return out
 			},
 			// Brooklyn City Dental
-			destination: geo.LatLng{40.7263248173875, -73.95246643844668},
+			destination: geo.NewLoc(40.7263248173875, -73.95246643844668),
 			expect: func(t *testing.T, out []geo.LatLng, originsMap map[geo.LatLng]string) {
 				require.NotEmpty(t, out)
 			},
@@ -44,15 +44,15 @@ func TestRank(t *testing.T) {
 		"Brooklyn City Dental": {
 			buildOrigins: func() map[geo.LatLng]string {
 				return map[geo.LatLng]string{
-					geo.LatLng{40.736791925763455, -73.95519101851923}: "Saint Vitus Bar - Greenpoint",
-					geo.LatLng{40.73622634374919, -73.95551867494544}:  "Le Fanfare - Greenpoint",
-					geo.LatLng{40.72546946142794, -73.95175080861969}:  "Nassau Ave Station",
-					geo.LatLng{40.726094743641546, -73.95230565534146}: "Peter Pan Donut & Pastry Shop",
-					geo.LatLng{40.7217615358787, -73.95457096241172}:   "McCarren Park Tennis Courts",
+					geo.NewLoc(40.736791925763455, -73.95519101851923): "Saint Vitus Bar - Greenpoint",
+					geo.NewLoc(40.73622634374919, -73.95551867494544):  "Le Fanfare - Greenpoint",
+					geo.NewLoc(40.72546946142794, -73.95175080861969):  "Nassau Ave Station",
+					geo.NewLoc(40.726094743641546, -73.95230565534146): "Peter Pan Donut & Pastry Shop",
+					geo.NewLoc(40.7217615358787, -73.95457096241172):   "McCarren Park Tennis Courts",
 				}
 			},
 			// Brooklyn City Dental
-			destination: geo.LatLng{40.7263248173875, -73.95246643844668},
+			destination: geo.NewLoc(40.7263248173875, -73.95246643844668),
 			expect: func(t *testing.T, out []geo.LatLng, originsMap map[geo.LatLng]string) {
 				require.NotEmpty(t, out)
 

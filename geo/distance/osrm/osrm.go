@@ -46,10 +46,13 @@ func makeRange(min, max int) []int {
 }
 
 func toMatrixOutput(response *table.Response) *distance.MatrixOutput {
-	var rows []distance.MatrixElementsRow
+	srclen := len(response.Sources)
 
-	var originAddresses []string
-	var destinationAddresses []string
+	rows := make([]distance.MatrixElementsRow, 0, srclen)
+
+	originAddresses := make([]string, 0, srclen)
+	destinationAddresses := make([]string, 0, srclen)
+
 	for i, source := range response.Sources {
 		originAddresses = append(originAddresses, source.Location.Textual())
 		var elements []distance.MatrixElement

@@ -3,7 +3,7 @@ package route
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -11,7 +11,7 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/geo/osrm/options"
 )
 
-// Annotations true , false (default), nodes , distance , duration , datasources , weight , speed
+// Annotations true , false (default), nodes , distance , duration , datasources , weight , speed.
 type Annotations string
 
 const (
@@ -25,7 +25,7 @@ const (
 	Speed       Annotations = "speed"
 )
 
-// Geometries polyline (default), polyline6 , geojson
+// Geometries polyline (default), polyline6 , geojson.
 type Geometries string
 
 const (
@@ -34,7 +34,7 @@ const (
 	Geojson   Geometries = "geojson"
 )
 
-// Overview simplified (default), full , false
+// Overview simplified (default), full , false.
 type Overview string
 
 const (
@@ -98,10 +98,9 @@ type Response struct {
 // Routes will return the fastest routes for RouteRequest.
 // http request goes to http://project-osrm.org/docs/v5.23.0/api/#route-service endpoint.
 func Routes(c *http.Client, request Request) (*Response, error) {
-
 	coords := "polyline(" + url.PathEscape(osrm.ToPolyline(request.Coordinates)) + ")"
 
-	opts := options.UrlEncode(map[string]interface{}{
+	opts := options.URLEncode(map[string]interface{}{
 		"steps":       request.Steps,
 		"overview":    request.Overview,
 		"annotations": request.Annotations,
@@ -110,8 +109,12 @@ func Routes(c *http.Client, request Request) (*Response, error) {
 	uri := fmt.Sprintf("https://router.project-osrm.org/route/v1/driving/%s?%s", coords, opts)
 
 	res, err := c.Get(uri)
-	defer res.Body.Close()
-	bytes, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	defer safeClose(res.Body)
+	var bytes []byte
+	bytes, err = io.ReadAll(res.Body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read body: %w", err)
 	}
@@ -127,4 +130,10 @@ func Routes(c *http.Client, request Request) (*Response, error) {
 	}
 
 	return &response, nil
+}
+
+func safeClose(c io.Closer) {
+	if c != nil {
+		_ = c.Close()
+	}
 }

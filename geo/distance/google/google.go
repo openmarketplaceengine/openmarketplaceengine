@@ -10,7 +10,6 @@ import (
 )
 
 func Matrix(ctx context.Context, c *maps.Client, input distance.MatrixPointsInput) (*distance.MatrixOutput, error) {
-
 	// Batch reverse-geocode all locations
 	geocoder := google.NewGeocoder(c)
 	parallelizationFactor := 10
@@ -22,9 +21,14 @@ func Matrix(ctx context.Context, c *maps.Client, input distance.MatrixPointsInpu
 	if err != nil {
 		return nil, err
 	}
-
-	var origins []string
-	var destinations []string
+	origlen := len(input.Origins)
+	origins := make([]string, 0, origlen)
+	if outlen := len(geocodeOut); outlen > origlen {
+		origlen = outlen - origlen
+	} else {
+		origlen = 0
+	}
+	destinations := make([]string, 0, origlen)
 	for idx, e := range geocodeOut {
 		if idx < len(input.Origins) {
 			origins = append(origins, e.PlaceID)
@@ -45,11 +49,11 @@ func Matrix(ctx context.Context, c *maps.Client, input distance.MatrixPointsInpu
 }
 
 func MatrixFromPlaces(ctx context.Context, c *maps.Client, input distance.MatrixPlacesInput) (*distance.MatrixOutput, error) {
-	var origins []string
+	origins := make([]string, 0, len(input.Origins))
 	for _, placeID := range input.Origins {
 		origins = append(origins, "place_id:"+placeID)
 	}
-	var destinations []string
+	destinations := make([]string, 0, len(input.Destinations))
 	for _, placeID := range input.Destinations {
 		destinations = append(destinations, "place_id:"+placeID)
 	}
@@ -64,7 +68,7 @@ func MatrixFromPlaces(ctx context.Context, c *maps.Client, input distance.Matrix
 }
 
 func toMatrixOutput(response *maps.DistanceMatrixResponse) *distance.MatrixOutput {
-	var rows []distance.MatrixElementsRow
+	rows := make([]distance.MatrixElementsRow, 0, len(response.Rows))
 	for i := range response.Rows {
 		row := response.Rows[i]
 		var elements []distance.MatrixElement

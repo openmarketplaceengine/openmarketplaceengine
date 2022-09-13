@@ -7,10 +7,10 @@ import (
 )
 
 // LngLat is Longitude[0] Latitude[1] pair used on OSRM api
-// Note here reversed sequence comparing to geoservices.LatLng
+// Note here reversed sequence comparing to geoservices.LatLng.
 type LngLat [2]float64
 
-// Waypoint describes source or destination
+// Waypoint describes source or destination.
 type Waypoint struct {
 	Hint     string  `json:"hint"`
 	Distance float64 `json:"distance"`

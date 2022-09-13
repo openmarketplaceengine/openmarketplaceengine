@@ -2,7 +2,7 @@ package ranking
 
 import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/geo"
-	"github.com/uber/h3-go"
+	"github.com/uber/h3-go/v3"
 )
 
 // getCell indexes the location at the specified resolution, returning the index
@@ -30,7 +30,7 @@ func cellNeighbors(l geo.LatLng, res int, k int) []string {
 		Longitude: l.Lng,
 	}, res)
 	indexes := h3.KRing(i, k)
-	var out []string
+	out := make([]string, 0, len(indexes))
 	for _, idx := range indexes {
 		out = append(out, h3.ToString(idx))
 	}

@@ -78,19 +78,18 @@ func BatchReverseGeocode(
 				geocodingResults, err := reverseGeocoder.ReverseGeocode(ctx, location)
 				if err != nil {
 					return fmt.Errorf("failed to reverse geocode location: %w", err)
-				} else {
-					result := Result{
-						LatLng: geosvc.LatLng{
-							Lat: location.Lat,
-							Lng: location.Lng,
-						},
-						GeocodingResults: geocodingResults,
-					}
-					select {
-					case <-ctx.Done():
-						return ctx.Err()
-					case results <- result:
-					}
+				}
+				result := Result{
+					LatLng: geosvc.LatLng{
+						Lat: location.Lat,
+						Lng: location.Lng,
+					},
+					GeocodingResults: geocodingResults,
+				}
+				select {
+				case <-ctx.Done():
+					return ctx.Err()
+				case results <- result:
 				}
 			}
 			return nil
@@ -118,7 +117,7 @@ func BatchReverseGeocode(
 	// The order of outputs has to correspond with the order of inputs
 	// e.g., if the input was [point1, point2] then the output should be
 	// [place1ID, place2ID]
-	var out []*ReverseGeocodeOutput
+	out := make([]*ReverseGeocodeOutput, 0, len(locations))
 	for _, location := range locations {
 		val, ok := ret.Load(location)
 		if !ok {

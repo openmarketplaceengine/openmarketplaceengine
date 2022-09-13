@@ -87,5 +87,4 @@ func TestTable_2_origins_3_destinations(t *testing.T) {
 	require.Len(t, response.Durations, 2)
 	require.Len(t, response.Durations[0], 3)
 	require.Len(t, response.Durations[1], 3)
-
 }

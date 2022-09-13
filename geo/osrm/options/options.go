@@ -5,12 +5,12 @@ import (
 	"net/url"
 )
 
-func UrlEncode(params map[string]interface{}) string {
+func URLEncode(params map[string]interface{}) string {
 	if len(params) == 0 {
 		return ""
 	}
 
-	var bytes []byte
+	bytes := make([]byte, 0, 16)
 	for k, v := range params {
 		if len(bytes) > 0 {
 			bytes = append(bytes, '&')
