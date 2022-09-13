@@ -18,7 +18,7 @@ require (
 	github.com/rs/xid v1.2.1
 	github.com/stretchr/testify v1.7.0
 	github.com/twpayne/go-polyline v1.1.1
-	github.com/uber/h3-go v3.0.1+incompatible
+	github.com/uber/h3-go/v3 v3.7.1
 	go.uber.org/zap v1.21.0
 	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f
 	google.golang.org/grpc v1.45.0
