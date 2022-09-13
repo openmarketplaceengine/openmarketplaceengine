@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/openmarketplaceengine/geoservices"
-	"github.com/openmarketplaceengine/geoservices/distance"
-	"github.com/openmarketplaceengine/geoservices/distance/google"
 	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 	"github.com/openmarketplaceengine/openmarketplaceengine/dom/job"
+	"github.com/openmarketplaceengine/openmarketplaceengine/geo"
+	"github.com/openmarketplaceengine/openmarketplaceengine/geo/distance"
+	"github.com/openmarketplaceengine/openmarketplaceengine/geo/distance/google"
 	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/validate"
 	"github.com/openmarketplaceengine/openmarketplaceengine/svc/location"
 	"googlemaps.github.io/maps"
@@ -52,7 +52,7 @@ func EstimateJobs(ctx context.Context, workerLocation *location.WorkerLocation, 
 	}
 
 	origins, destinations := transform(jobs)
-	originsPlus := append(origins, geoservices.LatLng{Lat: workerLocation.Latitude, Lng: workerLocation.Longitude})
+	originsPlus := append(origins, geo.LatLng{Lat: workerLocation.Latitude, Lng: workerLocation.Longitude})
 	m, err := google.Matrix(ctx, client, distance.MatrixPointsInput{
 		Origins:      originsPlus,
 		Destinations: destinations,
@@ -108,13 +108,13 @@ func EstimateJobs(ctx context.Context, workerLocation *location.WorkerLocation, 
 	return eJobs, nil
 }
 
-func transform(jobs []*job.AvailableJob) (origins []geoservices.LatLng, destinations []geoservices.LatLng) {
+func transform(jobs []*job.AvailableJob) (origins []geo.LatLng, destinations []geo.LatLng) {
 	for _, j := range jobs {
-		origins = append(origins, geoservices.LatLng{
+		origins = append(origins, geo.LatLng{
 			Lat: j.PickupLat,
 			Lng: j.PickupLon,
 		})
-		destinations = append(destinations, geoservices.LatLng{
+		destinations = append(destinations, geo.LatLng{
 			Lat: j.DropoffLat,
 			Lng: j.DropoffLon,
 		})
