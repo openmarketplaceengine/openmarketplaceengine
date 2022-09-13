@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+// nolint
 func splitCreateTableColumns(s string) ([]string, error) {
 	s = strings.ToLower(strings.TrimSpace(s))
 	if strings.HasPrefix(s, "create table") {
