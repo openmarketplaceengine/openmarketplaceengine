@@ -1,5 +1,31 @@
 version: -1
-disable: true
-details: 'First Migration'
-#confirm:
-
+disable: false
+details: Job migration
+logonly: true
+mustrun: true
+drop:
+  table:
+    - glink
+    - gpoint
+    - jobimp
+tables:
+  - name: job
+    create: |
+      id           text not null primary key,
+      worker_id    text not null,
+      created      timestamptz,
+      updated      timestamptz,
+      state        text,
+      pickup_date  timestamptz,
+      pickup_addr  text,
+      pickup_geo   geography(point,4326)
+      dropoff_addr text,
+      dropoff_geo  geography(point,4326)
+      trip_type    text,
+      category     text
+    select: >
+      id, worker_id, created, updated, state, pickup_date, pickup_addr,
+      st_point(pickup_lon, pickup_lat)::geography,
+      dropoff_addr,
+      st_point(dropoff_lon, dropoff_lat)::geography,
+      trip_type, category
