@@ -3,3 +3,4 @@
 build
 cover.*
 node_modules
+*.iml
