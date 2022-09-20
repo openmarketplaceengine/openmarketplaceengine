@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 
@@ -43,4 +44,29 @@ func WrapNoRows(err error) error {
 		return sql.ErrNoRows
 	}
 	return err
+}
+
+//-----------------------------------------------------------------------------
+// Skip Errors Context
+//-----------------------------------------------------------------------------
+
+type skipErrKey struct{}
+
+func SkipErrorsContext(parent Context, skip ...ErrCode) Context {
+	return context.WithValue(parent, skipErrKey{}, skip)
+}
+
+func SkipUndefErrors(ctx Context) Context {
+	return SkipErrorsContext(ctx, ErrUndefinedColumn, ErrUndefinedTable)
+}
+
+func ShouldSkipError(ctx Context, err error) bool {
+	if skip, ok := ctx.Value(skipErrKey{}).([]ErrCode); ok {
+		for i := 0; i < len(skip); i++ {
+			if skip[i].Is(err) {
+				return true
+			}
+		}
+	}
+	return false
 }

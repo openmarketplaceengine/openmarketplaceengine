@@ -235,6 +235,12 @@ func infof(format string, args ...interface{}) {
 
 //-----------------------------------------------------------------------------
 
+func warnf(format string, args ...interface{}) { //nolint:deadcode
+	plog.Warnf(format, args...)
+}
+
+//-----------------------------------------------------------------------------
+
 func errorf(format string, args ...interface{}) {
 	plog.Errorf(format, args...)
 }

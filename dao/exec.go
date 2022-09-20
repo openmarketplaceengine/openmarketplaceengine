@@ -118,6 +118,10 @@ type ListExec struct {
 	list []Executable
 }
 
+func (l *ListExec) Len() int {
+	return len(l.list)
+}
+
 func (l *ListExec) Append(execs ...Executable) {
 	l.list = append(l.list, execs...)
 }

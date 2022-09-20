@@ -133,6 +133,13 @@ func (s *SQL) Select(expr string, args ...interface{}) *SQL {
 
 //-----------------------------------------------------------------------------
 
+func (s *SQL) Count(expr string, args ...interface{}) *SQL {
+	s.stmt.Select(fmt.Sprintf("COUNT(%s)", expr), args...)
+	return s
+}
+
+//-----------------------------------------------------------------------------
+
 func (s *SQL) To(dest ...interface{}) *SQL {
 	s.stmt.To(dest...)
 	return s
@@ -162,6 +169,19 @@ func (s *SQL) Limit(limit interface{}) *SQL {
 func (s *SQL) Offset(offset interface{}) *SQL {
 	s.stmt.Offset(offset)
 	return s
+}
+
+//-----------------------------------------------------------------------------
+
+func (s *SQL) IgnoreConflict() *SQL {
+	s.stmt.Clause("ON CONFLICT DO NOTHING")
+	return s
+}
+
+//-----------------------------------------------------------------------------
+
+func (s *SQL) Clone() *SQL {
+	return &SQL{s.stmt.Clone(), nil}
 }
 
 //-----------------------------------------------------------------------------
