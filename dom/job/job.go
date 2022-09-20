@@ -82,7 +82,7 @@ func QueryOne(ctx dao.Context, jobID dao.SUID) (job *Job, has bool, err error) {
 	return
 }
 
-//QueryByPickupDistance is used to select jobs nearest to specified lat/lon within precision in meters.
+// QueryByPickupDistance is used to select jobs nearest to specified lat/lon within precision in meters.
 // lat/lon - point to count distance from
 // radiusMeters - radius in meters
 // limit - rows limit

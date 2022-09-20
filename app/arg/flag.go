@@ -425,6 +425,7 @@ func UnquoteUsage(flag *Flag) (name string, usage string) {
 // PrintDefaults prints, to standard error unless configured otherwise, the
 // default values of all defined command-line flags in the set. See the
 // documentation for the global function PrintDefaults for more information.
+//
 //goland:noinspection GoUnhandledErrorResult
 func (f *FlagSet) PrintDefaults() {
 	f.VisitAll(func(flag *Flag) {
@@ -470,6 +471,7 @@ func (f *FlagSet) PrintDefaults() {
 }
 
 // defaultUsage is the default function to print a usage message.
+//
 //goland:noinspection GoUnhandledErrorResult
 func (f *FlagSet) defaultUsage() {
 	if f.name == "" {

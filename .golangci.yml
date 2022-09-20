@@ -28,7 +28,7 @@ linters:
   disable-all: true
   enable:
     - bodyclose
-    - deadcode
+#    - deadcode
     - depguard
     - dogsled
     - dupl
@@ -55,14 +55,14 @@ linters:
     - predeclared
     - revive
     - staticcheck
-    - structcheck
+#    - structcheck
     - stylecheck
 #    - thelper
     - tparallel
     - typecheck
     - unconvert
     - unparam
-    - varcheck
+#    - varcheck
     - whitespace
 #    - wsl
 

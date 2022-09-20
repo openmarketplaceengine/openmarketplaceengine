@@ -9,8 +9,8 @@ import (
 	"github.com/openmarketplaceengine/openmarketplaceengine/svc/location"
 )
 
-//Limit of initial available jobs query to accommodate google usage constraints.
-//https://developers.google.com/maps/documentation/distance-matrix/usage-and-billing#other-usage-limits
+// Limit of initial available jobs query to accommodate google usage constraints.
+// https://developers.google.com/maps/documentation/distance-matrix/usage-and-billing#other-usage-limits
 const googleMatrixAPILimit = int32(25)
 
 type Service struct {
