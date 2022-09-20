@@ -47,7 +47,7 @@ type Location struct {
 	Latitude  float64 `json:"lat"`
 }
 
-//Direction to North, South, East or West in form of N, S, E, W, NE, NW, SE, SW.
+// Direction to North, South, East or West in form of N, S, E, W, NE, NW, SE, SW.
 type Direction string
 
 // Direction of movement
