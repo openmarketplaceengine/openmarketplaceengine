@@ -1,8 +1,8 @@
 package stat
 
 import (
-	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
-	"github.com/openmarketplaceengine/openmarketplaceengine/log"
+	"github.com/driverscooperative/geosrv/cfg"
+	"github.com/driverscooperative/geosrv/log"
 )
 
 const pfxErr = "stat"

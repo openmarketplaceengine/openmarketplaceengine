@@ -4,7 +4,7 @@ package api.crossing.v1beta1;
 
 import "api/type/v1beta1/crossing.proto";
 
-option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/crossing/v1beta1";
+option go_package = "github.com/driverscooperative/geosrv/internal/idl/api/crossing/v1beta1";
 
 service CrossingService {
   rpc ListCrossings(ListCrossingsRequest) returns (ListCrossingsResponse) {}

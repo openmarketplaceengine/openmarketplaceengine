@@ -3,8 +3,8 @@ package dom
 import (
 	"embed"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
-	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
+	"github.com/driverscooperative/geosrv/cfg"
+	"github.com/driverscooperative/geosrv/dao"
 )
 
 const sqlPath = "schema/v1/"

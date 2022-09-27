@@ -3,7 +3,7 @@ package dom
 import (
 	"testing"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
+	"github.com/driverscooperative/geosrv/cfg"
 	"github.com/stretchr/testify/require"
 )
 

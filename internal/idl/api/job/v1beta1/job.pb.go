@@ -8,7 +8,7 @@ package v1beta1
 
 import (
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
-	v1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/type/v1beta1"
+	v1beta1 "github.com/driverscooperative/geosrv/internal/idl/api/type/v1beta1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"

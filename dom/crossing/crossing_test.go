@@ -5,14 +5,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
+	"github.com/driverscooperative/geosrv/pkg/detector"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/dom/tollgate"
+	"github.com/driverscooperative/geosrv/dom/tollgate"
 
+	"github.com/driverscooperative/geosrv/cfg"
+	"github.com/driverscooperative/geosrv/dom"
+	"github.com/driverscooperative/geosrv/pkg/util"
 	"github.com/google/uuid"
-	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
-	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
-	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/util"
 	"github.com/stretchr/testify/require"
 )
 

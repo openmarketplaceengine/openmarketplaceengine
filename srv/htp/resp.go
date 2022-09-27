@@ -13,7 +13,7 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/srv/htp/hdr"
+	"github.com/driverscooperative/geosrv/srv/htp/hdr"
 )
 
 type (

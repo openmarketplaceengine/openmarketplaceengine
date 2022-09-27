@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/geo/distance"
-	"github.com/openmarketplaceengine/openmarketplaceengine/geo/osrm"
-	"github.com/openmarketplaceengine/openmarketplaceengine/geo/osrm/table"
+	"github.com/driverscooperative/geosrv/geo/distance"
+	"github.com/driverscooperative/geosrv/geo/osrm"
+	"github.com/driverscooperative/geosrv/geo/osrm/table"
 )
 
 func Matrix(c *http.Client, input distance.MatrixPointsInput) (*distance.MatrixOutput, error) {

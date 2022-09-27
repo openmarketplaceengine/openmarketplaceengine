@@ -4,16 +4,16 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/dom/crossing"
+	"github.com/driverscooperative/geosrv/dom/crossing"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
+	"github.com/driverscooperative/geosrv/srv"
 	"google.golang.org/grpc"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/crossing/v1beta1"
-	typeV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/type/v1beta1"
+	"github.com/driverscooperative/geosrv/internal/idl/api/crossing/v1beta1"
+	typeV1beta1 "github.com/driverscooperative/geosrv/internal/idl/api/type/v1beta1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

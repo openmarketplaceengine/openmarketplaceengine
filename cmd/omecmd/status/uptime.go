@@ -9,9 +9,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/app"
-	"github.com/openmarketplaceengine/openmarketplaceengine/cmd/omecmd/cfg"
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/status/v1beta1"
+	"github.com/driverscooperative/geosrv/app"
+	"github.com/driverscooperative/geosrv/cmd/omecmd/cfg"
+	"github.com/driverscooperative/geosrv/internal/idl/api/status/v1beta1"
 )
 
 func init() {

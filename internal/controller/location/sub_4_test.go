@@ -3,9 +3,9 @@ package location
 import (
 	"encoding/json"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
+	"github.com/driverscooperative/geosrv/pkg/detector"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
+	"github.com/driverscooperative/geosrv/dao"
 
 	"context"
 )

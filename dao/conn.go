@@ -7,7 +7,7 @@ package dao
 import (
 	"database/sql"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
+	"github.com/driverscooperative/geosrv/cfg"
 )
 
 //-----------------------------------------------------------------------------

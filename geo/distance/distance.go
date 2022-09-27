@@ -3,7 +3,7 @@ package distance
 import (
 	"time"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/geo"
+	"github.com/driverscooperative/geosrv/geo"
 )
 
 type MatrixPointsInput struct {

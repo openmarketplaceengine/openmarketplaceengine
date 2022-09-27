@@ -6,7 +6,7 @@ import (
 	"math/rand"
 	"strings"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
+	"github.com/driverscooperative/geosrv/dao"
 )
 
 var _rnd = rand.New(rand.NewSource(0))

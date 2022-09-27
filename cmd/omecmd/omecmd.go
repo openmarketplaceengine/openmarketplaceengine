@@ -8,10 +8,10 @@ import (
 	"log"
 	"os"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/app"
-	"github.com/openmarketplaceengine/openmarketplaceengine/cmd/omecmd/cfg"
-	_ "github.com/openmarketplaceengine/openmarketplaceengine/cmd/omecmd/job"
-	_ "github.com/openmarketplaceengine/openmarketplaceengine/cmd/omecmd/status"
+	"github.com/driverscooperative/geosrv/app"
+	"github.com/driverscooperative/geosrv/cmd/omecmd/cfg"
+	_ "github.com/driverscooperative/geosrv/cmd/omecmd/job"
+	_ "github.com/driverscooperative/geosrv/cmd/omecmd/status"
 )
 
 func init() {

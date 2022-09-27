@@ -4,7 +4,7 @@
 
 package dom
 
-import "github.com/openmarketplaceengine/openmarketplaceengine/dao"
+import "github.com/driverscooperative/geosrv/dao"
 
 type CarType uint8
 

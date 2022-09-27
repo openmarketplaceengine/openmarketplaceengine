@@ -8,8 +8,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/status/v1beta1"
-	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
+	"github.com/driverscooperative/geosrv/internal/idl/api/status/v1beta1"
+	"github.com/driverscooperative/geosrv/srv"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )

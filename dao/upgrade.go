@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/app/dir"
+	"github.com/driverscooperative/geosrv/app/dir"
 )
 
 type Upgrade struct {

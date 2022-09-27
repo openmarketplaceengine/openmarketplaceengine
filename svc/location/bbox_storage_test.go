@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
+	"github.com/driverscooperative/geosrv/cfg"
+	"github.com/driverscooperative/geosrv/dao"
 	"github.com/google/uuid"
-	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
-	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 	"github.com/stretchr/testify/require"
 )
 

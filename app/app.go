@@ -8,7 +8,7 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/app/arg"
+	"github.com/driverscooperative/geosrv/app/arg"
 )
 
 type Application struct {

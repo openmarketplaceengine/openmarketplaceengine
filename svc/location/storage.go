@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/util"
+	"github.com/driverscooperative/geosrv/pkg/util"
 
 	"github.com/go-redis/redis/v8"
 )

@@ -1,9 +1,9 @@
 package worker
 
 import (
-	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
-	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
-	"github.com/openmarketplaceengine/openmarketplaceengine/stat"
+	"github.com/driverscooperative/geosrv/dao"
+	"github.com/driverscooperative/geosrv/dom"
+	"github.com/driverscooperative/geosrv/stat"
 )
 
 func init() {
