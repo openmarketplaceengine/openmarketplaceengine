@@ -5,7 +5,7 @@
 package dao
 
 import (
-	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
+	"github.com/driverscooperative/geosrv/cfg"
 )
 
 type (

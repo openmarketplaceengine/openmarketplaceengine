@@ -6,7 +6,7 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/geo"
+	"github.com/driverscooperative/geosrv/geo"
 	"github.com/stretchr/testify/require"
 )
 

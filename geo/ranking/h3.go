@@ -1,7 +1,7 @@
 package ranking
 
 import (
-	"github.com/openmarketplaceengine/openmarketplaceengine/geo"
+	"github.com/driverscooperative/geosrv/geo"
 	"github.com/uber/h3-go/v3"
 )
 

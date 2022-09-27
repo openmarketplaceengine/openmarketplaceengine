@@ -9,10 +9,10 @@ import (
 	"database/sql"
 	"strings"
 
+	"github.com/driverscooperative/geosrv/cfg"
+	"github.com/driverscooperative/geosrv/log"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/stdlib"
-	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
-	"github.com/openmarketplaceengine/openmarketplaceengine/log"
 )
 
 type (

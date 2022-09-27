@@ -5,11 +5,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
-	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
-	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/util"
+	"github.com/driverscooperative/geosrv/dao"
+	"github.com/driverscooperative/geosrv/dom"
+	"github.com/driverscooperative/geosrv/pkg/util"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
+	"github.com/driverscooperative/geosrv/cfg"
 	"github.com/stretchr/testify/require"
 )
 

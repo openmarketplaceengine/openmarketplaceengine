@@ -11,7 +11,7 @@ import (
 	"strings"
 	"unsafe"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/app/enc/hex"
+	"github.com/driverscooperative/geosrv/app/enc/hex"
 )
 
 const (

@@ -3,7 +3,7 @@ package dao
 import (
 	"time"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/stat"
+	"github.com/driverscooperative/geosrv/stat"
 )
 
 func init() {

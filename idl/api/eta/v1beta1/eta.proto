@@ -5,7 +5,7 @@ package api.eta.v1beta1;
 import "google/protobuf/duration.proto";
 import "validate/validate.proto";
 
-option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/eta/v1beta1";
+option go_package = "github.com/driverscooperative/geosrv/internal/idl/api/eta/v1beta1";
 
 service EstimatedJobService {
   rpc GetEstimatedJobs(GetEstimatedJobsRequest) returns (GetEstimatedJobsResponse) {}

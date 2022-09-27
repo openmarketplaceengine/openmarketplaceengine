@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package api.job.v1beta1;
 
-option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/job/v1beta1";
+option go_package = "github.com/driverscooperative/geosrv/internal/idl/api/job/v1beta1";
 
 /**
   bronx/api/src/enums/job_states.ts

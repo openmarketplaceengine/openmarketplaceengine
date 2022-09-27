@@ -5,8 +5,8 @@ import (
 	"errors"
 
 	"github.com/codingsince1985/geo-golang"
-	geosvc "github.com/openmarketplaceengine/openmarketplaceengine/geo"
-	"github.com/openmarketplaceengine/openmarketplaceengine/geo/geocode"
+	geosvc "github.com/driverscooperative/geosrv/geo"
+	"github.com/driverscooperative/geosrv/geo/geocode"
 	"googlemaps.github.io/maps"
 )
 

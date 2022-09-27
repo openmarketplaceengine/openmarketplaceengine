@@ -5,8 +5,8 @@
 package srv
 
 import (
-	"github.com/openmarketplaceengine/openmarketplaceengine/srv/htp"
-	"github.com/openmarketplaceengine/openmarketplaceengine/srv/rpc"
+	"github.com/driverscooperative/geosrv/srv/htp"
+	"github.com/driverscooperative/geosrv/srv/rpc"
 )
 
 var (

@@ -1,7 +1,7 @@
 package stat
 
 import (
-	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
+	"github.com/driverscooperative/geosrv/srv"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 

@@ -1,4 +1,4 @@
-module github.com/openmarketplaceengine/openmarketplaceengine
+module github.com/driverscooperative/geosrv
 
 go 1.17
 

@@ -3,10 +3,10 @@ package tollgate
 import (
 	"encoding/json"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
+	"github.com/driverscooperative/geosrv/pkg/detector"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
-	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
+	"github.com/driverscooperative/geosrv/dao"
+	"github.com/driverscooperative/geosrv/dom"
 )
 
 const table = "tollgate"

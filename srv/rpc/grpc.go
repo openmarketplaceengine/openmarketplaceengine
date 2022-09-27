@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
-	"github.com/openmarketplaceengine/openmarketplaceengine/log"
+	"github.com/driverscooperative/geosrv/cfg"
+	"github.com/driverscooperative/geosrv/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )

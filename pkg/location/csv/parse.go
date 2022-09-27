@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/util"
+	"github.com/driverscooperative/geosrv/pkg/util"
 )
 
 type Location struct {

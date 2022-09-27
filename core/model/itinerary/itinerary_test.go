@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/driverscooperative/geosrv/cfg"
+	"github.com/driverscooperative/geosrv/core/model/step/gotolocation"
 	"github.com/google/uuid"
-	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
-	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step/gotolocation"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step"
+	"github.com/driverscooperative/geosrv/core/model/step"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

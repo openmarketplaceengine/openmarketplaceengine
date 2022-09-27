@@ -11,9 +11,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/driverscooperative/geosrv/cfg"
+	"github.com/driverscooperative/geosrv/log"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
-	"github.com/openmarketplaceengine/openmarketplaceengine/log"
 )
 
 type HttpServer struct { //nolint

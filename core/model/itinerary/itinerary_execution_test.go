@@ -5,10 +5,10 @@ import (
 
 	"github.com/cocoonspace/fsm"
 
+	"github.com/driverscooperative/geosrv/cfg"
+	"github.com/driverscooperative/geosrv/core/model/step"
+	"github.com/driverscooperative/geosrv/core/model/step/gotolocation"
 	"github.com/google/uuid"
-	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
-	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step"
-	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step/gotolocation"
 	"github.com/stretchr/testify/require"
 )
 

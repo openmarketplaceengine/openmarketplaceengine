@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/dom/job"
-	"github.com/openmarketplaceengine/openmarketplaceengine/svc/location"
+	"github.com/driverscooperative/geosrv/dom/job"
+	"github.com/driverscooperative/geosrv/svc/location"
 )
 
 // Limit of initial available jobs query to accommodate google usage constraints.

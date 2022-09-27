@@ -11,7 +11,7 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/app/enc/geo"
+	"github.com/driverscooperative/geosrv/app/enc/geo"
 	"gopkg.in/yaml.v2"
 )
 

@@ -6,13 +6,13 @@ import (
 	"net"
 	"testing"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
-	"github.com/openmarketplaceengine/openmarketplaceengine/dom/worker"
+	"github.com/driverscooperative/geosrv/dao"
+	"github.com/driverscooperative/geosrv/dom/worker"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
-	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
+	"github.com/driverscooperative/geosrv/cfg"
+	"github.com/driverscooperative/geosrv/dom"
 
-	workerV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/worker/v1beta1"
+	workerV1beta1 "github.com/driverscooperative/geosrv/internal/idl/api/worker/v1beta1"
 
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"

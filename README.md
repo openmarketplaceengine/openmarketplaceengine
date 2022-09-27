@@ -7,7 +7,7 @@
 </p>
 
 [![Lines Of Code](https://tokei.rs/b1/github/openmarketplaceengine/openmarketplaceengine?category=code)](https://github.com/openmarketplaceengine/openmarketplaceengine)
-[![Build & Test](https://github.com/openmarketplaceengine/openmarketplaceengine/actions/workflows/build-test.yml/badge.svg)](https://github.com/openmarketplaceengine/openmarketplaceengine/actions/workflows/build-test.yml)
+[![Build & Test](https://github.com/driverscooperative/geosrv/actions/workflows/build-test.yml/badge.svg)](https://github.com/driverscooperative/geosrv/actions/workflows/build-test.yml)
 [![GitHub go.mod Go version of a Go module](https://img.shields.io/github/go-mod/go-version/openmarketplaceengine/openmarketplaceengine.svg)](https://github.com/openmarketplaceengine/openmarketplaceengine)
 [![GoReportCard](https://goreportcard.com/badge/github.com/openmarketplaceengine/openmarketplaceengine)](https://goreportcard.com/report/github.com/openmarketplaceengine/openmarketplaceengine)
 
@@ -104,7 +104,7 @@ OME will publish a [gRPC](https://grpc.io/) API for updating worker and job stat
 
 ## Deployment
 
-OME will be available as a container image. [Track the issue](https://github.com/openmarketplaceengine/openmarketplaceengine/issues/4)
+OME will be available as a container image. [Track the issue](https://github.com/driverscooperative/geosrv/issues/4)
 
 
 ## Contributing
@@ -123,7 +123,7 @@ Assigning a license to the OME source is currently a work-in-progress. Inspirati
 
 To get in touch with the OME team, you can:
 
-- [File an issue](https://github.com/openmarketplaceengine/openmarketplaceengine/issues/new)
+- [File an issue](https://github.com/driverscooperative/geosrv/issues/new)
 - [Email the technical coordinator](mailto:jason@drivers.coop)
 
 As the project picks up we will consider a Discord/Slack setup as well.

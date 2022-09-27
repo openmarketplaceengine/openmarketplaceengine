@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/openmarketplaceengine/openmarketplaceengine/geo/osrm"
-	"github.com/openmarketplaceengine/openmarketplaceengine/geo/osrm/options"
+	"github.com/driverscooperative/geosrv/geo/osrm"
+	"github.com/driverscooperative/geosrv/geo/osrm/options"
 )
 
 type Annotations string
