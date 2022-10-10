@@ -5,13 +5,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/driverscooperative/geosrv/pkg/detector"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
 
-	"github.com/driverscooperative/geosrv/cfg"
-	"github.com/driverscooperative/geosrv/dao"
-	"github.com/driverscooperative/geosrv/dom"
-	"github.com/driverscooperative/geosrv/pkg/util"
 	"github.com/google/uuid"
+	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/util"
 	"github.com/stretchr/testify/require"
 )
 

@@ -5,7 +5,7 @@
 package dom
 
 import (
-	"github.com/driverscooperative/geosrv/dao"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 )
 
 type (

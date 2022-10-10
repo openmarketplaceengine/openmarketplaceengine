@@ -7,7 +7,7 @@ import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "validate/validate.proto";
 
-option go_package = "github.com/driverscooperative/geosrv/internal/idl/api/job/v1beta1";
+option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/job/v1beta1";
 
 service JobService {
   rpc ImportJob(ImportJobRequest) returns (ImportJobResponse) {}

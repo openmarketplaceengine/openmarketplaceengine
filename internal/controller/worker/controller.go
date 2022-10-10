@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/driverscooperative/geosrv/dom/worker"
-	"github.com/driverscooperative/geosrv/internal/idl/api/worker/v1beta1"
-	"github.com/driverscooperative/geosrv/srv"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/worker"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/worker/v1beta1"
+	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

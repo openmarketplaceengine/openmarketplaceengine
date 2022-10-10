@@ -3,9 +3,9 @@ package google
 import (
 	"context"
 
-	"github.com/driverscooperative/geosrv/geo/distance"
-	"github.com/driverscooperative/geosrv/geo/geocode"
-	"github.com/driverscooperative/geosrv/geo/geocode/google"
+	"github.com/openmarketplaceengine/openmarketplaceengine/geo/distance"
+	"github.com/openmarketplaceengine/openmarketplaceengine/geo/geocode"
+	"github.com/openmarketplaceengine/openmarketplaceengine/geo/geocode/google"
 	"googlemaps.github.io/maps"
 )
 

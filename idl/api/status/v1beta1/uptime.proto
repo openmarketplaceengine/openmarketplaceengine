@@ -4,7 +4,7 @@ package api.status.v1beta1;
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/driverscooperative/geosrv/internal/idl/api/status/v1beta1";
+option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/status/v1beta1";
 
 service UptimeService {
   rpc GetUptime(GetUptimeRequest) returns (GetUptimeResponse) {}

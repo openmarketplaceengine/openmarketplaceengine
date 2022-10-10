@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/codingsince1985/geo-golang/openstreetmap"
-	geosvc "github.com/driverscooperative/geosrv/geo"
-	"github.com/driverscooperative/geosrv/geo/geocode"
+	geosvc "github.com/openmarketplaceengine/openmarketplaceengine/geo"
+	"github.com/openmarketplaceengine/openmarketplaceengine/geo/geocode"
 )
 
 type Geocoder struct {

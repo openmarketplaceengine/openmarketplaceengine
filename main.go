@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/driverscooperative/geosrv/cfg"
-	"github.com/driverscooperative/geosrv/dao"
-	"github.com/driverscooperative/geosrv/dom"
-	_ "github.com/driverscooperative/geosrv/internal/controller" // gRPC services registration
-	"github.com/driverscooperative/geosrv/log"
-	"github.com/driverscooperative/geosrv/srv"
-	"github.com/driverscooperative/geosrv/stat"
+	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
+	_ "github.com/openmarketplaceengine/openmarketplaceengine/internal/controller" // gRPC services registration
+	"github.com/openmarketplaceengine/openmarketplaceengine/log"
+	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
+	"github.com/openmarketplaceengine/openmarketplaceengine/stat"
 )
 
 var boot cfg.BootList

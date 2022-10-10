@@ -3,7 +3,7 @@ package dom
 import (
 	"testing"
 
-	"github.com/driverscooperative/geosrv/dao"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 )
 
 func TestDropAll(t *testing.T) {

@@ -7,9 +7,9 @@ package job
 import (
 	"context"
 
-	"github.com/driverscooperative/geosrv/dom/job"
-	rpc "github.com/driverscooperative/geosrv/internal/idl/api/job/v1beta1"
-	"github.com/driverscooperative/geosrv/srv"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/job"
+	rpc "github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/job/v1beta1"
+	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

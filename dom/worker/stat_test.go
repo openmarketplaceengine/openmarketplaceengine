@@ -3,9 +3,9 @@ package worker
 import (
 	"testing"
 
-	"github.com/driverscooperative/geosrv/cfg"
-	"github.com/driverscooperative/geosrv/dom"
-	"github.com/driverscooperative/geosrv/stat"
+	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
+	"github.com/openmarketplaceengine/openmarketplaceengine/stat"
 	"github.com/stretchr/testify/require"
 )
 

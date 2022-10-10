@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/driverscooperative/geosrv/geo"
+	"github.com/openmarketplaceengine/openmarketplaceengine/geo"
 	"github.com/stretchr/testify/require"
 )
 

@@ -8,7 +8,7 @@ import (
 	"sync/atomic"
 
 	"github.com/codingsince1985/geo-golang"
-	geosvc "github.com/driverscooperative/geosrv/geo"
+	geosvc "github.com/openmarketplaceengine/openmarketplaceengine/geo"
 	"golang.org/x/sync/errgroup"
 )
 

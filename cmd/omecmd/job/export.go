@@ -7,10 +7,10 @@ package job
 import (
 	"context"
 
-	"github.com/driverscooperative/geosrv/app"
-	"github.com/driverscooperative/geosrv/app/dir"
-	"github.com/driverscooperative/geosrv/cmd/omecmd/cfg"
-	rpc "github.com/driverscooperative/geosrv/internal/idl/api/job/v1beta1"
+	"github.com/openmarketplaceengine/openmarketplaceengine/app"
+	"github.com/openmarketplaceengine/openmarketplaceengine/app/dir"
+	"github.com/openmarketplaceengine/openmarketplaceengine/cmd/omecmd/cfg"
+	rpc "github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/job/v1beta1"
 	"gopkg.in/yaml.v2"
 )
 

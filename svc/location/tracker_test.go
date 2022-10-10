@@ -4,16 +4,16 @@ import (
 	"context"
 	"testing"
 
-	"github.com/driverscooperative/geosrv/dom/location"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/location"
 
-	"github.com/driverscooperative/geosrv/cfg"
-	"github.com/driverscooperative/geosrv/dao"
-	"github.com/driverscooperative/geosrv/dom"
-	"github.com/driverscooperative/geosrv/dom/crossing"
-	"github.com/driverscooperative/geosrv/dom/tollgate"
-	"github.com/driverscooperative/geosrv/pkg/detector"
-	svcTollgate "github.com/driverscooperative/geosrv/svc/tollgate"
 	"github.com/google/uuid"
+	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/crossing"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/tollgate"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
+	svcTollgate "github.com/openmarketplaceengine/openmarketplaceengine/svc/tollgate"
 	"github.com/stretchr/testify/require"
 )
 

@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/driverscooperative/geosrv/pkg/util"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/util"
 )
 
 // Line represents a two points line that Subject crosses.

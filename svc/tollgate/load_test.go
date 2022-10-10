@@ -4,10 +4,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/driverscooperative/geosrv/dom/tollgate"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/tollgate"
 
-	"github.com/driverscooperative/geosrv/cfg"
-	"github.com/driverscooperative/geosrv/dom"
+	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

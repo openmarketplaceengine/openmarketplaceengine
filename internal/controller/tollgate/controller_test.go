@@ -6,13 +6,13 @@ import (
 	"net"
 	"testing"
 
-	"github.com/driverscooperative/geosrv/dom"
-	"github.com/driverscooperative/geosrv/dom/tollgate"
-	"github.com/driverscooperative/geosrv/pkg/detector"
 	"github.com/google/uuid"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/tollgate"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
 
-	"github.com/driverscooperative/geosrv/cfg"
-	"github.com/driverscooperative/geosrv/internal/idl/api/tollgate/v1beta1"
+	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/tollgate/v1beta1"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

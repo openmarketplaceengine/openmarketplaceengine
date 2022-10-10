@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/driverscooperative/geosrv/dom/location"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/location"
 
-	"github.com/driverscooperative/geosrv/dao"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 )
 
 func persistLocation(ctx context.Context, areaKey string, l *Location) error {

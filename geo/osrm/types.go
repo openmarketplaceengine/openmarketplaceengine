@@ -3,7 +3,7 @@ package osrm
 import (
 	"fmt"
 
-	"github.com/driverscooperative/geosrv/geo"
+	"github.com/openmarketplaceengine/openmarketplaceengine/geo"
 )
 
 // LngLat is Longitude[0] Latitude[1] pair used on OSRM api

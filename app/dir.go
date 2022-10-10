@@ -7,7 +7,7 @@ package app
 import (
 	"os"
 
-	"github.com/driverscooperative/geosrv/app/dir"
+	"github.com/openmarketplaceengine/openmarketplaceengine/app/dir"
 )
 
 type Dir struct {

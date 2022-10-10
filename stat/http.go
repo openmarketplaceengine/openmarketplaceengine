@@ -3,8 +3,8 @@ package stat
 import (
 	"net/http"
 
-	"github.com/driverscooperative/geosrv/srv"
-	"github.com/driverscooperative/geosrv/srv/htp"
+	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
+	"github.com/openmarketplaceengine/openmarketplaceengine/srv/htp"
 )
 
 var top List

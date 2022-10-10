@@ -12,8 +12,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/driverscooperative/geosrv/app"
-	"github.com/driverscooperative/geosrv/app/enc/uri"
+	"github.com/openmarketplaceengine/openmarketplaceengine/app"
+	"github.com/openmarketplaceengine/openmarketplaceengine/app/enc/uri"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"gopkg.in/yaml.v2"
