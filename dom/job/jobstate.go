@@ -7,7 +7,7 @@ package job
 import (
 	"strings"
 
-	"github.com/driverscooperative/geosrv/dao"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 )
 
 type State int

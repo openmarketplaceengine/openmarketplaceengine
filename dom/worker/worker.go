@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/driverscooperative/geosrv/dom"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
 
-	"github.com/driverscooperative/geosrv/dao"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 )
 
 type Status int32

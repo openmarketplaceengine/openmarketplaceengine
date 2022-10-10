@@ -3,8 +3,8 @@ package location
 import (
 	"fmt"
 
-	"github.com/driverscooperative/geosrv/dao"
-	"github.com/driverscooperative/geosrv/dom"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
 	"gopkg.in/yaml.v2"
 )
 

@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/driverscooperative/geosrv/geo"
-	"github.com/driverscooperative/geosrv/geo/distance"
+	"github.com/openmarketplaceengine/openmarketplaceengine/geo"
+	"github.com/openmarketplaceengine/openmarketplaceengine/geo/distance"
 	"github.com/stretchr/testify/require"
 )
 

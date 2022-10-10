@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/driverscooperative/geosrv/geo/osrm"
-	"github.com/driverscooperative/geosrv/geo/osrm/options"
+	"github.com/openmarketplaceengine/openmarketplaceengine/geo/osrm"
+	"github.com/openmarketplaceengine/openmarketplaceengine/geo/osrm/options"
 )
 
 // Annotations true , false (default), nodes , distance , duration , datasources , weight , speed.

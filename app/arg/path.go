@@ -10,7 +10,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/driverscooperative/geosrv/app/dir"
+	"github.com/openmarketplaceengine/openmarketplaceengine/app/dir"
 )
 
 type PathFlag uint

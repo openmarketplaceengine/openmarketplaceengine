@@ -5,8 +5,8 @@
 package dao
 
 import (
-	"github.com/driverscooperative/geosrv/cfg"
-	"github.com/driverscooperative/geosrv/log"
+	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
+	"github.com/openmarketplaceengine/openmarketplaceengine/log"
 )
 
 //-----------------------------------------------------------------------------

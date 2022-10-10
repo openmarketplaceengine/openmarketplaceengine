@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/driverscooperative/geosrv/dao"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 )
 
 const table = "job"

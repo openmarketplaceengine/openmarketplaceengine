@@ -5,18 +5,18 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/driverscooperative/geosrv/cfg"
-	"github.com/driverscooperative/geosrv/dao"
-	"github.com/driverscooperative/geosrv/dom/tollgate"
-	"github.com/driverscooperative/geosrv/pkg/detector"
-	"github.com/driverscooperative/geosrv/srv"
-	"github.com/driverscooperative/geosrv/svc/location"
+	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/tollgate"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
+	"github.com/openmarketplaceengine/openmarketplaceengine/srv"
+	"github.com/openmarketplaceengine/openmarketplaceengine/svc/location"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	locationV1beta1 "github.com/driverscooperative/geosrv/internal/idl/api/location/v1beta1"
-	"github.com/driverscooperative/geosrv/internal/idl/api/type/v1beta1"
+	locationV1beta1 "github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/location/v1beta1"
+	"github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/type/v1beta1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

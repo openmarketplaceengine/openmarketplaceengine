@@ -6,7 +6,7 @@ import (
 
 	"github.com/cocoonspace/fsm"
 
-	"github.com/driverscooperative/geosrv/core/model/step"
+	"github.com/openmarketplaceengine/openmarketplaceengine/core/model/step"
 )
 
 // Itinerary is a planned journey represented as step.Step array.

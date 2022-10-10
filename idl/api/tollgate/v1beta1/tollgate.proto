@@ -4,7 +4,7 @@ package api.tollgate.v1beta1;
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/driverscooperative/geosrv/internal/idl/api/tollgate/v1beta1";
+option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/tollgate/v1beta1";
 
 service TollgateService {
   rpc GetTollgate(GetTollgateRequest) returns (GetTollgateResponse) {}

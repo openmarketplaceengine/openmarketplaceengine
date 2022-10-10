@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/driverscooperative/geosrv/pkg/detector"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
 )
 
 type Handler func(ctx context.Context, areaKey string, l *Location) error

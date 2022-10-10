@@ -5,10 +5,10 @@
 package controller
 
 import (
-	_ "github.com/driverscooperative/geosrv/internal/controller/crossing" //nolint
-	_ "github.com/driverscooperative/geosrv/internal/controller/job"      //nolint
-	_ "github.com/driverscooperative/geosrv/internal/controller/location" //nolint
-	_ "github.com/driverscooperative/geosrv/internal/controller/status"   //nolint
-	_ "github.com/driverscooperative/geosrv/internal/controller/tollgate" //nolint
-	_ "github.com/driverscooperative/geosrv/internal/controller/worker"   //nolint
+	_ "github.com/openmarketplaceengine/openmarketplaceengine/internal/controller/crossing" //nolint
+	_ "github.com/openmarketplaceengine/openmarketplaceengine/internal/controller/job"      //nolint
+	_ "github.com/openmarketplaceengine/openmarketplaceengine/internal/controller/location" //nolint
+	_ "github.com/openmarketplaceengine/openmarketplaceengine/internal/controller/status"   //nolint
+	_ "github.com/openmarketplaceengine/openmarketplaceengine/internal/controller/tollgate" //nolint
+	_ "github.com/openmarketplaceengine/openmarketplaceengine/internal/controller/worker"   //nolint
 )

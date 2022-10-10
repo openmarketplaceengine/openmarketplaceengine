@@ -5,7 +5,7 @@ package api.type.v1beta1;
 import "api/type/v1beta1/movement.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/driverscooperative/geosrv/internal/idl/api/type/v1beta1";
+option go_package = "github.com/openmarketplaceengine/openmarketplaceengine/internal/idl/api/type/v1beta1";
 
 message Crossing {
   string id = 1;

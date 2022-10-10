@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/driverscooperative/geosrv/dom/tollgate"
-	"github.com/driverscooperative/geosrv/pkg/detector"
-	"github.com/driverscooperative/geosrv/pkg/tollgate/yaml"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/tollgate"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/tollgate/yaml"
 )
 
 func Load(ctx context.Context) error {

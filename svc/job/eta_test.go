@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/driverscooperative/geosrv/cfg"
-	"github.com/driverscooperative/geosrv/dom"
-	"github.com/driverscooperative/geosrv/dom/job"
-	"github.com/driverscooperative/geosrv/svc/location"
 	"github.com/google/uuid"
+	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/job"
+	"github.com/openmarketplaceengine/openmarketplaceengine/svc/location"
 	"github.com/stretchr/testify/require"
 )
 

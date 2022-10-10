@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/driverscooperative/geosrv/geo"
+	"github.com/openmarketplaceengine/openmarketplaceengine/geo"
 )
 
 // Rank returns an ordered list of origin points which are nearest to a

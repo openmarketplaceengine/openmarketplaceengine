@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/driverscooperative/geosrv/dao"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
 
-	"github.com/driverscooperative/geosrv/dom/crossing"
-	"github.com/driverscooperative/geosrv/pkg/detector"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/crossing"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
 )
 
 func persistCrossing(ctx context.Context, c *detector.Crossing) error {

@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/driverscooperative/geosrv/cfg"
-	"github.com/driverscooperative/geosrv/dao"
-	"github.com/driverscooperative/geosrv/dom/job"
-	"github.com/driverscooperative/geosrv/geo"
-	"github.com/driverscooperative/geosrv/geo/distance"
-	"github.com/driverscooperative/geosrv/geo/distance/google"
-	"github.com/driverscooperative/geosrv/pkg/validate"
-	"github.com/driverscooperative/geosrv/svc/location"
+	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dao"
+	"github.com/openmarketplaceengine/openmarketplaceengine/dom/job"
+	"github.com/openmarketplaceengine/openmarketplaceengine/geo"
+	"github.com/openmarketplaceengine/openmarketplaceengine/geo/distance"
+	"github.com/openmarketplaceengine/openmarketplaceengine/geo/distance/google"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/validate"
+	"github.com/openmarketplaceengine/openmarketplaceengine/svc/location"
 	"googlemaps.github.io/maps"
 )
 

@@ -7,8 +7,8 @@ package dao
 import (
 	"crypto/tls"
 
-	"github.com/driverscooperative/geosrv/cfg"
 	"github.com/go-redis/redis/v8"
+	"github.com/openmarketplaceengine/openmarketplaceengine/cfg"
 )
 
 type r struct {

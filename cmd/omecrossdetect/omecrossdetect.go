@@ -9,9 +9,9 @@ import (
 
 	"context"
 
-	"github.com/driverscooperative/geosrv/pkg/detector"
-	"github.com/driverscooperative/geosrv/pkg/location/csv"
-	"github.com/driverscooperative/geosrv/pkg/tollgate/yaml"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/detector"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/location/csv"
+	"github.com/openmarketplaceengine/openmarketplaceengine/pkg/tollgate/yaml"
 )
 
 func main() {
